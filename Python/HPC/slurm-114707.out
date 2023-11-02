@@ -1,0 +1,134 @@
++ source /etc/profile.d/modules.sh
+++ . /etc/sysconfig/modules/init.sh
++++ '[' -z 1 ']'
+++ '[' 1 = 0 ']'
+++ . /etc/sysconfig/modules/lmod/00-modulepath.sh
++++ '[' 1 = 1 ']'
++++ '[' -z /cm/local/modulefiles:/etc/modulefiles:/usr/share/modulefiles:/usr/share/Modules/modulefiles:/cm/shared/modulefiles ']'
+++ . /etc/sysconfig/modules/lmod/z00-lmod.sh
++++ '[' 1 = 1 ']'
++++ '[' -z '' ']'
++++ '[' -z /usr/share/modulefiles ']'
+++++ /usr/bin/which ps
++++ PS_COMMAND=/usr/bin/ps
+++++ /usr/bin/which basename
++++ BASENAME_COMMAND=/usr/bin/basename
+++++ /usr/bin/which expr
++++ EXPR_COMMAND=/usr/bin/expr
+++++ /usr/bin/ps -p 285376 -ocomm=
++++ my_shell=slurm_script
+++++ /usr/bin/expr slurm_script : '-*\(.*\)'
++++ my_shell=slurm_script
+++++ /usr/bin/basename slurm_script
++++ my_shell=slurm_script
++++ '[' -f /usr/share/lmod/lmod/init/slurm_script ']'
++++ . /usr/share/lmod/lmod/init/sh
+++++ LMOD_ROOT=/usr/share/lmod
+++++ LMOD_PKG=/usr/share/lmod/lmod
+++++ LMOD_DIR=/usr/share/lmod/lmod/libexec/
+++++ LMOD_CMD=/usr/share/lmod/lmod/libexec/lmod
+++++ MODULESHOME=/usr/share/lmod/lmod
+++++ export LMOD_CMD
+++++ export LMOD_PKG
+++++ export LMOD_DIR
+++++ export MODULESHOME
+++++ export LMOD_DIR
++++ unset my_shell
+++ . /etc/sysconfig/modules/lmod/z01-default_modules.sh
++++ '[' 1 = 1 ']'
++++ '[' -z 1 ']'
++++ module refresh
+++++ /usr/share/lmod/lmod/libexec/lmod sh refresh
++++ eval 'MODULEPATH=/cm/local/modulefiles:/etc/modulefiles:/usr/share/modulefiles:/usr/share/Modules/modulefiles:/cm/shared/modulefiles;' export 'MODULEPATH;' '_ModuleTable001_=X01vZHVsZVRhYmxlXz17WyJNVHZlcnNpb24iXT0zLFsiY19yZWJ1aWxkVGltZSJdPWZhbHNlLFsiY19zaG9ydFRpbWUiXT1mYWxzZSxkZXB0aFQ9e30sZmFtaWx5PXt9LG1UPXtEZWZhdWx0TW9kdWxlcz17WyJmbiJdPSIvdXNyL3NoYXJlL21vZHVsZWZpbGVzL0RlZmF1bHRNb2R1bGVzLmx1YSIsWyJmdWxsTmFtZSJdPSJEZWZhdWx0TW9kdWxlcyIsWyJsb2FkT3JkZXIiXT0yLHByb3BUPXt9LFsic3RhY2tEZXB0aCJdPTAsWyJzdGF0dXMiXT0iYWN0aXZlIixbInVzZXJOYW1lIl09IkRlZmF1bHRNb2R1bGVzIixbIndWIl09Ik0uKnpmaW5hbCIsfSxbImFtaC1weXRob24tZXh0cmEtcHkzOS1nY2M5Il09e1siZm4iXT0iL2NtL3NoYXJlZC9tb2R1bGVmaWxlcy9hbWgtcHl0aG9u;' export '_ModuleTable001_;' '_ModuleTable002_=LWV4dHJhLXB5MzktZ2NjOS8wLjAuMS5sdWEiLFsiZnVsbE5hbWUiXT0iYW1oLXB5dGhvbi1leHRyYS1weTM5LWdjYzkvMC4wLjEiLFsibG9hZE9yZGVyIl09NCxwcm9wVD17fSxbInN0YWNrRGVwdGgiXT0wLFsic3RhdHVzIl09ImFjdGl2ZSIsWyJ1c2VyTmFtZSJdPSJhbWgtcHl0aG9uLWV4dHJhLXB5MzktZ2NjOSIsWyJ3ViJdPSIwMDAwMDAwMDAuMDAwMDAwMDAwLjAwMDAwMDAwMS4qemZpbmFsIix9LGdjYz17WyJmbiJdPSIvY20vbG9jYWwvbW9kdWxlZmlsZXMvZ2NjLzExLjIuMCIsWyJmdWxsTmFtZSJdPSJnY2MvMTEuMi4wIixbImxvYWRPcmRlciJdPTUscHJvcFQ9e30sWyJzdGFja0RlcHRoIl09MCxbInN0YXR1cyJdPSJhY3RpdmUiLFsidXNlck5hbWUiXT0iZ2NjIixb;' export '_ModuleTable002_;' '_ModuleTable003_=IndWIl09IjAwMDAwMDAxMS4wMDAwMDAwMDIuKnpmaW5hbCIsfSxweXRob24zOT17WyJmbiJdPSIvY20vbG9jYWwvbW9kdWxlZmlsZXMvcHl0aG9uMzkiLFsiZnVsbE5hbWUiXT0icHl0aG9uMzkiLFsibG9hZE9yZGVyIl09Myxwcm9wVD17fSxbInJlZl9jb3VudCJdPTEsWyJzdGFja0RlcHRoIl09MSxbInN0YXR1cyJdPSJhY3RpdmUiLFsidXNlck5hbWUiXT0icHl0aG9uMzkiLFsid1YiXT0iTS4qemZpbmFsIix9LHNoYXJlZD17WyJmbiJdPSIvY20vbG9jYWwvbW9kdWxlZmlsZXMvc2hhcmVkIixbImZ1bGxOYW1lIl09InNoYXJlZCIsWyJsb2FkT3JkZXIiXT0xLHByb3BUPXt9LFsic3RhY2tEZXB0aCJdPTEsWyJzdGF0dXMiXT0iYWN0aXZlIixbInVzZXJOYW1lIl09InNoYXJl;' export '_ModuleTable003_;' '_ModuleTable004_=ZCIsWyJ3ViJdPSJNLip6ZmluYWwiLH0sc2x1cm09e1siZm4iXT0iL2NtL2xvY2FsL21vZHVsZWZpbGVzL3NsdXJtL3NsdXJtLzIzLjAyLjIiLFsiZnVsbE5hbWUiXT0ic2x1cm0vc2x1cm0vMjMuMDIuMiIsWyJsb2FkT3JkZXIiXT02LHByb3BUPXt9LFsic3RhY2tEZXB0aCJdPTAsWyJzdGF0dXMiXT0iYWN0aXZlIixbInVzZXJOYW1lIl09InNsdXJtIixbIndWIl09IipzbHVybS8wMDAwMDAwMjMuMDAwMDAwMDAyLjAwMDAwMDAwMi4qemZpbmFsIix9LH0sbXBhdGhBPXsiL2NtL2xvY2FsL21vZHVsZWZpbGVzIiwiL2V0Yy9tb2R1bGVmaWxlcyIsIi91c3Ivc2hhcmUvbW9kdWxlZmlsZXMiLCIvdXNyL3NoYXJlL01vZHVsZXMvbW9kdWxlZmlsZXMiLCIvY20vc2hhcmVkL21vZHVs;' export '_ModuleTable004_;' '_ModuleTable005_=ZWZpbGVzIix9LFsic3lzdGVtQmFzZU1QQVRIIl09Ii9jbS9sb2NhbC9tb2R1bGVmaWxlczovY20vc2hhcmVkL21vZHVsZWZpbGVzOi9ldGMvbW9kdWxlZmlsZXM6L3Vzci9zaGFyZS9tb2R1bGVmaWxlczovdXNyL3NoYXJlL01vZHVsZXMvbW9kdWxlZmlsZXMiLH0=;' export '_ModuleTable005_;' '_ModuleTable_Sz_=5;' export '_ModuleTable_Sz_;'
+++++ MODULEPATH=/cm/local/modulefiles:/etc/modulefiles:/usr/share/modulefiles:/usr/share/Modules/modulefiles:/cm/shared/modulefiles
+++++ export MODULEPATH
+++++ _ModuleTable001_=X01vZHVsZVRhYmxlXz17WyJNVHZlcnNpb24iXT0zLFsiY19yZWJ1aWxkVGltZSJdPWZhbHNlLFsiY19zaG9ydFRpbWUiXT1mYWxzZSxkZXB0aFQ9e30sZmFtaWx5PXt9LG1UPXtEZWZhdWx0TW9kdWxlcz17WyJmbiJdPSIvdXNyL3NoYXJlL21vZHVsZWZpbGVzL0RlZmF1bHRNb2R1bGVzLmx1YSIsWyJmdWxsTmFtZSJdPSJEZWZhdWx0TW9kdWxlcyIsWyJsb2FkT3JkZXIiXT0yLHByb3BUPXt9LFsic3RhY2tEZXB0aCJdPTAsWyJzdGF0dXMiXT0iYWN0aXZlIixbInVzZXJOYW1lIl09IkRlZmF1bHRNb2R1bGVzIixbIndWIl09Ik0uKnpmaW5hbCIsfSxbImFtaC1weXRob24tZXh0cmEtcHkzOS1nY2M5Il09e1siZm4iXT0iL2NtL3NoYXJlZC9tb2R1bGVmaWxlcy9hbWgtcHl0aG9u
+++++ export _ModuleTable001_
+++++ _ModuleTable002_=LWV4dHJhLXB5MzktZ2NjOS8wLjAuMS5sdWEiLFsiZnVsbE5hbWUiXT0iYW1oLXB5dGhvbi1leHRyYS1weTM5LWdjYzkvMC4wLjEiLFsibG9hZE9yZGVyIl09NCxwcm9wVD17fSxbInN0YWNrRGVwdGgiXT0wLFsic3RhdHVzIl09ImFjdGl2ZSIsWyJ1c2VyTmFtZSJdPSJhbWgtcHl0aG9uLWV4dHJhLXB5MzktZ2NjOSIsWyJ3ViJdPSIwMDAwMDAwMDAuMDAwMDAwMDAwLjAwMDAwMDAwMS4qemZpbmFsIix9LGdjYz17WyJmbiJdPSIvY20vbG9jYWwvbW9kdWxlZmlsZXMvZ2NjLzExLjIuMCIsWyJmdWxsTmFtZSJdPSJnY2MvMTEuMi4wIixbImxvYWRPcmRlciJdPTUscHJvcFQ9e30sWyJzdGFja0RlcHRoIl09MCxbInN0YXR1cyJdPSJhY3RpdmUiLFsidXNlck5hbWUiXT0iZ2NjIixb
+++++ export _ModuleTable002_
+++++ _ModuleTable003_=IndWIl09IjAwMDAwMDAxMS4wMDAwMDAwMDIuKnpmaW5hbCIsfSxweXRob24zOT17WyJmbiJdPSIvY20vbG9jYWwvbW9kdWxlZmlsZXMvcHl0aG9uMzkiLFsiZnVsbE5hbWUiXT0icHl0aG9uMzkiLFsibG9hZE9yZGVyIl09Myxwcm9wVD17fSxbInJlZl9jb3VudCJdPTEsWyJzdGFja0RlcHRoIl09MSxbInN0YXR1cyJdPSJhY3RpdmUiLFsidXNlck5hbWUiXT0icHl0aG9uMzkiLFsid1YiXT0iTS4qemZpbmFsIix9LHNoYXJlZD17WyJmbiJdPSIvY20vbG9jYWwvbW9kdWxlZmlsZXMvc2hhcmVkIixbImZ1bGxOYW1lIl09InNoYXJlZCIsWyJsb2FkT3JkZXIiXT0xLHByb3BUPXt9LFsic3RhY2tEZXB0aCJdPTEsWyJzdGF0dXMiXT0iYWN0aXZlIixbInVzZXJOYW1lIl09InNoYXJl
+++++ export _ModuleTable003_
+++++ _ModuleTable004_=ZCIsWyJ3ViJdPSJNLip6ZmluYWwiLH0sc2x1cm09e1siZm4iXT0iL2NtL2xvY2FsL21vZHVsZWZpbGVzL3NsdXJtL3NsdXJtLzIzLjAyLjIiLFsiZnVsbE5hbWUiXT0ic2x1cm0vc2x1cm0vMjMuMDIuMiIsWyJsb2FkT3JkZXIiXT02LHByb3BUPXt9LFsic3RhY2tEZXB0aCJdPTAsWyJzdGF0dXMiXT0iYWN0aXZlIixbInVzZXJOYW1lIl09InNsdXJtIixbIndWIl09IipzbHVybS8wMDAwMDAwMjMuMDAwMDAwMDAyLjAwMDAwMDAwMi4qemZpbmFsIix9LH0sbXBhdGhBPXsiL2NtL2xvY2FsL21vZHVsZWZpbGVzIiwiL2V0Yy9tb2R1bGVmaWxlcyIsIi91c3Ivc2hhcmUvbW9kdWxlZmlsZXMiLCIvdXNyL3NoYXJlL01vZHVsZXMvbW9kdWxlZmlsZXMiLCIvY20vc2hhcmVkL21vZHVs
+++++ export _ModuleTable004_
+++++ _ModuleTable005_=ZWZpbGVzIix9LFsic3lzdGVtQmFzZU1QQVRIIl09Ii9jbS9sb2NhbC9tb2R1bGVmaWxlczovY20vc2hhcmVkL21vZHVsZWZpbGVzOi9ldGMvbW9kdWxlZmlsZXM6L3Vzci9zaGFyZS9tb2R1bGVmaWxlczovdXNyL3NoYXJlL01vZHVsZXMvbW9kdWxlZmlsZXMiLH0=
+++++ export _ModuleTable005_
+++++ _ModuleTable_Sz_=5
+++++ export _ModuleTable_Sz_
++ module load shared slurm jupyter-eg-kernel-wlm-py39 amh-python-extra-py39-gcc9/
+++ /usr/share/lmod/lmod/libexec/lmod sh load shared slurm jupyter-eg-kernel-wlm-py39 amh-python-extra-py39-gcc9/
++ eval 'CMD_WLM_CLUSTER_NAME=slurm;' export 'CMD_WLM_CLUSTER_NAME;' '__LMOD_REF_COUNT_CPATH=/cm/local/apps/python39/include:1\;/cm/shared/apps/slurm/current/include:1;' export '__LMOD_REF_COUNT_CPATH;' 'CPATH=/cm/local/apps/python39/include:/cm/shared/apps/slurm/current/include;' export 'CPATH;' 'LD_LIBRARY_PATH=/cm/shared/apps/slurm/current/lib64/slurm:/cm/shared/apps/slurm/current/lib64:/cm/local/apps/gcc/11.2.0/lib:/cm/local/apps/gcc/11.2.0/lib64:/cm/local/apps/gcc/11.2.0/lib32;' export 'LD_LIBRARY_PATH;' '__LMOD_REF_COUNT_LIBRARY_PATH=/cm/local/apps/python39/lib:1\;/cm/shared/apps/slurm/current/lib64/slurm:1\;/cm/shared/apps/slurm/current/lib64:1;' export '__LMOD_REF_COUNT_LIBRARY_PATH;' 'LIBRARY_PATH=/cm/local/apps/python39/lib:/cm/shared/apps/slurm/current/lib64/slurm:/cm/shared/apps/slurm/current/lib64;' export 'LIBRARY_PATH;' '__LMOD_REF_COUNT_LOADEDMODULES=DefaultModules:1\;gcc/11.2.0:1\;shared:1\;slurm/slurm/23.02.2:1\;jupyter-eg-kernel-wlm-py39/3.0.1:1\;python39:1\;amh-python-extra-py39-gcc9/0.0.1:1;' export '__LMOD_REF_COUNT_LOADEDMODULES;' 'LOADEDMODULES=DefaultModules:gcc/11.2.0:shared:slurm/slurm/23.02.2:jupyter-eg-kernel-wlm-py39/3.0.1:python39:amh-python-extra-py39-gcc9/0.0.1;' export 'LOADEDMODULES;' '__LMOD_REF_COUNT_MANPATH=/cm/local/apps/python39/share/man:1\;/cm/shared/apps/slurm/current/man:1\;/usr/share/lmod/lmod/share/man:1\;/cm/shared/apps/amh-conda/man:1\;/usr/local/share/man:1\;/usr/share/man:1\;/cm/local/apps/environment-modules/current/share/man:1;' export '__LMOD_REF_COUNT_MANPATH;' 'MANPATH=/cm/local/apps/python39/share/man:/cm/shared/apps/slurm/current/man:/usr/share/lmod/lmod/share/man:/cm/shared/apps/amh-conda/man:/usr/local/share/man:/usr/share/man:/cm/local/apps/environment-modules/current/share/man;' export 'MANPATH;' 'MODULEPATH=/cm/local/modulefiles:/etc/modulefiles:/usr/share/modulefiles:/usr/share/Modules/modulefiles:/cm/shared/modulefiles;' export 'MODULEPATH;' '__LMOD_REF_COUNT_PATH=/cm/shared/apps/amh-python-extra-py39-gcc9/0.0.1/bin:1\;/cm/local/apps/python39/bin:1\;/cm/shared/apps/jupyter-eg-kernel-wlm-py39/3.0.1/bin:1\;/cm/shared/apps/slurm/current/sbin:1\;/cm/shared/apps/slurm/current/bin:1\;/cm/local/apps/gcc/11.2.0/bin:1\;/home/dasienga24/.local/bin:1\;/home/dasienga24/bin:1\;/cm/shared/amherst-bin:1\;/cm/shared/apps/amh-conda/condabin:1\;/usr/local/bin:1\;/usr/bin:1\;/usr/local/sbin:1\;/usr/sbin:1\;/opt/MegaRAID/MegaCli:1\;/opt/dell/srvadmin/bin:1;' export '__LMOD_REF_COUNT_PATH;' 'PATH=/cm/shared/apps/amh-python-extra-py39-gcc9/0.0.1/bin:/cm/local/apps/python39/bin:/cm/shared/apps/jupyter-eg-kernel-wlm-py39/3.0.1/bin:/cm/shared/apps/slurm/current/sbin:/cm/shared/apps/slurm/current/bin:/cm/local/apps/gcc/11.2.0/bin:/home/dasienga24/.local/bin:/home/dasienga24/bin:/cm/shared/amherst-bin:/cm/shared/apps/amh-conda/condabin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/MegaRAID/MegaCli:/opt/dell/srvadmin/bin;' export 'PATH;' '__LMOD_REF_COUNT_PYTHONPATH=/cm/shared/apps/amh-python-extra-py39-gcc9/0.0.1/lib/python3.9/site-packages:1\;/cm/shared/apps/jupyter-eg-kernel-wlm-py39/3.0.1/lib64/python3.9/site-packages:1\;/cm/shared/apps/jupyter-eg-kernel-wlm-py39/3.0.1/lib/python3.9/site-packages:1;' export '__LMOD_REF_COUNT_PYTHONPATH;' 'PYTHONPATH=/cm/shared/apps/amh-python-extra-py39-gcc9/0.0.1/lib/python3.9/site-packages:/cm/shared/apps/jupyter-eg-kernel-wlm-py39/3.0.1/lib64/python3.9/site-packages:/cm/shared/apps/jupyter-eg-kernel-wlm-py39/3.0.1/lib/python3.9/site-packages;' export 'PYTHONPATH;' 'SLURM_CONF=/cm/shared/apps/slurm/var/etc/slurm/slurm.conf;' export 'SLURM_CONF;' '__LMOD_REF_COUNT__LMFILES_=/usr/share/modulefiles/DefaultModules.lua:1\;/cm/local/modulefiles/gcc/11.2.0:1\;/cm/local/modulefiles/shared:1\;/cm/local/modulefiles/slurm/slurm/23.02.2:1\;/cm/shared/modulefiles/jupyter-eg-kernel-wlm-py39/3.0.1:1\;/cm/local/modulefiles/python39:1\;/cm/shared/modulefiles/amh-python-extra-py39-gcc9/0.0.1.lua:1;' export '__LMOD_REF_COUNT__LMFILES_;' '_LMFILES_=/usr/share/modulefiles/DefaultModules.lua:/cm/local/modulefiles/gcc/11.2.0:/cm/local/modulefiles/shared:/cm/local/modulefiles/slurm/slurm/23.02.2:/cm/shared/modulefiles/jupyter-eg-kernel-wlm-py39/3.0.1:/cm/local/modulefiles/python39:/cm/shared/modulefiles/amh-python-extra-py39-gcc9/0.0.1.lua;' export '_LMFILES_;' '_ModuleTable001_=X01vZHVsZVRhYmxlXz17WyJNVHZlcnNpb24iXT0zLFsiY19yZWJ1aWxkVGltZSJdPWZhbHNlLFsiY19zaG9ydFRpbWUiXT1mYWxzZSxkZXB0aFQ9e30sZmFtaWx5PXt9LG1UPXtEZWZhdWx0TW9kdWxlcz17WyJmbiJdPSIvdXNyL3NoYXJlL21vZHVsZWZpbGVzL0RlZmF1bHRNb2R1bGVzLmx1YSIsWyJmdWxsTmFtZSJdPSJEZWZhdWx0TW9kdWxlcyIsWyJsb2FkT3JkZXIiXT0xLHByb3BUPXt9LFsic3RhY2tEZXB0aCJdPTAsWyJzdGF0dXMiXT0iYWN0aXZlIixbInVzZXJOYW1lIl09IkRlZmF1bHRNb2R1bGVzIixbIndWIl09Ik0uKnpmaW5hbCIsfSxbImFtaC1weXRob24tZXh0cmEtcHkzOS1nY2M5Il09e1siZm4iXT0iL2NtL3NoYXJlZC9tb2R1bGVmaWxlcy9hbWgtcHl0aG9u;' export '_ModuleTable001_;' '_ModuleTable002_=LWV4dHJhLXB5MzktZ2NjOS8wLjAuMS5sdWEiLFsiZnVsbE5hbWUiXT0iYW1oLXB5dGhvbi1leHRyYS1weTM5LWdjYzkvMC4wLjEiLFsibG9hZE9yZGVyIl09Nyxwcm9wVD17fSxbInN0YWNrRGVwdGgiXT0wLFsic3RhdHVzIl09ImFjdGl2ZSIsWyJ1c2VyTmFtZSJdPSJhbWgtcHl0aG9uLWV4dHJhLXB5MzktZ2NjOSIsWyJ3ViJdPSIwMDAwMDAwMDAuMDAwMDAwMDAwLjAwMDAwMDAwMS4qemZpbmFsIix9LGdjYz17WyJmbiJdPSIvY20vbG9jYWwvbW9kdWxlZmlsZXMvZ2NjLzExLjIuMCIsWyJmdWxsTmFtZSJdPSJnY2MvMTEuMi4wIixbImxvYWRPcmRlciJdPTIscHJvcFQ9e30sWyJzdGFja0RlcHRoIl09MCxbInN0YXR1cyJdPSJhY3RpdmUiLFsidXNlck5hbWUiXT0iZ2NjIixb;' export '_ModuleTable002_;' '_ModuleTable003_=IndWIl09IjAwMDAwMDAxMS4wMDAwMDAwMDIuKnpmaW5hbCIsfSxbImp1cHl0ZXItZWcta2VybmVsLXdsbS1weTM5Il09e1siZm4iXT0iL2NtL3NoYXJlZC9tb2R1bGVmaWxlcy9qdXB5dGVyLWVnLWtlcm5lbC13bG0tcHkzOS8zLjAuMSIsWyJmdWxsTmFtZSJdPSJqdXB5dGVyLWVnLWtlcm5lbC13bG0tcHkzOS8zLjAuMSIsWyJsb2FkT3JkZXIiXT01LHByb3BUPXt9LFsic3RhY2tEZXB0aCJdPTAsWyJzdGF0dXMiXT0iYWN0aXZlIixbInVzZXJOYW1lIl09Imp1cHl0ZXItZWcta2VybmVsLXdsbS1weTM5IixbIndWIl09IjAwMDAwMDAwMy4wMDAwMDAwMDAuMDAwMDAwMDAxLip6ZmluYWwiLH0scHl0aG9uMzk9e1siZm4iXT0iL2NtL2xvY2FsL21vZHVsZWZpbGVzL3B5dGhvbjM5;' export '_ModuleTable003_;' '_ModuleTable004_=IixbImZ1bGxOYW1lIl09InB5dGhvbjM5IixbImxvYWRPcmRlciJdPTYscHJvcFQ9e30sWyJyZWZfY291bnQiXT0xLFsic3RhY2tEZXB0aCJdPTEsWyJzdGF0dXMiXT0iYWN0aXZlIixbInVzZXJOYW1lIl09InB5dGhvbjM5IixbIndWIl09Ik0uKnpmaW5hbCIsfSxzaGFyZWQ9e1siZm4iXT0iL2NtL2xvY2FsL21vZHVsZWZpbGVzL3NoYXJlZCIsWyJmdWxsTmFtZSJdPSJzaGFyZWQiLFsibG9hZE9yZGVyIl09Myxwcm9wVD17fSxbInN0YWNrRGVwdGgiXT0wLFsic3RhdHVzIl09ImFjdGl2ZSIsWyJ1c2VyTmFtZSJdPSJzaGFyZWQiLFsid1YiXT0iTS4qemZpbmFsIix9LHNsdXJtPXtbImZuIl09Ii9jbS9sb2NhbC9tb2R1bGVmaWxlcy9zbHVybS9zbHVybS8yMy4wMi4yIixbImZ1;' export '_ModuleTable004_;' '_ModuleTable005_=bGxOYW1lIl09InNsdXJtL3NsdXJtLzIzLjAyLjIiLFsibG9hZE9yZGVyIl09NCxwcm9wVD17fSxbInN0YWNrRGVwdGgiXT0wLFsic3RhdHVzIl09ImFjdGl2ZSIsWyJ1c2VyTmFtZSJdPSJzbHVybSIsWyJ3ViJdPSIqc2x1cm0vMDAwMDAwMDIzLjAwMDAwMDAwMi4wMDAwMDAwMDIuKnpmaW5hbCIsfSx9LG1wYXRoQT17Ii9jbS9sb2NhbC9tb2R1bGVmaWxlcyIsIi9ldGMvbW9kdWxlZmlsZXMiLCIvdXNyL3NoYXJlL21vZHVsZWZpbGVzIiwiL3Vzci9zaGFyZS9Nb2R1bGVzL21vZHVsZWZpbGVzIiwiL2NtL3NoYXJlZC9tb2R1bGVmaWxlcyIsfSxbInN5c3RlbUJhc2VNUEFUSCJdPSIvY20vbG9jYWwvbW9kdWxlZmlsZXM6L2NtL3NoYXJlZC9tb2R1bGVmaWxlczovZXRjL21vZHVs;' export '_ModuleTable005_;' '_ModuleTable006_=ZWZpbGVzOi91c3Ivc2hhcmUvbW9kdWxlZmlsZXM6L3Vzci9zaGFyZS9Nb2R1bGVzL21vZHVsZWZpbGVzIix9;' export '_ModuleTable006_;' '_ModuleTable_Sz_=6;' export '_ModuleTable_Sz_;'
+++ CMD_WLM_CLUSTER_NAME=slurm
+++ export CMD_WLM_CLUSTER_NAME
+++ __LMOD_REF_COUNT_CPATH='/cm/local/apps/python39/include:1;/cm/shared/apps/slurm/current/include:1'
+++ export __LMOD_REF_COUNT_CPATH
+++ CPATH=/cm/local/apps/python39/include:/cm/shared/apps/slurm/current/include
+++ export CPATH
+++ LD_LIBRARY_PATH=/cm/shared/apps/slurm/current/lib64/slurm:/cm/shared/apps/slurm/current/lib64:/cm/local/apps/gcc/11.2.0/lib:/cm/local/apps/gcc/11.2.0/lib64:/cm/local/apps/gcc/11.2.0/lib32
+++ export LD_LIBRARY_PATH
+++ __LMOD_REF_COUNT_LIBRARY_PATH='/cm/local/apps/python39/lib:1;/cm/shared/apps/slurm/current/lib64/slurm:1;/cm/shared/apps/slurm/current/lib64:1'
+++ export __LMOD_REF_COUNT_LIBRARY_PATH
+++ LIBRARY_PATH=/cm/local/apps/python39/lib:/cm/shared/apps/slurm/current/lib64/slurm:/cm/shared/apps/slurm/current/lib64
+++ export LIBRARY_PATH
+++ __LMOD_REF_COUNT_LOADEDMODULES='DefaultModules:1;gcc/11.2.0:1;shared:1;slurm/slurm/23.02.2:1;jupyter-eg-kernel-wlm-py39/3.0.1:1;python39:1;amh-python-extra-py39-gcc9/0.0.1:1'
+++ export __LMOD_REF_COUNT_LOADEDMODULES
+++ LOADEDMODULES=DefaultModules:gcc/11.2.0:shared:slurm/slurm/23.02.2:jupyter-eg-kernel-wlm-py39/3.0.1:python39:amh-python-extra-py39-gcc9/0.0.1
+++ export LOADEDMODULES
+++ __LMOD_REF_COUNT_MANPATH='/cm/local/apps/python39/share/man:1;/cm/shared/apps/slurm/current/man:1;/usr/share/lmod/lmod/share/man:1;/cm/shared/apps/amh-conda/man:1;/usr/local/share/man:1;/usr/share/man:1;/cm/local/apps/environment-modules/current/share/man:1'
+++ export __LMOD_REF_COUNT_MANPATH
+++ MANPATH=/cm/local/apps/python39/share/man:/cm/shared/apps/slurm/current/man:/usr/share/lmod/lmod/share/man:/cm/shared/apps/amh-conda/man:/usr/local/share/man:/usr/share/man:/cm/local/apps/environment-modules/current/share/man
+++ export MANPATH
+++ MODULEPATH=/cm/local/modulefiles:/etc/modulefiles:/usr/share/modulefiles:/usr/share/Modules/modulefiles:/cm/shared/modulefiles
+++ export MODULEPATH
+++ __LMOD_REF_COUNT_PATH='/cm/shared/apps/amh-python-extra-py39-gcc9/0.0.1/bin:1;/cm/local/apps/python39/bin:1;/cm/shared/apps/jupyter-eg-kernel-wlm-py39/3.0.1/bin:1;/cm/shared/apps/slurm/current/sbin:1;/cm/shared/apps/slurm/current/bin:1;/cm/local/apps/gcc/11.2.0/bin:1;/home/dasienga24/.local/bin:1;/home/dasienga24/bin:1;/cm/shared/amherst-bin:1;/cm/shared/apps/amh-conda/condabin:1;/usr/local/bin:1;/usr/bin:1;/usr/local/sbin:1;/usr/sbin:1;/opt/MegaRAID/MegaCli:1;/opt/dell/srvadmin/bin:1'
+++ export __LMOD_REF_COUNT_PATH
+++ PATH=/cm/shared/apps/amh-python-extra-py39-gcc9/0.0.1/bin:/cm/local/apps/python39/bin:/cm/shared/apps/jupyter-eg-kernel-wlm-py39/3.0.1/bin:/cm/shared/apps/slurm/current/sbin:/cm/shared/apps/slurm/current/bin:/cm/local/apps/gcc/11.2.0/bin:/home/dasienga24/.local/bin:/home/dasienga24/bin:/cm/shared/amherst-bin:/cm/shared/apps/amh-conda/condabin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/MegaRAID/MegaCli:/opt/dell/srvadmin/bin
+++ export PATH
+++ __LMOD_REF_COUNT_PYTHONPATH='/cm/shared/apps/amh-python-extra-py39-gcc9/0.0.1/lib/python3.9/site-packages:1;/cm/shared/apps/jupyter-eg-kernel-wlm-py39/3.0.1/lib64/python3.9/site-packages:1;/cm/shared/apps/jupyter-eg-kernel-wlm-py39/3.0.1/lib/python3.9/site-packages:1'
+++ export __LMOD_REF_COUNT_PYTHONPATH
+++ PYTHONPATH=/cm/shared/apps/amh-python-extra-py39-gcc9/0.0.1/lib/python3.9/site-packages:/cm/shared/apps/jupyter-eg-kernel-wlm-py39/3.0.1/lib64/python3.9/site-packages:/cm/shared/apps/jupyter-eg-kernel-wlm-py39/3.0.1/lib/python3.9/site-packages
+++ export PYTHONPATH
+++ SLURM_CONF=/cm/shared/apps/slurm/var/etc/slurm/slurm.conf
+++ export SLURM_CONF
+++ __LMOD_REF_COUNT__LMFILES_='/usr/share/modulefiles/DefaultModules.lua:1;/cm/local/modulefiles/gcc/11.2.0:1;/cm/local/modulefiles/shared:1;/cm/local/modulefiles/slurm/slurm/23.02.2:1;/cm/shared/modulefiles/jupyter-eg-kernel-wlm-py39/3.0.1:1;/cm/local/modulefiles/python39:1;/cm/shared/modulefiles/amh-python-extra-py39-gcc9/0.0.1.lua:1'
+++ export __LMOD_REF_COUNT__LMFILES_
+++ _LMFILES_=/usr/share/modulefiles/DefaultModules.lua:/cm/local/modulefiles/gcc/11.2.0:/cm/local/modulefiles/shared:/cm/local/modulefiles/slurm/slurm/23.02.2:/cm/shared/modulefiles/jupyter-eg-kernel-wlm-py39/3.0.1:/cm/local/modulefiles/python39:/cm/shared/modulefiles/amh-python-extra-py39-gcc9/0.0.1.lua
+++ export _LMFILES_
+++ _ModuleTable001_=X01vZHVsZVRhYmxlXz17WyJNVHZlcnNpb24iXT0zLFsiY19yZWJ1aWxkVGltZSJdPWZhbHNlLFsiY19zaG9ydFRpbWUiXT1mYWxzZSxkZXB0aFQ9e30sZmFtaWx5PXt9LG1UPXtEZWZhdWx0TW9kdWxlcz17WyJmbiJdPSIvdXNyL3NoYXJlL21vZHVsZWZpbGVzL0RlZmF1bHRNb2R1bGVzLmx1YSIsWyJmdWxsTmFtZSJdPSJEZWZhdWx0TW9kdWxlcyIsWyJsb2FkT3JkZXIiXT0xLHByb3BUPXt9LFsic3RhY2tEZXB0aCJdPTAsWyJzdGF0dXMiXT0iYWN0aXZlIixbInVzZXJOYW1lIl09IkRlZmF1bHRNb2R1bGVzIixbIndWIl09Ik0uKnpmaW5hbCIsfSxbImFtaC1weXRob24tZXh0cmEtcHkzOS1nY2M5Il09e1siZm4iXT0iL2NtL3NoYXJlZC9tb2R1bGVmaWxlcy9hbWgtcHl0aG9u
+++ export _ModuleTable001_
+++ _ModuleTable002_=LWV4dHJhLXB5MzktZ2NjOS8wLjAuMS5sdWEiLFsiZnVsbE5hbWUiXT0iYW1oLXB5dGhvbi1leHRyYS1weTM5LWdjYzkvMC4wLjEiLFsibG9hZE9yZGVyIl09Nyxwcm9wVD17fSxbInN0YWNrRGVwdGgiXT0wLFsic3RhdHVzIl09ImFjdGl2ZSIsWyJ1c2VyTmFtZSJdPSJhbWgtcHl0aG9uLWV4dHJhLXB5MzktZ2NjOSIsWyJ3ViJdPSIwMDAwMDAwMDAuMDAwMDAwMDAwLjAwMDAwMDAwMS4qemZpbmFsIix9LGdjYz17WyJmbiJdPSIvY20vbG9jYWwvbW9kdWxlZmlsZXMvZ2NjLzExLjIuMCIsWyJmdWxsTmFtZSJdPSJnY2MvMTEuMi4wIixbImxvYWRPcmRlciJdPTIscHJvcFQ9e30sWyJzdGFja0RlcHRoIl09MCxbInN0YXR1cyJdPSJhY3RpdmUiLFsidXNlck5hbWUiXT0iZ2NjIixb
+++ export _ModuleTable002_
+++ _ModuleTable003_=IndWIl09IjAwMDAwMDAxMS4wMDAwMDAwMDIuKnpmaW5hbCIsfSxbImp1cHl0ZXItZWcta2VybmVsLXdsbS1weTM5Il09e1siZm4iXT0iL2NtL3NoYXJlZC9tb2R1bGVmaWxlcy9qdXB5dGVyLWVnLWtlcm5lbC13bG0tcHkzOS8zLjAuMSIsWyJmdWxsTmFtZSJdPSJqdXB5dGVyLWVnLWtlcm5lbC13bG0tcHkzOS8zLjAuMSIsWyJsb2FkT3JkZXIiXT01LHByb3BUPXt9LFsic3RhY2tEZXB0aCJdPTAsWyJzdGF0dXMiXT0iYWN0aXZlIixbInVzZXJOYW1lIl09Imp1cHl0ZXItZWcta2VybmVsLXdsbS1weTM5IixbIndWIl09IjAwMDAwMDAwMy4wMDAwMDAwMDAuMDAwMDAwMDAxLip6ZmluYWwiLH0scHl0aG9uMzk9e1siZm4iXT0iL2NtL2xvY2FsL21vZHVsZWZpbGVzL3B5dGhvbjM5
+++ export _ModuleTable003_
+++ _ModuleTable004_=IixbImZ1bGxOYW1lIl09InB5dGhvbjM5IixbImxvYWRPcmRlciJdPTYscHJvcFQ9e30sWyJyZWZfY291bnQiXT0xLFsic3RhY2tEZXB0aCJdPTEsWyJzdGF0dXMiXT0iYWN0aXZlIixbInVzZXJOYW1lIl09InB5dGhvbjM5IixbIndWIl09Ik0uKnpmaW5hbCIsfSxzaGFyZWQ9e1siZm4iXT0iL2NtL2xvY2FsL21vZHVsZWZpbGVzL3NoYXJlZCIsWyJmdWxsTmFtZSJdPSJzaGFyZWQiLFsibG9hZE9yZGVyIl09Myxwcm9wVD17fSxbInN0YWNrRGVwdGgiXT0wLFsic3RhdHVzIl09ImFjdGl2ZSIsWyJ1c2VyTmFtZSJdPSJzaGFyZWQiLFsid1YiXT0iTS4qemZpbmFsIix9LHNsdXJtPXtbImZuIl09Ii9jbS9sb2NhbC9tb2R1bGVmaWxlcy9zbHVybS9zbHVybS8yMy4wMi4yIixbImZ1
+++ export _ModuleTable004_
+++ _ModuleTable005_=bGxOYW1lIl09InNsdXJtL3NsdXJtLzIzLjAyLjIiLFsibG9hZE9yZGVyIl09NCxwcm9wVD17fSxbInN0YWNrRGVwdGgiXT0wLFsic3RhdHVzIl09ImFjdGl2ZSIsWyJ1c2VyTmFtZSJdPSJzbHVybSIsWyJ3ViJdPSIqc2x1cm0vMDAwMDAwMDIzLjAwMDAwMDAwMi4wMDAwMDAwMDIuKnpmaW5hbCIsfSx9LG1wYXRoQT17Ii9jbS9sb2NhbC9tb2R1bGVmaWxlcyIsIi9ldGMvbW9kdWxlZmlsZXMiLCIvdXNyL3NoYXJlL21vZHVsZWZpbGVzIiwiL3Vzci9zaGFyZS9Nb2R1bGVzL21vZHVsZWZpbGVzIiwiL2NtL3NoYXJlZC9tb2R1bGVmaWxlcyIsfSxbInN5c3RlbUJhc2VNUEFUSCJdPSIvY20vbG9jYWwvbW9kdWxlZmlsZXM6L2NtL3NoYXJlZC9tb2R1bGVmaWxlczovZXRjL21vZHVs
+++ export _ModuleTable005_
+++ _ModuleTable006_=ZWZpbGVzOi91c3Ivc2hhcmUvbW9kdWxlZmlsZXM6L3Vzci9zaGFyZS9Nb2R1bGVzL21vZHVsZWZpbGVzIix9
+++ export _ModuleTable006_
+++ _ModuleTable_Sz_=6
+++ export _ModuleTable_Sz_
++ ipykernel-wlm --RemoteProcessProxy.kernel-id 9d02192f-33be-491b-9010-81baefa8b1b9 --RemoteProcessProxy.response-address 10.141.0.14:8877 --RemoteProcessProxy.port-range 0..0 --RemoteProcessProxy.shutdown-timeout 600
+[D 2023-10-31 15:05:17,450.450 ipykernel_wlm] Using connection file '/tmp/kernel-9d02192f-33be-491b-9010-81baefa8b1b9_qi6vjmsc.json'.
+[I 2023-10-31 15:05:17,450.450 ipykernel_wlm] Signal socket bound to host: '0.0.0.0', port: '43805'
+[D 2023-10-31 15:05:17,451.451 ipykernel_wlm] JSON Payload 'b'{"shell_port": 54365, "iopub_port": 44341, "stdin_port": 60861, "control_port": 35363, "hb_port": 32909, "ip": "0.0.0.0", "key": "8341e6d6-7037-416e-8259-440e1b2b6dc1", "transport": "tcp", "signature_scheme": "hmac-sha256", "kernel_name": "", "pid": "285482", "pgid": "285376", "comm_port": 43805}''
+[D 2023-10-31 15:05:17,452.452 ipykernel_wlm] Encrypted Payload 'b'Ivh5yDwTE78peXTwZTNTK8LgPjED21oGMypTpHheaMhoV4Vs08tpq91elboE0Ikq66VYuFihybEB26ZgUXBzoKFGqseC/ecCRRGNqlZAFKL6zGbof02I74TkMTdETFfWjgMXXE6HDnxa9l0hsTt2yZL79/JtKKmA+YpQPptogMnOUl4ojzenw7L0ep+uAx5wU+ho+B8RN/xQFoX4qilp/Kkh1dqI/lyQHNExCPqWmlmGDvsutRiNP/q20wtcmPU/sTuLVJw2OGjsPqWcBzF0+hEJLzSJ49PZzYNnfYTpSLbfmZtVUDfAD1MEri8JTVphS+34ok0PfhwV1Wf5RzWdXvGNN2BCoj12QqVueVK5wpJOAcbBAi9knF1/BYJ91nIPxa17iPlDahAL+K8Cs860CQ==''
+NOTE: When using the `ipython kernel` entry point, Ctrl-C will not work.
+
+To exit, you will have to explicitly quit this process, by either sending
+"quit" from a client, or using Ctrl-\ in UNIX-like environments.
+
+To read more about this, see https://github.com/ipython/ipython/issues/2049
+
+
+To connect another client to this kernel, use:
+    --existing /tmp/kernel-9d02192f-33be-491b-9010-81baefa8b1b9_qi6vjmsc.json
+[E 2023-10-31 16:41:32,640.640 ipykernel.comm] No such comm target registered: jupyter.widget.control
+[W 2023-10-31 16:41:32,642.642 Comm] No such comm: 702c12c7-7850-43c5-b6c6-936150055b8f
+[E 2023-10-31 18:06:30,975.975 ipykernel.comm] No such comm target registered: jupyter.widget.control
+[W 2023-10-31 18:06:30,976.976 Comm] No such comm: 4a7fb677-ff2f-439a-9c94-d0edb01889b1
+[E 2023-10-31 20:14:57,964.964 ipykernel.comm] No such comm target registered: jupyter.widget.control
+[W 2023-10-31 20:14:57,965.965 Comm] No such comm: ee5cd1ba-9b07-41c6-b3d5-368413908b74
+[E 2023-10-31 20:30:18,130.130 ipykernel.comm] No such comm target registered: jupyter.widget.control
+[W 2023-10-31 20:30:18,131.131 Comm] No such comm: 0da20f8e-9659-4e03-9b9c-b93b8e49af24
+[E 2023-10-31 20:49:11,328.328 ipykernel.comm] No such comm target registered: jupyter.widget.control
+[W 2023-10-31 20:49:11,330.330 Comm] No such comm: bc5e006b-edcb-4bc8-ae66-0dfbae2bcda0
