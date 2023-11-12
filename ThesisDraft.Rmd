@@ -60,4 +60,6 @@ One such key example of  algorithmic bias often cited in literature is regarding
 
 ## Fairness Conflicts 
 
+talk about both regression and classification, but show result for the classification setting instead. 
+
 ## Addressing Algorithmic Bias 
