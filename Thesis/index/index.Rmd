@@ -1,9 +1,9 @@
 ---
 title: 'My amazing  title'
-author: 'Your R. Name'
+author: 'Dasha Asienga'
 date: 'April DD, 20YY'
 institution: 'Amherst College'
-advisor: 'Advisor F. Name'
+advisor: 'Professor Katharine Correia'
 # Delete altadvisor line if you only have one advisor
 altadvisor: 'Your Other Advisor'
 # Change department to'Special Programs' if interdisciplinary thesis
