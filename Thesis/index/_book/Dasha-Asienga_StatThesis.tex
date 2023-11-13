@@ -248,7 +248,7 @@ One such key example of algorithmic bias often cited in literature is regarding 
 
 COMPAS is based on data from 7000 people arrested in Broward County, Florida in 2013 and 2014 (Angwin, 2016). The response variable, recidivism, was encoded based on who was charged with new crimes over the next two years. Analyses on the predictive efficacy of the COMPAS algorithm found that the algorithm was 61\% accurate for a full range of crimes, including misdemeanors, and only 20\% of people forecasted to commit violent crimes actually went on to do so. While this is better than a coin flip, there exists scope for enhancing the predictive performance, especially for a decision as critical as whether or not to grant a defendant bail or parole.
 
-What's more concerning, however, is that when the effects of race, age, and gender are isolated, a statistical analysis showed that Black defendants were still 77\% more likely to be predicted at higher risk of committing a future violent crime and 45\% more likely to be predicted of committing a future crime of any kind, highlighting the role that proxies of race play into the predictions (Angwin, 2016). The table below highlights the performance discrepancy across race:
+What's more concerning, however, is that when the effects of race, age, and gender are isolated, a statistical analysis showed that Black defendants were still 77\% more likely to be predicted at higher risk of committing a future violent crime and 45\% more likely to be predicted of committing a future crime of any kind, highlighting the role that proxies of race play into the predictions (Angwin, 2016). The table in Figure \ref{fig:compas1} highlights the performance discrepancy across race.
 \begin{figure}
 
 {\centering \includegraphics[width=1\linewidth]{figures/compas1} 
@@ -290,11 +290,99 @@ Group notions of fairness, at the core, refer to treating different groups equal
 \hypertarget{independence}{%
 \subsubsection{Independence}\label{independence}}
 
+\newcommand{\indep}{\perp \!\!\! \perp}
+
+This fairness definition requires predictions, \(\hat{Y}\), to be independent of any sensitive attribute, \(A\), that is, \(\hat{Y} \perp \!\!\! \perp A\) (Castelnovo, 2022). Thus it relies only on the distribution of features and decisions, that is, \(A\), \(X\), and \(\hat{Y}\) and focuses on the equality of the predictions themselves by satisfying the following equation:
+
+\[ P (\hat{Y} = 1 | A = a) = P (\hat{Y} = 1 | A = b), \text{    } \forall a, b \in A,\]
+where \(a\), \(b\) are the two demographic groups in question.
+
+This definition is also known as demographic parity, statistical parity, or group fairness and requires that all levels of the demographic group have the same positive prediction ratio (PPR) where PPR is the ratio of positive outcomes (Castelnovo, 2022). In other words, the likelihood of a positive outcome should be the same regardless of the demographic group.
+
+In the COMPAS data set, independence would be satisfied if the probability of recidivism is the same for both Black and White defendants in the data set. That is, the probability that a Black defendant is predicted to recommit a crime within the next two years should be the same as the probability that a White defendant is predicted to recommit a crime.
+
+The visual example in Figure \ref{fig:dp} illustrates a toy scenario where independence is met (Durahly, 2023).
+\begin{figure}
+
+{\centering \includegraphics[width=1\linewidth]{figures/dp} 
+
+}
+
+\caption{An Example of Demographic Parity}\label{fig:dp}
+\end{figure}
+The dashed line represents the decision boundary. In both group A and group B, 4 out of the 8 participants were predicted to repay a loan. The other half of the participants were predicted to default. Notice, however, that the class imbalance in this toy credit lending example results in a higher error rate within group B than group A.
+
+A difference in demographic parity close to 0 or a ratio close to 1 by some defined margin is considered a fair solution (Castelnovo, 2022). To achieve demographic parity, the different demographic groups must be treated differently, which may seem contrary to societal pre-conceived notions of fairness. Therefore, demographic parity should be used when the primary objective is to enforce some form of equality between groups, regardless of all other information and when the objectivity of the target variable, \(Y\), is under question, perhaps because of historical biases. This, however, can unknowingly amplify biases if used in the wrong setting. For example, when imposing demographic parity on a hiring algorithm, if qualifications are different across a protected attribute, then less-qualified candidates may be hired. If these candidates end up being low-performers, then this can perpetuate stereotypes about their demographic group.
+
+In the above example of using a hiring algorithm with gender as the protected attribute, it may then seem fairer to require independence on gender only for men and women with the same rating or qualification, that is, \(\hat{Y} \perp \!\!\! \perp A | R\). This is known as conditional demographic parity and requires that the following equation is satisfied (Castelnovo, 2022):
+
+\[ P (\hat{Y} = 1 | A = a, R = r) = P (\hat{Y} = 1 | A = b, R = r), \text{    } \forall a, b \in A, \forall r.\]
+
+This can be generalized more to condition on all attributes, that is, \(\hat{Y} \perp \!\!\! \perp A | X\). This satisfies individual fairness and can be achieved by a gender-blind model (Castelnovo, 2022). This is also referred to as fairness through unawareness (FTU), which requires that any protected attributes A are not explicitly used in the decision-making process (Mehrabi, 2022). This definition of fairness requires that the following equation be satisfied (Castelnovo, 2022):
+
+\[ P (\hat{Y} = 1 | A = a, X = x) = P (\hat{Y} = 1 | A = b, X = x), \text{ } \forall a, b \in A, \forall x \in X.\]
+
 \hypertarget{separation}{%
 \subsubsection{Separation}\label{separation}}
 
+Independence does not make use of the true target \(Y\) and simply requires equality of predictions. However, as observed in Figure \ref{fig:dp}, this can lead to different error rates between different groups. In other words, the model is more accurate for one group than it is for another group. Separation precisely focuses on equality of the error rates and is widely known as the equality of odds (Castelnovo, 2022). This definition requires the same type I and type II error rates, precisely, the same false positive rate (FPR) and false negative rate (FNR) across all demographic groups. FPR and FNR are defined by:
+
+\[FPR = \frac{FP}{FP + TN}\]
+\[ FNR = \frac{FN}{TP + FN}\]
+where FP refers to false positive predictions, TP refers to true positive predictions, FN refers to false negative predictions, and TN refers to true negative predictions. These metrics can be understood through a confusion matrix as in Figure \ref{fig:confusionmatrix} (Mohajon, 2021).
+\begin{figure}
+
+{\centering \includegraphics[width=0.75\linewidth]{figures/confusionmatrix} 
+
+}
+
+\caption{A Confusion Matrix}\label{fig:confusionmatrix}
+\end{figure}
+In the COMPAS data set, separation would be satisfied if both Black defendants and White defendants had equal error rates. However, as observed in Figure \ref{fig:compas1}, Black defendants had an FPR of 45\% while White defendants had an FPR of 24\% -- these refer to the percentage of times the algorithm predicted the defendants had recidivated when they hadn't. Similarly, Black defendants had an FNR of 28\% while White defendants had an FNR of 48\% -- these refer to the percentage of times the algorithm predicted the defendants had not recommitted a crime when they had.
+
+Separation requires independence of the predictions \(\hat{Y}\) and the sensitive attribute \(A\) conditioned on the true value of the target variable \(Y\), that is, \(\hat{Y} \perp \!\!\! \perp A|Y\) (Castelnovo, 2022). In other terms, the following equation must be satisfied:
+
+\[ P(\hat{Y} = 1 | A = a, Y = y) = P(\hat{Y} = 1 | A = b, Y = y), \text{ } \forall a,b \in A, \text{ } y \in \{ 0, 1 \},\]
+where 0 is a negative outcome and 1 is a positive outcome. This is a reasonable fairness metric as long as the objectivity of the target variable is trusted as it ensures the model optimizes performance for all groups, not just minority groups.
+
+The visual example in Figure \ref{fig:eoo} illustrates a toy scenario where separation is met (Castelnovo, 2022). The dashed line represents the decision boundary. Filled in circles represent positive predictions and empty circles represent negative predictions. The error rates are consistent between both men and women.
+\begin{figure}
+
+{\centering \includegraphics[width=0.6\linewidth]{figures/eoo} 
+
+}
+
+\caption{An Example of Equality of Odds}\label{fig:eoo}
+\end{figure}
+There are two relaxed versions of this outcome depending on which outcome is most important to predict (Castelnovo, 2022):
+\begin{enumerate}
+\def\labelenumi{\roman{enumi})}
+\tightlist
+\item
+  Predictive equality: equality of false positive rates (FPR) across groups:
+\end{enumerate}
+\[ P (\hat{Y} = 1 | A = a, Y = 0) = P (\hat{Y} = 1 | A = b, Y = 0), \text{ } \forall a,b \in A.\]
+\begin{enumerate}
+\def\labelenumi{\roman{enumi})}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  Equality of Opportunity: equality of false negative rates (FNR) across groups
+\end{enumerate}
+\[ P (\hat{Y} = 0 | A = a, Y = 1) = P (\hat{Y} = 0 | A = b, Y = 1), \text{ } \forall a,b \in A.\]
+
 \hypertarget{sufficiency}{%
 \subsubsection{Sufficiency}\label{sufficiency}}
+
+Finally, sufficiency takes the perspective of people that receive the same model prediction and requires parity among them regardless of sensitive features (Castelnovo, 2022). This is also knows as predictive parity and requires that the precision should be the same across sensitive groups, that is, \(Y \perp \!\!\! \perp A | \hat{Y}\). In other words, the following equation must be satisfied:
+
+\[ P (Y = 1 | A = a, \hat{Y} = 1) = P (Y = 1 | A = b, \hat{Y} = 1), \text{ } \forall a, b \in A\]
+Simply put, the probability that a positive outcome is correctly predicted as positive should be equal across all sensitive groups.
+
+Consistent with this line of reasoning, many fairness metrics can be defined. This begs the fundamental question: can multiple definitions be simultaneously imposed?
+
+\hypertarget{fairness-conflicts}{%
+\subsection{Fairness Conflicts}\label{fairness-conflicts}}
 
 % Index?
 
