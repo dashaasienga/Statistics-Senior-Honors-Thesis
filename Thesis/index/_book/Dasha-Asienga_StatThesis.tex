@@ -367,7 +367,7 @@ There are two relaxed versions of this outcome depending on which outcome is mos
 \setcounter{enumi}{1}
 \tightlist
 \item
-  Equality of Opportunity: equality of false negative rates (FNR) across groups
+  Equality of Opportunity: equality of false negative rates (FNR) across groups:
 \end{enumerate}
 \[ P (\hat{Y} = 0 | A = a, Y = 1) = P (\hat{Y} = 0 | A = b, Y = 1), \text{ } \forall a,b \in A.\]
 
@@ -376,13 +376,37 @@ There are two relaxed versions of this outcome depending on which outcome is mos
 
 Finally, sufficiency takes the perspective of people that receive the same model prediction and requires parity among them regardless of sensitive features (Castelnovo, 2022). This is also knows as predictive parity and requires that the precision should be the same across sensitive groups, that is, \(Y \perp \!\!\! \perp A | \hat{Y}\). In other words, the following equation must be satisfied:
 
-\[ P (Y = 1 | A = a, \hat{Y} = 1) = P (Y = 1 | A = b, \hat{Y} = 1), \text{ } \forall a, b \in A\]
+\[ P (Y = 1 | A = a, \hat{Y} = 1) = P (Y = 1 | A = b, \hat{Y} = 1), \text{ } \forall a, b \in A.\]
 Simply put, the probability that a positive outcome is correctly predicted as positive should be equal across all sensitive groups.
 
-Consistent with this line of reasoning, many fairness metrics can be defined. This begs the fundamental question: can multiple definitions be simultaneously imposed?
+\textbackslash{}
+
+Consistent with this line of reasoning, many fairness metrics can be defined. This begs the fundamental question: can multiple definitions be simultaneously enforced?
 
 \hypertarget{fairness-conflicts}{%
-\subsection{Fairness Conflicts}\label{fairness-conflicts}}
+\section{Fairness Conflicts}\label{fairness-conflicts}}
+
+Because of the way different fairness definitions are defined, it can be impossible to simultaneously enforce multiple definitions and unexpected behavior may result from a particular definition of fairness. This section highlights some conflicts that arise both in the regression and classification setting.
+
+\hypertarget{fairness-conflicts-in-regression}{%
+\subsection{Fairness Conflicts in Regression}\label{fairness-conflicts-in-regression}}
+
+The UFRGS Entrance Exam and GPA Data contains entrance exam scores of students applying to the Federal University of Rio Grande do Sul in Brazil, along with the students' GPAs during the first three semesters at university. (Castro da Silva, 2019). Each student's score in nine different entrance exams is used to predict their GPA during their first 3 semesters of study at the university. Gender and race are protected attributes.
+
+Taking gender as the protected attribute, independence, in this setting, would require that the average predictions be the same for each gender. That is,
+
+\[ E[\hat{Y} | G = Male] = E[\hat{Y} | G = Female].\]
+This is violated if, on average, a model predicts a higher or lower GPA based on gender.
+
+Separation, on the other hand, would require that the average error of predictions be the same for each gender. In defined notion,
+
+\[ E[\hat{Y} - Y | G = Male] = E[\hat{Y} - Y| G = Female].\]
+This is violated if, on average, the model over-predicts for one gender but under-predicts for another gender or the model either over-predicts or under-predicts more or less for one gender.
+
+However, a study found that because male and female applicants had different GPAs in the original data set, these two fairness definitions could not be simultaneously satisfied (Thomas, 2020). A result in the Section \ref{class-conflict} will explain this in a mathematically tractable way.
+
+\hypertarget{class-conflict}{%
+\subsection{Fairness Conflicts in Classification}\label{class-conflict}}
 
 % Index?
 
