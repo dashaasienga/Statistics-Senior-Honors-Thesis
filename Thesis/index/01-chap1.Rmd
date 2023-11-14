@@ -29,7 +29,7 @@ What's more concerning, however, is that when the effects of race, age, and gend
 include_graphics(path = "figures/compas1.png")
 ```
 
-Although the tool has 61% accuracy, Black defendants are almost twice as likely to be labeled as higher risk without re-offending than White defendants. It makes the opposite mistake among White defendants. The reason for this is that classification models are trained to minimize average error, which fits majority populations (Chouldechova, 2020). For example, different factors lead to different SAT scores between majority and minority populations. It would, thus, seem fair that the relationship between SAT and college admissions be calibrated differently for the each demographic groups. However, if a group-blind classifier is trained, it cannot simultaneously fit both groups optimally and will fit the majority population as it's more important to overall error.  
+Although the tool has 61% accuracy, Black defendants are almost twice as likely to be labeled as higher risk without re-offending than White defendants. It makes the opposite mistake among White defendants. The reason for this is that classification models are trained to minimize average error, which fits majority populations (Chouldechova, 2020). For example, different factors lead to different SAT scores between majority and minority populations. It would, thus, seem fair that the relationship between SAT and college admissions be calibrated differently for each demographic groups. However, if a group-blind classifier is trained, it cannot simultaneously fit both groups optimally and will fit the majority population as it's more important to overall error.  
 
 COMPAS is just one such algorithm. In order to set fairness constraints that reduce, or even correct for, algorithmic bias, one must first define fairness mathematically, statistically, and quantifiably.  
 
@@ -47,7 +47,7 @@ Fair regression is the quantitative notion of fairness of real-valued targets (A
 
 $$ \text{min}_{f \in F} \text{ } E[l(Y, f(X))] \text{ such that } \forall a \in A, z \in [0,1]: $$
 $$ |P[f(X) \geq z | A = a] - P[f(X) \geq z]| \leq \epsilon_a.$$
-This is akin to the classification setting where it may be desirable to have the probability of being in the positive class be the same for each group as across the entire data set. A similar notion, known as bounded loss, requires that the MSE for each group is below some pre-specified level (Agarwal, 2019):
+This is akin to the classification setting where it may be desirable to have the probability of being in the positive class be above some certain threshold for each group as well as across the entire data set. A similar notion, known as bounded loss, requires that the MSE for each group is below some pre-specified level (Agarwal, 2019):
 
 $$ \text{min}_{f \in F} \text{ } E[l(Y, f(X))] \text{ such that } \forall a \in A: $$
 $$ E[l(Y, f(X)) | A = a] \leq c_a.$$
@@ -75,7 +75,7 @@ The visual example in Figure \@ref(fig:dp) illustrates a toy scenario where inde
 include_graphics(path = "figures/dp.png")
 ```
 
-The dashed line represents the decision boundary. In both group A and group B, 4 out of the 8 participants were predicted to repay a loan. The other half of the participants were predicted to default. Notice, however, that the class imbalance in this toy credit lending example results in a higher error rate within group B than group A.
+The dashed line represents the decision boundary. In both group A and group B, four out of the eight participants were predicted to repay a loan. The other half of the participants were predicted to default. Notice, however, that the class imbalance in this toy credit lending example results in a higher error rate within group B than group A.
 
 A difference in demographic parity close to 0 or a ratio close to 1 by some defined margin is considered a fair solution (Castelnovo, 2022). To achieve demographic parity, the different demographic groups must be treated differently, which may seem contrary to societal pre-conceived notions of fairness. Therefore, demographic parity should be used when the primary objective is to enforce some form of equality between groups regardless of all other information and when the objectivity of the target variable, $Y$, is under question, perhaps because of historical biases. This, however, can unknowingly amplify biases if used in the wrong setting. For example, when imposing demographic parity on a hiring algorithm, if qualifications are different across a protected attribute, then less-qualified candidates may be hired. If these candidates end up being low-performers, then this can perpetuate stereotypes about their demographic group.  
 
@@ -83,7 +83,7 @@ In the above example of using a hiring algorithm with gender as the protected at
 
 $$ P (\hat{Y} = 1 | A = a, R = r) = P (\hat{Y} = 1 | A = b, R = r), \text{    } \forall a, b \in A, \forall r.$$
 
-This can be generalized more to condition on all attributes, that is, $\hat{Y} \indep A |  X$. As this is more generalized, however, it begins to satisfy individual fairness and can be achieved by a gender-blind model (Castelnovo, 2022). This type of individual fairness is also referred to as fairness through unawareness (FTU), which requires that any protected attributes, or their covariates, are not explicitly used in the decision-making process (Mehrabi, 2022). This definition of fairness requires that the following equation be satisfied (Castelnovo, 2022): 
+This idea can be generalized more to condition on all attributes, that is, $\hat{Y} \indep A |  X$. As this is more generalized, however, it begins to satisfy individual fairness and can be achieved by a gender-blind model (Castelnovo, 2022). This type of individual fairness is also referred to as fairness through unawareness (FTU), which requires that any protected attributes, or their covariates, are not explicitly used in the decision-making process (Mehrabi, 2022). This definition of fairness requires that the following equation be satisfied (Castelnovo, 2022): 
 
 $$ P (\hat{Y} = 1 | A = a, X = x) = P (\hat{Y} = 1 | A = b, X = x), \text{ } \forall a, b \in A, \forall x \in X.$$
 
@@ -104,7 +104,7 @@ In the COMPAS data set, separation would be satisfied if both Black defendants a
 Separation requires independence of the predictions $\hat{Y}$ and the sensitive attribute $A$ conditioned on the true value of the target variable $Y$, that is, $\hat{Y} \indep A|Y$ (Castelnovo, 2022). In other terms, the following equation must be satisfied:
 
 $$ P(\hat{Y} = 1 | A = a, Y = y) = P(\hat{Y} = 1 | A = b, Y = y), \text{ } \forall a,b \in A, \text{ } y \in \{ 0, 1 \},$$
-where 0 is a negative outcome and 1 is a positive outcome. This is a reasonable fairness metric, as long as the objectivity of the target variable is trusted, as it ensures the model optimizes performance for all groups, not just majority groups. 
+where 0 is a negative outcome and 1 is a positive outcome. This is a reasonable fairness metric, as long as the objectivity of the target variable is trusted, as it ensures that the model optimizes performance for all groups, not just majority groups. 
 
 The visual example in Figure \@ref(fig:eoo) illustrates a toy scenario where separation is met (Castelnovo, 2022). The dashed line represents the decision boundary. Filled in circles represent positive predictions and empty circles represent negative predictions. The error rates are consistent between both men and women.
 
@@ -139,7 +139,7 @@ Because of the way different fairness definitions are defined, it can be impossi
 
 ### Fairness Conflicts in Regression
 
-The UFRGS Entrance Exam and GPA Data contains entrance exam scores of students applying to the Federal University of Rio Grande do Sul in Brazil, along with the students' GPAs during the first three semesters at university (Castro da Silva, 2019). Each student's score in nine different entrance exams is used to predict their GPA during their first 3 semesters of study at the university. Gender and race are protected attributes.  
+The UFRGS Entrance Exam and GPA Data contains entrance exam scores of students applying to the Federal University of Rio Grande do Sul in Brazil, along with the students' GPAs during their first three semesters at the university (Castro da Silva, 2019). Each student's score in nine different entrance exams is used to predict their GPA during their first 3 semesters of study at the university. Gender and race are the protected attributes.  
 
 Taking gender as the protected attribute, independence, in this setting, would require that the average predictions be the same for each gender. That is, 
 
