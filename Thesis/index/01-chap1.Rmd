@@ -21,7 +21,7 @@ While there are widely-accepted, though sometimes disputed, societal notions of 
 
 One such key example of  algorithmic bias often cited in literature is regarding the broad use of the COMPAS – or the Correctional Offender Management Profiling for Alternative Sanctions – tool to predict a defendant’s risk of recidivism – committing another crime – within two years. COMPAS is more likely to have higher false positive rates for African-American offenders than Caucasian offenders (Mehrabi, 2021). Across the country, scores of similar assessments are given to judges, which injects bias into courts (Angwin, 2016).   
 
-COMPAS is based on data from 7000 people arrested in Broward County, Florida in 2013 and 2014 (Angwin, 2016). The response variable, recidivism, was encoded based on who was charged with new crimes over the next two years. Analyses on the predictive efficacy of the COMPAS algorithm found that the algorithm was 61% accurate for a full range of crimes, including misdemeanors, and only 20% of people forecasted to commit violent crimes actually went on to do so. While this is better than a coin flip, there exists scope for enhancing the predictive performance, especially for a decision as critical as whether or not to grant a defendant bail or parole.
+COMPAS is based on data from 7000 people arrested in Broward County, Florida in 2013 and 2014 (Angwin, 2016). The response variable, recidivism, was encoded based on who was charged with new crimes over the next two years. Analyses on the predictive efficacy of the COMPAS algorithm found that the algorithm was 61% accurate for a full range of crimes, including misdemeanors, and only 20% of people forecasted to commit violent crimes actually went on to do so. While the overall accuracy rate is better than a coin flip, there exists scope for enhancing the predictive performance, especially for a decision as critical as whether or not to grant a defendant bail or parole.
 
 What's more concerning, however, is that when the effects of race, age, and gender are isolated, a statistical analysis showed that Black defendants were still 77% more likely to be predicted at higher risk of committing a future violent crime and 45% more likely to be predicted of committing a future crime of any kind, highlighting the role that proxies of race play into the predictions (Angwin, 2016). The table in Figure \@ref(fig:compas1) highlights the performance discrepancy across race. 
 
@@ -29,7 +29,7 @@ What's more concerning, however, is that when the effects of race, age, and gend
 include_graphics(path = "figures/compas1.png")
 ```
 
-Although the tool had 61% accuracy, Black defendants are almost twice as likely to be labeled as higher risk without re-offending than White defendants. It makes the opposite mistake among White defendants. The reason for this is that classification models are trained to minimize average error, which fits majority populations (Chouldechova, 2020). For example, different factors lead to different SAT scores between majority and minority populations. It would, thus, seem fair that the relationship between SAT and college admissions be calibrated differently for the each demographic group. However, if a group-blind classifier is trained, it cannot simultaneously fit both groups optimally and will fit the majority population as it's more important to overall error.  
+Although the tool has 61% accuracy, Black defendants are almost twice as likely to be labeled as higher risk without re-offending than White defendants. It makes the opposite mistake among White defendants. The reason for this is that classification models are trained to minimize average error, which fits majority populations (Chouldechova, 2020). For example, different factors lead to different SAT scores between majority and minority populations. It would, thus, seem fair that the relationship between SAT and college admissions be calibrated differently for the each demographic groups. However, if a group-blind classifier is trained, it cannot simultaneously fit both groups optimally and will fit the majority population as it's more important to overall error.  
 
 COMPAS is just one such algorithm. In order to set fairness constraints that reduce, or even correct for, algorithmic bias, one must first define fairness mathematically, statistically, and quantifiably.  
 
@@ -37,30 +37,30 @@ COMPAS is just one such algorithm. In order to set fairness constraints that red
 
 Statistical notions of fairness can be defined at a group level or an individual level. Group notions fix a few demographic groups and assess the parity of some statistical measures across all the groups (Chouldechova, 2020). Note that group measures, on their own, do not guarantee fairness to individuals or structured subgroups within protected demographic groups, but rather, give guarantees to "average" numbers of protected groups. These notions are the focus of this thesis paper.
 
-Individual notions, on the other hand, are assessed on specific pairs of individuals rather than averaged across groups (Chouldechova, 2020). In other words, similar individuals should be treated similarly along some defined similarity or inverse distance metrics. Counter-factual fairness, for example, relies on the intuition that a decision is fair towards an individual if it's the same in both the real world and a counter-factual world where the individual belongs to a different demographic group (Mehrabi, 2020). This can be impractical, rely on strong assumptions about the data, and approach the realm of causality (Chouldechova, 2020). Moreover, there is a gap in literature with regard to individual notions of fairness. 
+Individual notions, on the other hand, are assessed on specific pairs of individuals rather than averaged across groups (Chouldechova, 2020). In other words, similar individuals should be treated similarly along some defined similarity or inverse distance metrics. Counter-factual fairness, for example, relies on the intuition that a decision is fair towards an individual if it's the same in both the real world and a counter-factual world where the individual belongs to a different demographic group (Mehrabi, 2020). This can be impractical, relies on strong assumptions about the data, and approaches the realm of causality (Chouldechova, 2020). Moreover, there is a gap in literature with regard to individual notions of fairness. 
 
-Ultimately, group notions and individual notions are not in conflict per se. Instead, they are on the same spectrum of how much dependence are allowed between predictions and the sensitive attribute (Castelnovo, 2022). Subgroup fairness is an alternative notions that intends to obtain the best properties of both, for example, by picking a group fairness constraint and assessing whether it holds over a large collection of subgroups (Mehrabi, 2021). Group and individual fairness notions can be defined in both classification settings and regression settings, although most of the literature focuses on fairness within classification.
+Ultimately, group notions and individual notions are not in conflict per se. Instead, they are on the same spectrum of how much dependence is allowed between predictions and the sensitive attribute (Castelnovo, 2022). Subgroup fairness is an alternative notion that intends to obtain the best properties of both, for example, by picking a group fairness constraint and assessing whether it holds over a large collection of subgroups (Mehrabi, 2021). Group and individual fairness notions can be defined in both classification settings and regression settings, although most of the literature focuses on fairness within classification.
 
 ### Group Fairness in Regression Settings 
 
 Fair regression is the quantitative notion of fairness of real-valued targets (Agarwal, 2019). Statistical parity refers to minimizing the expected loss function and mean squared errors (MSE) such that the probability that each predicted $\hat{Y}$ is above a certain threshold for each sensitive attribute is the same as the probability over the entire data set, given some margin: 
 
 $$ \text{min}_{f \in F} \text{ } E[l(Y, f(X))] \text{ such that } \forall a \in A, z \in [0,1]: $$
-$$ |P[f(X) \geq z | A = a] - P[f(X) \geq z] \leq \epsilon_a|.$$
-This is akin to the classification setting where it may be desirable to have the probability of being in the positive class is the same for each group as across the entire data set. A similar notion, known as bounded loss, requires that the MSE for each group is below some pre-specified level (Agarwal, 2019):
+$$ |P[f(X) \geq z | A = a] - P[f(X) \geq z]| \leq \epsilon_a.$$
+This is akin to the classification setting where it may be desirable to have the probability of being in the positive class be the same for each group as across the entire data set. A similar notion, known as bounded loss, requires that the MSE for each group is below some pre-specified level (Agarwal, 2019):
 
 $$ \text{min}_{f \in F} \text{ } E[l(Y, f(X))] \text{ such that } \forall a \in A: $$
 $$ E[l(Y, f(X)) | A = a] \leq c_a.$$
 
 ### Group Fairness in Classification Settings 
 
-Group notions of fairness, at the core, refer to treating different groups equally. They aim to remedy or prevent disparate impact, which is a setting where there is unintended disproportionate adverse impact on a particular group (Chouldechova, 2016). There are three broad notions of observational group fairness: independence, separation, and sufficiency (Castelnovo, 2022). 
+Group notions of fairness in classification, at the core, refer to treating different groups equally. They aim to remedy or prevent disparate impact, which is a setting where there is unintended disproportionate adverse impact on a particular group (Chouldechova, 2016). There are three broad notions of observational group fairness: independence, separation, and sufficiency (Castelnovo, 2022). 
 
 #### Independence
 
 \newcommand{\indep}{\perp \!\!\! \perp}
 
-This fairness definition requires predictions, $\hat{Y}$, to be independent of any sensitive attribute, $A$, that is, $\hat{Y} \indep A$ (Castelnovo, 2022). Thus it relies only on the distribution of features and decisions, that is, $A$, $X$, and $\hat{Y}$ and focuses on the equality of the predictions themselves by satisfying the following equation:
+This fairness definition requires predictions, $\hat{Y}$, to be independent of any sensitive attribute, $A$, that is, $\hat{Y} \indep A$ (Castelnovo, 2022). Thus, it relies only on the distribution of features and decisions, that is, $A$, $X$, and $\hat{Y}$, and focuses on the equality of the predictions themselves by satisfying the following equation:
 
 $$ P (\hat{Y} = 1 | A = a) = P (\hat{Y} = 1 | A = b), \text{    } \forall a, b \in A,$$
 where $a$, $b$ are the two demographic groups in question.
@@ -77,13 +77,13 @@ include_graphics(path = "figures/dp.png")
 
 The dashed line represents the decision boundary. In both group A and group B, 4 out of the 8 participants were predicted to repay a loan. The other half of the participants were predicted to default. Notice, however, that the class imbalance in this toy credit lending example results in a higher error rate within group B than group A.
 
-A difference in demographic parity close to 0 or a ratio close to 1 by some defined margin is considered a fair solution (Castelnovo, 2022). To achieve demographic parity, the different demographic groups must be treated differently, which may seem contrary to societal pre-conceived notions of fairness. Therefore, demographic parity should be used when the primary objective is to enforce some form of equality between groups, regardless of all other information and when the objectivity of the target variable, $Y$, is under question, perhaps because of historical biases. This, however, can unknowingly amplify biases if used in the wrong setting. For example, when imposing demographic parity on a hiring algorithm, if qualifications are different across a protected attribute, then less-qualified candidates may be hired. If these candidates end up being low-performers, then this can perpetuate stereotypes about their demographic group.  
+A difference in demographic parity close to 0 or a ratio close to 1 by some defined margin is considered a fair solution (Castelnovo, 2022). To achieve demographic parity, the different demographic groups must be treated differently, which may seem contrary to societal pre-conceived notions of fairness. Therefore, demographic parity should be used when the primary objective is to enforce some form of equality between groups regardless of all other information and when the objectivity of the target variable, $Y$, is under question, perhaps because of historical biases. This, however, can unknowingly amplify biases if used in the wrong setting. For example, when imposing demographic parity on a hiring algorithm, if qualifications are different across a protected attribute, then less-qualified candidates may be hired. If these candidates end up being low-performers, then this can perpetuate stereotypes about their demographic group.  
 
 In the above example of using a hiring algorithm with gender as the protected attribute, it may then seem fairer to require independence on gender only for men and women with the same rating or qualification, that is, $\hat{Y} \indep A | R$. This is known as conditional demographic parity and requires that the following equation is satisfied (Castelnovo, 2022): 
 
 $$ P (\hat{Y} = 1 | A = a, R = r) = P (\hat{Y} = 1 | A = b, R = r), \text{    } \forall a, b \in A, \forall r.$$
 
-This can be generalized more to condition on all attributes, that is, $\hat{Y} \indep A |  X$. This satisfies individual fairness and can be achieved by a gender-blind model (Castelnovo, 2022). This is also referred to as fairness through unawareness (FTU), which requires that any protected attributes A are not explicitly used in the decision-making process (Mehrabi, 2022). This definition of fairness requires that the following equation be satisfied (Castelnovo, 2022): 
+This can be generalized more to condition on all attributes, that is, $\hat{Y} \indep A |  X$. As this is more generalized, however, it begins to satisfy individual fairness and can be achieved by a gender-blind model (Castelnovo, 2022). This type of individual fairness is also referred to as fairness through unawareness (FTU), which requires that any protected attributes, or their covariates, are not explicitly used in the decision-making process (Mehrabi, 2022). This definition of fairness requires that the following equation be satisfied (Castelnovo, 2022): 
 
 $$ P (\hat{Y} = 1 | A = a, X = x) = P (\hat{Y} = 1 | A = b, X = x), \text{ } \forall a, b \in A, \forall x \in X.$$
 
@@ -104,7 +104,7 @@ In the COMPAS data set, separation would be satisfied if both Black defendants a
 Separation requires independence of the predictions $\hat{Y}$ and the sensitive attribute $A$ conditioned on the true value of the target variable $Y$, that is, $\hat{Y} \indep A|Y$ (Castelnovo, 2022). In other terms, the following equation must be satisfied:
 
 $$ P(\hat{Y} = 1 | A = a, Y = y) = P(\hat{Y} = 1 | A = b, Y = y), \text{ } \forall a,b \in A, \text{ } y \in \{ 0, 1 \},$$
-where 0 is a negative outcome and 1 is a positive outcome. This is a reasonable fairness metric as long as the objectivity of the target variable is trusted as it ensures the model optimizes performance for all groups, not just minority groups. 
+where 0 is a negative outcome and 1 is a positive outcome. This is a reasonable fairness metric, as long as the objectivity of the target variable is trusted, as it ensures the model optimizes performance for all groups, not just majority groups. 
 
 The visual example in Figure \@ref(fig:eoo) illustrates a toy scenario where separation is met (Castelnovo, 2022). The dashed line represents the decision boundary. Filled in circles represent positive predictions and empty circles represent negative predictions. The error rates are consistent between both men and women.
 
@@ -124,12 +124,12 @@ $$ P (\hat{Y} = 0 | A = a, Y = 1) = P (\hat{Y} = 0 | A = b, Y = 1), \text{ } \fo
 
 #### Sufficiency 
 
-Finally, sufficiency takes the perspective of people that receive the same model prediction and requires parity among them regardless of sensitive features (Castelnovo, 2022). This is also knows as predictive parity and requires that the precision should be the same across sensitive groups, that is, $Y \indep A | \hat{Y}$. In other words, the following equation must be satisfied:
+Finally, sufficiency takes the perspective of people that receive the same model prediction and requires parity among them regardless of sensitive features (Castelnovo, 2022). This is also knows as predictive parity and requires that the precision be the same across sensitive groups, that is, $Y \indep A | \hat{Y}$. In other words, the following equation must be satisfied:
 
 $$ P (Y = 1 | A = a, \hat{Y} = 1) = P (Y = 1 | A = b, \hat{Y} = 1), \text{ } \forall a, b \in A.$$
 Simply put, the probability that a positive outcome is correctly predicted as positive should be equal across all sensitive groups.
 
-\\ 
+$\\$
 
 Consistent with this line of reasoning, many fairness metrics can be defined. This begs the fundamental question: can multiple definitions be simultaneously enforced?
 
@@ -139,7 +139,7 @@ Because of the way different fairness definitions are defined, it can be impossi
 
 ### Fairness Conflicts in Regression
 
-The UFRGS Entrance Exam and GPA Data contains entrance exam scores of students applying to the Federal University of Rio Grande do Sul in Brazil, along with the students' GPAs during the first three semesters at university. (Castro da Silva, 2019). Each student's score in nine different entrance exams is used to predict their GPA during their first 3 semesters of study at the university. Gender and race are protected attributes.  
+The UFRGS Entrance Exam and GPA Data contains entrance exam scores of students applying to the Federal University of Rio Grande do Sul in Brazil, along with the students' GPAs during the first three semesters at university (Castro da Silva, 2019). Each student's score in nine different entrance exams is used to predict their GPA during their first 3 semesters of study at the university. Gender and race are protected attributes.  
 
 Taking gender as the protected attribute, independence, in this setting, would require that the average predictions be the same for each gender. That is, 
 
@@ -155,5 +155,6 @@ However, a study found that because male and female applicants had different GPA
 
 ### Fairness Conflicts in Classification {#class-conflict}
 
+There was a lot we did for this section, so I'm trying to brainstorm what the best and most logical way to present it would be. 
 
 
