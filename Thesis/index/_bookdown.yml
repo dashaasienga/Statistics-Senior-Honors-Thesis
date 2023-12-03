@@ -5,7 +5,8 @@ book_filename: "Dasha-Asienga_StatThesis"
 # Do not include the abstract or acknowledgment files here;
 # they are automatically processed in the index.Rmd file
 rmd_files: ["index.Rmd",
-            "01-chap1.Rmd"]
+            "01-chap1.Rmd",
+            "99-references.Rmd"]
 # Do not edit any of the following lines
 chapter_name: "Chapter"
 delete_merged_file: true

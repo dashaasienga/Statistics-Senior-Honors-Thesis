@@ -1,5 +1,5 @@
 ---
-title: 'My amazing  title'
+title: 'Algorithmic Bias, Statistical Notions of Fairness, and the Seldonian Algorithm'
 author: 'Dasha Asienga'
 date: 'April DD, 20YY'
 institution: 'Amherst College'
