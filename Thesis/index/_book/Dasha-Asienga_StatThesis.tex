@@ -139,6 +139,46 @@ Use this space to thank those who have helped you in the thesis process (profess
 
 % Formatting R code display
 % Syntax highlighting #22
+  \usepackage{color}
+  \usepackage{fancyvrb}
+  \newcommand{\VerbBar}{|}
+  \newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+  \DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+  % Add ',fontsize=\small' for more characters per line
+  \usepackage{framed}
+  \definecolor{shadecolor}{RGB}{248,248,248}
+  \newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+  \newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+  \newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+  \newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+  \newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+  \newcommand{\BuiltInTok}[1]{#1}
+  \newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+  \newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+  \newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+  \newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+  \newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+  \newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+  \newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+  \newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+  \newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+  \newcommand{\ExtensionTok}[1]{#1}
+  \newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+  \newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+  \newcommand{\ImportTok}[1]{#1}
+  \newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+  \newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+  \newcommand{\NormalTok}[1]{#1}
+  \newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+  \newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+  \newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+  \newcommand{\RegionMarkerTok}[1]{#1}
+  \newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+  \newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+  \newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+  \newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+  \newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+  \newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
 
 % Formatting R code: set baselinestretch = 1.5 for double-spacing
 \DefineVerbatimEnvironment{Highlighting}{Verbatim}{
@@ -435,7 +475,7 @@ Sufficiency would require equal PPV and equal NPV across the different demograph
 Now, given values of the \(PPV \in (0,1)\) and \(p \in (0,1)\), it can be shown that (Chouldechova, 2017):
 
 \[ FPR = \frac{p}{1-p} \frac{1-PPV}{PPV}(1 - FNR).\]
-Appendix A provides the details for the derivation of this equation. However, its direct implication is that if the prevalence differs between two groups, then it is impossible to satisfy sufficiency (equal PPV across all groups) and separation (equal FPR and FNR across all groups) simultaneously. For example, in the COMPAS data set, if recidivism rates differ between Black and White offenders, then an algorithm that guarantees predictive parity/ equal precision for both Black and White offenders cannot also guarantee equality of odds. Indeed, the recidivism rate for Black defendants in the data is 51\%, compared to 39\% for White defendants, and hence, the disparate impact of the COMPAS tool as observed in Figure \ref{fig:compas1} (Chouldechova, 2017).
+Appendix \ref{appendix-a} provides the details for the derivation of this equation. However, its direct implication is that if the prevalence differs between two groups, then it is impossible to satisfy sufficiency (equal PPV across all groups) and separation (equal FPR and FNR across all groups) simultaneously. For example, in the COMPAS data set, if recidivism rates differ between Black and White offenders, then an algorithm that guarantees predictive parity/ equal precision for both Black and White offenders cannot also guarantee equality of odds. Indeed, the recidivism rate for Black defendants in the data is 51\%, compared to 39\% for White defendants, and hence, the disparate impact of the COMPAS tool as observed in Figure \ref{fig:compas1} (Chouldechova, 2017).
 
 Figure \ref{fig:dp} illustrates a similar conflict between independence and separation. Satisfying independence resulted in an imbalance of error rates between group A and group B because of the difference in the prevalence of loan repayment between both groups.
 
@@ -446,7 +486,137 @@ Unfortunately, the distribution of the outcome of interest often differs for dif
 \hypertarget{on-fairness-conflicts}{%
 \subsection{On Fairness Conflicts}\label{on-fairness-conflicts}}
 
-As observed, disparate impact can result from the use of a prediction tool that is perceived to be free from predictive bias. Just because an algorithm satisfies a particular definition of fairness doesn't infer that the algorithm is \emph{fair} in every sense of that word. Balancing overall error rates alone is not enough as it does not produce models that are free from bias or that guarantee fairness at finer levels of granularity. This highlights the need for human value and domain expertise in defining fairness within the context of a particular problem before the fairness constraints can be set. Once that is done, Chapter 2 introduces a framework for setting these constraints.
+As observed, disparate impact can result from the use of a prediction tool that is perceived to be free from predictive bias. Just because an algorithm satisfies a particular definition of fairness doesn't infer that the algorithm is \emph{fair} in every sense of that word. Balancing overall error rates alone is not enough as it does not produce models that are free from bias or that guarantee fairness at finer levels of granularity. This highlights the need for human value and domain expertise in defining fairness within the context of a particular problem before the fairness constraints can be set. Once that is done, Chapter \ref{chap-2} introduces a framework for setting these constraints.
+
+\hypertarget{chap-2}{%
+\chapter{The Seldonian Algorithm}\label{chap-2}}
+
+\appendix
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(dplyr)}
+\FunctionTok{library}\NormalTok{(ggplot2)}
+\FunctionTok{library}\NormalTok{(gridExtra)}
+\end{Highlighting}
+\end{Shaded}
+\begin{verbatim}
+   
+   Attaching package: 'gridExtra'
+\end{verbatim}
+\begin{verbatim}
+   The following object is masked from 'package:dplyr':
+   
+       combine
+\end{verbatim}
+\hypertarget{appendix-a}{%
+\chapter{Sufficiency v Separation Fairness Conflict Equation Derivation}\label{appendix-a}}
+
+Recall from Chapter \ref{intro} that (Castelnovo et al., 2022):
+
+\[ PPV = P(Y=1|\hat{Y} = 1),\]
+\[ FPR = P(\hat{Y} = 1| Y = 0),\]
+\[FNR = P(\hat{Y} = 0| Y = 1),\]
+\[ p = P(Y=1).\]
+Using Bayes' rule,
+
+\[PPV = P(Y=1|\hat{Y} = 1) = \frac{P(\hat{Y} = 1|Y=1)P(Y=1)}{P(\hat{Y} = 1|Y=1)P(Y=1) + P(\hat{Y} = 1|Y=0)P(Y=0)} \]
+\[\Rightarrow PPV = \frac{P(\hat{Y} = 1|Y=1)p}{P(\hat{Y} = 1|Y=1)p + P(\hat{Y} = 1|Y=0)(1-p)}\]
+
+\[\Rightarrow PPV = \frac{(1-FNR)p}{(1-FNR)p + FPR(1-p)}\]
+
+\[\Rightarrow (1-FNR)p + FPR(1-p) = \frac{(1-FNR)p}{PPV}\]
+\[\Rightarrow FPR(1-p) = \frac{(1-FNR)p}{PPV} - (1-FNR)p\]
+\[\Rightarrow FPR = \frac{(1-FNR)p}{PPV(1-p)} - \frac{(1-FNR)p}{(1-p)}\]
+\[\Rightarrow FPR = \frac{p}{1-p} \left[  \frac{(1-FNR)}{PPV} - (1-FNR) \right]\]
+\[\Rightarrow FPR = \frac{p}{1-p} \left[  \frac{(1-FNR) - PPV(1-FNR)}{PPV} \right]\]
+\[\Rightarrow FPR = \frac{p}{1-p} \left[  \frac{(1-FNR) (1 - PPV)}{PPV} \right]\]
+\[\Rightarrow FPR = \frac{p}{1-p} \frac{1 - PPV}{PPV} (1-FNR) \blacksquare.\]
+
+A similar equation can be derived relating \(NPV = P(Y=0|\hat{Y} = 0)\) and both FPR and FNR.
+
+Additionally, in conventional statistics notation, the sensitivity of a prediction tool can be defined as \(P(\hat{Y}=1|Y=1) = 1 - FNR\) and its specificity can be defined as \(P(\hat{Y}=0|Y=0) = 1 - FPR\). Given a prevalence \(p\), sensitivity \(s_e\), and specificity \(s_p\), then:
+
+\[PPV = \frac{s_ep}{s_ep + (1-s_p)(1-p)}.\]
+
+Similarly, it can shown that:
+
+\[NPV = \frac{s_p(1-p)}{(1-s_e)p + s_p(1-p)}.\]
+
+The code chunk below fixes arbitrary sensitivity (1 - FNR) and specificity (1 - FPR) values to illustrate through the proceeding plots that as prevalence varies, then PPV/ NPV varies and cannot be equal as long as sensitivity and specificity are held constant, hence a conflict.
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ppv }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(p, sens, spec)\{}
+\NormalTok{  ppv }\OtherTok{\textless{}{-}}\NormalTok{ (sens}\SpecialCharTok{*}\NormalTok{p)}\SpecialCharTok{/}\NormalTok{((sens}\SpecialCharTok{*}\NormalTok{p) }\SpecialCharTok{+}\NormalTok{ ((}\DecValTok{1}\SpecialCharTok{{-}}\NormalTok{spec)}\SpecialCharTok{*}\NormalTok{(}\DecValTok{1}\SpecialCharTok{{-}}\NormalTok{p)))}
+  \FunctionTok{return}\NormalTok{(ppv)}
+\NormalTok{\}}
+
+\NormalTok{npv }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(p, sens, spec)\{}
+\NormalTok{  npv }\OtherTok{\textless{}{-}}\NormalTok{ (spec}\SpecialCharTok{*}\NormalTok{(}\DecValTok{1}\SpecialCharTok{{-}}\NormalTok{p))}\SpecialCharTok{/}\NormalTok{(((}\DecValTok{1}\SpecialCharTok{{-}}\NormalTok{sens)}\SpecialCharTok{*}\NormalTok{p) }\SpecialCharTok{+}\NormalTok{ (spec}\SpecialCharTok{*}\NormalTok{(}\DecValTok{1}\SpecialCharTok{{-}}\NormalTok{p)))}
+  \FunctionTok{return}\NormalTok{(npv)}
+\NormalTok{\}}
+
+\NormalTok{dat\_8080 }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{prevalence =} \FunctionTok{seq}\NormalTok{(}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.95}\NormalTok{,}\FloatTok{0.05}\NormalTok{)}
+\NormalTok{                       , }\AttributeTok{sens=}\FloatTok{0.80}
+\NormalTok{                       , }\AttributeTok{spec=}\FloatTok{0.80}
+\NormalTok{                       , }\AttributeTok{ppv =} \FunctionTok{ppv}\NormalTok{(}\AttributeTok{p=}\FunctionTok{seq}\NormalTok{(}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.95}\NormalTok{,}\FloatTok{0.05}\NormalTok{), }
+                                   \AttributeTok{sens=}\FloatTok{0.80}\NormalTok{, }
+                                   \AttributeTok{spec=}\FloatTok{0.80}\NormalTok{)}
+\NormalTok{                       , }\AttributeTok{npv =} \FunctionTok{npv}\NormalTok{(}\AttributeTok{p=}\FunctionTok{seq}\NormalTok{(}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.95}\NormalTok{,}\FloatTok{0.05}\NormalTok{), }
+                                   \AttributeTok{sens=}\FloatTok{0.80}\NormalTok{, }
+                                   \AttributeTok{spec=}\FloatTok{0.80}\NormalTok{))}
+
+\NormalTok{dat\_9090 }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{prevalence =} \FunctionTok{seq}\NormalTok{(}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.95}\NormalTok{,}\FloatTok{0.05}\NormalTok{)}
+\NormalTok{                       , }\AttributeTok{sens=}\FloatTok{0.90}
+\NormalTok{                       , }\AttributeTok{spec=}\FloatTok{0.90}
+\NormalTok{                       , }\AttributeTok{ppv =} \FunctionTok{ppv}\NormalTok{(}\AttributeTok{p=}\FunctionTok{seq}\NormalTok{(}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.95}\NormalTok{,}\FloatTok{0.05}\NormalTok{), }
+                                   \AttributeTok{sens=}\FloatTok{0.90}\NormalTok{, }
+                                   \AttributeTok{spec=}\FloatTok{0.90}\NormalTok{)}
+\NormalTok{                       , }\AttributeTok{npv =} \FunctionTok{npv}\NormalTok{(}\AttributeTok{p=}\FunctionTok{seq}\NormalTok{(}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.95}\NormalTok{,}\FloatTok{0.05}\NormalTok{), }
+                                   \AttributeTok{sens=}\FloatTok{0.90}\NormalTok{, }
+                                   \AttributeTok{spec=}\FloatTok{0.90}\NormalTok{))}
+
+\NormalTok{dat\_9070 }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{prevalence =} \FunctionTok{seq}\NormalTok{(}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.95}\NormalTok{,}\FloatTok{0.05}\NormalTok{)}
+\NormalTok{                       , }\AttributeTok{sens=}\FloatTok{0.90}
+\NormalTok{                       , }\AttributeTok{spec=}\FloatTok{0.70}
+\NormalTok{                       , }\AttributeTok{ppv =} \FunctionTok{ppv}\NormalTok{(}\AttributeTok{p=}\FunctionTok{seq}\NormalTok{(}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.95}\NormalTok{,}\FloatTok{0.05}\NormalTok{), }
+                                   \AttributeTok{sens=}\FloatTok{0.90}\NormalTok{, }
+                                   \AttributeTok{spec=}\FloatTok{0.70}\NormalTok{)}
+\NormalTok{                       , }\AttributeTok{npv =} \FunctionTok{npv}\NormalTok{(}\AttributeTok{p=}\FunctionTok{seq}\NormalTok{(}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.95}\NormalTok{,}\FloatTok{0.05}\NormalTok{), }
+                                   \AttributeTok{sens=}\FloatTok{0.90}\NormalTok{, }
+                                   \AttributeTok{spec=}\FloatTok{0.70}\NormalTok{))}
+
+\NormalTok{dat\_7090 }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{prevalence =} \FunctionTok{seq}\NormalTok{(}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.95}\NormalTok{,}\FloatTok{0.05}\NormalTok{)}
+\NormalTok{                       , }\AttributeTok{sens=}\FloatTok{0.70}
+\NormalTok{                       , }\AttributeTok{spec=}\FloatTok{0.90}
+\NormalTok{                       , }\AttributeTok{ppv =} \FunctionTok{ppv}\NormalTok{(}\AttributeTok{p=}\FunctionTok{seq}\NormalTok{(}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.95}\NormalTok{,}\FloatTok{0.05}\NormalTok{), }
+                                   \AttributeTok{sens=}\FloatTok{0.70}\NormalTok{, }
+                                   \AttributeTok{spec=}\FloatTok{0.90}\NormalTok{)}
+\NormalTok{                       , }\AttributeTok{npv =} \FunctionTok{npv}\NormalTok{(}\AttributeTok{p=}\FunctionTok{seq}\NormalTok{(}\FloatTok{0.05}\NormalTok{,}\FloatTok{0.95}\NormalTok{,}\FloatTok{0.05}\NormalTok{), }
+                                   \AttributeTok{sens=}\FloatTok{0.70}\NormalTok{, }
+                                   \AttributeTok{spec=}\FloatTok{0.90}\NormalTok{))}
+
+\NormalTok{dat\_all }\OtherTok{\textless{}{-}} \FunctionTok{bind\_rows}\NormalTok{(dat\_8080, dat\_7090, dat\_9070, dat\_9090) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{sens\_spec =} \FunctionTok{paste0}\NormalTok{(}\StringTok{"Sensitivity: "}\NormalTok{, sens, }
+                            \StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{ Specificity: "}\NormalTok{, spec)}
+\NormalTok{         , }\AttributeTok{fpr =} \DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ spec}
+\NormalTok{         , }\AttributeTok{fnr =} \DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ sens)}
+
+\NormalTok{g1 }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(dat\_all, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x=}\NormalTok{prevalence, }\AttributeTok{y=}\NormalTok{ppv)) }\SpecialCharTok{+}
+        \FunctionTok{geom\_point}\NormalTok{() }\SpecialCharTok{+} 
+        \FunctionTok{labs}\NormalTok{(}\AttributeTok{x=}\StringTok{"prevalence"}\NormalTok{, }\AttributeTok{y=}\StringTok{"positive predictive value"}\NormalTok{,}
+             \AttributeTok{title =} \StringTok{"PPV{-}FPR{-}FNR Conflict"}\NormalTok{) }\SpecialCharTok{+}
+        \FunctionTok{facet\_wrap}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{sens\_spec)}
+
+\NormalTok{g2 }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(dat\_all, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x=}\NormalTok{prevalence, }\AttributeTok{y=}\NormalTok{npv)) }\SpecialCharTok{+}
+        \FunctionTok{geom\_point}\NormalTok{() }\SpecialCharTok{+} 
+        \FunctionTok{labs}\NormalTok{(}\AttributeTok{x=}\StringTok{"prevalence"}\NormalTok{, }\AttributeTok{y=}\StringTok{"negative predictive value"}\NormalTok{,}
+             \AttributeTok{title =} \StringTok{"NPV{-}FPR{-}FNR Conflict"}\NormalTok{) }\SpecialCharTok{+}
+        \FunctionTok{facet\_wrap}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{sens\_spec)}
+
+\FunctionTok{grid.arrange}\NormalTok{(g1,g2, }\AttributeTok{nrow=}\DecValTok{1}\NormalTok{, }\AttributeTok{ncol=}\DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+\begin{center}\includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/unnamed-chunk-2-1} \end{center}
 
 \backmatter
 
