@@ -492,24 +492,9 @@ As observed, disparate impact can result from the use of a prediction tool that 
 \chapter{The Seldonian Algorithm}\label{chap-2}}
 
 \appendix
-\begin{Shaded}
-\begin{Highlighting}[]
-\FunctionTok{library}\NormalTok{(dplyr)}
-\FunctionTok{library}\NormalTok{(ggplot2)}
-\FunctionTok{library}\NormalTok{(gridExtra)}
-\end{Highlighting}
-\end{Shaded}
-\begin{verbatim}
-   
-   Attaching package: 'gridExtra'
-\end{verbatim}
-\begin{verbatim}
-   The following object is masked from 'package:dplyr':
-   
-       combine
-\end{verbatim}
+
 \hypertarget{appendix-a}{%
-\chapter{Sufficiency v Separation Fairness Conflict Equation Derivation}\label{appendix-a}}
+\chapter{Sufficiency v Separation Fairness Conflict Equation}\label{appendix-a}}
 
 Recall from Chapter \ref{intro} that (Castelnovo et al., 2022):
 
@@ -543,6 +528,13 @@ Similarly, it can shown that:
 \[NPV = \frac{s_p(1-p)}{(1-s_e)p + s_p(1-p)}.\]
 
 The code chunk below fixes arbitrary sensitivity (1 - FNR) and specificity (1 - FPR) values to illustrate through the proceeding plots that as prevalence varies, then PPV/ NPV varies and cannot be equal as long as sensitivity and specificity are held constant, hence a conflict.
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(dplyr)}
+\FunctionTok{library}\NormalTok{(ggplot2)}
+\FunctionTok{library}\NormalTok{(gridExtra)}
+\end{Highlighting}
+\end{Shaded}
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{ppv }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(p, sens, spec)\{}
