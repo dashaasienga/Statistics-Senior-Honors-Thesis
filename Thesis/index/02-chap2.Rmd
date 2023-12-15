@@ -5,10 +5,29 @@ library(mosaic)
 
 # The Seldonian Algorithm {#chap-2}
 
-Chapter \@ref(intro) introduced the problem of algorithmic bias, discussed existing statistical definitions of fairness both in regression and classification settings, and finally, highlighted  fairness conflicts that can arise in certain settings. Of important note is that there are a plethora of fairness definitions that have been developed in statistical machine learning, many of which have been shown to be incompatible in ways similar to the illustration in Appendix \@ref(appendix-a). In any effort to enforce fairness on machine learning models, a critical first step is to define what fairness means in the specific context [@thomas2020housetestimony]. This responsibility falls on domain experts, social scientists, and regulators. Once there is consensus on that, machine learning researchers can work to develop appropriate algorithms that enforce the chosen definition of fairness. The Seldonian framework, introduced in this chapter, offers a way to place probablistic fairness constraints on traditional algorithms. 
+Chapter \@ref(intro) introduced the problem of algorithmic bias, discussed existing statistical definitions of fairness both in regression and classification settings, and finally, highlighted  fairness conflicts that can arise in certain settings. Of important note is that there are a plethora of fairness definitions that have been developed in statistical machine learning, many of which have been shown to be incompatible in ways similar to the illustration in Appendix \@ref(appendix-a). In any effort to enforce fairness on machine learning models, a critical first step is to define what fairness means in the specific context [@thomas2020housetestimony]. This responsibility falls on domain experts, social scientists, and regulators. Once there is consensus on that, machine learning researchers can work to develop appropriate algorithms that enforce the chosen definition of fairness. The Seldonian framework, introduced in this chapter, offers one such way to place probabilistic fairness constraints on traditional algorithms. However, because Seldonian algorithms place constraints on traditional machine learning (ML) algorithms, an initial in-depth understanding of the standard approach is key. Section \@ref(standardml) discusses the typical ML approach before diving into the Seldonian framework later in the Chapter. 
 
-## The Standard Machine Learning Approach
+## The Standard Machine Learning Approach {#standardml}
+
+When designing a machine learning algorithm, the first step is to mathematically define what the algorithm should do, in other words, the goal of the algorithm [@thomas2019supplementary]. At an abstract level, this goal is identical for all machine learning problems: find a solution $\theta^*$, within some feasible set $\Theta$, that maximizes some objective function $f: \Theta \rightarrow R$, where $R$ is the set of real numbers. Precisely, the goal of the algorithm is to search for an optimal solution  
+
+$$\theta^* \in \underset{\theta \in \Theta}{\text{ arg max }} f(\theta).$$
+
+For example, let $X$ and $Y$ be dependent real-valued random variables in a regression setting with the goal of estimating $Y$ given $X$. In this setting, $\Theta$ is the set of feasible functions that model the relationship between $X$ and $Y$. Feasible functions are of the form $\theta(X) = \beta_0 + \beta_1X = \hat{Y}$. Each function $\theta \in \Theta$ takes a real number as input and produces a real number as output; therefore, $\theta : R \rightarrow R$. Note that the true value of $f(\theta)$ is unknown and can only be estimated from the data [@thomas2019preventing]. A reasonable objective function would then be the negative mean squared error (MSE):
+
+$$f(\theta):=-E[(\theta(X) - Y)^2].$$
+In this case, maximizing MSE is equivalent to minimizing -MSE, defining the goal of the regression algorithm as finding the solution with the least average error. For a sample with $m$ observations, that is, $(x_i, y_i) \text{ for } i = 1,2,...,m$, the objective function can be estimated by:
+
+$$\hat{f(\theta)}:= -\frac{1}{m} \sum_{i=1}^{m}(\theta(x_i) - y_i)^2.$$
+
+### Limitations of the Standard Approach
+
+### Potential Remedies
 
 ## The Seldonian Framework 
 
 ## Toy Example: A Seldonian Regression Algorithm
+
+## Random Notes (Delete When Done):
+
+Need another source for standard ML approach?

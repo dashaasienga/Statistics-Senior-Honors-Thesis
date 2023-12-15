@@ -455,7 +455,7 @@ Separation, on the other hand, would require that the average error of predictio
 \[ E[\hat{Y} - Y | G = Male] = E[\hat{Y} - Y| G = Female].\]
 This is violated if, on average, the model over-predicts for one gender but under-predicts for another gender or the model either over-predicts or under-predicts more or less for one gender.
 
-However, a study found that because male and female applicants had different GPAs in the original data set, these two fairness definitions cannot be simultaneously satisfied (Thomas, 2020). A result in the Section \ref{class-conflict} will explain this in a mathematically tractable way.
+However, a study found that because male and female applicants had different GPAs in the original data set, these two fairness definitions cannot be simultaneously satisfied (P. Thomas, 2020). A result in the Section \ref{class-conflict} will explain this in a mathematically tractable way.
 
 \hypertarget{class-conflict}{%
 \subsection{Fairness Conflicts in Classification}\label{class-conflict}}
@@ -491,16 +491,38 @@ As observed, disparate impact can result from the use of a prediction tool that 
 \hypertarget{chap-2}{%
 \chapter{The Seldonian Algorithm}\label{chap-2}}
 
-Chapter \ref{intro} introduced the problem of algorithmic bias, discussed existing statistical definitions of fairness both in regression and classification settings, and finally, highlighted fairness conflicts that can arise in certain settings. Of important note is that there are a plethora of fairness definitions that have been developed in statistical machine learning, many of which have been shown to be incompatible in ways similar to the illustration in Appendix \ref{appendix-a}. In any effort to enforce fairness on machine learning models, a critical first step is to define what fairness means in the specific context (Thomas, 2020). This responsibility falls on domain experts, social scientists, and regulators. Once there is consensus on that, machine learning researchers can work to develop appropriate algorithms that enforce the chosen definition of fairness. The Seldonian framework, introduced in this chapter, offers a way to place probablistic fairness constraints on traditional algorithms.
+Chapter \ref{intro} introduced the problem of algorithmic bias, discussed existing statistical definitions of fairness both in regression and classification settings, and finally, highlighted fairness conflicts that can arise in certain settings. Of important note is that there are a plethora of fairness definitions that have been developed in statistical machine learning, many of which have been shown to be incompatible in ways similar to the illustration in Appendix \ref{appendix-a}. In any effort to enforce fairness on machine learning models, a critical first step is to define what fairness means in the specific context (P. Thomas, 2020). This responsibility falls on domain experts, social scientists, and regulators. Once there is consensus on that, machine learning researchers can work to develop appropriate algorithms that enforce the chosen definition of fairness. The Seldonian framework, introduced in this chapter, offers one such way to place probabilistic fairness constraints on traditional algorithms. However, because Seldonian algorithms place constraints on traditional machine learning (ML) algorithms, an initial in-depth understanding of the standard approach is key. Section \ref{standardml} discusses the typical ML approach before diving into the Seldonian framework later in the Chapter.
 
-\hypertarget{the-standard-machine-learning-approach}{%
-\section{The Standard Machine Learning Approach}\label{the-standard-machine-learning-approach}}
+\hypertarget{standardml}{%
+\section{The Standard Machine Learning Approach}\label{standardml}}
+
+When designing a machine learning algorithm, the first step is to mathematically define what the algorithm should do, in other words, the goal of the algorithm (P. S. Thomas et al., 2019b). At an abstract level, this goal is identical for all machine learning problems: find a solution \(\theta^*\), within some feasible set \(\Theta\), that maximizes some objective function \(f: \Theta \rightarrow R\), where \(R\) is the set of real numbers. Precisely, the goal of the algorithm is to search for an optimal solution
+
+\[\theta^* \in \underset{\theta \in \Theta}{\text{ arg max }} f(\theta).\]
+
+For example, let \(X\) and \(Y\) be dependent real-valued random variables in a regression setting with the goal of estimating \(Y\) given \(X\). In this setting, \(\Theta\) is the set of feasible functions that model the relationship between \(X\) and \(Y\). Feasible functions are of the form \(\theta(X) = \beta_0 + \beta_1X = \hat{Y}\). Each function \(\theta \in \Theta\) takes a real number as input and produces a real number as output; therefore, \(\theta : R \rightarrow R\). Note that the true value of \(f(\theta)\) is unknown and can only be estimated from the data (P. S. Thomas et al., 2019a). A reasonable objective function would then be the negative mean squared error (MSE):
+
+\[f(\theta):=-E[(\theta(X) - Y)^2].\]
+In this case, maximizing MSE is equivalent to minimizing -MSE, defining the goal of the regression algorithm as finding the solution with the least average error. For a sample with \(m\) observations, that is, \((x_i, y_i) \text{ for } i = 1,2,...,m\), the objective function can be estimated by:
+
+\[\hat{f(\theta)}:= -\frac{1}{m} \sum_{i=1}^{m}(\theta(x_i) - y_i)^2.\]
+
+\hypertarget{limitations-of-the-standard-approach}{%
+\subsection{Limitations of the Standard Approach}\label{limitations-of-the-standard-approach}}
+
+\hypertarget{potential-remedies}{%
+\subsection{Potential Remedies}\label{potential-remedies}}
 
 \hypertarget{the-seldonian-framework}{%
 \section{The Seldonian Framework}\label{the-seldonian-framework}}
 
 \hypertarget{toy-example-a-seldonian-regression-algorithm}{%
 \section{Toy Example: A Seldonian Regression Algorithm}\label{toy-example-a-seldonian-regression-algorithm}}
+
+\hypertarget{random-notes-delete-when-done}{%
+\section{Random Notes (Delete When Done):}\label{random-notes-delete-when-done}}
+
+Need another source for standard ML approach?
 
 \appendix
 
@@ -667,6 +689,12 @@ Silva, B. C. da. (2019). {UFRGS Entrance Exam and GPA Data} (Version V2) {[}Data
 
 \leavevmode\vadjust pre{\hypertarget{ref-thomas2020housetestimony}{}}%
 Thomas, P. (2020). Testimony to the house committee on financial services task force on artificial intelligence hearing: {``Equitable algorithms: Examining ways to reduce AI bias in financial services.''} Retrieved from \url{https://www.congress.gov/116/meeting/house/110499/witnesses/HHRG-116-BA00-Wstate-ThomasP-20200212.pdf}
+
+\leavevmode\vadjust pre{\hypertarget{ref-thomas2019preventing}{}}%
+Thomas, P. S., Castro da Silva, B., Barto, A. G., Giguere, S., Brun, Y., \& Brunskill, E. (2019a). Preventing undesirable behavior of intelligent machines. \emph{Science}, \emph{366}(6468), 999--1004.
+
+\leavevmode\vadjust pre{\hypertarget{ref-thomas2019supplementary}{}}%
+Thomas, P. S., Castro da Silva, B., Barto, A. G., Giguere, S., Brun, Y., \& Brunskill, E. (2019b). Supplementary materials for preventing undesirable behavior of intelligent machines. \emph{Science}, \emph{366}(6468), 999--1004.
 
 \end{CSLReferences}
 % Index?
