@@ -310,8 +310,8 @@ COMPAS is just one such algorithm. In the education sector, different factors le
 
 Can we modify these algorithms to be group-blind but also fair? In order to do so, fairness constraints that reduce, or even correct for, algorithmic bias during the modeling process must be set. However, one must first define fairness mathematically, statistically, and quantifiably.
 
-\hypertarget{statistical-definitions-of-fairness}{%
-\section{Statistical Definitions of Fairness}\label{statistical-definitions-of-fairness}}
+\hypertarget{fairnessdefinitions}{%
+\section{Statistical Definitions of Fairness}\label{fairnessdefinitions}}
 
 Statistical notions of fairness can be defined at a group level or an individual level. \emph{Group notions} fix a few demographic groups and assess the parity of some statistical measures across all the groups (Chouldechova \& Roth, 2018). Note that group measures, on their own, do not guarantee fairness to individuals or structured subgroups within protected demographic groups, but rather, give guarantees to ``average'' numbers of protected groups. These notions are the focus of this thesis paper.
 
@@ -510,6 +510,70 @@ In this case, maximizing MSE is equivalent to minimizing -MSE, defining the goal
 \hypertarget{limitations-of-the-standard-approach}{%
 \subsection{Limitations of the Standard Approach}\label{limitations-of-the-standard-approach}}
 
+In principle, there might be definitions of \(\Theta\) of \(f\) that prevent the algorithm from converging on solutions that exhibit undesirable behavior such as through setting soft constraints, hard constraints, or risk-sensitive approaches (P. S. Thomas et al., 2019a). However, in practice, this might require extensive domain expertise and data analysis in order to properly balance the relative importance of the objective function and the constraints, which can be at odds with each other. These techniques may also require knowledge of the probability distribution from which the data is sampled, which is not always available and limits applications to parametric statistics.
+
+Consider a linear regression example to predict the qualifications of job applicants based on information on their resumes. Let \(G\) encode the gender of each applicant, with \(G=0\) if the applicant is female and \(G=1\) if the applicant is male. Let \(X\) encode a summary measure of an applicants qualification based on information on their resume -- a simple example would be a measure of how many job-relevant key words appear on their resume. Let \(Y\) encode their actual qualification for the job as determined by their observed performance.
+
+If this linear regression estimator is designed to be used to filter which resumes submitted to a company will be forwarded for human review, it is worthwhile to ensure that the algorithm does not produce racist or sexist behavior. Drawing from definitions in Chapter \ref{fairnessdefinitions}, it might be less important to ensure that the algorithm, on average, has the same predictions for applicants of both genders because the distribution of qualifications may be different for both genders. However, of more concern is whether the algorithm, on average, predicts too high for one gender and too low for the other gender.
+
+Suppose that the data has the following distribution: \(Y \text{~} N(1,1)\) if \(G = 0\) and \(Y \text{~} N(-1,1)\) if \(G = 1\), that is, normal variables with different means but with the same standard deviation. Further define \(X \text{~} N(Y,1)\), that is, an applicant's resume quality is equal to their true quality plus some random noise. The code chunk below generates 1000 data points following this mechanisms, 500 from each group.
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# set seed for reproducibility }
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{123}\NormalTok{)}
+
+\CommentTok{\# generate synthetic data for both male and female applicants}
+\NormalTok{female }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(}\DecValTok{500}\NormalTok{, }\AttributeTok{mean =} \DecValTok{1}\NormalTok{, }\AttributeTok{sd =} \DecValTok{1}\NormalTok{)}
+\NormalTok{male }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(}\DecValTok{500}\NormalTok{, }\AttributeTok{mean =} \SpecialCharTok{{-}}\DecValTok{1}\NormalTok{, }\AttributeTok{sd =} \DecValTok{1}\NormalTok{)}
+\NormalTok{gender }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FunctionTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{500}\NormalTok{), }\FunctionTok{rep}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{500}\NormalTok{))}
+
+\CommentTok{\# create the data set}
+\NormalTok{y }\OtherTok{\textless{}{-}} \FunctionTok{union}\NormalTok{(female, male)}
+\NormalTok{x }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(}\DecValTok{1000}\NormalTok{, }\AttributeTok{mean =}\NormalTok{ y, }\AttributeTok{sd =} \DecValTok{1}\NormalTok{)}
+\NormalTok{data }\OtherTok{\textless{}{-}} \FunctionTok{cbind}\NormalTok{(y, x, gender)}
+\NormalTok{data }\OtherTok{\textless{}{-}}\NormalTok{ data }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{as.data.frame}\NormalTok{(data)}
+
+\CommentTok{\# fit least squares line}
+\FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data =}\NormalTok{ data, }\AttributeTok{mapping =} \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ x, }\AttributeTok{y =}\NormalTok{ y)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_point}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{color =} \FunctionTok{as.factor}\NormalTok{(gender)), }\AttributeTok{alpha =} \FloatTok{0.8}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_smooth}\NormalTok{(}
+    \AttributeTok{method =} \StringTok{"lm"}\NormalTok{,}
+    \FunctionTok{aes}\NormalTok{(}\AttributeTok{color =} \FunctionTok{as.factor}\NormalTok{(gender)),}
+    \AttributeTok{se =}\NormalTok{ F,}
+    \AttributeTok{size =} \DecValTok{2}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{geom\_smooth}\NormalTok{(}
+    \AttributeTok{method =} \StringTok{"lm"}\NormalTok{,}
+    \AttributeTok{formula =}\NormalTok{ y }\SpecialCharTok{\textasciitilde{}}\NormalTok{ x,}
+    \AttributeTok{color =} \StringTok{\textquotesingle{}black\textquotesingle{}}\NormalTok{,}
+    \AttributeTok{se =}\NormalTok{ F}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{color =} \StringTok{"Gender (G)"}\NormalTok{,}
+       \AttributeTok{title =} \StringTok{"Least Squares Fit on Synthetic Data"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{() }\SpecialCharTok{+}
+  \FunctionTok{theme}\NormalTok{(}\AttributeTok{panel.grid.major =} \FunctionTok{element\_blank}\NormalTok{(),}
+        \AttributeTok{panel.grid.minor =} \FunctionTok{element\_blank}\NormalTok{()) }
+\end{Highlighting}
+\end{Shaded}
+\begin{figure}
+
+{\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/fig1-1} 
+
+}
+
+\caption{Least Squares Fit on Synthetic Data Drawn from Different Distributions}\label{fig:fig1}
+\end{figure}
+Figure \ref{fig:fig1}
+
+--
+
+To be continued\ldots.
+
+``We show how linear regression algorithms designed using the standard ML approach can result in predictions of applicant performance that systematically discriminate against a group of people (such as people of one gender or race).''
+
+A major problem with the standard approach, however,
+
 \hypertarget{potential-remedies}{%
 \subsection{Potential Remedies}\label{potential-remedies}}
 
@@ -523,6 +587,8 @@ In this case, maximizing MSE is equivalent to minimizing -MSE, defining the goal
 \section{Random Notes (Delete When Done):}\label{random-notes-delete-when-done}}
 
 Need another source for standard ML approach?
+
+Fix image.
 
 \appendix
 

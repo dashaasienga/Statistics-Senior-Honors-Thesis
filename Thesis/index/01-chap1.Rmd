@@ -37,7 +37,7 @@ COMPAS is just one such algorithm. In the education sector, different factors le
 
 Can we modify these algorithms to be group-blind but also fair? In order to do so, fairness constraints that reduce, or even correct for, algorithmic bias during the modeling process must be set. However, one must first define fairness mathematically, statistically, and quantifiably.  
 
-## Statistical Definitions of Fairness
+## Statistical Definitions of Fairness {#fairnessdefinitions}
 
 Statistical notions of fairness can be defined at a group level or an individual level. *Group notions* fix a few demographic groups and assess the parity of some statistical measures across all the groups [@chouldechova2018frontiers]. Note that group measures, on their own, do not guarantee fairness to individuals or structured subgroups within protected demographic groups, but rather, give guarantees to "average" numbers of protected groups. These notions are the focus of this thesis paper.
 

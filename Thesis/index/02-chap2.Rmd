@@ -1,6 +1,9 @@
 
 ```{r load_packages, include = FALSE}
 library(mosaic)
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
 ```
 
 # The Seldonian Algorithm {#chap-2}
@@ -22,6 +25,63 @@ $$\hat{f(\theta)}:= -\frac{1}{m} \sum_{i=1}^{m}(\theta(x_i) - y_i)^2.$$
 
 ### Limitations of the Standard Approach
 
+In principle, there might be definitions of $\Theta$ of $f$ that prevent the algorithm from converging on solutions that exhibit undesirable behavior such as through setting soft constraints, hard constraints, or risk-sensitive approaches [@thomas2019preventing]. However, in practice, this might require extensive domain expertise and data analysis in order to properly balance the relative importance of the objective function and the constraints, which can be at odds with each other. These techniques may also require knowledge of the probability distribution from which the data is sampled, which is not always available and limits applications to parametric statistics.
+
+Consider a linear regression example to predict the qualifications of job applicants based on information on their resumes. Let $G$ encode the gender of each applicant, with $G=0$ if the applicant is female and $G=1$ if the applicant is male. Let $X$ encode a summary measure of an applicants qualification based on information on their resume -- a simple example would be a measure of how many job-relevant key words appear on their resume. Let $Y$ encode their actual qualification for the job as determined by their observed performance. 
+
+If this linear regression estimator is designed to be used to filter which resumes submitted to a company will be forwarded for human review, it is worthwhile to ensure that the algorithm does not produce racist or sexist behavior. Drawing from definitions in Chapter \@ref(fairnessdefinitions), it might be less important to ensure that the algorithm, on average, has the same predictions for applicants of both genders because the distribution of qualifications may be different for both genders. However, of more concern is whether the algorithm, on average, predicts too high for one gender and too low for the other gender. 
+
+Suppose that the data has the following distribution: $Y \text{~} N(1,1)$ if $G = 0$ and $Y \text{~} N(-1,1)$ if $G = 1$, that is, normal variables with different means but with the same standard deviation. Further define $X \text{~} N(Y,1)$, that is, an applicant's resume quality is equal to their true quality plus some random noise. The code chunk below generates 1000 data points following this mechanisms, 500 from each group. 
+
+
+```{r fig1, fig.align='center', fig.cap="Least Squares Fit on Synthetic Data Drawn from Different Distributions", warning = FALSE, message = FALSE, fig.width = 4.5, fig.height = 3}
+# set seed for reproducibility 
+set.seed(123)
+
+# generate synthetic data for both male and female applicants
+female <- rnorm(500, mean = 1, sd = 1)
+male <- rnorm(500, mean = -1, sd = 1)
+gender <- c(rep(0,500), rep(1,500))
+
+# create the data set
+y <- union(female, male)
+x <- rnorm(1000, mean = y, sd = 1)
+data <- cbind(y, x, gender)
+data <- data %>%
+  as.data.frame(data)
+
+# fit least squares line
+ggplot(data = data, mapping = aes(x = x, y = y)) +
+  geom_point(aes(color = as.factor(gender)), alpha = 0.8) +
+  geom_smooth(
+    method = "lm",
+    aes(color = as.factor(gender)),
+    se = F,
+    size = 2
+  ) +
+  geom_smooth(
+    method = "lm",
+    formula = y ~ x,
+    color = 'black',
+    se = F
+  ) +
+  labs(color = "Gender (G)",
+       title = "Least Squares Fit on Synthetic Data") +
+  theme_minimal() +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) 
+```
+
+Figure \@ref(fig:fig1)
+
+--
+
+To be continued....
+
+"We show how linear regression algorithms designed using the standard ML approach can result in predictions of applicant performance that systematically discriminate against a group of people (such as people of one gender or race)."
+
+A major problem with the standard approach, however,  
+
 ### Potential Remedies
 
 ## The Seldonian Framework 
@@ -31,3 +91,5 @@ $$\hat{f(\theta)}:= -\frac{1}{m} \sum_{i=1}^{m}(\theta(x_i) - y_i)^2.$$
 ## Random Notes (Delete When Done):
 
 Need another source for standard ML approach?
+
+Fix image.
