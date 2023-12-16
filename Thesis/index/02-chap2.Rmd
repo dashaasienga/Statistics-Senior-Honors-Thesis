@@ -19,9 +19,9 @@ $$\theta^* \in \underset{\theta \in \Theta}{\text{ arg max }} f(\theta).$$
 For example, let $X$ and $Y$ be dependent real-valued random variables in a regression setting with the goal of estimating $Y$ given $X$. In this setting, $\Theta$ is the set of feasible functions that model the relationship between $X$ and $Y$. Feasible functions are of the form $\theta(X) = \beta_0 + \beta_1X = \hat{Y}$. Each function $\theta \in \Theta$ takes a real number as input and produces a real number as output; therefore, $\theta : R \rightarrow R$. Note that the true value of $f(\theta)$ is unknown and can only be estimated from the data [@thomas2019preventing]. A reasonable objective function would then be the negative mean squared error (MSE):
 
 $$f(\theta):=-E[(\theta(X) - Y)^2].$$
-In this case, maximizing MSE is equivalent to minimizing -MSE, defining the goal of the regression algorithm as finding the solution with the least average error. For a sample with $m$ observations, that is, $(x_i, y_i) \text{ for } i = 1,2,...,m$, the objective function can be estimated by:
+In this case, maximizing MSE is equivalent to minimizing -MSE, defining the goal of the regression algorithm as finding the solution with the least average error. For a sample with $n$ observations, that is, $(x_i, y_i) \text{ for } i = 1,2,...,n$, the objective function can be estimated by:
 
-$$\hat{f(\theta)}:= -\frac{1}{m} \sum_{i=1}^{m}(\theta(x_i) - y_i)^2.$$
+$$\hat{f(\theta)}:= -\frac{1}{n} \sum_{i=1}^{n}(\theta(x_i) - y_i)^2.$$
 
 ### Limitations of the Standard Approach
 
@@ -31,10 +31,10 @@ Consider a linear regression example to predict the qualifications of job applic
 
 If this linear regression estimator is designed to be used to filter which resumes submitted to a company will be forwarded for human review, it is worthwhile to ensure that the algorithm does not produce racist or sexist behavior. Drawing from definitions in Chapter \@ref(fairnessdefinitions), it might be less important to ensure that the algorithm, on average, has the same predictions for applicants of both genders because the distribution of qualifications may be different for both genders. However, of more concern is whether the algorithm, on average, predicts too high for one gender and too low for the other gender. 
 
-Suppose that the data has the following distribution: $Y \text{~} N(1,1)$ if $G = 0$ and $Y \text{~} N(-1,1)$ if $G = 1$, that is, normal variables with different means but with the same standard deviation. Further define $X \text{~} N(Y,1)$, that is, an applicant's resume quality is equal to their true quality plus some random noise. The code chunk below generates 1000 data points following this mechanisms, 500 from each group. 
+Suppose that the data has the following distribution: $Y$ ~ $N(1,1)$ if $G = 0$ and $Y$ ~ $N(-1,1)$ if $G = 1$, that is, $Y$ is a normal variable $N(\mu, \sigma)$ with different means $\mu$ for different genders but with the same standard deviation $\sigma$ for both genders. Further define $X$ ~ $N(Y,1)$, that is, an applicant's resume quality is equal to their true quality plus some random noise. Figure \@ref(fig:fig1) displays a scatterplot of 1000 such data points, 500 from each gender. The black solid line is the least squares fit on this data, using a gender-blind model. 
 
 
-```{r fig1, fig.align='center', fig.cap="Least Squares Fit on Synthetic Data Drawn from Different Distributions", warning = FALSE, message = FALSE, fig.width = 4.5, fig.height = 3}
+```{r fig1, fig.align='center', fig.cap="Least Squares Fit on Synthetic Data Drawn from Different Distributions", warning = FALSE, message = FALSE, fig.width = 4.5, fig.height = 3, echo = FALSE}
 # set seed for reproducibility 
 set.seed(123)
 
@@ -72,15 +72,40 @@ ggplot(data = data, mapping = aes(x = x, y = y)) +
         panel.grid.minor = element_blank()) 
 ```
 
-Figure \@ref(fig:fig1)
+```{r, echo = FALSE}
+# set seed for reproducibility
+set.seed(123)
 
---
+# obtain the least squares linear model
+model <- lm(y ~ x, data = data)
 
-To be continued....
+# obtain the model predictions 
+preds <- predict(model, newdata = data)
 
-"We show how linear regression algorithms designed using the standard ML approach can result in predictions of applicant performance that systematically discriminate against a group of people (such as people of one gender or race)."
+# add the error into the data set
+data <- data %>%
+  mutate(error = preds - data$y)
 
-A major problem with the standard approach, however,  
+# compute average error per gender 
+diff <- data %>%
+  group_by(gender) %>%
+  summarise(average = mean(error)) 
+
+# obtain the discrimination statistic
+d <- diff$average[1] - diff$average[2]
+```
+
+The least squares fit on Figure \@ref(fig:fig1) is impartial to an observation's gender with an objective to make the most accurate predictions. While it may be expected that impartiality would produce fair results, observe that the linear model tends to over-predict if $G = 1$ and under-predict if $G=0$, on the contrary, producing discriminatory behavior. In fact, by defining a discrimination statistic, $d(\theta)$, as in Equation \@ref(discstat), the discrimination statistic for this data can be shown to be `r d`, suggesting the the model predictions are in favor of $G = 1$.
+ 
+
+\begin{equation}
+\label{discstat}
+d(\theta) :=  E[\hat{Y}-Y|G = 0 ] - E[\hat{Y}-Y|G = 1 ].
+\end{equation}
+
+
+In crucial applications such as hiring, this is concerning and highlights how linear regression algorithms designed using the standard approach can result in predictions of applicant performance that systematically discriminate against a demographic group.
+
 
 ### Potential Remedies
 
