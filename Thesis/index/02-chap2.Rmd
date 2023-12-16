@@ -21,7 +21,7 @@ For example, let $X$ and $Y$ be dependent real-valued random variables in a regr
 $$f(\theta):=-E[(\theta(X) - Y)^2].$$
 In this case, maximizing MSE is equivalent to minimizing -MSE, defining the goal of the regression algorithm as finding the solution with the least average error. For a sample with $n$ observations, that is, $(x_i, y_i) \text{ for } i = 1,2,...,n$, the objective function can be estimated by:
 
-$$\hat{f(\theta)}:= -\frac{1}{n} \sum_{i=1}^{n}(\theta(x_i) - y_i)^2.$$
+$$\hat{f(\theta)}= -\frac{1}{n} \sum_{i=1}^{n}(\theta(x_i) - y_i)^2.$$
 
 ### Limitations of the Standard Approach
 
@@ -95,13 +95,10 @@ diff <- data %>%
 d <- diff$average[1] - diff$average[2]
 ```
 
-The least squares fit on Figure \@ref(fig:fig1) is impartial to an observation's gender with an objective to make the most accurate predictions. While it may be expected that impartiality would produce fair results, observe that the linear model tends to over-predict if $G = 1$ and under-predict if $G=0$, on the contrary, producing discriminatory behavior. In fact, by defining a discrimination statistic, $d(\theta)$, as in Equation \@ref(discstat), the discrimination statistic for this data can be shown to be `r d`, suggesting the the model predictions are in favor of $G = 1$.
+The least squares fit on Figure \@ref(fig:fig1) is impartial to an observation's gender with an objective to make the most accurate predictions. While it may be expected that impartiality would produce fair results, observe that the linear model tends to over-predict if $G = 1$ and under-predict if $G=0$, on the contrary, producing discriminatory behavior. In fact, by defining a discrimination statistic, $d(\theta)$, as defined below in line with the specified fairness definition, the discrimination statistic for the synthetic data set in Figure \@ref(fig:fig1) can be shown to be `r d`, suggesting that the model predictions are in favor of $G = 1$.
  
 
-\begin{equation}
-\label{discstat}
-d(\theta) :=  E[\hat{Y}-Y|G = 0 ] - E[\hat{Y}-Y|G = 1 ].
-\end{equation}
+$$ d(\theta) =  E[\hat{Y}-Y|G = 0 ] - E[\hat{Y}-Y|G = 1 ]. $$
 
 
 In crucial applications such as hiring, this is concerning and highlights how linear regression algorithms designed using the standard approach can result in predictions of applicant performance that systematically discriminate against a demographic group.
@@ -118,3 +115,10 @@ In crucial applications such as hiring, this is concerning and highlights how li
 Need another source for standard ML approach?
 
 Fix image.
+
+Assign equations labels in Chapter 1 & 2 like below? 
+
+\begin{equation}
+\label{discstat}
+d(\theta) =  E[\hat{Y}-Y|G = 0 ] - E[\hat{Y}-Y|G = 1 ].
+\end{equation}
