@@ -19,13 +19,12 @@ $$\theta^* \in \underset{\theta \in \Theta}{\text{ arg max }} f(\theta).$$
 For example, let $X$ and $Y$ be dependent real-valued random variables in a regression setting with the goal of estimating $Y$ given $X$. In this setting, $\Theta$ is the set of feasible functions that model the relationship between $X$ and $Y$. Feasible functions are of the form $\theta(X) = \beta_0 + \beta_1X = \hat{Y}$. Each function $\theta \in \Theta$ takes a real number as input and produces a real number as output; therefore, $\theta : R \rightarrow R$. Note that the true value of $f(\theta)$ is unknown and can only be estimated from the data [@thomas2019preventing]. A reasonable objective function would then be the negative mean squared error (MSE):
 
 $$f(\theta):=-E[(\theta(X) - Y)^2].$$
+
 In this case, maximizing MSE is equivalent to minimizing -MSE, defining the goal of the regression algorithm as finding the solution with the least average error. For a sample with $n$ observations, that is, $(x_i, y_i) \text{ for } i = 1,2,...,n$, the objective function can be estimated by:
 
 $$\hat{f(\theta)}= -\frac{1}{n} \sum_{i=1}^{n}(\theta(x_i) - y_i)^2.$$
 
-### Limitations of the Standard Approach
-
-In principle, there might be definitions of $\Theta$ of $f$ that prevent the algorithm from converging on solutions that exhibit undesirable behavior such as through setting soft constraints, hard constraints, or risk-sensitive approaches [@thomas2019preventing]. However, in practice, this might require extensive domain expertise and data analysis in order to properly balance the relative importance of the objective function and the constraints, which can be at odds with each other. These techniques may also require knowledge of the probability distribution from which the data is sampled, which is not always available and limits applications to parametric statistics.
+### Limitations of the Standard Approach {#standardlimitations}
 
 Consider a linear regression example to predict the qualifications of job applicants based on information on their resumes. Let $G$ encode the gender of each applicant, with $G=0$ if the applicant is female and $G=1$ if the applicant is male. Let $X$ encode a summary measure of an applicants qualification based on information on their resume -- a simple example would be a measure of how many job-relevant key words appear on their resume. Let $Y$ encode their actual qualification for the job as determined by their observed performance. 
 
@@ -105,6 +104,17 @@ In crucial applications such as hiring, this is concerning and highlights how li
 
 
 ### Potential Remedies
+
+As illustrated in Section \@ref(standardlimitations) above, machine learning algorithms that use the standard approach may produce undesirable behavior. In an attempt to remedy this problem, a number of approaches can be taken. One potential remedy is to identify the root cause of the undesirable behavior such as class imbalance in the training data, bias in the data set, the choice of linear estimator, the model's blindness to the demographic group, or insufficient data, to name a few [@thomas2019supplementary]. However, even though it might be possible to determine and correct the root cause of the undesirable behavior, doing so can be difficult, error-prone, and require extensive data analysis, rendering the central goal of machine learning algorithms, which are designed to automate and make decision-making processes simpler, obsolete. For instance, in the example set up in Section \@ref(standardlimitations) and displayed in Figure \@ref(fig:fig1), the root cause of the discriminatory behavior when using ordinary least squares linear regression was the fact that the objective function was designed to minimize MSE, which was at odds with minimizing the discrimination statistic.  
+
+Provided that detailed knowledge of the problem is available, hard constraints may be placed on the objective function, for example, requiring that MSE is minimized only on the set of solutions with a discrimination value $d(\theta)$ less than some value $\epsilon$ [@thomas2019supplementary]. Rather than placing hard constraints on the set of solutions, soft constraints that penalize undesirable behavior may also be placed on $f$, the objective function [@boyd2004convex]. Although such penalty functions can be effective, they require a careful choice of the value of the parameter $\lambda$ that places relative importance on the objective function and the constraint. For the linear regression example, the new objective function with a soft constraint would now be:
+
+$$f(\theta) = - MSE (\theta) - \lambda d(\theta).$$
+Observe that as $\lambda$ increases, MSE increases and the discrimination statistic decreases. Cross-validation techniques can be employed to find optimal values for $\lambda$. Other remedies include maximizing multiple objective functions or allowing constraints on the probability that a solution with undesirable behavior will be returned, both of which may require detailed knowledge of the application problem and underlying distribution of the data [@thomas2019supplementary]. 
+
+In principle, there might be definitions of $\Theta$ of $f$ that prevent the algorithm from converging on solutions that exhibit undesirable behavior such as through setting soft constraints or hard constraints [@thomas2019preventing]. However, in practice, this might require extensive domain expertise and data analysis in order to properly balance the relative importance of the objective function and the constraints, which can be at odds with each other. These techniques may also require knowledge of the probability distribution from which the data is sampled, which is not always available and limits applications to parametric statistics.
+
+The Seldonian algorithm, thus, addresses this problem precisely by allowing probablistic constraints on undesirable behavior to be placed more easily without detailed knowledge of the specific problem or the distribution of the data, shifting the burden from the domain experts who use these tools to the experts in ML and statistics [@thomas2019preventing]. It's named after Isaac Asimov’s fictional character, Hari Seldon ^[In the fictional book, Hari Seldon was a resident of a fictional planet where he develops psychohistory, an algorithmic science that allows him to predict the future in probabilistic terms.] [@asimov1994forward]. 
 
 ## The Seldonian Framework 
 
