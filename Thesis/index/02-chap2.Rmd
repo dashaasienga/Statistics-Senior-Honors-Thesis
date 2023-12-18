@@ -6,7 +6,7 @@ library(tidyverse)
 library(ggplot2)
 ```
 
-# The Seldonian Algorithm {#chap-2}
+# Seldonian Algorithms {#chap-2}
 
 Chapter \@ref(intro) introduced the problem of algorithmic bias, discussed existing statistical definitions of fairness both in regression and classification settings, and finally, highlighted  fairness conflicts that can arise in certain settings. Of important note is that there are a plethora of fairness definitions that have been developed in statistical machine learning, many of which have been shown to be incompatible in ways similar to the illustration in Appendix \@ref(appendix-a). In any effort to enforce fairness on machine learning models, a critical first step is to define what fairness means in the specific context [@thomas2020housetestimony]. This responsibility falls on domain experts, social scientists, and regulators. Once there is consensus on that, machine learning researchers can work to develop appropriate algorithms that enforce the chosen definition of fairness. The Seldonian framework, introduced in this chapter, offers one such way to place probabilistic fairness constraints on traditional algorithms. However, because Seldonian algorithms place constraints on traditional machine learning (ML) algorithms, an initial in-depth understanding of the standard approach is key. Section \@ref(standardml) discusses the typical ML approach before diving into the Seldonian framework later in Section \@ref(seldonian). 
 
@@ -150,17 +150,75 @@ include_graphics(path = "figures/seldonian1.png")
 
 Figure \@ref(fig:seldonian1) illustrates how this is achieved at a high level. A Seldonian algorithm takes in $n$ behavioral constraints $(g_i,\delta_i)_{i=1}^n$ and a data set $D$ as the inputs and returns either a solution (model) $\theta$ or $NSF$, which means "No Solution Found". That is, no algorithm was found that returned a model which satisfied the behavioral constraints with the desired probability. First, the data $D$ is partitioned into 2 sets $D_1$ and $D_2$ that essentially serve as train and test sets, respectively. $D_1$ is then passed through the candidate selection mechanism, which performs a search over algorithms to settle on a candidate solution $\theta_c$. $\theta_c$ is selected not only so that it optimizes the primary objective function $f$, but also so that it is predicted to pass the subsequent safety test. $D_2$ is then passed through the safety test to check whether $\theta_c$ indeed satisfies the $n$ behavioral constraints with the desired confidence for each, that is $P(g_i(\theta_c) \leq 0) \geq 1 - \delta_i$ for each constraint $i \in \{ 1,2, \ldots, n \}$. If so, $\theta_c$ is returned as the desired solution, and otherwise, NSF [@thomas2019preventing]. 
 
-Note that finding exact confidence intervals may be impractical and require large amounts of data. Quasi-Seldonian algorithms, thus, are an extension of this idea that rely on standard statistical tools to transform sample statistics computed from $D$ into approximate bounds on the probability of undesirable behavior [@thomas2019preventing]. Section \@ref(qsa) discusses the statistical framework employed to achieve this. 
+Note that finding exact confidence bounds may be impractical and require large amounts of data. Quasi-Seldonian algorithms, thus, are an extension of this idea that rely on standard statistical tools to transform sample statistics computed from $D$ into approximate bounds on the probability of undesirable behavior [@thomas2019preventing]. Section \@ref(qsa) discusses the statistical framework employed to achieve this. 
 
 ### Quasi-Seldonian Algorithms {#qsa}
 
-https://aisafety.cs.umass.edu/tutorial3.html
+Recall that the Seldonian goal is to create an algorithm $a$ that maximizes an objective function $f$ while satisfying behavioral constraints with high probability. In this Chapter, the focus has been on linear regression, so the aim would be to create a Seldonian linear regression algorithm, rather than one that follows the standard ML process described in Section \@ref(standardml). A Seldonian linear regression algorithm would be an approximate solution to:
 
-Introduce quasi-seldonian algorithms to show how we would actually compute and execute this. Good place to talk about some of the key steps/ functions defined in the section above in mathematical detail.
+$$\underset{a \in \textbf{A}}{\text{ arg max }} f(a)$$
 
-Finish by Monday :)
 
-## Toy Example: A Seldonian Regression Algorithm
+$$\text{s.t. } \forall \text{ } i \in \{1, 2, \ldots, n\} \text{, } P(g_i(a(D)) \leq 0) \geq 1 - \delta_i.$$
+
+Because the value of $f(a)$, the objective function, is unknown, it'll be estimated from the data provided such that $\hat{f}: \Theta \text{ x } \textbf{D} \rightarrow \textbf{R}$ is a measure of the utility of the algorithm that returns a solution $\theta$ when given input $D$, the only random variable [@thomas2019preventing]. In this case, the MSE for a data set of size $m$ can be estimated by
+
+$$\hat{f}(\theta, D) = -\frac{1}{m} \sum_{i=1}^{m}(\hat{y}(X_i, \theta) - Y_i)^2.$$
+However, the optimization of this objective function is constrained to solutions that have probabilistic guarantees of safe behavior. As observed in Figure \@ref(fig:seldonian1), the candidate selection and safety test mechanisms are crucial to achieve this. 
+
+#### The Safety Test Mechanism {#safety}
+
+Seldonian algorithms ensure that $P(g_i(\theta_c) \leq 0) \geq 1 - \delta_i$ for each constraint $i \in \{ 1,2, \ldots, n \}$ and the safety test mechanism is the component that verifies whether these behavioral constraints actually hold [@thomas2019preventing]. This is achieved by computing an upper bound for each $g_i(\theta)$ using the data and a confidence interval derived from the Student $t$-statistic. If the high confidence upper bound is less than or equal to 0, then the solution is safe to return, otherwise, no solution will be returned. 
+
+Let $X = (X_1, \ldots, X_m)$ be $m$ $i.i.d.$ random variables. Under the assumption that $\frac{1}{m} \sum_{i=1}^m X_i$ is normally distributed or if $m$ is sufficiently large -- by the Central Limit Theorem --, then the Student $t$-statistic can be used to compute an upper bound of the expected value of these random variables as follows:
+
+$$P(E[X_1] \leq \hat{\mu}(X) + \frac{\hat{\sigma}(X)}{\sqrt{m}}t_{1-\delta, m-1}) \geq 1 - \delta,$$
+where
+
+- $\bar{X} = \hat{\mu}(X)$ and $s = \hat{\sigma}(X)$ are the sample mean and standard deviation, respectively, of a vector X. That is, $\hat{\mu}(X) = \frac{1}{m}\sum_{i=1}^m X_i = \bar{X}$ and $\hat{\sigma}(X) = \sqrt{\frac{\frac{1}{m}\sum_{i=1}^m (X_i - \hat{\mu}(X))^2}{m-1}} = s$. 
+
+- $t_{1-\delta, m-1}$ is the $100(1-\delta)$ percentile of the Student $t$-distribution with $m-1$ degrees of freedom.
+
+Before constructing the safety test mechanism, recall from Section \@ref(sop) that [@thomas2019supplementary]:
+
+- The safety test will be applied to a single solution $\theta_c$ selected by the candidate selection mechanism. This process is explained in the following section.  
+
+- The safety data, $D_2$, is used to verify that the behavioral constraints hold. 
+
+- $\hat{g_i}(\theta_c, D_2) = (\hat{g_{i,1}}(\theta_c, D_2), \ldots,\hat{g_{i,m}}(\theta_c, D_2))$ contains $m$ $i.i.d$ values of $\hat{g_i}(\theta_c)$ for each of the $m$ observations in $D_2$. $|D_2|$ will be used to denote the number of observations in $D_2$ for consistency in notation. 
+
+- $E[\hat{g_i}(\theta_c, D_2)] = g_i(\theta_c)$.
+
+By substituting the respective pieces into the Student $t$ high confidence upper bound discussed above, then:
+
+$$P(g_i(\theta_c) \leq \hat{\mu}(\hat{g_i}(\theta_c, D_2)) + \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_2))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1}) \geq 1 - \delta_i.$$
+Notice that $\hat{\mu}(\hat{g_i}(\theta_c, D_2)) + \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_2))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1}$ is an upper bound of the confidence interval with confidence $1-\delta_i$. If this upper bound is less than or equal to zero, then the $i^{th}$ behavioral constraint $g_i(\theta_c)$ is less than or equal to zero with at least probability $1-\delta_i$. Therefore, $\theta_c$ is only returned if $\hat{\mu}(\hat{g_i}(\theta_c, D_2)) + \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_2))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1} \leq 0$. Specifically, this holds only under the assumption that $\hat{\mu}(\hat{g_i}(\theta_c, D_2))$ is normally distributed or if the size of the safety data $D_2$ is sufficiently large, hence the name $\textit{quasi}$-Seldonian [@thomas2019preventing]. The next section now discusses precisely how $\theta_c$ is selected before being passed into the safety test mechanism. 
+
+#### The Candidate Selection Mechanism {#candidate}
+
+With the safety test in place, any algorithm will be Seldonian regardless of how $\theta_c$ is computed, as long as $\theta_c$ is computed using a different subset of the data, hence the partition into $D_1$ (candidate data) and $D_2$ (safety data) [@thomas2019supplementary]. However, if $\theta_c$ is computed using the standard ML approach, then it will likely be unsafe as was illustrated in Section \@ref(standardlimitations), resulting in an NSF output. Instead, $\theta_c$ will be computed as follows:
+
+$$\theta_c \in \underset{\theta \in \Theta}{\text{ arg max }} \hat{f}(\theta, D_1)$$
+$$\text{s.t. } \theta_c \text{ is predicted to pass the safety test}.$$
+Thus, only solutions likely to pass the safety test will be considered by predicting the result of the safety test using $D_1$ (the candidate data) instead of $D_2$. In formal notation,
+
+$$\theta_c \in \underset{\theta \in \Theta}{\text{ arg max }} \hat{f}(\theta, D_1)$$
+$$\text{s.t. } \forall \text{ } i \in \{1,2,\ldots,n\}, \text{  } \hat{\mu}(\hat{g_i}(\theta_c, D_1)) + \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_1))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1} \leq 0.$$
+
+Notice that while the sample mean $\hat{\mu}$ and the sample standard deviation $\hat{\sigma}$ are computed over $D_1$, the size of $D_2$ is still used to correct the standard deviation and compute the Student $t$ percentile, in order to ensure that the solution is properly predicted to pass the safety test. 
+
+The process defined can work well when the objective function $f$ and the behavioral constraints are aligned. However, when they are in conflict, the candidate selection mechanism tends to be over-confident that $\theta_c$ will pass the safety test and a safe solution will be returned [@thomas2019supplementary]. Doubling the width of the confidence level is a proposed solution to produce more conservative predictions and better guarantees of $\theta_c$ passing the safety test. Therefore, a black-box optimization algorithm is used to compute
+
+$$\theta_c \in \underset{\theta \in \Theta}{\text{ arg max }} \hat{f}(\theta, D_1)$$
+$$\text{s.t. } \forall \text{ } i \in \{1,2,\ldots,n\}, \text{  } \hat{\mu}(\hat{g_i}(\theta_c, D_1)) + 2\frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_1))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1} \leq 0.$$
+
+\
+
+This culminates the discussion on the Seldonian theoretical framework at a high level. To conclude this Chapter, Section \@ref(toy) walks through how this is implemented computationally using a toy regression example. 
+
+## Toy Example: A Seldonian Regression Algorithm {#toy}
+
+Proof-read above 
 
 Walk through key parts of the jupyter notebook
 
@@ -177,6 +235,10 @@ Change colors on image.
 Assign equations labels in Chapter 1 & 2 like below? 
 
 Review notes to fill in missing pieces.
+
+How do I cite this: https://aisafety.cs.umass.edu/tutorial3.html
+
+Cite source for t-statistic
 
 \begin{equation}
 \label{discstat}
