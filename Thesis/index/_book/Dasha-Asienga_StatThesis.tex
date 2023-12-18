@@ -202,7 +202,6 @@ Use this space to thank those who have helped you in the thesis process (profess
 \division{}
 \advisor{Professor Katharine Correia}
 % for second advisor
-\altadvisor{Your Other Advisor}
 \institution{Amherst College}
 \degree{Bachelor of Arts}
 \department{Mathematics and Statistics}
@@ -491,7 +490,7 @@ As observed, disparate impact can result from the use of a prediction tool that 
 \hypertarget{chap-2}{%
 \chapter{The Seldonian Algorithm}\label{chap-2}}
 
-Chapter \ref{intro} introduced the problem of algorithmic bias, discussed existing statistical definitions of fairness both in regression and classification settings, and finally, highlighted fairness conflicts that can arise in certain settings. Of important note is that there are a plethora of fairness definitions that have been developed in statistical machine learning, many of which have been shown to be incompatible in ways similar to the illustration in Appendix \ref{appendix-a}. In any effort to enforce fairness on machine learning models, a critical first step is to define what fairness means in the specific context (P. Thomas, 2020). This responsibility falls on domain experts, social scientists, and regulators. Once there is consensus on that, machine learning researchers can work to develop appropriate algorithms that enforce the chosen definition of fairness. The Seldonian framework, introduced in this chapter, offers one such way to place probabilistic fairness constraints on traditional algorithms. However, because Seldonian algorithms place constraints on traditional machine learning (ML) algorithms, an initial in-depth understanding of the standard approach is key. Section \ref{standardml} discusses the typical ML approach before diving into the Seldonian framework later in the Chapter.
+Chapter \ref{intro} introduced the problem of algorithmic bias, discussed existing statistical definitions of fairness both in regression and classification settings, and finally, highlighted fairness conflicts that can arise in certain settings. Of important note is that there are a plethora of fairness definitions that have been developed in statistical machine learning, many of which have been shown to be incompatible in ways similar to the illustration in Appendix \ref{appendix-a}. In any effort to enforce fairness on machine learning models, a critical first step is to define what fairness means in the specific context (P. Thomas, 2020). This responsibility falls on domain experts, social scientists, and regulators. Once there is consensus on that, machine learning researchers can work to develop appropriate algorithms that enforce the chosen definition of fairness. The Seldonian framework, introduced in this chapter, offers one such way to place probabilistic fairness constraints on traditional algorithms. However, because Seldonian algorithms place constraints on traditional machine learning (ML) algorithms, an initial in-depth understanding of the standard approach is key. Section \ref{standardml} discusses the typical ML approach before diving into the Seldonian framework later in Section \ref{seldonian}.
 
 \hypertarget{standardml}{%
 \section{The Standard Machine Learning Approach}\label{standardml}}
@@ -504,7 +503,7 @@ For example, let \(X\) and \(Y\) be dependent real-valued random variables in a 
 
 \[f(\theta):=-E[(\theta(X) - Y)^2].\]
 
-In this case, maximizing MSE is equivalent to minimizing -MSE, defining the goal of the regression algorithm as finding the solution with the least average error. Note that the true value of \(f(\theta)\) is unknown and can only be estimated from the data (P. S. Thomas et al., 2019a). For a sample with \(n\) observations, that is, \((x_i, y_i) \text{ for } i = 1,2,...,n\), the objective function can be estimated by:
+In this case, minimizing MSE is equivalent to maximizing -MSE, defining the goal of the regression algorithm as finding the solution with the least average error. Note that the true value of \(f(\theta)\) is unknown and can only be estimated from the data (P. S. Thomas et al., 2019a). For a sample with \(n\) observations, that is, \((x_i, y_i) \text{ for } i = 1,2,...,n\), the objective function can be estimated by:
 
 \[\hat{f(\theta)}= -\frac{1}{n} \sum_{i=1}^{n}(\theta(x_i) - y_i)^2.\]
 However, defining objective functions in this way can sometimes lead to undesirable behavior as illustrated in Section \ref{standardlimitations}.
@@ -525,7 +524,7 @@ Suppose that the data has the following distribution: \(Y\) \textasciitilde{} \(
 
 \caption{Least Squares Fit on Synthetic Data Drawn from Different Distributions}\label{fig:fig1}
 \end{figure}
-The least squares fit on Figure \ref{fig:fig1} is impartial to an observation's gender with an objective to make the most accurate predictions. While it may be expected that impartiality would produce fair results, observe that the linear model tends to over-predict if \(G = 1\) and under-predict if \(G=0\), on the contrary, producing discriminatory behavior. In fact, by defining a discrimination statistic, \(d(\theta)\), as defined below in line with the specified fairness definition, the discrimination statistic for the synthetic data set in Figure \ref{fig:fig1} can be shown to be -0.719, suggesting that the model predictions are in favor of \(G = 1\).
+The least squares fit on Figure \ref{fig:fig1} is impartial to an observation's gender with an objective to make the most accurate predictions. While it may be expected that impartiality would produce fair results, observe that the linear model tends to over-predict if \(G = 1\) and under-predict if \(G=0\), on the contrary, producing discriminatory behavior. In fact, by defining a discrimination statistic, \(d(\theta)\), as defined below in line with the specified fairness definition, the discrimination statistic for the synthetic data set in Figure \ref{fig:fig1} can be shown to be -0.719, suggesting that the model predictions are in favor of \(G = 1\):
 
 \[ d(\theta) =  E[\hat{Y}-Y|G = 0 ] - E[\hat{Y}-Y|G = 1 ]. \]
 
@@ -541,14 +540,14 @@ Assuming that the problem is with the objective function and provided that detai
 \[f(\theta) = - MSE (\theta) - \lambda d(\theta).\]
 Observe that as \(\lambda\) increases, MSE increases and the discrimination statistic decreases. Cross-validation techniques can be employed to find optimal values for \(\lambda\). Other remedies include maximizing multiple objective functions or allowing constraints on the probability that a solution with undesirable behavior will be returned, both of which may require detailed knowledge of the application problem and underlying distribution of the data (P. S. Thomas et al., 2019b).
 
-In principle, there might be definitions of \(\Theta\) of \(f\) that prevent the algorithm from converging on solutions that exhibit undesirable behavior (P. S. Thomas et al., 2019a). However, in practice and as explained, this might require extensive domain expertise and data analysis in order to properly balance the relative importance of the objective function and the constraints, which can be at odds with each other. These techniques may also require knowledge of the probability distribution from which the data is sampled, which is not always available and limits applications to parametric statistics.
+In principle, there might be definitions of \(\Theta\) or \(f\) that prevent the algorithm from converging on solutions that exhibit undesirable behavior (P. S. Thomas et al., 2019a). However, in practice and as explained, this might require extensive domain expertise and data analysis in order to properly balance the relative importance of the objective function and the constraints, which can be at odds with each other. These techniques may also require knowledge of the probability distribution from which the data is sampled, which is not always available and limits applications to parametric statistics.
 
-A Seldonian algorithm, thus, addresses this problem precisely by allowing probablistic constraints on undesirable behavior to be placed more easily without detailed knowledge of the specific problem or the distribution of the data, shifting the burden from the domain experts who use these tools to the experts in ML and statistics (P. S. Thomas et al., 2019a). It's named after Isaac Asimov's fictional character, Hari Seldon \footnote{In the fictional book, Hari Seldon was a resident of a fictional planet where he develops psychohistory, an algorithmic science that allows him to predict the future in probabilistic terms.} (Asimov, 1994).
+A Seldonian algorithm, thus, addresses this problem precisely by allowing probabilistic constraints on undesirable behavior to be placed more easily without detailed knowledge of the specific problem or the distribution of the data, shifting the burden from the domain experts who use these tools to the experts in ML and statistics (P. S. Thomas et al., 2019a). It's named after Isaac Asimov's fictional character, Hari Seldon \footnote{In the fictional book, Hari Seldon was a resident of a fictional planet where he develops psycho-history, an algorithmic science that allows him to predict the future in probabilistic terms.} (Asimov, 1994).
 
-\hypertarget{the-seldonian-framework}{%
-\section{The Seldonian Framework}\label{the-seldonian-framework}}
+\hypertarget{seldonian}{%
+\section{The Seldonian Framework}\label{seldonian}}
 
-The first step of the Seldonian framework is to define mathematically the goal of the algorithm design (P. S. Thomas et al., 2019b). Define \(\textbf{D}\) as the set of all possible inputs (data sets) to the algorithm. \(\Theta\), as previously defined, is the set of all possible outputs (solutions) of the algorithm. Each solution is referred to as \(\theta \in \Theta\). \(D\) is the data set (input) given to the algorithm and is the only random variable. Now, \(a: \textbf{D} \rightarrow \Theta\) is a machine learning algorithm which takes in a data set \(D \in \textbf{D}\) as an input and returns a solution \(\theta \in \Theta\) as an output. \(\textbf{A}\) is the set of all possible machine learning algorithms. Synthesizing this, \(f: \textbf{A} \rightarrow \textbf{R}\) is the objective function of the algorithm design, where \(\textbf{R}\) is a real-valued measure of the utility of the algorithm, such as the value of the objective function. This objective function is optimized -- either minimized or maximized -- to select a desired machine learning algorithm from the set \(\textbf{A}\).
+The first step of the Seldonian framework is to define mathematically the goal of the algorithm design (P. S. Thomas et al., 2019b). Define \(\textbf{D}\) as the set of all possible inputs (data sets) to the algorithm. \(\Theta\), as previously defined, is the set of all possible outputs (solutions) of the algorithm. Each solution is referred to as \(\theta \in \Theta\). \(D\) is the data set (input) given to the algorithm and is the only random variable. Now, \(a: \textbf{D} \rightarrow \Theta\) is a machine learning algorithm which takes in a data set \(D \in \textbf{D}\) as an input and returns a solution \(\theta \in \Theta\) as an output. \(\textbf{A}\) is the set of all possible machine learning algorithms. Synthesizing this, \(f: \textbf{A} \rightarrow \textbf{R}\) is the objective function of the algorithm design, where \(f(a) \in \textbf{R}\) is a real-valued measure of the utility of the algorithm, such as the value of the objective function for the solution returned by this algorithm. This objective function is optimized -- either minimized or maximized -- to select a desired machine learning algorithm from the set \(\textbf{A}\).
 
 Contrary to the standard ML approach, however, \(n\) behavioral constraints can then be specified (P. S. Thomas et al., 2019b). Specifically, \((g_i, \delta_i)_{i=1}^{n}\) can be defined as a set of \(n\) constraints, each of which contains a constraint function \(g_i: \Theta \rightarrow \textbf{R}\) and a desired confidence level \(\delta_i\). The constraint function takes in a solution returned from the chosen machine learning algorithm as an input and returns a real value encoding the ``fairness'' of the algorithm according to the fairness definition defined by the function. \((g_i, \delta_i)_{i=1}^{n}\) is defined such that:
 \begin{itemize}
@@ -560,23 +559,38 @@ Contrary to the standard ML approach, however, \(n\) behavioral constraints can 
 In summary, a Seldonian algorithm ensures that for all \(i \in \{1,2,\ldots,n\}\):
 
 \[P(g_i(a(D)) \leq 0) \geq 1 - \delta_i.\]
-Section \ref{sop} goes into further detail about the Seldonian framework and how these probablistic behavioral constraints are guaranteed.
+Section \ref{sop} goes into further detail about the Seldonian framework and how these probabilistic behavioral constraints are guaranteed.
 
 \hypertarget{sop}{%
 \subsection{The Seldonian Optimization Problem}\label{sop}}
 
-Synthesize the goal of the Seldonian algorithm, the problem at hand, plus the image, and specific/ mechanics of how it works. Conclude with high-level summmary before going into the computational framework and the toy example.
+As detailed, the Seldonian framework is different from current potential remedies of undesirable behavior because it defines a search over a possible set of algorithms with constraints, rather than over a possible set of solutions. This means that the constraints require that the probability that a machine learning algorithm returns an unsafe solution be bounded by some desired level of confidence, rather than the probability that a solution itself is unsafe. In summary, a Seldonian optimization problem (SOP) can be written as (P. S. Thomas et al., 2019a):
 
-In other words, a Seldonian algorithm \(a\) returns, with high probability, a solution that guarantees desirable behavior.
+\[\underset{a \in \textbf{A}}{\text{ arg max }} f(a)\]
 
-The goal is to find an algorithm that returns a solution which maximizes \(f\)\ldots{}
+\[\text{s.t. } \forall \text{ } i \in \{1, 2, \ldots, n\} \text{, } P(g_i(a(D)) \leq 0) \geq 1 - \delta_i.\]
 
-Finish by Sunday :)
+A Seldonian algorithm \(a\), thus, returns, with high probability, a solution that guarantees desirable behavior. If one were to apply machine algorithm \(a\) to obtain a solution from a large number of different data sets \(D\) drawn from the same distribution, then it would be expected that at most \(100\delta_i \%\) solutions (models) would produce undesirable behavior.
 
-\hypertarget{the-seldonian-computational-framework}{%
-\subsection{The Seldonian Computational Framework}\label{the-seldonian-computational-framework}}
+Taking the previous regression example and turning it into a Seldonian optimization problem using the discrimination statistic in Section \ref{standardlimitations}, \(f\) would still be an objective function like the MSE, \(\Theta\) would still be the set of all possible linear models, and \(D\) would be the data set as described. There would be 1 behavioral constraint, \(g_1(a(D)) = |d(a(D))| - \epsilon\), to guarantee with probability at least \(1-\delta_1\), that the absolute value of the discrimination statistic would be at most \(\epsilon\), where \(\epsilon\) and \(\delta_1\) are chosen based on the specific application. Note that the user of the machine learning algorithm need not perform data analysis to determine whether \(g_1(\theta) \leq 0\) for a particular solution \(\theta \in \Theta\) returned. The burden is shifted to the computation algorithm to determine this with some desired level of probability.
+\begin{figure}
 
-Good place to talk about some of the key steps/ functions defined in the section above.
+{\centering \includegraphics[width=1\linewidth]{figures/seldonian1} 
+
+}
+
+\caption[Overview of the Seldonian Framework]{Overview of the Seldonian Framework (P. S. Thomas et al., 2019a)}\label{fig:seldonian1}
+\end{figure}
+Figure \ref{fig:seldonian1} illustrates how this is achieved at a high level. A Seldonian algorithm takes in \(n\) behavioral constraints \((g_i,\delta_i)_{i=1}^n\) and a data set \(D\) as the inputs and returns either a solution (model) \(\theta\) or \(NSF\), which means ``No Solution Found''. That is, no algorithm was found that returned a model which satisfied the behavioral constraints with the desired probability. First, the data \(D\) is partitioned into 2 sets \(D_1\) and \(D_2\) that essentially serve as train and test sets, respectively. \(D_1\) is then passed through the candidate selection mechanism, which performs a search over algorithms to settle on a candidate solution \(\theta_c\). \(\theta_c\) is selected not only so that it optimizes the primary objective function \(f\), but also so that it is predicted to pass the subsequent safety test. \(D_2\) is then passed through the safety test to check whether \(\theta_c\) indeed satisfies the \(n\) behavioral constraints with the desired confidence for each, that is \(P(g_i(\theta_c) \leq 0) \geq 1 - \delta_i\) for each constraint \(i \in \{ 1,2, \ldots, n \}\). If so, \(\theta_c\) is returned as the desired solution, and otherwise, NSF (P. S. Thomas et al., 2019a).
+
+Note that finding exact confidence intervals may be impractical and require large amounts of data. Quasi-Seldonian algorithms, thus, are an extension of this idea that rely on standard statistical tools to transform sample statistics computed from \(D\) into approximate bounds on the probability of undesirable behavior (P. S. Thomas et al., 2019a). Section \ref{qsa} discusses the statistical framework employed to achieve this.
+
+\hypertarget{qsa}{%
+\subsection{Quasi-Seldonian Algorithms}\label{qsa}}
+
+\url{https://aisafety.cs.umass.edu/tutorial3.html}
+
+Introduce quasi-seldonian algorithms to show how we would actually compute and execute this. Good place to talk about some of the key steps/ functions defined in the section above in mathematical detail.
 
 Finish by Monday :)
 
@@ -589,6 +603,8 @@ Finish by Tuesday evening :)
 
 \hypertarget{random-notes-delete-when-done}{%
 \section{Random Notes (Delete When Done):}\label{random-notes-delete-when-done}}
+
+Submit on Wednesday/ Thursday!
 
 Need another source for this section?
 
