@@ -4,6 +4,7 @@ library(mosaic)
 library(dplyr)
 library(tidyverse)
 library(ggplot2)
+library(RColorBrewer)
 ```
 
 # Seldonian Algorithms {#chap-2}
@@ -31,7 +32,7 @@ Consider a linear regression example to predict the qualifications of job applic
 
 If this linear regression estimator is designed to be used to filter which resumes submitted to a company will be forwarded for human review, it is worthwhile to ensure that the algorithm does not produce racist or sexist behavior. Drawing from definitions in Chapter \@ref(fairnessdefinitions), it might be less important to ensure that the algorithm, on average, has the same predictions for applicants of both genders because the distribution of qualifications may be different for both genders. However, of more concern is whether the algorithm, on average, predicts too high for one gender and too low for the other gender. 
 
-Suppose that the data has the following distribution: $Y$ ~ $N(1,1)$ if $G = 0$ and $Y$ ~ $N(-1,1)$ if $G = 1$, that is, $Y$ is a normal variable $N(\mu, \sigma)$ with different means $\mu$ for different genders but with the same standard deviation $\sigma$ for both genders. Further define $X$ ~ $N(Y,1)$, that is, an applicant's resume quality is equal to their true qualification plus some random noise. Figure \@ref(fig:fig1) displays a scatterplot of 1000 such data points, 500 from each gender. The black solid line is the least squares fit on this data using a gender-blind model. 
+Suppose that the data has the following distribution: $Y \sim N(1,1)$ if $G = 0$ and $Y \sim N(-1,1)$ if $G = 1$, that is, $Y$ is a normal variable $N(\mu, \sigma)$ with different means $\mu$ for different genders but with the same standard deviation $\sigma$ for both genders. Further define $X \sim N(Y,1)$, that is, an applicant's resume quality is equal to their true qualification plus some random noise. Figure \@ref(fig:fig1) displays a scatterplot of 1000 such data points, 500 from each gender. The black solid line is the least squares fit on this data using a gender-blind model. 
 
 
 ```{r fig1, fig.align='center', fig.cap="Least Squares Fit on Synthetic Data Drawn from Different Distributions", warning = FALSE, message = FALSE, fig.width = 4.5, fig.height = 3, echo = FALSE}
@@ -48,7 +49,11 @@ y <- union(female, male)
 x <- rnorm(1000, mean = y, sd = 1)
 data <- cbind(y, x, gender)
 data <- data %>%
-  as.data.frame(data)
+  as.data.frame()
+
+# create custom color scale 
+myColors <- brewer.pal(2,"Set1")
+names(myColors) <- levels(data$gender)
 
 # fit least squares line
 ggplot(data = data, mapping = aes(x = x, y = y)) +
@@ -65,6 +70,7 @@ ggplot(data = data, mapping = aes(x = x, y = y)) +
     color = 'black',
     se = F
   ) +
+  scale_colour_manual(name = "Gender (G)",values = myColors) +
   labs(color = "Gender (G)",
        title = "Least Squares Fit on Synthetic Data") +
   theme_minimal() +
@@ -170,12 +176,12 @@ However, the optimization of this objective function is constrained to solutions
 
 Seldonian algorithms ensure that $P(g_i(\theta_c) \leq 0) \geq 1 - \delta_i$ for each constraint $i \in \{ 1,2, \ldots, n \}$ and the safety test mechanism is the component that verifies whether these behavioral constraints actually hold [@thomas2019preventing]. This is achieved by computing an upper bound for each $g_i(\theta)$ using the data and a confidence interval derived from the Student $t$-statistic. If the high confidence upper bound is less than or equal to 0, then the solution is safe to return, otherwise, no solution will be returned. 
 
-Let $X = (X_1, \ldots, X_m)$ be $m$ $i.i.d.$ random variables. Under the assumption that $\frac{1}{m} \sum_{i=1}^m X_i$ is normally distributed or if $m$ is sufficiently large -- by the Central Limit Theorem --, then the Student $t$-statistic can be used to compute an upper bound of the expected value of these random variables as follows:
+Let $X = (X_1, \ldots, X_m)$ be $m$ independent and identically distributed ($i.i.d.$) random variables. Under the assumption that $\frac{1}{m} \sum_{i=1}^m X_i$ is normally distributed or if $m$ is sufficiently large -- by the Central Limit Theorem --, then the Student $t$-statistic can be used to compute an upper bound of the expected value of these random variables as follows:
 
 $$P(E[X_1] \leq \hat{\mu}(X) + \frac{\hat{\sigma}(X)}{\sqrt{m}}t_{1-\delta, m-1}) \geq 1 - \delta,$$
 where
 
-- $\bar{X} = \hat{\mu}(X)$ and $s = \hat{\sigma}(X)$ are the sample mean and standard deviation, respectively, of a vector X. That is, $\hat{\mu}(X) = \frac{1}{m}\sum_{i=1}^m X_i = \bar{X}$ and $\hat{\sigma}(X) = \sqrt{\frac{\frac{1}{m}\sum_{i=1}^m (X_i - \hat{\mu}(X))^2}{m-1}} = s$. 
+- $\hat{\mu}(X) = \bar{X}$ and $\hat{\sigma}(X) = s$ are the sample mean and standard deviation, respectively, of a vector X. That is, $\hat{\mu}(X) = \frac{1}{m}\sum_{i=1}^m X_i = \bar{X}$ and $\hat{\sigma}(X) = \sqrt{\frac{\frac{1}{m}\sum_{i=1}^m (X_i - \hat{\mu}(X))^2}{m-1}} = s$. 
 
 - $t_{1-\delta, m-1}$ is the $100(1-\delta)$ percentile of the Student $t$-distribution with $m-1$ degrees of freedom.
 
@@ -218,29 +224,60 @@ This culminates the discussion on the Seldonian theoretical framework at a high 
 
 ## Toy Example: A Seldonian Regression Algorithm {#toy}
 
-Proof-read above 
+The tutorial in this section follows the presentation by @aisafety on the AI Safety webpage focusing on the key computational aspects of the Seldonian Algorithm. Consistent with the linear regression set-up in this chapter, consider $X, Y \in \textbf{R}$ as two dependent random variables with the goal of estimating $Y$ given $X$ through a sample of $m$ observations. $X$ is drawn synthetically from a $N(0,1)$ distribution and $Y$ is dependent on $X$ with a $N(X,1)$ distribution. Figure \@ref(fig:fig2) displays 10000 such points. $\hat{y}(X, \theta) = \theta_1X+\theta_2$ and $MSE = E[(\hat{y}(X, \theta)-Y)^2]$ are computed as previously defined.
 
-Walk through key parts of the jupyter notebook
+```{r fig2, fig.align='center', fig.cap="Synthetic Data for Seldonian Linear Regression Tutorial", warning = FALSE, message = FALSE, fig.width = 4.5, fig.height = 3, echo = FALSE}
+# set seed for reproducibility 
+set.seed(123)
 
-Finish by Tuesday evening :)
+# generate synthetic data 
+x <- rnorm(10000, mean = 0, sd = 1)
+y <- rnorm(10000, mean = x, sd = 1)
 
-## Random Notes (Delete When Done):
+# create the data set
+seldonian_data <- cbind(y, x)
+seldonian_data <- seldonian_data %>%
+  as.data.frame()
 
-Submit on Wednesday/ Thursday!
+# plot the data points
+ggplot(data = seldonian_data, mapping = aes(x = x, y = y)) +
+  geom_point(color = "lightblue") +
+  labs(title = "Synthetic Data for Seldonian Linear Regression",
+       x = "X",
+       y = "Y") +
+  theme_minimal() +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) 
+```
 
-Need another source for this section?
+In this example, the goal of the linear regression algorithm is two-fold: to minimize MSE (or equivalently, maximize -MSE) while ensuring, with probability at least 0.9, that $1.25 < MSE < 2$. Note that this behavioral constraint is not practical in an application setting, but it's deliberately designed to be at odds with the objective function in order to test behavior when such conflict arises. Additionally, it'll be simple to verify satisfaction of the behavioral constraint for demonstration purposes. The behavioral constraint needs to be mathematically represented in a way that defines $g(\theta) \leq 0$ as safe behavior. Therefore, $n$ will be set to $2$ such that:
 
-Change colors on image.
+- $g_1(\theta) = MSE(\theta) - 2.0 \text{; } \delta_1 = 0.1$.
 
-Assign equations labels in Chapter 1 & 2 like below? 
+- $g_2(\theta) = 1.25 - MSE(\theta) \text{; } \delta_2 = 0.1$.
 
-Review notes to fill in missing pieces.
+Unbiased estimates of the MSE and each $g_i(\theta)$ will be computed from the data set as elucidated in Section \@ref(qsa).
 
-How do I cite this: https://aisafety.cs.umass.edu/tutorial3.html
 
-Cite source for t-statistic
+---- 
+
+
+\noindent What's left in this section is displaying the results from applying the Seldonian regression as well as the experiment results. I have all these already done in the Jupyter notebooks. However, running Python code on this file is currently causing a fatal error to the R session, so that's something we should figure out :(. Once that is figured out, I can transfer the code from the Jupyter notebooks to this file so that everything is reproducible. I can probably also put key Python code in a technical appendix? Lmk what you think about this!
+
+\
+
+\noindent Other notes (for future reference): 
+
+- I want to look to see if I can integrate more sources in this Chapter so that it represents a synthesis of material from different sources (for traditional ML techniques, the Seldonian framework, and Student's t-statistic). What are your thoughts on this?
+
+- Should I assign equations in both Chapter 1 and 2 number labels as done here for Equation \@ref(discstat) as an example? When would this be necessary?
 
 \begin{equation}
 \label{discstat}
 d(\theta) =  E[\hat{Y}-Y|G = 0 ] - E[\hat{Y}-Y|G = 1 ].
 \end{equation}
+
+- I also need to review my notes to fill in any missing pieces for the complete version of the Chapter. 
+
+
+
