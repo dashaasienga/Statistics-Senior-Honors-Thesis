@@ -262,7 +262,9 @@ Unbiased estimates of the MSE and each $g_i(\theta)$ will be computed from the d
 ---- 
 
 
-\noindent What's left in this section is displaying the results from applying the Seldonian regression as well as the experiment results. I have all these already done in the Jupyter notebooks. However, running Python code on this file is currently causing a fatal error to the R session, so that's something we should figure out :(. Once that is figured out, I can transfer the code from the Jupyter notebooks to this file so that everything is reproducible. I can probably also put key Python code in a technical appendix? Lmk what you think about this!
+\noindent What's left in this section is displaying the results from applying the Seldonian regression as well as the experiment results. I have all these already done in the Jupyter notebooks. I can transfer the code from the Jupyter notebooks to this file so that everything is reproducible (and hopefully that all runs without error). What I've noticed so far is that running python cells returns a fatal error to the local R session, but it seems to be running fine on the HPC cluster, though I'm having trouble importing the packages so I haven't run much of the code on the HPC either. Once that is figured out, do you think I should also put key Python code in a technical appendix? Let me know what you think about this!
+
+\noindent Also, the images still appear cut-off when knitting from the cluster :/
 
 \
 
