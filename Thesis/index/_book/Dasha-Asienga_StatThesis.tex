@@ -496,16 +496,20 @@ Chapter \ref{intro} introduced the problem of algorithmic bias, discussed existi
 \section{The Standard Machine Learning Approach}\label{standardml}}
 
 When designing a machine learning algorithm, the first step is to mathematically define what the algorithm should do, in other words, the goal of the algorithm (P. S. Thomas et al., 2019b). At an abstract level, this goal is identical for all machine learning problems: find a solution \(\theta^*\), within some feasible set \(\Theta\), that maximizes some objective function \(f: \Theta \rightarrow \textbf{R}\), where \(\textbf{R}\) is the set of real numbers. Precisely, the goal of the algorithm is to search for an optimal solution
-
-\[\theta^* \in \underset{\theta \in \Theta}{\text{ arg max }} f(\theta).\]
-
+\begin{equation}
+\label{ch2eq1}
+\theta^* \in \underset{\theta \in \Theta}{\text{ arg max }} f(\theta).
+\end{equation}
 For example, let \(X\) and \(Y\) be dependent real-valued random variables in a regression setting with the goal of estimating \(Y\) given \(X\). In this setting, \(\Theta\) is the set of feasible functions that model the relationship between \(X\) and \(Y\). Feasible functions are of the form \(\theta(X) = \beta_0 + \beta_1X = \hat{Y}\). Each function \(\theta \in \Theta\) takes a real number as input and produces a real number as output; therefore, \(\theta : \textbf{R} \rightarrow \textbf{R}\). A reasonable objective function would then be the negative mean squared error (MSE):
-
-\[f(\theta):=-E[(\theta(X) - Y)^2].\]
-
+\begin{equation}
+\label{ch2eq2}
+f(\theta):=-E[(\theta(X) - Y)^2].
+\end{equation}
 In this case, minimizing MSE is equivalent to maximizing -MSE, defining the goal of the regression algorithm as finding the solution with the least average error. Note that the true value of \(f(\theta)\) is unknown and can only be estimated from the data (P. S. Thomas et al., 2019a). For a sample with \(n\) observations, that is, \((x_i, y_i) \text{ for } i = 1,2,...,n\), the objective function can be estimated by:
-
-\[\hat{f(\theta)}= -\frac{1}{n} \sum_{i=1}^{n}(\theta(x_i) - y_i)^2.\]
+\begin{equation}
+\label{ch2eq3}
+\hat{f(\theta)}= -\frac{1}{n} \sum_{i=1}^{n}(\theta(x_i) - y_i)^2.
+\end{equation}
 However, defining objective functions in this way can sometimes lead to undesirable behavior as illustrated in Section \ref{standardlimitations}.
 
 \hypertarget{standardlimitations}{%
@@ -525,9 +529,10 @@ Suppose that the data has the following distribution: \(Y \sim N(1,1)\) if \(G =
 \caption{Least Squares Fit on Synthetic Data Drawn from Different Distributions}\label{fig:fig1}
 \end{figure}
 The least squares fit on Figure \ref{fig:fig1} is impartial to an observation's gender with an objective to make the most accurate predictions. While it may be expected that impartiality would produce fair results, observe that the linear model tends to over-predict if \(G = 1\) and under-predict if \(G=0\), on the contrary, producing discriminatory behavior. In fact, by defining a discrimination statistic, \(d(\theta)\), as defined below in line with the specified fairness definition, the discrimination statistic for the synthetic data set in Figure \ref{fig:fig1} can be shown to be -0.719, suggesting that the model predictions are in favor of \(G = 1\):
-
-\[ d(\theta) =  E[\hat{Y}-Y|G = 0 ] - E[\hat{Y}-Y|G = 1 ]. \]
-
+\begin{equation}
+\label{ch2eq4}
+d(\theta) =  E[\hat{Y}-Y|G = 0 ] - E[\hat{Y}-Y|G = 1 ]. 
+\end{equation}
 In crucial applications such as hiring, this is concerning and highlights how linear regression algorithms designed using the standard approach can result in predictions of applicant performance that systematically discriminate against a demographic group.
 
 \hypertarget{potential-remedies}{%
@@ -536,8 +541,10 @@ In crucial applications such as hiring, this is concerning and highlights how li
 As illustrated in Section \ref{standardlimitations} above, machine learning algorithms that use the standard approach may produce undesirable behavior. In an attempt to remedy this problem, a number of approaches can be taken. One potential remedy is to identify the root cause of the undesirable behavior such as class imbalance in the training data, bias in the data set, the choice of linear estimator, the model's blindness to the demographic group, or insufficient data, to name a few (P. S. Thomas et al., 2019b). For instance, in the example set up in Section \ref{standardlimitations} and displayed in Figure \ref{fig:fig1}, the root cause of the discriminatory behavior when using ordinary least squares linear regression was the fact that the objective function was designed to minimize MSE, which was at odds with minimizing the discrimination statistic. However, even though it might be possible to determine and correct the root cause of the undesirable behavior, doing so can be difficult, error-prone, and require extensive data analysis, rendering the central goal of machine learning algorithms, which are designed to automate and make decision-making processes simpler, obsolete.
 
 Assuming that the problem is with the objective function and provided that detailed knowledge of the problem is available, hard constraints may be placed on the objective function, for example, requiring that MSE is minimized only on the set of solutions with a discrimination value \(d(\theta)\) less than some value \(\epsilon\) (P. S. Thomas et al., 2019b). Additionally, rather than placing hard constraints on the set of solutions, soft constraints that penalize undesirable behavior may also be placed on \(f\), the objective function (Boyd \& Vandenberghe, 2004). Although such penalty functions can be effective, they require a careful choice of the value of the parameter \(\lambda\) that places relative importance on the objective function and the constraint. For the linear regression example, the new objective function with a soft constraint would now be:
-
-\[f(\theta) = - MSE (\theta) - \lambda d(\theta).\]
+\begin{equation}
+\label{ch2eq5}
+f(\theta) = - MSE (\theta) - \lambda d(\theta).
+\end{equation}
 Observe that as \(\lambda\) increases, MSE increases and the discrimination statistic decreases. Cross-validation techniques can be employed to find optimal values for \(\lambda\). Other remedies include maximizing multiple objective functions or allowing constraints on the probability that a solution with undesirable behavior will be returned, both of which may require detailed knowledge of the application problem and underlying distribution of the data (P. S. Thomas et al., 2019b).
 
 In principle, there might be definitions of \(\Theta\) or \(f\) that prevent the algorithm from converging on solutions that exhibit undesirable behavior (P. S. Thomas et al., 2019a). However, in practice and as explained, this might require extensive domain expertise and data analysis in order to properly balance the relative importance of the objective function and the constraints, which can be at odds with each other. These techniques may also require knowledge of the probability distribution from which the data is sampled, which is not always available and limits applications to parametric statistics.
@@ -557,15 +564,21 @@ Contrary to the standard ML approach, however, \(n\) behavioral constraints can 
   The \(i^{th}\) confidence level specifies the maximum probability that an algorithm can return a solution \(\theta\) where \(g_i(\theta) > 0\). In other words, \(1 - \delta_i\) specifies the minimum probability that desirable behavior (\(g_i(\theta) \leq 0\)) is met. Smaller values of \(\delta_i\) are preferred.
 \end{itemize}
 In summary, a Seldonian algorithm ensures that for all \(i \in \{1,2,\ldots,n\}\):
-
-\[P(g_i(a(D)) \leq 0) \geq 1 - \delta_i.\]
+\begin{equation}
+\label{ch2eq6}
+P(g_i(a(D)) \leq 0) \geq 1 - \delta_i.
+\end{equation}
 Section \ref{sop} goes into further detail about the Seldonian framework and how these probabilistic behavioral constraints are guaranteed.
 
 \hypertarget{sop}{%
 \subsection{The Seldonian Optimization Problem}\label{sop}}
 
 As detailed, the Seldonian framework is different from current potential remedies of undesirable behavior because it defines a search over a possible set of algorithms with constraints, rather than over a possible set of solutions. This means that the constraints require that the probability that a machine learning algorithm returns an unsafe solution be bounded by some desired level of confidence, rather than the probability that a solution itself is unsafe. In summary, a Seldonian optimization problem (SOP) can be written as (P. S. Thomas et al., 2019a):
-
+\begin{equation}
+\label{ch2eq7}
+\underset{a \in \textbf{A}}{\text{ arg max }} f(a)
+\text{ s.t. } \forall \text{ } i \in \{1, 2, \ldots, n\} \text{, } P(g_i(a(D)) \leq 0) \geq 1 - \delta_i.
+\end{equation}
 \[\underset{a \in \textbf{A}}{\text{ arg max }} f(a)\]
 
 \[\text{s.t. } \forall \text{ } i \in \{1, 2, \ldots, n\} \text{, } P(g_i(a(D)) \leq 0) \geq 1 - \delta_i.\]
