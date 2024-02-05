@@ -324,13 +324,17 @@ Ultimately, group notions and individual notions are not in conflict per se. Ins
 Fair regression is the quantitative notion of fairness of real-valued targets (Agarwal, Dudík, \& Wu, 2019). Consider a general prediction setting where the training set consists of \(X\), a feature vector with all the predictor variables, \(A\), the levels of the protected attribute/ demographic group, and \(Y\), the real-valued continuous response variable. \(F\) is a set of possible prediction models, and the goal is to find \(f \in F\) that is a good predictive model of \(Y\) given \(X\) and some fairness constraints. The accuracy of a prediction \(f(X)\) / \(\hat{Y}\) on \(Y\) is measured by the loss function \(l(Y, f(X))\) or mean squared error (MSE). The goal is to minimize \(l(Y, f(X))\), hence, maximizing accuracy.
 
 \emph{Statistical parity} refers to minimizing the expected loss function/ MSE such that the probability that each predicted \(f(X)\)/ \(\hat{Y}\) is above a certain threshold \(z\) for each sensitive attribute is the same as the probability over the entire data set, given some margin \(\epsilon_a\) that is dependent on the protected attribute (Agarwal et al., 2019):
-
-\[ \text{min}_{f \in F} \text{ } E[l(Y, f(X))] \text{ such that } \forall a \in A, z \in [0,1]: \]
+\begin{equation}
+\label{ch1eq1}
+\text{min}_{f \in F} \text{ } E[l(Y, f(X))] \text{ such that } \forall a \in A, z \in [0,1]:
+\end{equation}
 \[ |P[f(X) \geq z | A = a] - P[f(X) \geq z]| \leq \epsilon_a.\]
 
 This is akin to the classification setting where it may be desirable to have the probability of being in the positive class be above some certain threshold for each group as well as across the entire data set. A similar notion, known as \emph{bounded loss}, requires that the MSE for each group is below some pre-specified level \(c_a\) that is dependent on the protected attribute (Agarwal et al., 2019):
-
-\[ \text{min}_{f \in F} \text{ } E[l(Y, f(X))] \text{ such that } \forall a \in A: \]
+\begin{equation}
+\label{ch1eq2}
+\text{min}_{f \in F} \text{ } E[l(Y, f(X))] \text{ such that } \forall a \in A: 
+\end{equation}
 \[ E[l(Y, f(X)) | A = a] \leq c_a.\]
 
 \hypertarget{group-fairness-in-classification-settings}{%
@@ -344,8 +348,10 @@ Group notions of fairness in classification, at the core, refer to treating diff
 \newcommand{\indep}{\perp \!\!\! \perp}
 
 This fairness definition requires predictions, \(\hat{Y}\), to be independent of any sensitive attribute, \(A\), that is, \(\hat{Y} \perp \!\!\! \perp A\) (Castelnovo et al., 2022). Thus, it relies only on the distribution of features and decisions, that is, \(A\), \(X\), and \(\hat{Y}\), and focuses on the equality of the predictions themselves by satisfying the following equation:
-
-\[ P (\hat{Y} = 1 | A = a) = P (\hat{Y} = 1 | A = b), \text{    } \forall a, b \in A,\]
+\begin{equation}
+\label{ch1eq3}
+P (\hat{Y} = 1 | A = a) = P (\hat{Y} = 1 | A = b), \text{    } \forall a, b \in A,
+\end{equation}
 where \(a\), \(b\) are the two demographic groups in question.
 
 This definition is also known as \emph{demographic parity}, \emph{statistical parity}, or generally, group fairness, and requires that all levels of the demographic group have the same positive prediction ratio (PPR) where PPR is the ratio of positive outcomes (Castelnovo et al., 2022). In other words, the likelihood of a positive outcome should be the same regardless of the demographic group.
@@ -366,20 +372,27 @@ The dashed line represents the decision boundary. In both group A and group B, f
 A difference in demographic parity close to 0 or a ratio close to 1 by some defined margin is considered a fair solution (Castelnovo et al., 2022). To achieve demographic parity, the different demographic groups must be treated differently, which may seem contrary to societal pre-conceived notions of fairness. Therefore, demographic parity should be used when the primary objective is to enforce some form of equality between groups regardless of all other information and when the objectivity of the target variable, \(Y\), is under question, perhaps because of historical biases. This, however, can unknowingly amplify biases if used in the wrong setting. For example, when imposing demographic parity on a hiring algorithm, if qualifications are different across a protected attribute, then less-qualified candidates may be hired. If these candidates end up being low-performers, then this can perpetuate stereotypes about their demographic group.
 
 In the above example of using a hiring algorithm with gender as the protected attribute, it may then seem fairer to require independence on gender only for men and women with the same rating or qualification, that is, \(\hat{Y} \perp \!\!\! \perp A | R\). This is known as \emph{conditional demographic parity} and requires that the following equation is satisfied (Castelnovo et al., 2022):
-
-\[ P (\hat{Y} = 1 | A = a, R = r) = P (\hat{Y} = 1 | A = b, R = r), \text{    } \forall a, b \in A, \forall r.\]
-
+\begin{equation}
+\label{ch1eq4}
+P (\hat{Y} = 1 | A = a, R = r) = P (\hat{Y} = 1 | A = b, R = r), \text{    } \forall a, b \in A, \forall r.
+\end{equation}
 This idea can be generalized more to condition on all attributes, that is, \(\hat{Y} \perp \!\!\! \perp A | X\). As this is more generalized, however, it begins to satisfy individual fairness and can be achieved by a gender-blind model (Castelnovo et al., 2022). This type of individual fairness is also referred to as fairness through unawareness (FTU), which requires that any protected attributes, or their covariates, are not explicitly used in the decision-making process (Mehrabi et al., 2021). This definition of fairness requires that the following equation be satisfied (Castelnovo et al., 2022):
-
-\[ P (\hat{Y} = 1 | A = a, X = x) = P (\hat{Y} = 1 | A = b, X = x), \text{ } \forall a, b \in A, \forall x \in X.\]
-
+\begin{equation}
+\label{ch1eq5}
+P (\hat{Y} = 1 | A = a, X = x) = P (\hat{Y} = 1 | A = b, X = x), \text{ } \forall a, b \in A, \forall x \in X.
+\end{equation}
 \hypertarget{separation}{%
 \subsubsection{Separation}\label{separation}}
 
 Independence does not make use of the true target \(Y\) and simply requires equality of predictions. However, as observed in Figure \ref{fig:dp}, this can lead to different error rates between different groups. In other words, the model is more accurate for one group than it is for another group. Separation precisely focuses on equality of the error rates and is widely known as the \emph{equality of odds} (Castelnovo et al., 2022). This definition requires the same type I and type II error rates, precisely, the same false positive rate (FPR) and false negative rate (FNR) across all demographic groups. FPR and FNR are defined by:
-
-\[FPR = P(\hat{Y} = 1| Y = 0) = \frac{FP}{FP + TN}\]
-\[FNR = P(\hat{Y} = 0| Y = 1) = \frac{FN}{TP + FN}\]
+\begin{equation}
+\label{ch1eq6}
+FPR = P(\hat{Y} = 1| Y = 0) = \frac{FP}{FP + TN}
+\end{equation}
+\begin{equation}
+\label{ch1eq7}
+FNR = P(\hat{Y} = 0| Y = 1) = \frac{FN}{TP + FN}
+\end{equation}
 where FP refers to false positive predictions, TP refers to true positive predictions, FN refers to false negative predictions, and TN refers to true negative predictions. These metrics can be understood through a confusion matrix as in Figure \ref{fig:confusionmatrix} (Mohajon, 2021).
 \begin{figure}
 
@@ -392,8 +405,10 @@ where FP refers to false positive predictions, TP refers to true positive predic
 In the COMPAS data set, separation would be satisfied if both Black defendants and White defendants had equal error rates. However, as observed in Figure \ref{fig:compas1}, Black defendants had an FPR of 45\% while White defendants had an FPR of 24\% -- these refer to the percentage of times the algorithm predicted the defendants had recidivated when they hadn't. Similarly, Black defendants had an FNR of 28\% while White defendants had an FNR of 48\% -- these refer to the percentage of times the algorithm predicted the defendants had not recommitted a crime when they had.
 
 Separation requires independence of the predictions \(\hat{Y}\) and the sensitive attribute \(A\) conditioned on the true value of the target variable \(Y\), that is, \(\hat{Y} \perp \!\!\! \perp A|Y\) (Castelnovo et al., 2022). In other terms, the following equation must be satisfied:
-
-\[ P(\hat{Y} = 1 | A = a, Y = y) = P(\hat{Y} = 1 | A = b, Y = y), \text{ } \forall a,b \in A, \text{ } y \in \{ 0, 1 \},\]
+\begin{equation}
+\label{ch1eq8}
+P(\hat{Y} = 1 | A = a, Y = y) = P(\hat{Y} = 1 | A = b, Y = y), \text{ } \forall a,b \in A, \text{ } y \in \{ 0, 1 \},
+\end{equation}
 where 0 is a negative outcome and 1 is a positive outcome. This is a reasonable fairness metric, as long as the objectivity of the target variable is trusted, as it ensures that the model optimizes performance for all groups, not just majority groups.
 
 The visual example in Figure \ref{fig:eoo} illustrates a toy scenario where separation is met (Castelnovo et al., 2022). The dashed line represents the decision boundary. Filled in circles represent positive predictions and empty circles represent negative predictions. The error rates are consistent between both men and women.
@@ -412,7 +427,10 @@ There are two relaxed versions of this measure depending on which outcome is mos
 \item
   \emph{Predictive equality}: equality of false positive rates (FPR) across groups:
 \end{enumerate}
-\[ P (\hat{Y} = 1 | A = a, Y = 0) = P (\hat{Y} = 1 | A = b, Y = 0), \text{ } \forall a,b \in A.\]
+\begin{equation}
+\label{ch1eq9}
+P (\hat{Y} = 1 | A = a, Y = 0) = P (\hat{Y} = 1 | A = b, Y = 0), \text{ } \forall a,b \in A.
+\end{equation}
 \begin{enumerate}
 \def\labelenumi{\roman{enumi})}
 \setcounter{enumi}{1}
@@ -420,14 +438,18 @@ There are two relaxed versions of this measure depending on which outcome is mos
 \item
   \emph{Equality of Opportunity}: equality of false negative rates (FNR) across groups:
 \end{enumerate}
-\[ P (\hat{Y} = 0 | A = a, Y = 1) = P (\hat{Y} = 0 | A = b, Y = 1), \text{ } \forall a,b \in A.\]
-
+\begin{equation}
+\label{ch1eq10}
+P (\hat{Y} = 0 | A = a, Y = 1) = P (\hat{Y} = 0 | A = b, Y = 1), \text{ } \forall a,b \in A.
+\end{equation}
 \hypertarget{sufficiency}{%
 \subsubsection{Sufficiency}\label{sufficiency}}
 
 Finally, sufficiency takes the perspective of people that receive the same model prediction and requires parity among them regardless of sensitive features (Castelnovo et al., 2022). This is also knows as \emph{predictive parity} and requires that the precision be the same across sensitive groups, that is, \(Y \perp \!\!\! \perp A | \hat{Y}\). In other words, the following equation must be satisfied:
-
-\[ P (Y = y | A = a, \hat{Y} = y) = P (Y = y | A = b, \hat{Y} = y), \text{ } \forall a, b \in A, \text{ for } y \in \{0,1\}.\]
+\begin{equation}
+\label{ch1eq11}
+P (Y = y | A = a, \hat{Y} = y) = P (Y = y | A = b, \hat{Y} = y), \text{ } \forall a, b \in A, \text{ for } y \in \{0,1\}.
+\end{equation}
 Simply put, the probability of a positive outcome given a positive prediction, and that of a negative outcome given a negative prediction, should be equal across all sensitive groups.
 
 \(\\\)
@@ -445,13 +467,17 @@ Because of the way different fairness definitions are defined, it can be impossi
 The UFRGS Entrance Exam and GPA Data contains entrance exam scores of students applying to the Federal University of Rio Grande do Sul in Brazil, along with the students' GPAs during their first three semesters at the university (Silva, 2019). Each student's score in nine different entrance exams is used to predict their GPA during their first 3 semesters of study at the university. Gender and race are the protected attributes.
 
 Taking gender as the protected attribute in a gender-blind model, independence, in this setting, would require that the average predictions be the same for each gender. That is,
-
-\[ E[\hat{Y} | G = Male] = E[\hat{Y} | G = Female].\]
+\begin{equation}
+\label{ch1eq12}
+E[\hat{Y} | G = Male] = E[\hat{Y} | G = Female].
+\end{equation}
 This is violated if, on average, a model predicts a higher or lower GPA based on gender.
 
 Separation, on the other hand, would require that the average error of predictions be the same for each gender. In defined notion,
-
-\[ E[\hat{Y} - Y | G = Male] = E[\hat{Y} - Y| G = Female].\]
+\begin{equation}
+\label{ch1eq13}
+E[\hat{Y} - Y | G = Male] = E[\hat{Y} - Y| G = Female].
+\end{equation}
 This is violated if, on average, the model over-predicts for one gender but under-predicts for another gender or the model either over-predicts or under-predicts more or less for one gender.
 
 However, a study found that because male and female applicants had different GPAs in the original data set, these two fairness definitions cannot be simultaneously satisfied (P. Thomas, 2020). A result in the Section \ref{class-conflict} will explain this in a mathematically tractable way.
@@ -460,17 +486,25 @@ However, a study found that because male and female applicants had different GPA
 \subsection{Fairness Conflicts in Classification}\label{class-conflict}}
 
 Define prevalence \(p\) as the probability of a positive outcome given the demographic group (Chouldechova, 2017). It directly relates to the class distribution of the outcome. \(p \in (0,1)\) and can be denoted by:
-
-\[p_a = P(Y=1|A=a).\]
+\begin{equation}
+\label{ch1eq14}
+p_a = P(Y=1|A=a).
+\end{equation}
 Further define the positive predictive value (PPV) of a prediction as the probability of a positive outcome given a positive prediction (Chouldechova, 2017):
-
-\[PPV(\hat{Y}|A = a) \equiv P (Y = 1| \hat{Y} = 1, A = a).\]
+\begin{equation}
+\label{ch1eq15}
+PPV(\hat{Y}|A = a) \equiv P (Y = 1| \hat{Y} = 1, A = a).
+\end{equation}
 Similarly, the negative predictive value (NPV) of a prediction is the probability of a negative outcome given a negative prediction and can be denoted as:
-
-\[NPV(\hat{Y}|A = a) \equiv P (Y = 0| \hat{Y} = 0, A = a).\]
+\begin{equation}
+\label{ch1eq16}
+NPV(\hat{Y}|A = a) \equiv P (Y = 0| \hat{Y} = 0, A = a).
+\end{equation}
 Sufficiency would require equal PPV and equal NPV across the different demographic groups. Note that NPV and PPV can be computed from a confusion matrix (Figure \ref{fig:confusionmatrix}) as shown below (Saeed, Alireza, Mohamed, \& Ahmed, 2015):
-
-\[ PPV = \frac{TP}{TP + FP} \text{   ;   } NPV = \frac{TN}{TN + FN}.\]
+\begin{equation}
+\label{ch1eq17}
+PPV = \frac{TP}{TP + FP} \text{   ;   } NPV = \frac{TN}{TN + FN}.
+\end{equation}
 Now, given values of the \(PPV \in (0,1)\) and \(p \in (0,1)\), it can be shown that (Chouldechova, 2017):
 
 \[ FPR = \frac{p}{1-p} \frac{1-PPV}{PPV}(1 - FNR).\]
@@ -579,10 +613,6 @@ As detailed, the Seldonian framework is different from current potential remedie
 \underset{a \in \textbf{A}}{\text{ arg max }} f(a)
 \text{ s.t. } \forall \text{ } i \in \{1, 2, \ldots, n\} \text{, } P(g_i(a(D)) \leq 0) \geq 1 - \delta_i.
 \end{equation}
-\[\underset{a \in \textbf{A}}{\text{ arg max }} f(a)\]
-
-\[\text{s.t. } \forall \text{ } i \in \{1, 2, \ldots, n\} \text{, } P(g_i(a(D)) \leq 0) \geq 1 - \delta_i.\]
-
 A Seldonian algorithm \(a\), thus, returns, with high probability, a solution that guarantees desirable behavior. If one were to apply machine algorithm \(a\) to obtain a solution from a large number of different data sets \(D\) drawn from the same distribution, then it would be expected that at most \(100\delta_i \%\) solutions (models) would produce undesirable behavior.
 
 Taking the previous regression example and turning it into a Seldonian optimization problem using the discrimination statistic in Section \ref{standardlimitations}, \(f\) would still be an objective function like the MSE, \(\Theta\) would still be the set of all possible linear models, and \(D\) would be the data set as described. There would be 1 behavioral constraint, \(g_1(a(D)) = |d(a(D))| - \epsilon\), to guarantee with probability at least \(1-\delta_1\), that the absolute value of the discrimination statistic would be at most \(\epsilon\), where \(\epsilon\) and \(\delta_1\) are chosen based on the specific application. Note that the user of the machine learning algorithm need not perform data analysis to determine whether \(g_1(\theta) \leq 0\) for a particular solution \(\theta \in \Theta\) returned. The burden is shifted to the computation algorithm to determine this with some desired level of probability.
@@ -602,14 +632,16 @@ Note that finding exact confidence bounds may be impractical and require large a
 \subsection{Quasi-Seldonian Algorithms}\label{qsa}}
 
 Recall that the Seldonian goal is to create an algorithm \(a\) that maximizes an objective function \(f\) while satisfying behavioral constraints with high probability. In this Chapter, the focus has been on linear regression, so the aim would be to create a Seldonian linear regression algorithm, rather than one that follows the standard ML process described in Section \ref{standardml}. A Seldonian linear regression algorithm would be an approximate solution to:
-
-\[\underset{a \in \textbf{A}}{\text{ arg max }} f(a)\]
-
-\[\text{s.t. } \forall \text{ } i \in \{1, 2, \ldots, n\} \text{, } P(g_i(a(D)) \leq 0) \geq 1 - \delta_i.\]
-
+\begin{equation}
+\label{ch2eq8}
+\underset{a \in \textbf{A}}{\text{ arg max }} f(a)
+\text{ s.t. } \forall \text{ } i \in \{1, 2, \ldots, n\} \text{, } P(g_i(a(D)) \leq 0) \geq 1 - \delta_i.
+\end{equation}
 Because the value of \(f(a)\), the objective function, is unknown, it'll be estimated from the data provided such that \(\hat{f}: \Theta \text{ x } \textbf{D} \rightarrow \textbf{R}\) is a measure of the utility of the algorithm that returns a solution \(\theta\) when given input \(D\), the only random variable (P. S. Thomas et al., 2019a). In this case, the MSE for a data set of size \(m\) can be estimated by
-
-\[\hat{f}(\theta, D) = -\frac{1}{m} \sum_{i=1}^{m}(\hat{y}(X_i, \theta) - Y_i)^2.\]
+\begin{equation}
+\label{ch2eq9}
+\hat{f}(\theta, D) = -\frac{1}{m} \sum_{i=1}^{m}(\hat{y}(X_i, \theta) - Y_i)^2.
+\end{equation}
 However, the optimization of this objective function is constrained to solutions that have probabilistic guarantees of safe behavior. As observed in Figure \ref{fig:seldonian1}, the candidate selection and safety test mechanisms are crucial to achieve this.
 
 \hypertarget{safety}{%
@@ -618,8 +650,10 @@ However, the optimization of this objective function is constrained to solutions
 Seldonian algorithms ensure that \(P(g_i(\theta_c) \leq 0) \geq 1 - \delta_i\) for each constraint \(i \in \{ 1,2, \ldots, n \}\) and the safety test mechanism is the component that verifies whether these behavioral constraints actually hold (P. S. Thomas et al., 2019a). This is achieved by computing an upper bound for each \(g_i(\theta)\) using the data and a confidence interval derived from the Student \(t\)-statistic. If the high confidence upper bound is less than or equal to 0, then the solution is safe to return, otherwise, no solution will be returned.
 
 Let \(X = (X_1, \ldots, X_m)\) be \(m\) independent and identically distributed (\(i.i.d.\)) random variables. Under the assumption that \(\frac{1}{m} \sum_{i=1}^m X_i\) is normally distributed or if \(m\) is sufficiently large -- by the Central Limit Theorem --, then the Student \(t\)-statistic can be used to compute an upper bound of the expected value of these random variables as follows:
-
-\[P(E[X_1] \leq \hat{\mu}(X) + \frac{\hat{\sigma}(X)}{\sqrt{m}}t_{1-\delta, m-1}) \geq 1 - \delta,\]
+\begin{equation}
+\label{ch2eq10}
+P(E[X_1] \leq \hat{\mu}(X) + \frac{\hat{\sigma}(X)}{\sqrt{m}}t_{1-\delta, m-1}) \geq 1 - \delta,
+\end{equation}
 where
 \begin{itemize}
 \item
@@ -639,29 +673,35 @@ Before constructing the safety test mechanism, recall from Section \ref{sop} tha
   \(E[\hat{g_i}(\theta_c, D_2)] = g_i(\theta_c)\).
 \end{itemize}
 By substituting the respective pieces into the Student \(t\) high confidence upper bound discussed above, then:
-
-\[P(g_i(\theta_c) \leq \hat{\mu}(\hat{g_i}(\theta_c, D_2)) + \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_2))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1}) \geq 1 - \delta_i.\]
+\begin{equation}
+\label{ch2eq11}
+P(g_i(\theta_c) \leq \hat{\mu}(\hat{g_i}(\theta_c, D_2)) + \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_2))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1}) \geq 1 - \delta_i.
+\end{equation}
 Notice that \(\hat{\mu}(\hat{g_i}(\theta_c, D_2)) + \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_2))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1}\) is an upper bound of the confidence interval with confidence \(1-\delta_i\). If this upper bound is less than or equal to zero, then the \(i^{th}\) behavioral constraint \(g_i(\theta_c)\) is less than or equal to zero with at least probability \(1-\delta_i\). Therefore, \(\theta_c\) is only returned if \(\hat{\mu}(\hat{g_i}(\theta_c, D_2)) + \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_2))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1} \leq 0\). Specifically, this holds only under the assumption that \(\hat{\mu}(\hat{g_i}(\theta_c, D_2))\) is normally distributed or if the size of the safety data \(D_2\) is sufficiently large, hence the name \(\textit{quasi}\)-Seldonian (P. S. Thomas et al., 2019a). The next section now discusses precisely how \(\theta_c\) is selected before being passed into the safety test mechanism.
 
 \hypertarget{candidate}{%
 \subsubsection{The Candidate Selection Mechanism}\label{candidate}}
 
 With the safety test in place, any algorithm will be Seldonian regardless of how \(\theta_c\) is computed, as long as \(\theta_c\) is computed using a different subset of the data, hence the partition into \(D_1\) (candidate data) and \(D_2\) (safety data) (P. S. Thomas et al., 2019b). However, if \(\theta_c\) is computed using the standard ML approach, then it will likely be unsafe as was illustrated in Section \ref{standardlimitations}, resulting in an NSF output. Instead, \(\theta_c\) will be computed as follows:
-
-\[\theta_c \in \underset{\theta \in \Theta}{\text{ arg max }} \hat{f}(\theta, D_1)\]
-\[\text{s.t. } \theta_c \text{ is predicted to pass the safety test}.\]
+\begin{equation}
+\label{ch2eq12}
+\theta_c \in \underset{\theta \in \Theta}{\text{ arg max }} \hat{f}(\theta, D_1)
+\text{ s.t. } \theta_c \text{ is predicted to pass the safety test}.
+\end{equation}
 Thus, only solutions likely to pass the safety test will be considered by predicting the result of the safety test using \(D_1\) (the candidate data) instead of \(D_2\). In formal notation,
-
-\[\theta_c \in \underset{\theta \in \Theta}{\text{ arg max }} \hat{f}(\theta, D_1)\]
-\[\text{s.t. } \forall \text{ } i \in \{1,2,\ldots,n\}, \text{  } \hat{\mu}(\hat{g_i}(\theta_c, D_1)) + \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_1))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1} \leq 0.\]
-
+\begin{equation}
+\label{ch2eq13}
+\theta_c \in \underset{\theta \in \Theta}{\text{ arg max }} \hat{f}(\theta, D_1)
+\text{ s.t. } \forall \text{ } i \in \{1,2,\ldots,n\}, \text{  } \hat{\mu}(\hat{g_i}(\theta_c, D_1)) + \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_1))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1} \leq 0.
+\end{equation}
 Notice that while the sample mean \(\hat{\mu}\) and the sample standard deviation \(\hat{\sigma}\) are computed over \(D_1\), the size of \(D_2\) is still used to correct the standard deviation and compute the Student \(t\) percentile, in order to ensure that the solution is properly predicted to pass the safety test.
 
 The process defined can work well when the objective function \(f\) and the behavioral constraints are aligned. However, when they are in conflict, the candidate selection mechanism tends to be over-confident that \(\theta_c\) will pass the safety test and a safe solution will be returned (P. S. Thomas et al., 2019b). Doubling the width of the confidence level is a proposed solution to produce more conservative predictions and better guarantees of \(\theta_c\) passing the safety test. Therefore, a black-box optimization algorithm is used to compute
-
-\[\theta_c \in \underset{\theta \in \Theta}{\text{ arg max }} \hat{f}(\theta, D_1)\]
-\[\text{s.t. } \forall \text{ } i \in \{1,2,\ldots,n\}, \text{  } \hat{\mu}(\hat{g_i}(\theta_c, D_1)) + 2\frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_1))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1} \leq 0.\]
-
+\begin{equation}
+\label{ch2eq14}
+\theta_c \in \underset{\theta \in \Theta}{\text{ arg max }} \hat{f}(\theta, D_1)
+\text{ s.t. } \forall \text{ } i \in \{1,2,\ldots,n\}, \text{  } \hat{\mu}(\hat{g_i}(\theta_c, D_1)) + 2\frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_1))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1} \leq 0.
+\end{equation}
 \hfill\break
 
 This culminates the discussion on the Seldonian theoretical framework at a high level. To conclude this Chapter, Section \ref{toy} walks through how this is implemented computationally using a toy regression example.
@@ -697,15 +737,6 @@ Unbiased estimates of the MSE and each \(g_i(\theta)\) will be computed from the
 Once that is figured out, do you think I should also put key Python code in a technical appendix? Let me know what you think about this!
 
 \hfill\break
-\begin{itemize}
-\tightlist
-\item
-  Should I assign equations in both Chapter 1 and 2 number labels as done here for Equation \ref{discstat} as an example? When would this be necessary?
-\end{itemize}
-\begin{equation}
-\label{discstat}
-d(\theta) =  E[\hat{Y}-Y|G = 0 ] - E[\hat{Y}-Y|G = 1 ].
-\end{equation}
 \begin{itemize}
 \tightlist
 \item
@@ -833,6 +864,235 @@ The code chunk below fixes arbitrary sensitivity (1 - FNR) and specificity (1 - 
 \end{Shaded}
 \begin{center}\includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/unnamed-chunk-25-1} \end{center}
 
+\hypertarget{appendix-b}{%
+\chapter{Key Python Code}\label{appendix-b}}
+
+Explain the code in this section using the Jupyter notebook as a guide: \url{https://jupyter.hpc.amherst.edu/user/dasienga24/lab}?
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(reticulate)}
+\FunctionTok{use\_python}\NormalTok{(}\StringTok{"/cm/shared/apps/amh{-}Rstudio/python{-}3.11.4/bin/python3"}\NormalTok{, }\AttributeTok{required =} \ConstantTok{TRUE}\NormalTok{)}
+\CommentTok{\#py\_config()}
+\CommentTok{\#conda\_list()}
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sklearn }\OtherTok{\textless{}{-}} \FunctionTok{import}\NormalTok{(}\StringTok{"sklearn"}\NormalTok{)}
+\CommentTok{\#conda\_list()}
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\ImportTok{import}\NormalTok{ sklearn}
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\ImportTok{import}\NormalTok{ math}
+\ImportTok{import}\NormalTok{ numpy }\ImportTok{as}\NormalTok{ np}
+\ImportTok{import}\NormalTok{ sys}
+\ImportTok{from}\NormalTok{ sklearn.linear\_model }\ImportTok{import}\NormalTok{ LinearRegression}
+\ImportTok{from}\NormalTok{ sklearn.model\_selection }\ImportTok{import}\NormalTok{ train\_test\_split}
+\ImportTok{from}\NormalTok{ scipy.stats }\ImportTok{import}\NormalTok{ t}
+\ImportTok{from}\NormalTok{ scipy.optimize }\ImportTok{import}\NormalTok{ minimize}
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{np.set\_printoptions(precision}\OperatorTok{=}\DecValTok{5}\NormalTok{, suppress}\OperatorTok{=}\VariableTok{True}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ tinv(p, nu):}
+    \ControlFlowTok{return}\NormalTok{ t.ppf(p, nu)}
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ stddev(v):}
+\NormalTok{    n }\OperatorTok{=}\NormalTok{ v.size}
+\NormalTok{    variance }\OperatorTok{=}\NormalTok{ (np.var(v) }\OperatorTok{*}\NormalTok{ n) }\OperatorTok{/}\NormalTok{ (n}\OperatorTok{{-}}\DecValTok{1}\NormalTok{) }
+    \ControlFlowTok{return}\NormalTok{ np.sqrt(variance) }
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ ttestUpperBound(v, delta):}
+\NormalTok{    n  }\OperatorTok{=}\NormalTok{ v.size}
+\NormalTok{    res }\OperatorTok{=}\NormalTok{ v.mean() }\OperatorTok{+}\NormalTok{ stddev(v) }\OperatorTok{/}\NormalTok{ math.sqrt(n) }\OperatorTok{*}\NormalTok{ tinv(}\FloatTok{1.0} \OperatorTok{{-}}\NormalTok{ delta, n }\OperatorTok{{-}} \DecValTok{1}\NormalTok{)}
+    \ControlFlowTok{return}\NormalTok{ res}
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ predictTTestUpperBound(v, delta, k):}
+    
+\NormalTok{    res }\OperatorTok{=}\NormalTok{ v.mean() }\OperatorTok{+} \FloatTok{2.0} \OperatorTok{*}\NormalTok{ stddev(v) }\OperatorTok{/}\NormalTok{ math.sqrt(k) }\OperatorTok{*}\NormalTok{ tinv(}\FloatTok{1.0} \OperatorTok{{-}}\NormalTok{ delta, k }\OperatorTok{{-}} \DecValTok{1}\NormalTok{)}
+    \ControlFlowTok{return}\NormalTok{ res}
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ main():}
+\NormalTok{    np.random.seed(}\DecValTok{0}\NormalTok{)  }
+\NormalTok{    numPoints }\OperatorTok{=} \DecValTok{5000}   
+
+\NormalTok{    (X,Y)  }\OperatorTok{=}\NormalTok{ generateData(numPoints)  }
+
+\NormalTok{    gHats  }\OperatorTok{=}\NormalTok{ [gHat1, gHat2] }
+\NormalTok{    deltas }\OperatorTok{=}\NormalTok{ [}\FloatTok{0.1}\NormalTok{, }\FloatTok{0.1}\NormalTok{]}
+
+\NormalTok{    (result, found) }\OperatorTok{=}\NormalTok{ QSA(X, Y, gHats, deltas) }
+    
+    \ControlFlowTok{if}\NormalTok{ found:}
+        \BuiltInTok{print}\NormalTok{(}\StringTok{"A solution was found: [}\SpecialCharTok{\%.10f}\StringTok{, }\SpecialCharTok{\%.10f}\StringTok{]"} \OperatorTok{\%}\NormalTok{ (result[}\DecValTok{0}\NormalTok{], result[}\DecValTok{1}\NormalTok{]))}
+        \BuiltInTok{print}\NormalTok{(}\StringTok{"fHat of solution (computed over all data, D):"}\NormalTok{, fHat(result, X, Y))}
+    \ControlFlowTok{else}\NormalTok{:}
+        \BuiltInTok{print}\NormalTok{(}\StringTok{"No solution found"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ generateData(numPoints):}
+\NormalTok{    X }\OperatorTok{=}\NormalTok{     np.random.normal(}\FloatTok{0.0}\NormalTok{, }\FloatTok{1.0}\NormalTok{, numPoints) }
+\NormalTok{    Y }\OperatorTok{=}\NormalTok{ X }\OperatorTok{+}\NormalTok{ np.random.normal(}\FloatTok{0.0}\NormalTok{, }\FloatTok{1.0}\NormalTok{, numPoints) }
+    \ControlFlowTok{return}\NormalTok{ (X,Y)}
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ predict(theta, x):}
+    \ControlFlowTok{return}\NormalTok{ theta[}\DecValTok{0}\NormalTok{] }\OperatorTok{+}\NormalTok{ theta[}\DecValTok{1}\NormalTok{] }\OperatorTok{*}\NormalTok{ x}
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ fHat(theta, X, Y):}
+\NormalTok{    n }\OperatorTok{=}\NormalTok{ X.size          }
+\NormalTok{    res }\OperatorTok{=} \FloatTok{0.0}           
+    \ControlFlowTok{for}\NormalTok{ i }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(n):  }
+\NormalTok{        prediction }\OperatorTok{=}\NormalTok{ predict(theta, X[i])                }
+\NormalTok{        res }\OperatorTok{+=}\NormalTok{ (prediction }\OperatorTok{{-}}\NormalTok{ Y[i]) }\OperatorTok{*}\NormalTok{ (prediction }\OperatorTok{{-}}\NormalTok{ Y[i]) }
+\NormalTok{    res }\OperatorTok{/=}\NormalTok{ n            }
+    \ControlFlowTok{return} \OperatorTok{{-}}\NormalTok{res         }
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ gHat1(theta, X, Y):}
+\NormalTok{    n }\OperatorTok{=}\NormalTok{ X.size          }
+\NormalTok{    res }\OperatorTok{=}\NormalTok{ np.zeros(n)   }
+    \ControlFlowTok{for}\NormalTok{ i }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(n):}
+\NormalTok{        prediction }\OperatorTok{=}\NormalTok{ predict(theta, X[i])                   }
+\NormalTok{        res[i] }\OperatorTok{=}\NormalTok{ (prediction }\OperatorTok{{-}}\NormalTok{ Y[i]) }\OperatorTok{*}\NormalTok{ (prediction }\OperatorTok{{-}}\NormalTok{ Y[i])  }
+\NormalTok{    res }\OperatorTok{=}\NormalTok{ res }\OperatorTok{{-}} \FloatTok{2.0}     
+    \ControlFlowTok{return}\NormalTok{ res}
+
+\KeywordTok{def}\NormalTok{ gHat2(theta, X, Y):}
+\NormalTok{    n }\OperatorTok{=}\NormalTok{ X.size          }
+\NormalTok{    res }\OperatorTok{=}\NormalTok{ np.zeros(n)   }
+    \ControlFlowTok{for}\NormalTok{ i }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(n):}
+\NormalTok{        prediction }\OperatorTok{=}\NormalTok{ predict(theta, X[i])                   }
+\NormalTok{        res[i] }\OperatorTok{=}\NormalTok{ (prediction }\OperatorTok{{-}}\NormalTok{ Y[i]) }\OperatorTok{*}\NormalTok{ (prediction }\OperatorTok{{-}}\NormalTok{ Y[i])  }
+\NormalTok{    res }\OperatorTok{=} \FloatTok{1.25} \OperatorTok{{-}}\NormalTok{ res   }
+    \ControlFlowTok{return}\NormalTok{ res}
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ leastSq(X, Y):}
+\NormalTok{    X }\OperatorTok{=}\NormalTok{ np.expand\_dims(X, axis}\OperatorTok{=}\DecValTok{1}\NormalTok{) }
+\NormalTok{    Y }\OperatorTok{=}\NormalTok{ np.expand\_dims(Y, axis}\OperatorTok{=}\DecValTok{1}\NormalTok{) }
+\NormalTok{    reg }\OperatorTok{=}\NormalTok{ LinearRegression().fit(X, Y)}
+\NormalTok{    theta0 }\OperatorTok{=}\NormalTok{ reg.intercept\_[}\DecValTok{0}\NormalTok{]   }
+\NormalTok{    theta1 }\OperatorTok{=}\NormalTok{ reg.coef\_[}\DecValTok{0}\NormalTok{][}\DecValTok{0}\NormalTok{]     }
+    \ControlFlowTok{return}\NormalTok{ np.array([theta0, theta1])}
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ QSA(X, Y, gHats, deltas):}
+
+\NormalTok{    candidateData\_len }\OperatorTok{=} \FloatTok{0.40}
+\NormalTok{    candidateData\_X, safetyData\_X, candidateData\_Y, safetyData\_Y }\OperatorTok{=}\NormalTok{ train\_test\_split(}
+\NormalTok{      X, Y, test\_size}\OperatorTok{=}\DecValTok{1}\OperatorTok{{-}}\NormalTok{candidateData\_len, shuffle}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
+  
+\NormalTok{    candidateSolution }\OperatorTok{=}\NormalTok{ getCandidateSolution(candidateData\_X, candidateData\_Y, gHats, deltas, safetyData\_X.size)}
+
+\NormalTok{    passedSafety      }\OperatorTok{=}\NormalTok{ safetyTest(candidateSolution, safetyData\_X, safetyData\_Y, gHats, deltas)}
+
+    \ControlFlowTok{return}\NormalTok{ [candidateSolution, passedSafety]}
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ safetyTest(candidateSolution, safetyData\_X, safetyData\_Y, gHats, deltas):}
+
+    \ControlFlowTok{for}\NormalTok{ i }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(}\BuiltInTok{len}\NormalTok{(gHats)):  }
+\NormalTok{        g         }\OperatorTok{=}\NormalTok{ gHats[i]  }
+\NormalTok{        delta     }\OperatorTok{=}\NormalTok{ deltas[i] }
+
+    
+\NormalTok{        g\_samples }\OperatorTok{=}\NormalTok{ g(candidateSolution, safetyData\_X, safetyData\_Y) }
+
+\NormalTok{        upperBound }\OperatorTok{=}\NormalTok{ ttestUpperBound(g\_samples, delta) }
+
+        \ControlFlowTok{if}\NormalTok{ upperBound }\OperatorTok{\textgreater{}} \FloatTok{0.0}\NormalTok{: }
+            \ControlFlowTok{return} \VariableTok{False}
+
+    \ControlFlowTok{return} \VariableTok{True}
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ candidateObjective(thetaToEvaluate, candidateData\_X, candidateData\_Y, gHats, deltas, safetyDataSize): }
+
+\NormalTok{    result }\OperatorTok{=}\NormalTok{ fHat(thetaToEvaluate, candidateData\_X, candidateData\_Y)}
+
+\NormalTok{    predictSafetyTest }\OperatorTok{=} \VariableTok{True}     
+    
+    \ControlFlowTok{for}\NormalTok{ i }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(}\BuiltInTok{len}\NormalTok{(gHats)):  }
+\NormalTok{        g         }\OperatorTok{=}\NormalTok{ gHats[i]       }
+\NormalTok{        delta     }\OperatorTok{=}\NormalTok{ deltas[i]      }
+
+\NormalTok{        g\_samples }\OperatorTok{=}\NormalTok{ g(thetaToEvaluate, candidateData\_X, candidateData\_Y)}
+
+\NormalTok{        upperBound }\OperatorTok{=}\NormalTok{ predictTTestUpperBound(g\_samples, delta, safetyDataSize)}
+
+        \ControlFlowTok{if}\NormalTok{ upperBound }\OperatorTok{\textgreater{}} \FloatTok{0.0}\NormalTok{:}
+
+            \ControlFlowTok{if}\NormalTok{ predictSafetyTest:}
+\NormalTok{                predictSafetyTest }\OperatorTok{=} \VariableTok{False}  
+
+\NormalTok{                result }\OperatorTok{=} \OperatorTok{{-}}\FloatTok{100000.0}    
+
+\NormalTok{            result }\OperatorTok{=}\NormalTok{ result }\OperatorTok{{-}}\NormalTok{ upperBound}
+
+    \ControlFlowTok{return} \OperatorTok{{-}}\NormalTok{result  }
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ getCandidateSolution(candidateData\_X, candidateData\_Y, gHats, deltas, safetyDataSize):}
+  
+\NormalTok{    minimizer\_method }\OperatorTok{=} \StringTok{\textquotesingle{}Powell\textquotesingle{}}
+\NormalTok{    minimizer\_options}\OperatorTok{=}\NormalTok{\{}\StringTok{\textquotesingle{}disp\textquotesingle{}}\NormalTok{: }\VariableTok{False}\NormalTok{\}}
+
+\NormalTok{    initialSolution }\OperatorTok{=}\NormalTok{ leastSq(candidateData\_X, candidateData\_Y)}
+
+\NormalTok{    res }\OperatorTok{=}\NormalTok{ minimize(candidateObjective, x0}\OperatorTok{=}\NormalTok{initialSolution, method}\OperatorTok{=}\NormalTok{minimizer\_method, options}\OperatorTok{=}\NormalTok{minimizer\_options, }
+\NormalTok{    args}\OperatorTok{=}\NormalTok{(candidateData\_X, candidateData\_Y, gHats, deltas, safetyDataSize))}
+
+    \ControlFlowTok{return}\NormalTok{ res.x}
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{main()}
+\end{Highlighting}
+\end{Shaded}
 \backmatter
 
 \hypertarget{references}{%
