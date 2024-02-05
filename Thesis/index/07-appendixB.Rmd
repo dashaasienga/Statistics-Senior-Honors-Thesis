@@ -1,5 +1,7 @@
 # Key Python Code {#appendix-b}
 
+Explain the code in this section using the Jupyter notebook as a guide: https://jupyter.hpc.amherst.edu/user/dasienga24/lab?
+
 ```{r, eval = FALSE }
 library(reticulate)
 use_python("/cm/shared/apps/amh-Rstudio/python-3.11.4/bin/python3", required = TRUE)
