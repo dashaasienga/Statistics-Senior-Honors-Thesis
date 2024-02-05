@@ -259,18 +259,234 @@ In this example, the goal of the linear regression algorithm is two-fold: to min
 Unbiased estimates of the MSE and each $g_i(\theta)$ will be computed from the data set as elucidated in Section \@ref(qsa).
 
 
+```{r}
+library(reticulate)
+use_python("/cm/shared/apps/amh-Rstudio/python-3.11.4/bin/python3", required = TRUE)
+py_config()
+conda_list()
+
+```
+
+```{r}
+sklearn <- import("sklearn")
+conda_list()
+```
+
+
+```{r}
+py_config()
+```
+
+```{python}
+import sklearn
+```
+
+
+```{python}
+import math
+import numpy as np
+import sys
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from scipy.stats import t
+from scipy.optimize import minimize
+```
+
+```{python}
+np.set_printoptions(precision=5, suppress=True)
+```
+
+```{python}
+def tinv(p, nu):
+    return t.ppf(p, nu)
+```
+
+```{python}
+tinv(0.95,50)
+```
+
+```{python}
+def stddev(v):
+    n = v.size
+    variance = (np.var(v) * n) / (n-1) 
+    return np.sqrt(variance) 
+```
+
+```{python}
+def ttestUpperBound(v, delta):
+    n  = v.size
+    res = v.mean() + stddev(v) / math.sqrt(n) * tinv(1.0 - delta, n - 1)
+    return res
+```
+
+```{python}
+def predictTTestUpperBound(v, delta, k):
+    
+    res = v.mean() + 2.0 * stddev(v) / math.sqrt(k) * tinv(1.0 - delta, k - 1)
+    return res
+```
+
+```{python}
+def main():
+    np.random.seed(0)  
+    numPoints = 5000   
+
+    (X,Y)  = generateData(numPoints)  
+
+    gHats  = [gHat1, gHat2] 
+    deltas = [0.1, 0.1]
+
+    (result, found) = QSA(X, Y, gHats, deltas) 
+    
+    if found:
+        print("A solution was found: [%.10f, %.10f]" % (result[0], result[1]))
+        print("fHat of solution (computed over all data, D):", fHat(result, X, Y))
+    else:
+        print("No solution found")
+```
+
+```{python}
+def generateData(numPoints):
+    X =     np.random.normal(0.0, 1.0, numPoints) 
+    Y = X + np.random.normal(0.0, 1.0, numPoints) 
+    return (X,Y)
+```
+
+```{python}
+def predict(theta, x):
+    return theta[0] + theta[1] * x
+```
+
+```{python}
+def fHat(theta, X, Y):
+    n = X.size          
+    res = 0.0           
+    for i in range(n):  
+        prediction = predict(theta, X[i])                
+        res += (prediction - Y[i]) * (prediction - Y[i]) 
+    res /= n            
+    return -res         
+```
+
+```{python}
+def gHat1(theta, X, Y):
+    n = X.size          
+    res = np.zeros(n)   
+    for i in range(n):
+        prediction = predict(theta, X[i])                   
+        res[i] = (prediction - Y[i]) * (prediction - Y[i])  
+    res = res - 2.0     
+    return res
+
+def gHat2(theta, X, Y):
+    n = X.size          
+    res = np.zeros(n)   
+    for i in range(n):
+        prediction = predict(theta, X[i])                   
+        res[i] = (prediction - Y[i]) * (prediction - Y[i])  
+    res = 1.25 - res   
+    return res
+```
+
+```{python}
+def leastSq(X, Y):
+    X = np.expand_dims(X, axis=1) 
+    Y = np.expand_dims(Y, axis=1) 
+    reg = LinearRegression().fit(X, Y)
+    theta0 = reg.intercept_[0]   
+    theta1 = reg.coef_[0][0]     
+    return np.array([theta0, theta1])
+```
+
+```{python}
+def QSA(X, Y, gHats, deltas):
+
+    candidateData_len = 0.40
+    candidateData_X, safetyData_X, candidateData_Y, safetyData_Y = train_test_split(
+      X, Y, test_size=1-candidateData_len, shuffle=False)
+  
+    candidateSolution = getCandidateSolution(candidateData_X, candidateData_Y, gHats, deltas, safetyData_X.size)
+
+    passedSafety      = safetyTest(candidateSolution, safetyData_X, safetyData_Y, gHats, deltas)
+
+    return [candidateSolution, passedSafety]
+```
+
+```{python}
+def safetyTest(candidateSolution, safetyData_X, safetyData_Y, gHats, deltas):
+
+    for i in range(len(gHats)):  
+        g         = gHats[i]  
+        delta     = deltas[i] 
+
+    
+        g_samples = g(candidateSolution, safetyData_X, safetyData_Y) 
+
+        upperBound = ttestUpperBound(g_samples, delta) 
+
+        if upperBound > 0.0: 
+            return False
+
+    return True
+```
+
+```{python}
+def candidateObjective(thetaToEvaluate, candidateData_X, candidateData_Y, gHats, deltas, safetyDataSize): 
+
+    result = fHat(thetaToEvaluate, candidateData_X, candidateData_Y)
+
+    predictSafetyTest = True     
+    
+    for i in range(len(gHats)):  
+        g         = gHats[i]       
+        delta     = deltas[i]      
+
+        g_samples = g(thetaToEvaluate, candidateData_X, candidateData_Y)
+
+        upperBound = predictTTestUpperBound(g_samples, delta, safetyDataSize)
+
+        if upperBound > 0.0:
+
+            if predictSafetyTest:
+                predictSafetyTest = False  
+
+                result = -100000.0    
+
+            result = result - upperBound
+
+    return -result  
+```
+
+```{python}
+def getCandidateSolution(candidateData_X, candidateData_Y, gHats, deltas, safetyDataSize):
+  
+    minimizer_method = 'Powell'
+    minimizer_options={'disp': False}
+
+    initialSolution = leastSq(candidateData_X, candidateData_Y)
+
+    res = minimize(candidateObjective, x0=initialSolution, method=minimizer_method, options=minimizer_options, 
+    args=(candidateData_X, candidateData_Y, gHats, deltas, safetyDataSize))
+
+    return res.x
+```
+
+```{python}
+main()
+```
+
+
 ---- 
 
 
-\noindent What's left in this section is displaying the results from applying the Seldonian regression as well as the experiment results. I have all these already done in the Jupyter notebooks. I can transfer the code from the Jupyter notebooks to this file so that everything is reproducible (and hopefully that all runs without error). What I've noticed so far is that running python cells returns a fatal error to the local R session, but it seems to be running fine on the HPC cluster, though I'm having trouble importing the packages so I haven't run much of the code on the HPC either. Once that is figured out, do you think I should also put key Python code in a technical appendix? Let me know what you think about this!
+\noindent What's left in this section is displaying the results from applying the Seldonian regression as well as the experiment results. I have all these already done in the Jupyter notebooks. I can transfer the code from the Jupyter notebooks to this file so that everything is reproducible (and hopefully that all runs without error). 
 
-\noindent Also, the images still appear cut-off when knitting from the cluster :/
+Once that is figured out, do you think I should also put key Python code in a technical appendix? Let me know what you think about this!
+
 
 \
 
-\noindent Other notes (for future reference): 
 
-- I want to look to see if I can integrate more sources in this Chapter so that it represents a synthesis of material from different sources (for traditional ML techniques, the Seldonian framework, and Student's t-statistic). What are your thoughts on this?
 
 - Should I assign equations in both Chapter 1 and 2 number labels as done here for Equation \@ref(discstat) as an example? When would this be necessary?
 
