@@ -169,9 +169,6 @@ As detailed, the Seldonian framework is different from current potential remedie
 \text{ s.t. } \forall \text{ } i \in \{1, 2, \ldots, n\} \text{, } P(g_i(a(D)) \leq 0) \geq 1 - \delta_i.
 \end{equation}
 
-$$\underset{a \in \textbf{A}}{\text{ arg max }} f(a)$$
-
-$$\text{s.t. } \forall \text{ } i \in \{1, 2, \ldots, n\} \text{, } P(g_i(a(D)) \leq 0) \geq 1 - \delta_i.$$
 
 A Seldonian algorithm $a$, thus, returns, with high probability, a solution that guarantees desirable behavior. If one were to apply machine algorithm $a$ to obtain a solution from a large number of different data sets $D$ drawn from the same distribution, then it would be expected that at most $100\delta_i \%$ solutions (models) would produce undesirable behavior. 
 
@@ -189,14 +186,20 @@ Note that finding exact confidence bounds may be impractical and require large a
 
 Recall that the Seldonian goal is to create an algorithm $a$ that maximizes an objective function $f$ while satisfying behavioral constraints with high probability. In this Chapter, the focus has been on linear regression, so the aim would be to create a Seldonian linear regression algorithm, rather than one that follows the standard ML process described in Section \@ref(standardml). A Seldonian linear regression algorithm would be an approximate solution to:
 
-$$\underset{a \in \textbf{A}}{\text{ arg max }} f(a)$$
+\begin{equation}
+\label{ch2eq8}
+\underset{a \in \textbf{A}}{\text{ arg max }} f(a)
+\text{ s.t. } \forall \text{ } i \in \{1, 2, \ldots, n\} \text{, } P(g_i(a(D)) \leq 0) \geq 1 - \delta_i.
+\end{equation}
 
-
-$$\text{s.t. } \forall \text{ } i \in \{1, 2, \ldots, n\} \text{, } P(g_i(a(D)) \leq 0) \geq 1 - \delta_i.$$
 
 Because the value of $f(a)$, the objective function, is unknown, it'll be estimated from the data provided such that $\hat{f}: \Theta \text{ x } \textbf{D} \rightarrow \textbf{R}$ is a measure of the utility of the algorithm that returns a solution $\theta$ when given input $D$, the only random variable [@thomas2019preventing]. In this case, the MSE for a data set of size $m$ can be estimated by
 
-$$\hat{f}(\theta, D) = -\frac{1}{m} \sum_{i=1}^{m}(\hat{y}(X_i, \theta) - Y_i)^2.$$
+\begin{equation}
+\label{ch2eq9}
+\hat{f}(\theta, D) = -\frac{1}{m} \sum_{i=1}^{m}(\hat{y}(X_i, \theta) - Y_i)^2.
+\end{equation}
+
 However, the optimization of this objective function is constrained to solutions that have probabilistic guarantees of safe behavior. As observed in Figure \@ref(fig:seldonian1), the candidate selection and safety test mechanisms are crucial to achieve this. 
 
 #### The Safety Test Mechanism {#safety}
@@ -205,7 +208,11 @@ Seldonian algorithms ensure that $P(g_i(\theta_c) \leq 0) \geq 1 - \delta_i$ for
 
 Let $X = (X_1, \ldots, X_m)$ be $m$ independent and identically distributed ($i.i.d.$) random variables. Under the assumption that $\frac{1}{m} \sum_{i=1}^m X_i$ is normally distributed or if $m$ is sufficiently large -- by the Central Limit Theorem --, then the Student $t$-statistic can be used to compute an upper bound of the expected value of these random variables as follows:
 
-$$P(E[X_1] \leq \hat{\mu}(X) + \frac{\hat{\sigma}(X)}{\sqrt{m}}t_{1-\delta, m-1}) \geq 1 - \delta,$$
+\begin{equation}
+\label{ch2eq10}
+P(E[X_1] \leq \hat{\mu}(X) + \frac{\hat{\sigma}(X)}{\sqrt{m}}t_{1-\delta, m-1}) \geq 1 - \delta,
+\end{equation}
+
 where
 
 - $\hat{\mu}(X) = \bar{X}$ and $\hat{\sigma}(X) = s$ are the sample mean and standard deviation, respectively, of a vector X. That is, $\hat{\mu}(X) = \frac{1}{m}\sum_{i=1}^m X_i = \bar{X}$ and $\hat{\sigma}(X) = \sqrt{\frac{\frac{1}{m}\sum_{i=1}^m (X_i - \hat{\mu}(X))^2}{m-1}} = s$. 
@@ -224,26 +231,44 @@ Before constructing the safety test mechanism, recall from Section \@ref(sop) th
 
 By substituting the respective pieces into the Student $t$ high confidence upper bound discussed above, then:
 
-$$P(g_i(\theta_c) \leq \hat{\mu}(\hat{g_i}(\theta_c, D_2)) + \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_2))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1}) \geq 1 - \delta_i.$$
+\begin{equation}
+\label{ch2eq11}
+P(g_i(\theta_c) \leq \hat{\mu}(\hat{g_i}(\theta_c, D_2)) + \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_2))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1}) \geq 1 - \delta_i.
+\end{equation}
+
+
 Notice that $\hat{\mu}(\hat{g_i}(\theta_c, D_2)) + \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_2))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1}$ is an upper bound of the confidence interval with confidence $1-\delta_i$. If this upper bound is less than or equal to zero, then the $i^{th}$ behavioral constraint $g_i(\theta_c)$ is less than or equal to zero with at least probability $1-\delta_i$. Therefore, $\theta_c$ is only returned if $\hat{\mu}(\hat{g_i}(\theta_c, D_2)) + \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_2))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1} \leq 0$. Specifically, this holds only under the assumption that $\hat{\mu}(\hat{g_i}(\theta_c, D_2))$ is normally distributed or if the size of the safety data $D_2$ is sufficiently large, hence the name $\textit{quasi}$-Seldonian [@thomas2019preventing]. The next section now discusses precisely how $\theta_c$ is selected before being passed into the safety test mechanism. 
 
 #### The Candidate Selection Mechanism {#candidate}
 
 With the safety test in place, any algorithm will be Seldonian regardless of how $\theta_c$ is computed, as long as $\theta_c$ is computed using a different subset of the data, hence the partition into $D_1$ (candidate data) and $D_2$ (safety data) [@thomas2019supplementary]. However, if $\theta_c$ is computed using the standard ML approach, then it will likely be unsafe as was illustrated in Section \@ref(standardlimitations), resulting in an NSF output. Instead, $\theta_c$ will be computed as follows:
 
-$$\theta_c \in \underset{\theta \in \Theta}{\text{ arg max }} \hat{f}(\theta, D_1)$$
-$$\text{s.t. } \theta_c \text{ is predicted to pass the safety test}.$$
+\begin{equation}
+\label{ch2eq12}
+\theta_c \in \underset{\theta \in \Theta}{\text{ arg max }} \hat{f}(\theta, D_1)
+\text{ s.t. } \theta_c \text{ is predicted to pass the safety test}.
+\end{equation}
+
+
 Thus, only solutions likely to pass the safety test will be considered by predicting the result of the safety test using $D_1$ (the candidate data) instead of $D_2$. In formal notation,
 
-$$\theta_c \in \underset{\theta \in \Theta}{\text{ arg max }} \hat{f}(\theta, D_1)$$
-$$\text{s.t. } \forall \text{ } i \in \{1,2,\ldots,n\}, \text{  } \hat{\mu}(\hat{g_i}(\theta_c, D_1)) + \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_1))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1} \leq 0.$$
+\begin{equation}
+\label{ch2eq13}
+\theta_c \in \underset{\theta \in \Theta}{\text{ arg max }} \hat{f}(\theta, D_1)
+\text{ s.t. } \forall \text{ } i \in \{1,2,\ldots,n\}, \text{  } \hat{\mu}(\hat{g_i}(\theta_c, D_1)) + \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_1))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1} \leq 0.
+\end{equation}
+
 
 Notice that while the sample mean $\hat{\mu}$ and the sample standard deviation $\hat{\sigma}$ are computed over $D_1$, the size of $D_2$ is still used to correct the standard deviation and compute the Student $t$ percentile, in order to ensure that the solution is properly predicted to pass the safety test. 
 
 The process defined can work well when the objective function $f$ and the behavioral constraints are aligned. However, when they are in conflict, the candidate selection mechanism tends to be over-confident that $\theta_c$ will pass the safety test and a safe solution will be returned [@thomas2019supplementary]. Doubling the width of the confidence level is a proposed solution to produce more conservative predictions and better guarantees of $\theta_c$ passing the safety test. Therefore, a black-box optimization algorithm is used to compute
 
-$$\theta_c \in \underset{\theta \in \Theta}{\text{ arg max }} \hat{f}(\theta, D_1)$$
-$$\text{s.t. } \forall \text{ } i \in \{1,2,\ldots,n\}, \text{  } \hat{\mu}(\hat{g_i}(\theta_c, D_1)) + 2\frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_1))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1} \leq 0.$$
+\begin{equation}
+\label{ch2eq14}
+\theta_c \in \underset{\theta \in \Theta}{\text{ arg max }} \hat{f}(\theta, D_1)
+\text{ s.t. } \forall \text{ } i \in \{1,2,\ldots,n\}, \text{  } \hat{\mu}(\hat{g_i}(\theta_c, D_1)) + 2\frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_1))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1} \leq 0.
+\end{equation}
+
 
 \
 
@@ -514,12 +539,6 @@ Once that is figured out, do you think I should also put key Python code in a te
 
 
 
-- Should I assign equations in both Chapter 1 and 2 number labels as done here for Equation \@ref(discstat) as an example? When would this be necessary?
-
-\begin{equation}
-\label{discstat}
-d(\theta) =  E[\hat{Y}-Y|G = 0 ] - E[\hat{Y}-Y|G = 1 ].
-\end{equation}
 
 - I also need to review my notes to fill in any missing pieces for the complete version of the Chapter. 
 
