@@ -51,12 +51,20 @@ Fair regression is the quantitative notion of fairness of real-valued targets [@
 
 *Statistical parity* refers to minimizing the expected loss function/ MSE such that the probability that each predicted  $f(X)$/ $\hat{Y}$ is above a certain threshold $z$ for each sensitive attribute is the same as the probability over the entire data set, given some margin $\epsilon_a$ that is dependent on the protected attribute [@agarwal2019fair]: 
 
-$$ \text{min}_{f \in F} \text{ } E[l(Y, f(X))] \text{ such that } \forall a \in A, z \in [0,1]: $$
+\begin{equation}
+\label{ch1eq1}
+\text{min}_{f \in F} \text{ } E[l(Y, f(X))] \text{ such that } \forall a \in A, z \in [0,1]:
+\end{equation}
+
 $$ |P[f(X) \geq z | A = a] - P[f(X) \geq z]| \leq \epsilon_a.$$
 
 This is akin to the classification setting where it may be desirable to have the probability of being in the positive class be above some certain threshold for each group as well as across the entire data set. A similar notion, known as *bounded loss*, requires that the MSE for each group is below some pre-specified level $c_a$ that is dependent on the protected attribute [@agarwal2019fair]:
 
-$$ \text{min}_{f \in F} \text{ } E[l(Y, f(X))] \text{ such that } \forall a \in A: $$
+\begin{equation}
+\label{ch1eq2}
+\text{min}_{f \in F} \text{ } E[l(Y, f(X))] \text{ such that } \forall a \in A: 
+\end{equation}
+
 $$ E[l(Y, f(X)) | A = a] \leq c_a.$$
 
 ### Group Fairness in Classification Settings 
@@ -69,7 +77,11 @@ Group notions of fairness in classification, at the core, refer to treating diff
 
 This fairness definition requires predictions, $\hat{Y}$, to be independent of any sensitive attribute, $A$, that is, $\hat{Y} \indep A$ [@castelnovo2022clarification]. Thus, it relies only on the distribution of features and decisions, that is, $A$, $X$, and $\hat{Y}$, and focuses on the equality of the predictions themselves by satisfying the following equation:
 
-$$ P (\hat{Y} = 1 | A = a) = P (\hat{Y} = 1 | A = b), \text{    } \forall a, b \in A,$$
+\begin{equation}
+\label{ch1eq3}
+P (\hat{Y} = 1 | A = a) = P (\hat{Y} = 1 | A = b), \text{    } \forall a, b \in A,
+\end{equation}
+
 where $a$, $b$ are the two demographic groups in question.
 
 This definition is also known as *demographic parity*, *statistical parity*, or generally, group fairness, and requires that all levels of the demographic group have the same positive prediction ratio (PPR) where PPR is the ratio of positive outcomes [@castelnovo2022clarification]. In other words, the likelihood of a positive outcome should be the same regardless of the demographic group.
@@ -88,18 +100,34 @@ A difference in demographic parity close to 0 or a ratio close to 1 by some defi
 
 In the above example of using a hiring algorithm with gender as the protected attribute, it may then seem fairer to require independence on gender only for men and women with the same rating or qualification, that is, $\hat{Y} \indep A | R$. This is known as *conditional demographic parity* and requires that the following equation is satisfied [@castelnovo2022clarification]: 
 
-$$ P (\hat{Y} = 1 | A = a, R = r) = P (\hat{Y} = 1 | A = b, R = r), \text{    } \forall a, b \in A, \forall r.$$
+\begin{equation}
+\label{ch1eq4}
+P (\hat{Y} = 1 | A = a, R = r) = P (\hat{Y} = 1 | A = b, R = r), \text{    } \forall a, b \in A, \forall r.
+\end{equation}
+
 
 This idea can be generalized more to condition on all attributes, that is, $\hat{Y} \indep A |  X$. As this is more generalized, however, it begins to satisfy individual fairness and can be achieved by a gender-blind model [@castelnovo2022clarification]. This type of individual fairness is also referred to as fairness through unawareness (FTU), which requires that any protected attributes, or their covariates, are not explicitly used in the decision-making process [@mehrabi2021survey]. This definition of fairness requires that the following equation be satisfied [@castelnovo2022clarification]: 
 
-$$ P (\hat{Y} = 1 | A = a, X = x) = P (\hat{Y} = 1 | A = b, X = x), \text{ } \forall a, b \in A, \forall x \in X.$$
+\begin{equation}
+\label{ch1eq5}
+P (\hat{Y} = 1 | A = a, X = x) = P (\hat{Y} = 1 | A = b, X = x), \text{ } \forall a, b \in A, \forall x \in X.
+\end{equation}
+
 
 #### Separation
 
 Independence does not make use of the true target $Y$ and simply requires equality of predictions. However, as observed in Figure \@ref(fig:dp), this can lead to different error rates between different groups. In other words, the model is more accurate for one group than it is for another group. Separation precisely focuses on equality of the error rates and is widely known as the *equality of odds* [@castelnovo2022clarification]. This definition requires the same type I and type II error rates, precisely, the same false positive rate (FPR) and false negative rate (FNR) across all demographic groups. FPR and FNR are defined by:
 
-$$FPR = P(\hat{Y} = 1| Y = 0) = \frac{FP}{FP + TN}$$
-$$FNR = P(\hat{Y} = 0| Y = 1) = \frac{FN}{TP + FN}$$
+\begin{equation}
+\label{ch1eq6}
+FPR = P(\hat{Y} = 1| Y = 0) = \frac{FP}{FP + TN}
+\end{equation}
+
+\begin{equation}
+\label{ch1eq7}
+FNR = P(\hat{Y} = 0| Y = 1) = \frac{FN}{TP + FN}
+\end{equation}
+
 where FP refers to false positive predictions, TP refers to true positive predictions, FN refers to false negative predictions, and TN refers to true negative predictions. These metrics can be understood through a confusion matrix as in Figure \@ref(fig:confusionmatrix) [@mohajon2021confmatrix].
 
 ```{r confusionmatrix, fig.cap="A Confusion Matrix (Mohajon, 2021)", out.width = '75%', echo=FALSE, fig.scap="A Confusion Matrix"}
@@ -110,7 +138,11 @@ In the COMPAS data set, separation would be satisfied if both Black defendants a
 
 Separation requires independence of the predictions $\hat{Y}$ and the sensitive attribute $A$ conditioned on the true value of the target variable $Y$, that is, $\hat{Y} \indep A|Y$ [@castelnovo2022clarification]. In other terms, the following equation must be satisfied:
 
-$$ P(\hat{Y} = 1 | A = a, Y = y) = P(\hat{Y} = 1 | A = b, Y = y), \text{ } \forall a,b \in A, \text{ } y \in \{ 0, 1 \},$$
+\begin{equation}
+\label{ch1eq8}
+P(\hat{Y} = 1 | A = a, Y = y) = P(\hat{Y} = 1 | A = b, Y = y), \text{ } \forall a,b \in A, \text{ } y \in \{ 0, 1 \},
+\end{equation}
+
 where 0 is a negative outcome and 1 is a positive outcome. This is a reasonable fairness metric, as long as the objectivity of the target variable is trusted, as it ensures that the model optimizes performance for all groups, not just majority groups. 
 
 The visual example in Figure \@ref(fig:eoo) illustrates a toy scenario where separation is met [@castelnovo2022clarification]. The dashed line represents the decision boundary. Filled in circles represent positive predictions and empty circles represent negative predictions. The error rates are consistent between both men and women.
@@ -123,17 +155,29 @@ There are two relaxed versions of this measure depending on which outcome is mos
 
 i) *Predictive equality*: equality of false positive rates (FPR) across groups:
 
-$$ P (\hat{Y} = 1 | A = a, Y = 0) = P (\hat{Y} = 1 | A = b, Y = 0), \text{ } \forall a,b \in A.$$
+\begin{equation}
+\label{ch1eq9}
+P (\hat{Y} = 1 | A = a, Y = 0) = P (\hat{Y} = 1 | A = b, Y = 0), \text{ } \forall a,b \in A.
+\end{equation}
+
 
 ii) *Equality of Opportunity*: equality of false negative rates (FNR) across groups:
 
-$$ P (\hat{Y} = 0 | A = a, Y = 1) = P (\hat{Y} = 0 | A = b, Y = 1), \text{ } \forall a,b \in A.$$
+\begin{equation}
+\label{ch1eq10}
+P (\hat{Y} = 0 | A = a, Y = 1) = P (\hat{Y} = 0 | A = b, Y = 1), \text{ } \forall a,b \in A.
+\end{equation}
+
 
 #### Sufficiency 
 
 Finally, sufficiency takes the perspective of people that receive the same model prediction and requires parity among them regardless of sensitive features [@castelnovo2022clarification]. This is also knows as *predictive parity* and requires that the precision be the same across sensitive groups, that is, $Y \indep A | \hat{Y}$. In other words, the following equation must be satisfied:
 
-$$ P (Y = y | A = a, \hat{Y} = y) = P (Y = y | A = b, \hat{Y} = y), \text{ } \forall a, b \in A, \text{ for } y \in \{0,1\}.$$
+\begin{equation}
+\label{ch1eq11}
+P (Y = y | A = a, \hat{Y} = y) = P (Y = y | A = b, \hat{Y} = y), \text{ } \forall a, b \in A, \text{ for } y \in \{0,1\}.
+\end{equation}
+
 Simply put, the probability of a positive outcome given a positive prediction, and that of a negative outcome given a negative prediction, should be equal across all sensitive groups.
 
 $\\$
@@ -150,12 +194,20 @@ The UFRGS Entrance Exam and GPA Data contains entrance exam scores of students a
 
 Taking gender as the protected attribute in a gender-blind model, independence, in this setting, would require that the average predictions be the same for each gender. That is, 
 
-$$ E[\hat{Y} | G = Male] = E[\hat{Y} | G = Female].$$
+\begin{equation}
+\label{ch1eq12}
+E[\hat{Y} | G = Male] = E[\hat{Y} | G = Female].
+\end{equation}
+
 This is violated if, on average, a model predicts a higher or lower GPA based on gender.
 
 Separation, on the other hand, would require that the average error of predictions be the same for each gender. In defined notion, 
 
-$$ E[\hat{Y} - Y | G = Male] = E[\hat{Y} - Y| G = Female].$$
+\begin{equation}
+\label{ch1eq13}
+E[\hat{Y} - Y | G = Male] = E[\hat{Y} - Y| G = Female].
+\end{equation}
+
 This is violated if, on average, the model over-predicts for one gender but under-predicts for another gender or the model either over-predicts or under-predicts more or less for one gender. 
 
 However, a study found that because male and female applicants had different GPAs in the original data set, these two fairness definitions cannot be simultaneously satisfied [@thomas2020housetestimony]. A result in the Section \@ref(class-conflict) will explain this in a mathematically tractable way.  
@@ -164,16 +216,32 @@ However, a study found that because male and female applicants had different GPA
 
 Define prevalence $p$ as the probability of a positive outcome given the demographic group [@chouldechova2017fair]. It directly relates to the class distribution of the outcome. $p \in (0,1)$ and can be denoted by:
 
-$$p_a = P(Y=1|A=a).$$
+\begin{equation}
+\label{ch1eq14}
+p_a = P(Y=1|A=a).
+\end{equation}
+
 Further define the positive predictive value (PPV) of a prediction as the probability of a positive outcome given a positive prediction [@chouldechova2017fair]:
 
-$$PPV(\hat{Y}|A = a) \equiv P (Y = 1| \hat{Y} = 1, A = a).$$
+\begin{equation}
+\label{ch1eq15}
+PPV(\hat{Y}|A = a) \equiv P (Y = 1| \hat{Y} = 1, A = a).
+\end{equation}
+
 Similarly, the negative predictive value (NPV) of a prediction is the probability of a negative outcome given a negative prediction and can be denoted as:
 
-$$NPV(\hat{Y}|A = a) \equiv P (Y = 0| \hat{Y} = 0, A = a).$$
+\begin{equation}
+\label{ch1eq16}
+NPV(\hat{Y}|A = a) \equiv P (Y = 0| \hat{Y} = 0, A = a).
+\end{equation}
+
 Sufficiency would require equal PPV and equal NPV across the different demographic groups. Note that NPV and PPV can be computed from a confusion matrix (Figure \@ref(fig:confusionmatrix)) as shown below [@saeed2015evidence]:
 
-$$ PPV = \frac{TP}{TP + FP} \text{   ;   } NPV = \frac{TN}{TN + FN}.$$
+\begin{equation}
+\label{ch1eq17}
+PPV = \frac{TP}{TP + FP} \text{   ;   } NPV = \frac{TN}{TN + FN}.
+\end{equation}
+
 Now, given values of the $PPV \in (0,1)$ and $p \in (0,1)$, it can be shown that [@chouldechova2017fair]:
 
 $$ FPR = \frac{p}{1-p} \frac{1-PPV}{PPV}(1 - FNR).$$
