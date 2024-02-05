@@ -9,6 +9,7 @@ rmd_files: ["index.Rmd",
             "02-chap2.Rmd",
             "03-chap3.Rmd",
             "06-appendixA.Rmd",
+            "07-appendixB.Rmd"
             "99-references.Rmd"]
 # Do not edit any of the following lines
 chapter_name: "Chapter"

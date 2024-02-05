@@ -1,3 +1,216 @@
-# The Second Appendix
+# Key Python Code {#appendix-b}
 
-R code
+
+```{r, echo = FALSE}
+library(reticulate)
+use_python("/cm/shared/apps/amh-Rstudio/python-3.11.4/bin/python3", required = TRUE)
+#py_config()
+#conda_list()
+```
+
+```{r, echo = FALSE}
+sklearn <- import("sklearn")
+#conda_list()
+```
+
+```{r, include = FALSE}
+py_config()
+```
+
+```{python, echo = FALSE}
+import sklearn
+```
+
+```{python, echo = FALSE}
+import math
+import numpy as np
+import sys
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from scipy.stats import t
+from scipy.optimize import minimize
+```
+
+```{python, echo = FALSE}
+np.set_printoptions(precision=5, suppress=True)
+```
+
+```{python, echo = FALSE}
+def tinv(p, nu):
+    return t.ppf(p, nu)
+```
+
+```{python, include = FALSE}
+tinv(0.95,50)
+```
+
+```{python, echo = FALSE}
+def stddev(v):
+    n = v.size
+    variance = (np.var(v) * n) / (n-1) 
+    return np.sqrt(variance) 
+```
+
+```{python, echo = FALSE}
+def ttestUpperBound(v, delta):
+    n  = v.size
+    res = v.mean() + stddev(v) / math.sqrt(n) * tinv(1.0 - delta, n - 1)
+    return res
+```
+
+```{python, echo = FALSE}
+def predictTTestUpperBound(v, delta, k):
+    
+    res = v.mean() + 2.0 * stddev(v) / math.sqrt(k) * tinv(1.0 - delta, k - 1)
+    return res
+```
+
+```{python, echo = FALSE}
+def main():
+    np.random.seed(0)  
+    numPoints = 5000   
+
+    (X,Y)  = generateData(numPoints)  
+
+    gHats  = [gHat1, gHat2] 
+    deltas = [0.1, 0.1]
+
+    (result, found) = QSA(X, Y, gHats, deltas) 
+    
+    if found:
+        print("A solution was found: [%.10f, %.10f]" % (result[0], result[1]))
+        print("fHat of solution (computed over all data, D):", fHat(result, X, Y))
+    else:
+        print("No solution found")
+```
+
+```{python, echo = FALSE}
+def generateData(numPoints):
+    X =     np.random.normal(0.0, 1.0, numPoints) 
+    Y = X + np.random.normal(0.0, 1.0, numPoints) 
+    return (X,Y)
+```
+
+```{python, echo = FALSE}
+def predict(theta, x):
+    return theta[0] + theta[1] * x
+```
+
+```{python, echo = FALSE}
+def fHat(theta, X, Y):
+    n = X.size          
+    res = 0.0           
+    for i in range(n):  
+        prediction = predict(theta, X[i])                
+        res += (prediction - Y[i]) * (prediction - Y[i]) 
+    res /= n            
+    return -res         
+```
+
+```{python, echo = FALSE}
+def gHat1(theta, X, Y):
+    n = X.size          
+    res = np.zeros(n)   
+    for i in range(n):
+        prediction = predict(theta, X[i])                   
+        res[i] = (prediction - Y[i]) * (prediction - Y[i])  
+    res = res - 2.0     
+    return res
+
+def gHat2(theta, X, Y):
+    n = X.size          
+    res = np.zeros(n)   
+    for i in range(n):
+        prediction = predict(theta, X[i])                   
+        res[i] = (prediction - Y[i]) * (prediction - Y[i])  
+    res = 1.25 - res   
+    return res
+```
+
+```{python, echo = FALSE}
+def leastSq(X, Y):
+    X = np.expand_dims(X, axis=1) 
+    Y = np.expand_dims(Y, axis=1) 
+    reg = LinearRegression().fit(X, Y)
+    theta0 = reg.intercept_[0]   
+    theta1 = reg.coef_[0][0]     
+    return np.array([theta0, theta1])
+```
+
+```{python, echo = FALSE}
+def QSA(X, Y, gHats, deltas):
+
+    candidateData_len = 0.40
+    candidateData_X, safetyData_X, candidateData_Y, safetyData_Y = train_test_split(
+      X, Y, test_size=1-candidateData_len, shuffle=False)
+  
+    candidateSolution = getCandidateSolution(candidateData_X, candidateData_Y, gHats, deltas, safetyData_X.size)
+
+    passedSafety      = safetyTest(candidateSolution, safetyData_X, safetyData_Y, gHats, deltas)
+
+    return [candidateSolution, passedSafety]
+```
+
+```{python, echo = FALSE}
+def safetyTest(candidateSolution, safetyData_X, safetyData_Y, gHats, deltas):
+
+    for i in range(len(gHats)):  
+        g         = gHats[i]  
+        delta     = deltas[i] 
+
+    
+        g_samples = g(candidateSolution, safetyData_X, safetyData_Y) 
+
+        upperBound = ttestUpperBound(g_samples, delta) 
+
+        if upperBound > 0.0: 
+            return False
+
+    return True
+```
+
+```{python, echo = FALSE}
+def candidateObjective(thetaToEvaluate, candidateData_X, candidateData_Y, gHats, deltas, safetyDataSize): 
+
+    result = fHat(thetaToEvaluate, candidateData_X, candidateData_Y)
+
+    predictSafetyTest = True     
+    
+    for i in range(len(gHats)):  
+        g         = gHats[i]       
+        delta     = deltas[i]      
+
+        g_samples = g(thetaToEvaluate, candidateData_X, candidateData_Y)
+
+        upperBound = predictTTestUpperBound(g_samples, delta, safetyDataSize)
+
+        if upperBound > 0.0:
+
+            if predictSafetyTest:
+                predictSafetyTest = False  
+
+                result = -100000.0    
+
+            result = result - upperBound
+
+    return -result  
+```
+
+```{python, echo = FALSE}
+def getCandidateSolution(candidateData_X, candidateData_Y, gHats, deltas, safetyDataSize):
+  
+    minimizer_method = 'Powell'
+    minimizer_options={'disp': False}
+
+    initialSolution = leastSq(candidateData_X, candidateData_Y)
+
+    res = minimize(candidateObjective, x0=initialSolution, method=minimizer_method, options=minimizer_options, 
+    args=(candidateData_X, candidateData_Y, gHats, deltas, safetyDataSize))
+
+    return res.x
+```
+
+```{python, echo = FALSE}
+main()
+```
+
