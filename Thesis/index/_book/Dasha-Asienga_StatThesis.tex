@@ -673,18 +673,19 @@ In this example, the goal of the linear regression algorithm is two-fold: to min
   \(g_2(\theta) = 1.25 - MSE(\theta) \text{; } \delta_2 = 0.1\).
 \end{itemize}
 Unbiased estimates of the MSE and each \(g_i(\theta)\) will be computed from the data set as elucidated in Section \ref{qsa}.
+\begin{verbatim}
+   A solution was found: [0.5844721756, 1.0560192943]
+   fHat of solution (computed over all data, D): -1.349482921456559
+\end{verbatim}
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\noindent What's left in this section is displaying the results from applying the Seldonian regression as well as the experiment results. I have all these already done in the Jupyter notebooks. I can transfer the code from the Jupyter notebooks to this file so that everything is reproducible (and hopefully that all runs without error). What I've noticed so far is that running python cells returns a fatal error to the local R session, but it seems to be running fine on the HPC cluster, though I'm having trouble importing the packages so I haven't run much of the code on the HPC either. Once that is figured out, do you think I should also put key Python code in a technical appendix? Let me know what you think about this!
+\noindent What's left in this section is displaying the results from applying the Seldonian regression as well as the experiment results. I have all these already done in the Jupyter notebooks. I can transfer the code from the Jupyter notebooks to this file so that everything is reproducible (and hopefully that all runs without error).
 
-\noindent Also, the images still appear cut-off when knitting from the cluster :/
+Once that is figured out, do you think I should also put key Python code in a technical appendix? Let me know what you think about this!
 
 \hfill\break
-
-\noindent Other notes (for future reference):
 \begin{itemize}
-\item
-  I want to look to see if I can integrate more sources in this Chapter so that it represents a synthesis of material from different sources (for traditional ML techniques, the Seldonian framework, and Student's t-statistic). What are your thoughts on this?
+\tightlist
 \item
   Should I assign equations in both Chapter 1 and 2 number labels as done here for Equation \ref{discstat} as an example? When would this be necessary?
 \end{itemize}
@@ -817,7 +818,7 @@ The code chunk below fixes arbitrary sensitivity (1 - FNR) and specificity (1 - 
 \FunctionTok{grid.arrange}\NormalTok{(g1,g2, }\AttributeTok{nrow=}\DecValTok{1}\NormalTok{, }\AttributeTok{ncol=}\DecValTok{2}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
-\begin{center}\includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/unnamed-chunk-3-1} \end{center}
+\begin{center}\includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/unnamed-chunk-25-1} \end{center}
 
 \backmatter
 
