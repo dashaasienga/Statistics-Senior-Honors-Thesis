@@ -532,34 +532,43 @@ main()
 # find the y-hat values using the QSA
 y_hat <- 0.5844721756 + 1.0560192943*x
 
+# define the legend
+colors <- c("OLS" = "red", "QSA" = "blue")
+
 # plot the results
 ggplot(data = seldonian_data, mapping = aes(x = x, y = y)) +
   geom_point(color = "lightblue") +
-  geom_smooth(method = "lm", color = "red") +  
-  geom_smooth(mapping = aes(x = x, y = y_hat), color = "blue") +
+  geom_smooth(method = "lm", aes(color = "OLS")) +  
+  geom_smooth(mapping = aes(x = x, y = y_hat, color = "QSA")) +
   labs(title = "Synthetic Data for Seldonian Linear Regression",
        x = "X",
        y = "Y") +
+  scale_color_manual(values = colors) +
   theme_minimal() +
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank()) 
 ```
 
+To conclude this chapter, Section \@ref(exp) scales this process to repeatedly run a Quasi-Seldonian linear regression algorithm using different amounts of data and analyzing the results. 
+
+### Experimentation {#exp}
+
+Consistent with the set-up in Section \@ref(toy), the aim of this experimentation is to assess 3 things: performance loss, frequency of solutions, and frequency of undesirable behavior for varying amounts of data. 
+
+
+
 
 ---- 
 
 
-\noindent What's left in this section is displaying the results from applying the Seldonian regression as well as the experiment results. I have all these already done in the Jupyter notebooks. I can transfer the code from the Jupyter notebooks to this file so that everything is reproducible (and hopefully that all runs without error). 
-
-Once that is figured out, do you think I should also put key Python code in a technical appendix? Let me know what you think about this!
+\noindent What's left in this section is displaying the experiment results. 
 
 
 \
 
-
-
-
 - I also need to review my notes to fill in any missing pieces for the complete version of the Chapter. 
+
+Add experimentation code to appendix as well!
 
 
 
