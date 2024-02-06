@@ -732,11 +732,15 @@ In this example, the goal of the linear regression algorithm is two-fold: to min
 \item
   \(g_2(\theta) = 1.25 - MSE(\theta) \text{; } \delta_2 = 0.1\).
 \end{itemize}
-Unbiased estimates of the MSE and each \(g_i(\theta)\) will be computed from the data set as elucidated in Section \ref{qsa}.
-\begin{verbatim}
-   A solution was found: [0.5844721756, 1.0560192943]
-   fHat of solution (computed over all data, D): -1.349482921456559
-\end{verbatim}
+Unbiased estimates of the MSE and each \(g_i(\theta)\) will be computed from the data set as elucidated in Section \ref{qsa}. The Python code used to implement the Quasi-Seldonian linear regression algorithm is displayed in detail in Appendix \ref{appendix-b}. In this case, a solution that minimizes the MSE while satisfying the 2 behavioral constraints, \(g_1(\theta)\) and \(g_2(\theta)\), was found: \(\hat{Y} = 0.5844721756 + 1.0560192943X\) with an MSE of \(1.3494829214565587\). Figure \ref{fig:fig3} visually compares this solution with ordinary least squares.
+\begin{figure}
+
+{\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/fig3-1} 
+
+}
+
+\caption{Quasi-Seldonian Linear Regression}\label{fig:fig3}
+\end{figure}
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
 \noindent What's left in this section is displaying the results from applying the Seldonian regression as well as the experiment results. I have all these already done in the Jupyter notebooks. I can transfer the code from the Jupyter notebooks to this file so that everything is reproducible (and hopefully that all runs without error).

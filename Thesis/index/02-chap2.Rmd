@@ -312,7 +312,7 @@ In this example, the goal of the linear regression algorithm is two-fold: to min
 
 - $g_2(\theta) = 1.25 - MSE(\theta) \text{; } \delta_2 = 0.1$.
 
-Unbiased estimates of the MSE and each $g_i(\theta)$ will be computed from the data set as elucidated in Section \@ref(qsa).
+Unbiased estimates of the MSE and each $g_i(\theta)$ will be computed from the data set as elucidated in Section \@ref(qsa). The Python code used to implement the Quasi-Seldonian linear regression algorithm is displayed in detail in Appendix \@ref(appendix-b). In this case, a solution that minimizes the MSE while satisfying the 2 behavioral constraints, $g_1(\theta)$ and $g_2(\theta)$, was found: $\hat{Y} = 0.5844721756 + 1.0560192943X$ with an MSE of $1.3494829214565587$. Figure \@ref(fig:fig3) visually compares this solution with ordinary least squares. 
 
 
 ```{r, echo = FALSE}
@@ -524,8 +524,25 @@ def getCandidateSolution(candidateData_X, candidateData_Y, gHats, deltas, safety
     return res.x
 ```
 
-```{python, echo = FALSE}
+```{python, include = FALSE}
 main()
+```
+
+```{r fig3, fig.align='center', fig.cap="Quasi-Seldonian Linear Regression", warning = FALSE, message = FALSE, fig.width = 4.5, fig.height = 3, echo = FALSE}
+# find the y-hat values using the QSA
+y_hat <- 0.5844721756 + 1.0560192943*x
+
+# plot the results
+ggplot(data = seldonian_data, mapping = aes(x = x, y = y)) +
+  geom_point(color = "lightblue") +
+  geom_smooth(method = "lm", color = "red") +  
+  geom_smooth(mapping = aes(x = x, y = y_hat), color = "blue") +
+  labs(title = "Synthetic Data for Seldonian Linear Regression",
+       x = "X",
+       y = "Y") +
+  theme_minimal() +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) 
 ```
 
 

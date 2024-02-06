@@ -2,14 +2,14 @@
 
 Explain the code in this section using the Jupyter notebook as a guide: https://jupyter.hpc.amherst.edu/user/dasienga24/lab?
 
-```{r, eval = FALSE }
+```{r,  eval = FALSE}
 library(reticulate)
 use_python("/cm/shared/apps/amh-Rstudio/python-3.11.4/bin/python3", required = TRUE)
 #py_config()
 #conda_list()
 ```
 
-```{r, eval = FALSE }
+```{r,  eval = FALSE}
 sklearn <- import("sklearn")
 #conda_list()
 ```
@@ -18,11 +18,11 @@ sklearn <- import("sklearn")
 py_config()
 ```
 
-```{python, eval = FALSE }
+```{python,  eval = FALSE}
 import sklearn
 ```
 
-```{python, eval = FALSE }
+```{python,  eval = FALSE}
 import math
 import numpy as np
 import sys
@@ -32,11 +32,11 @@ from scipy.stats import t
 from scipy.optimize import minimize
 ```
 
-```{python, eval = FALSE }
+```{python,  eval = FALSE}
 np.set_printoptions(precision=5, suppress=True)
 ```
 
-```{python, eval = FALSE }
+```{python,  eval = FALSE}
 def tinv(p, nu):
     return t.ppf(p, nu)
 ```
@@ -45,28 +45,28 @@ def tinv(p, nu):
 tinv(0.95,50)
 ```
 
-```{python, eval = FALSE }
+```{python,  eval = FALSE}
 def stddev(v):
     n = v.size
     variance = (np.var(v) * n) / (n-1) 
     return np.sqrt(variance) 
 ```
 
-```{python, eval = FALSE }
+```{python,  eval = FALSE}
 def ttestUpperBound(v, delta):
     n  = v.size
     res = v.mean() + stddev(v) / math.sqrt(n) * tinv(1.0 - delta, n - 1)
     return res
 ```
 
-```{python, eval = FALSE }
+```{python,  eval = FALSE}
 def predictTTestUpperBound(v, delta, k):
     
     res = v.mean() + 2.0 * stddev(v) / math.sqrt(k) * tinv(1.0 - delta, k - 1)
     return res
 ```
 
-```{python, eval = FALSE }
+```{python,  eval = FALSE}
 def main():
     np.random.seed(0)  
     numPoints = 5000   
@@ -85,19 +85,19 @@ def main():
         print("No solution found")
 ```
 
-```{python, eval = FALSE }
+```{python,  eval = FALSE}
 def generateData(numPoints):
     X =     np.random.normal(0.0, 1.0, numPoints) 
     Y = X + np.random.normal(0.0, 1.0, numPoints) 
     return (X,Y)
 ```
 
-```{python, eval = FALSE }
+```{python,  eval = FALSE}
 def predict(theta, x):
     return theta[0] + theta[1] * x
 ```
 
-```{python, eval = FALSE }
+```{python,  eval = FALSE}
 def fHat(theta, X, Y):
     n = X.size          
     res = 0.0           
@@ -108,7 +108,7 @@ def fHat(theta, X, Y):
     return -res         
 ```
 
-```{python, eval = FALSE }
+```{python,  eval = FALSE}
 def gHat1(theta, X, Y):
     n = X.size          
     res = np.zeros(n)   
@@ -128,7 +128,7 @@ def gHat2(theta, X, Y):
     return res
 ```
 
-```{python, eval = FALSE }
+```{python,  eval = FALSE}
 def leastSq(X, Y):
     X = np.expand_dims(X, axis=1) 
     Y = np.expand_dims(Y, axis=1) 
@@ -138,7 +138,7 @@ def leastSq(X, Y):
     return np.array([theta0, theta1])
 ```
 
-```{python, eval = FALSE }
+```{python,  eval = FALSE}
 def QSA(X, Y, gHats, deltas):
 
     candidateData_len = 0.40
@@ -152,7 +152,7 @@ def QSA(X, Y, gHats, deltas):
     return [candidateSolution, passedSafety]
 ```
 
-```{python, eval = FALSE }
+```{python,  eval = FALSE}
 def safetyTest(candidateSolution, safetyData_X, safetyData_Y, gHats, deltas):
 
     for i in range(len(gHats)):  
@@ -170,7 +170,7 @@ def safetyTest(candidateSolution, safetyData_X, safetyData_Y, gHats, deltas):
     return True
 ```
 
-```{python, eval = FALSE }
+```{python,  eval = FALSE}
 def candidateObjective(thetaToEvaluate, candidateData_X, candidateData_Y, gHats, deltas, safetyDataSize): 
 
     result = fHat(thetaToEvaluate, candidateData_X, candidateData_Y)
@@ -197,7 +197,7 @@ def candidateObjective(thetaToEvaluate, candidateData_X, candidateData_Y, gHats,
     return -result  
 ```
 
-```{python, eval = FALSE }
+```{python,  eval = FALSE}
 def getCandidateSolution(candidateData_X, candidateData_Y, gHats, deltas, safetyDataSize):
   
     minimizer_method = 'Powell'
@@ -211,7 +211,6 @@ def getCandidateSolution(candidateData_X, candidateData_Y, gHats, deltas, safety
     return res.x
 ```
 
-```{python, eval = FALSE }
+```{python,  eval = FALSE}
 main()
 ```
-
