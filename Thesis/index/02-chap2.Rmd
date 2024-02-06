@@ -166,9 +166,9 @@ As detailed, the Seldonian framework is different from current potential remedie
 \begin{equation}
 \label{ch2eq7}
 \underset{a \in \textbf{A}}{\text{ arg max }} f(a)
-\text{ s.t. } \forall \text{ } i \in \{1, 2, \ldots, n\} \text{, } P(g_i(a(D)) \leq 0) \geq 1 - \delta_i.
 \end{equation}
 
+$$\text{ s.t. } \forall \text{ } i \in \{1, 2, \ldots, n\} \text{, } P(g_i(a(D)) \leq 0) \geq 1 - \delta_i.$$
 
 A Seldonian algorithm $a$, thus, returns, with high probability, a solution that guarantees desirable behavior. If one were to apply machine algorithm $a$ to obtain a solution from a large number of different data sets $D$ drawn from the same distribution, then it would be expected that at most $100\delta_i \%$ solutions (models) would produce undesirable behavior. 
 
@@ -189,8 +189,9 @@ Recall that the Seldonian goal is to create an algorithm $a$ that maximizes an o
 \begin{equation}
 \label{ch2eq8}
 \underset{a \in \textbf{A}}{\text{ arg max }} f(a)
-\text{ s.t. } \forall \text{ } i \in \{1, 2, \ldots, n\} \text{, } P(g_i(a(D)) \leq 0) \geq 1 - \delta_i.
 \end{equation}
+
+$$\text{ s.t. } \forall \text{ } i \in \{1, 2, \ldots, n\} \text{, } P(g_i(a(D)) \leq 0) \geq 1 - \delta_i.$$
 
 
 Because the value of $f(a)$, the objective function, is unknown, it'll be estimated from the data provided such that $\hat{f}: \Theta \text{ x } \textbf{D} \rightarrow \textbf{R}$ is a measure of the utility of the algorithm that returns a solution $\theta$ when given input $D$, the only random variable [@thomas2019preventing]. In this case, the MSE for a data set of size $m$ can be estimated by
@@ -246,8 +247,9 @@ With the safety test in place, any algorithm will be Seldonian regardless of how
 \begin{equation}
 \label{ch2eq12}
 \theta_c \in \underset{\theta \in \Theta}{\text{ arg max }} \hat{f}(\theta, D_1)
-\text{ s.t. } \theta_c \text{ is predicted to pass the safety test}.
 \end{equation}
+
+$$\text{ s.t. } \theta_c \text{ is predicted to pass the safety test}.$$
 
 
 Thus, only solutions likely to pass the safety test will be considered by predicting the result of the safety test using $D_1$ (the candidate data) instead of $D_2$. In formal notation,
@@ -255,8 +257,9 @@ Thus, only solutions likely to pass the safety test will be considered by predic
 \begin{equation}
 \label{ch2eq13}
 \theta_c \in \underset{\theta \in \Theta}{\text{ arg max }} \hat{f}(\theta, D_1)
-\text{ s.t. } \forall \text{ } i \in \{1,2,\ldots,n\}, \text{  } \hat{\mu}(\hat{g_i}(\theta_c, D_1)) + \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_1))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1} \leq 0.
 \end{equation}
+
+$$ \text{ s.t. } \forall \text{ } i \in \{1,2,\ldots,n\}, \text{  } \hat{\mu}(\hat{g_i}(\theta_c, D_1)) + \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_1))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1} \leq 0. $$
 
 
 Notice that while the sample mean $\hat{\mu}$ and the sample standard deviation $\hat{\sigma}$ are computed over $D_1$, the size of $D_2$ is still used to correct the standard deviation and compute the Student $t$ percentile, in order to ensure that the solution is properly predicted to pass the safety test. 
@@ -266,8 +269,9 @@ The process defined can work well when the objective function $f$ and the behavi
 \begin{equation}
 \label{ch2eq14}
 \theta_c \in \underset{\theta \in \Theta}{\text{ arg max }} \hat{f}(\theta, D_1)
-\text{ s.t. } \forall \text{ } i \in \{1,2,\ldots,n\}, \text{  } \hat{\mu}(\hat{g_i}(\theta_c, D_1)) + 2\frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_1))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1} \leq 0.
 \end{equation}
+
+$$\text{ s.t. } \forall \text{ } i \in \{1,2,\ldots,n\}, \text{  } \hat{\mu}(\hat{g_i}(\theta_c, D_1)) + 2\frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_1))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1} \leq 0.$$
 
 
 \
