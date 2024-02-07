@@ -711,7 +711,7 @@ This concludes the discussion on the Seldonian theoretical framework at a high l
 \hypertarget{toy}{%
 \section{Toy Example: A Seldonian Regression Algorithm}\label{toy}}
 
-The tutorial in this section follows the presentation by P. S. Thomas (n.d.) on the AI Safety webpage focusing on the key computational aspects of the Seldonian Algorithm. Consistent with the linear regression set-up in this chapter, consider \(X, Y \in \textbf{R}\) as two dependent random variables with the goal of estimating \(Y\) given \(X\) through a sample of \(m\) observations. \(X\) is drawn synthetically from a \(N(0,1)\) distribution and \(Y\) is dependent on \(X\) with a \(N(X,1)\) distribution. Figure \ref{fig:fig2} displays 10000 such points. \(\hat{y}(X, \theta) = \theta_1X+\theta_2\) and \(MSE = E[(\hat{y}(X, \theta)-Y)^2]\) are computed as previously defined.
+The tutorial in this section follows the presentation by P. S. Thomas (n.d.) on the AI Safety webpage focusing on the key computational aspects of the Seldonian Algorithm. Consistent with the linear regression set-up in this chapter, consider \(X, Y \in \textbf{R}\) as two dependent random variables with the goal of estimating \(Y\) given \(X\) through a sample of \(m\) observations. \(X\) is drawn synthetically from a \(N(0,1)\) distribution and \(Y\) is dependent on \(X\) with a \(N(X,1)\) distribution. Figure \ref{fig:fig2} displays 5000 such points. \(\hat{y}(X, \theta) = \theta_1X+\theta_2\) and \(MSE = E[(\hat{y}(X, \theta)-Y)^2]\) are computed as previously defined.
 \begin{figure}
 
 {\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/fig2-1} 
@@ -727,7 +727,11 @@ In this example, the goal of the linear regression algorithm is two-fold: to min
 \item
   \(g_2(\theta) = 1.25 - MSE(\theta) \text{; } \delta_2 = 0.1\).
 \end{itemize}
-Unbiased estimates of the MSE and each \(g_i(\theta)\) will be computed from the data set as elucidated in Section \ref{qsa}. The Python code used to implement the Quasi-Seldonian linear regression algorithm is displayed in detail in Appendix \ref{appendix-b}. In this case, a solution that minimizes the MSE while satisfying the 2 behavioral constraints, \(g_1(\theta)\) and \(g_2(\theta)\), was found: \(\hat{Y} = 0.5844721756 + 1.0560192943X\) with an MSE of \(1.3494829214565587\). Figure \ref{fig:fig3} visually compares this solution with ordinary least squares.
+Unbiased estimates of the MSE and each \(g_i(\theta)\) will be computed from the data set as elucidated in Section \ref{qsa}. The Python code used to implement and compute the Quasi-Seldonian linear regression algorithm is displayed in detail in Appendix \ref{appendix-b}. In this case, a solution that minimizes the MSE while satisfying the 2 behavioral constraints, \(g_1(\theta)\) and \(g_2(\theta)\), was found -- the MSE was \(1.385\). Figure \ref{fig:fig3} visually compares the quasi-Seldonian solution (blue) with the ordinary least squares solution (red).
+\begin{verbatim}
+   A solution was found: [0.6050927032, 1.0201681981]
+   fHat of solution (computed over all data, D): -1.3854947860210223
+\end{verbatim}
 \begin{figure}
 
 {\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/fig3-1} 
@@ -736,7 +740,7 @@ Unbiased estimates of the MSE and each \(g_i(\theta)\) will be computed from the
 
 \caption{Quasi-Seldonian Linear Regression}\label{fig:fig3}
 \end{figure}
-To conclude this chapter, Section \ref{exp} scales this process to repeatedly run a Quasi-Seldonian linear regression algorithm using different amounts of data and analyzing the results.
+To conclude this chapter, Section \ref{exp} scales this process to repeatedly run a Quasi-Seldonian linear regression algorithm using different amounts of data and analyze the results.
 
 \hypertarget{exp}{%
 \subsection{Experimentation}\label{exp}}
@@ -744,7 +748,7 @@ To conclude this chapter, Section \ref{exp} scales this process to repeatedly ru
 Consistent with the set-up in Section \ref{toy}, the aim of this experimentation is to assess 3 things: performance loss, frequency of solutions, and frequency of undesirable behavior for varying amounts of data.
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-Read through and revise the toy example section!! Then work on the experimentation section!
+Work on the experimentation section!
 
 \noindent What's left in this section is displaying the experiment results.
 

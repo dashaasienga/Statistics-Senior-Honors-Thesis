@@ -68,7 +68,7 @@ def predictTTestUpperBound(v, delta, k):
 
 ```{python,  eval = FALSE}
 def main():
-    np.random.seed(0)  
+    np.random.seed(123)  
     numPoints = 5000   
 
     (X,Y)  = generateData(numPoints)  
