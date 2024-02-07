@@ -281,18 +281,18 @@ For example, within healthcare, using mortality or readmission rates to measure 
 
 Yet, these algorithms are often regarded as ground truth and free of human limitations because they are based on mathematics, statistics, and computer science -- otherwise regarded as objective disciplines. In theory, this should lead to greater fairness. However, left unregulated, these mathematical models privilege majority groups and discriminate against minority groups because they often learn from inherently biased data. If the data used to train models contains bias, then the resulting algorithms will learn the bias and reflect it into their predictions. In many cases, this can be detrimental.
 
-While there are widely-accepted, though sometimes disputed, societal notions of fairness, one key question emerges: are there any established statistical notions of fairness and bias? Is it possible to mathematically and statistically define algorithmic bias and unfairness, thereby paving a way for addressing the challenges they pose? And if so, are there ways leverage statistical tools to resolve such bias and unfairness? This thesis paper aims to explore and answer precisely these questions.
+While there are widely-accepted, though sometimes disputed, societal notions of fairness, one key question emerges: are there any established statistical notions of fairness and bias? Is it possible to mathematically and statistically define algorithmic bias and unfairness, thereby paving a way for addressing the challenges they pose? And if so, are there ways to leverage statistical tools to resolve such bias and unfairness? This thesis paper aims to explore and answer precisely these questions.
 
 \hypertarget{algorithmic-bias}{%
 \section{Algorithmic Bias}\label{algorithmic-bias}}
 
-There are multiple different types and sources of bias in the realm of statistics. In particular, algorithmic bias arises when an algorithm's decisions are skewed towards a particular group of people, either positively or negatively (Mehrabi, Morstatter, Saxena, Lerman, \& Galstyan, 2021). The danger with biased algorithmic outcomes is that they generate a feedback loop. Take, for example, a hiring algorithm that discriminates against female applicants for a specific job. In the long run, this can perpetuate, and even amplify, existing gender biases by further widening the gender-based class imbalance.
+There are multiple different types and sources of bias in the realm of statistics. In particular, algorithmic bias arises when an algorithm's decisions are skewed towards a particular group of people, either positively or negatively (Mehrabi, Morstatter, Saxena, Lerman, \& Galstyan, 2021). The danger with biased algorithmic outcomes is that they generate a feedback loop. Take, for example, a hiring algorithm that discriminates against female applicants for a specific job. In the long run, this algorithm can perpetuate, and even amplify, existing gender biases by further widening the gender-based class imbalance.
 
 One such key example of algorithmic bias often cited in literature is regarding the broad use of the COMPAS -- or the Correctional Offender Management Profiling for Alternative Sanctions -- tool to predict a defendant's risk of recidivism (committing another crime) within two years. COMPAS is more likely to have higher false positive rates for African-American offenders than Caucasian offenders (Mehrabi et al., 2021). Across the country, scores of similar assessments are given to judges, which injects bias into courts (Angwin, Larson, Mattu, \& Kirchner, 2016).
 
 COMPAS is based on data from 7000 people arrested in Broward County, Florida in 2013 and 2014 (Angwin et al., 2016). The response variable, recidivism, was encoded based on who was charged with new crimes over the next two years. Analyses on the predictive efficacy of the COMPAS algorithm found that the algorithm was 61\% accurate for a full range of crimes, including misdemeanors, and only 20\% of people forecasted to commit violent crimes actually went on to do so. While the overall accuracy rate for the full range of crimes is better than a coin flip, there exists room for enhancing the predictive performance, especially for a decision as critical as whether or not to grant a defendant bail or parole.
 
-What's more concerning, however, is that when the effects of race, age, and gender are isolated and not included in the model, a statistical analysis showed that Black defendants were still 77\% more likely to be predicted at higher risk of committing a future violent crime and 45\% more likely to be predicted of committing a future crime of any kind, highlighting the role that proxies of race play into the predictions (Angwin et al., 2016). The table in Figure \ref{fig:compas1} highlights the performance discrepancy across race.
+The COMPAS algorithm is a color-blind model -- race was not included directly as a predictor during its development. However, a statistical analysis showed that even when the effects of race, age, and gender are controlled for through their inclusion as variables in a logistic regression model, Black defendants were still 77\% more likely to be predicted at higher risk of committing a future violent crime and 45\% more likely to be predicted of committing a future crime of any kind as compared to white defendants (Larson, Mattu, Kirchner, \& Angwin, 2016). The table in Figure \ref{fig:compas1} highlights the performance discrepancy across race.
 \begin{figure}
 
 {\centering \includegraphics[width=1\linewidth]{figures/compas1} 
@@ -301,13 +301,11 @@ What's more concerning, however, is that when the effects of race, age, and gend
 
 \caption[COMPAS Prediction Fails Differently for Black v White Defendants]{Prediction Fails Differently for Black v White Defendants (Angwin et al., 2016)}\label{fig:compas1}
 \end{figure}
-Although the tool has 61\% accuracy, Black defendants are almost twice as likely to be labeled as higher risk without re-offending than White defendants. It makes the opposite mistake among White defendants. The reason for this is that classification models are trained to minimize average error, which fits majority populations (Chouldechova \& Roth, 2018).
+Although the tool has 61\% accuracy, Black defendants are almost twice as likely to be labeled as higher risk without re-offending than White defendants as observed in Figure \ref{fig:compas1}. It makes the opposite mistake among White defendants. The reason for this is that classification models are trained to minimize average error, which fits majority populations (Chouldechova \& Roth, 2018).
 
-For example, different factors in society lead to different environmental and social experiences between Black people and White people. These factors, such as an offender's personal history, familial history, and residential neighborhood, are used in the COMPAS tool to predict recidivism. It would, thus, seem fair that the relationships between an offender's social experience and their likelihood of recidivism be calibrated differently for Black versus White offenders to account for this inherent difference. A classifier that does not take this into account will disproportionately affect one group negatively.
+In truth, however, various societal factors contribute to distinct environmental and social realities for Black and White individuals. These factors, including an offender's personal and familial background, as well as their residential environment, are incorporated into the COMPAS tool to forecast recidivism. Consequently, it appears justifiable to adjust the calibration of the relationship between an offender's social context and their propensity for recidivism differently for Black and White offenders, acknowledging these inherent disparities. A group-blind classifier algorithm that fails to do so could unfairly disadvantage one group over the other -- COMPAS is just one such algorithm. For example, in the education sector, different factors lead to different SAT performance between students from majority versus minority populations. It would, thus, also seem fair that the relationship between SAT and college admissions be calibrated differently for each demographic group.
 
-COMPAS is just one such algorithm. In the education sector, different factors lead to different SAT scores between majority and minority populations. It would, thus, seem fair that the relationship between SAT and college admissions be calibrated differently for each demographic group. However, if a group-blind classifier is trained, it cannot simultaneously fit both groups optimally and will fit the majority population as it's more important to overall error.
-
-Can we modify these algorithms to be group-blind but also fair? In order to do so, fairness constraints that reduce, or even correct for, algorithmic bias during the modeling process must be set. However, one must first define fairness mathematically, statistically, and quantifiably.
+Therefore, the question becomes, can we modify these algorithms to be group-blind but also fair? In order to do so, fairness constraints that reduce, or even correct for, algorithmic bias during the modeling process must be set. However, one must first define fairness mathematically, statistically, and quantifiably.
 
 \hypertarget{fairnessdefinitions}{%
 \section{Statistical Definitions of Fairness}\label{fairnessdefinitions}}
@@ -321,16 +319,16 @@ Ultimately, group notions and individual notions are not in conflict per se. Ins
 \hypertarget{group-fairness-in-regression-settings}{%
 \subsection{Group Fairness in Regression Settings}\label{group-fairness-in-regression-settings}}
 
-Fair regression is the quantitative notion of fairness of real-valued targets (Agarwal, Dudík, \& Wu, 2019). Consider a general prediction setting where the training set consists of \(X\), a feature vector with all the predictor variables, \(A\), the levels of the protected attribute/ demographic group, and \(Y\), the real-valued continuous response variable. \(F\) is a set of possible prediction models, and the goal is to find \(f \in F\) that is a good predictive model of \(Y\) given \(X\) and some fairness constraints. The accuracy of a prediction \(f(X)\) / \(\hat{Y}\) on \(Y\) is measured by the loss function \(l(Y, f(X))\) or mean squared error (MSE). The goal is to minimize \(l(Y, f(X))\), hence, maximizing accuracy.
+Fair regression is the quantitative notion of fairness of real-valued targets (Agarwal, Dudík, \& Wu, 2019). Consider a general prediction setting where the training set consists of \(X\), a feature vector with all the predictor variables, \(A\), the levels of the protected attribute/ demographic group, and \(Y\), the real-valued continuous response variable. \(F\) is a set of possible prediction models, and the goal is to find \(f \in F\) that is a good predictive model of \(Y\) given \(X\) and some fairness constraints. The accuracy of a prediction \(f(X)\) = \(\hat{Y}\) on \(Y\) is measured by the mean squared error (MSE) as the loss function \(l(Y, f(X))\). The goal is to minimize \(l(Y, f(X))\), hence, maximizing accuracy.
 
-\emph{Statistical parity} refers to minimizing the expected loss function/ MSE such that the probability that each predicted \(f(X)\)/ \(\hat{Y}\) is above a certain threshold \(z\) for each sensitive attribute is the same as the probability over the entire data set, given some margin \(\epsilon_a\) that is dependent on the protected attribute (Agarwal et al., 2019):
+\emph{Statistical parity} refers to minimizing the expected loss function (MSE) such that the probability that each predicted \(f(X)\) = \(\hat{Y}\) is above a certain threshold \(z\) for each sensitive attribute is the same as the probability over the entire data set, given some margin \(\epsilon_a\) that is dependent on the protected attribute (Agarwal et al., 2019):
 \begin{equation}
 \label{ch1eq1}
 \text{min}_{f \in F} \text{ } E[l(Y, f(X))] \text{ such that } \forall a \in A, z \in [0,1]:
 \end{equation}
 \[ |P[f(X) \geq z | A = a] - P[f(X) \geq z]| \leq \epsilon_a.\]
 
-This is akin to the classification setting where it may be desirable to have the probability of being in the positive class be above some certain threshold for each group as well as across the entire data set. A similar notion, known as \emph{bounded loss}, requires that the MSE for each group is below some pre-specified level \(c_a\) that is dependent on the protected attribute (Agarwal et al., 2019):
+This is akin to the classification setting where it may be desirable to have the probability of being in the positive class be above some certain threshold for each group as well as across the entire data set. A similar notion, known as \emph{bounded loss}, requires that the MSE for each group be below some pre-specified level \(c_a\) that is dependent on the protected attribute (Agarwal et al., 2019):
 \begin{equation}
 \label{ch1eq2}
 \text{min}_{f \in F} \text{ } E[l(Y, f(X))] \text{ such that } \forall a \in A: 
@@ -354,9 +352,9 @@ P (\hat{Y} = 1 | A = a) = P (\hat{Y} = 1 | A = b), \text{    } \forall a, b \in 
 \end{equation}
 where \(a\), \(b\) are the two demographic groups in question.
 
-This definition is also known as \emph{demographic parity}, \emph{statistical parity}, or generally, group fairness, and requires that all levels of the demographic group have the same positive prediction ratio (PPR) where PPR is the ratio of positive outcomes (Castelnovo et al., 2022). In other words, the likelihood of a positive outcome should be the same regardless of the demographic group.
+This definition is also known as \emph{demographic parity}, \emph{statistical parity}, or generally, group fairness. It requires equal positive prediction ratios (PPR), where PPR is the ratio of the probability of a positive prediction \(\frac{P(\hat{Y} = 1 | A = a)}{P(\hat{Y} = 1 | A = b)} \text{ } \forall \text{ } a, b \in A\), across all demographic group pairings (Castelnovo et al., 2022). In other words, the likelihood of a positive prediction should be the same regardless of the demographic group.
 
-In the COMPAS data set, independence would be satisfied if the probability of recidivism is the same for both Black and White defendants in the data set. That is, the probability that a Black defendant is predicted to recommit a crime within the next two years should be the same as the probability that a White defendant is predicted to recommit a crime.
+In the COMPAS data set, independence would be satisfied if the probability of predicted recidivism is the same for both Black and White defendants in the data set. That is, the probability that a Black defendant is predicted to recommit a crime within the next two years should be the same as the probability that a White defendant is predicted to recommit a crime.
 
 The visual example in Figure \ref{fig:dp} illustrates a toy scenario where independence is met (Durahly, 2023).
 \begin{figure}
@@ -369,14 +367,14 @@ The visual example in Figure \ref{fig:dp} illustrates a toy scenario where indep
 \end{figure}
 The dashed line represents the decision boundary. In both group A and group B, four out of the eight participants were predicted to repay a loan. The other half of the participants were predicted to default. Notice, however, that the class imbalance in this toy credit lending example results in a higher error rate within group B than group A.
 
-A difference in demographic parity close to 0 or a ratio close to 1 by some defined margin is considered a fair solution (Castelnovo et al., 2022). To achieve demographic parity, the different demographic groups must be treated differently, which may seem contrary to societal pre-conceived notions of fairness. Therefore, demographic parity should be used when the primary objective is to enforce some form of equality between groups regardless of all other information and when the objectivity of the target variable, \(Y\), is under question, perhaps because of historical biases. This, however, can unknowingly amplify biases if used in the wrong setting. For example, when imposing demographic parity on a hiring algorithm, if qualifications are different across a protected attribute, then less-qualified candidates may be hired. If these candidates end up being low-performers, then this can perpetuate stereotypes about their demographic group.
+A difference in demographic parity \(|P(\hat{Y} = 1 | A = a) - P(\hat{Y} = 1 | A = b)|\) close to 0 or a ratio \(\frac{P(\hat{Y} = 1 | A = a)}{P(\hat{Y} = 1 | A = b)}\) close to 1 by some defined margin is considered a fair solution (Castelnovo et al., 2022). To achieve demographic parity, the different demographic groups must be treated differently, which may seem contrary to societal pre-conceived notions of fairness. Therefore, demographic parity should be used when the primary objective is to enforce some form of equality between groups regardless of all other information and when the objectivity of the target variable, \(Y\), is under question, perhaps because of historical biases. This, however, can unknowingly amplify biases if used in the wrong setting. For example, when imposing demographic parity on a hiring algorithm, if qualifications are different across a protected attribute, then less-qualified candidates may be hired. If these candidates end up being low-performers, then this can perpetuate stereotypes about their demographic group.
 
 In the above example of using a hiring algorithm with gender as the protected attribute, it may then seem fairer to require independence on gender only for men and women with the same rating or qualification, that is, \(\hat{Y} \perp \!\!\! \perp A | R\). This is known as \emph{conditional demographic parity} and requires that the following equation is satisfied (Castelnovo et al., 2022):
 \begin{equation}
 \label{ch1eq4}
 P (\hat{Y} = 1 | A = a, R = r) = P (\hat{Y} = 1 | A = b, R = r), \text{    } \forall a, b \in A, \forall r.
 \end{equation}
-This idea can be generalized more to condition on all attributes, that is, \(\hat{Y} \perp \!\!\! \perp A | X\). As this is more generalized, however, it begins to satisfy individual fairness and can be achieved by a gender-blind model (Castelnovo et al., 2022). This type of individual fairness is also referred to as fairness through unawareness (FTU), which requires that any protected attributes, or their covariates, are not explicitly used in the decision-making process (Mehrabi et al., 2021). This definition of fairness requires that the following equation be satisfied (Castelnovo et al., 2022):
+This idea can be generalized more to condition on all attributes, that is, \(\hat{Y} \perp \!\!\! \perp A | X\). As this is more generalized, however, it begins to satisfy individual fairness (Castelnovo et al., 2022). This type of individual fairness is also referred to as ``fairness through unawareness'' (FTU), which requires that any protected attributes, or their covariates, are not explicitly used in the decision-making process (Mehrabi et al., 2021). This definition of fairness requires that the following equation be satisfied (Castelnovo et al., 2022):
 \begin{equation}
 \label{ch1eq5}
 P (\hat{Y} = 1 | A = a, X = x) = P (\hat{Y} = 1 | A = b, X = x), \text{ } \forall a, b \in A, \forall x \in X.
@@ -402,7 +400,7 @@ where FP refers to false positive predictions, TP refers to true positive predic
 
 \caption[A Confusion Matrix]{A Confusion Matrix (Mohajon, 2021)}\label{fig:confusionmatrix}
 \end{figure}
-In the COMPAS data set, separation would be satisfied if both Black defendants and White defendants had equal error rates. However, as observed in Figure \ref{fig:compas1}, Black defendants had an FPR of 45\% while White defendants had an FPR of 24\% -- these refer to the percentage of times the algorithm predicted the defendants had recidivated when they hadn't. Similarly, Black defendants had an FNR of 28\% while White defendants had an FNR of 48\% -- these refer to the percentage of times the algorithm predicted the defendants had not recommitted a crime when they had.
+In the COMPAS data set, separation would be satisfied if both Black defendants and White defendants had equal error rates. However, as observed in Figure \ref{fig:compas1}, Black defendants had an FPR of 45\% while White defendants had an FPR of 24\% -- the FPR in this context refers to the percentage of times the algorithm predicted the defendants had recidivated when they hadn't. Similarly, Black defendants had an FNR of 28\% while White defendants had an FNR of 48\% -- the FNR in this context refers to the percentage of times the algorithm predicted the defendants had not recommitted a crime when they had.
 
 Separation requires independence of the predictions \(\hat{Y}\) and the sensitive attribute \(A\) conditioned on the true value of the target variable \(Y\), that is, \(\hat{Y} \perp \!\!\! \perp A|Y\) (Castelnovo et al., 2022). In other terms, the following equation must be satisfied:
 \begin{equation}
@@ -411,7 +409,7 @@ P(\hat{Y} = 1 | A = a, Y = y) = P(\hat{Y} = 1 | A = b, Y = y), \text{ } \forall 
 \end{equation}
 where 0 is a negative outcome and 1 is a positive outcome. This is a reasonable fairness metric, as long as the objectivity of the target variable is trusted, as it ensures that the model optimizes performance for all groups, not just majority groups.
 
-The visual example in Figure \ref{fig:eoo} illustrates a toy scenario where separation is met (Castelnovo et al., 2022). The dashed line represents the decision boundary. Filled in circles represent positive predictions and empty circles represent negative predictions. The error rates are consistent between both men and women.
+The visual example in Figure \ref{fig:eoo} illustrates a toy scenario where separation is met (Castelnovo et al., 2022). The dashed line represents the decision boundary. Filled in circles represent positive predictions and empty circles represent negative predictions. The error rates are consistent between both men and women. Notice, however, that the different demographic groups were treated differently to achieve separation as observed in the different decision boundaries (dashed lines).
 \begin{figure}
 
 {\centering \includegraphics[width=0.6\linewidth]{figures/eoo} 
@@ -425,7 +423,7 @@ There are two relaxed versions of this measure depending on which outcome is mos
 \def\labelenumi{\roman{enumi})}
 \tightlist
 \item
-  \emph{Predictive equality}: equality of false positive rates (FPR) across groups:
+  \emph{Predictive Equality}: equality of false positive rates (FPR) across groups:
 \end{enumerate}
 \begin{equation}
 \label{ch1eq9}
@@ -459,7 +457,7 @@ Consistent with this line of reasoning, many fairness metrics can be defined. Th
 \hypertarget{fairness-conflicts}{%
 \section{Fairness Conflicts}\label{fairness-conflicts}}
 
-Because of the way different fairness definitions are defined, it can be impossible to simultaneously enforce multiple definitions and unexpected behavior may result from a particular definition of fairness. This section highlights some conflicts that arise both in the regression and classification setting.
+Because of the way different fairness definitions are defined, it can be impossible to simultaneously enforce multiple definitions, and unexpected behavior may result from a particular definition of fairness. This section highlights some conflicts that arise both in the regression and classification setting.
 
 \hypertarget{fairness-conflicts-in-regression}{%
 \subsection{Fairness Conflicts in Regression}\label{fairness-conflicts-in-regression}}
@@ -471,16 +469,16 @@ Taking gender as the protected attribute in a gender-blind model, independence, 
 \label{ch1eq12}
 E[\hat{Y} | G = Male] = E[\hat{Y} | G = Female].
 \end{equation}
-This is violated if, on average, a model predicts a higher or lower GPA based on gender.
+Independence is violated if, on average, a model predicts a higher or lower GPA based on gender.
 
 Separation, on the other hand, would require that the average error of predictions be the same for each gender. In defined notion,
 \begin{equation}
 \label{ch1eq13}
 E[\hat{Y} - Y | G = Male] = E[\hat{Y} - Y| G = Female].
 \end{equation}
-This is violated if, on average, the model over-predicts for one gender but under-predicts for another gender or the model either over-predicts or under-predicts more or less for one gender.
+Separation is violated if, on average, the model over-predicts for one gender but under-predicts for another gender or the model either over-predicts or under-predicts more for one gender.
 
-However, a study found that because male and female applicants had different GPAs in the original data set, these two fairness definitions cannot be simultaneously satisfied (P. Thomas, 2020). A result in the Section \ref{class-conflict} will explain this in a mathematically tractable way.
+However, a study found that because male and female applicants had different GPAs in the original data set, these two fairness definitions cannot be simultaneously satisfied (P. Thomas, 2020). A similar result in the Section \ref{class-conflict} will explain this in a mathematically tractable way when working in a classification setting.
 
 \hypertarget{class-conflict}{%
 \subsection{Fairness Conflicts in Classification}\label{class-conflict}}
@@ -500,7 +498,7 @@ Similarly, the negative predictive value (NPV) of a prediction is the probabilit
 \label{ch1eq16}
 NPV(\hat{Y}|A = a) \equiv P (Y = 0| \hat{Y} = 0, A = a).
 \end{equation}
-Sufficiency would require equal PPV and equal NPV across the different demographic groups. Note that NPV and PPV can be computed from a confusion matrix (Figure \ref{fig:confusionmatrix}) as shown below (Saeed, Alireza, Mohamed, \& Ahmed, 2015):
+Sufficiency would require equal PPV and equal NPV across the different demographic groups. Note that NPV and PPV can be computed from a confusion matrix (Figure \ref{fig:confusionmatrix}) (Saeed, Alireza, Mohamed, \& Ahmed, 2015):
 \begin{equation}
 \label{ch1eq17}
 PPV = \frac{TP}{TP + FP} \text{   ;   } NPV = \frac{TN}{TN + FN}.
@@ -510,7 +508,7 @@ Now, given values of the \(PPV \in (0,1)\) and \(p \in (0,1)\), it can be shown 
 \label{ch1eq18}
 FPR = \frac{p}{1-p} \frac{1-PPV}{PPV}(1 - FNR).
 \end{equation}
-Appendix \ref{appendix-a} provides the details for the derivation of this equation. However, its direct implication is that if the prevalence differs between two groups, then it is impossible to satisfy sufficiency (equal PPV across all groups) and separation (equal FPR and FNR across all groups) simultaneously. For example, in the COMPAS data set, if recidivism rates differ between Black and White offenders, then an algorithm that guarantees predictive parity/ equal precision for both Black and White offenders cannot also guarantee equality of odds. Indeed, the recidivism rate for Black defendants in the data is 51\%, compared to 39\% for White defendants, and hence, the disparate impact of the COMPAS tool as observed in Figure \ref{fig:compas1} (Chouldechova, 2017).
+Appendix \ref{appendix-a} provides the details for the derivation of this equation. However, its direct implication is that if the prevalence differs between two groups, then it is impossible to satisfy sufficiency (equal PPV across all groups) and separation (equal FPR and FNR across all groups) simultaneously. For example, in the COMPAS data set, if recidivism rates differ between Black and White offenders, then an algorithm that guarantees predictive parity/ equal precision for both Black and White offenders cannot simultaneously satisfy equality of odds. Indeed, the recidivism rate for Black defendants in the data is 51\%, compared to 39\% for White defendants, and hence, the disparate impact of the COMPAS tool as observed in Figure \ref{fig:compas1} (Chouldechova, 2017).
 
 Figure \ref{fig:dp} illustrates a similar conflict between independence and separation. Satisfying independence resulted in an imbalance of error rates between group A and group B because of the difference in the prevalence of loan repayment between both groups.
 
@@ -521,7 +519,7 @@ Unfortunately, the distribution of the outcome of interest often differs for dif
 \hypertarget{on-fairness-conflicts}{%
 \subsection{On Fairness Conflicts}\label{on-fairness-conflicts}}
 
-As observed, disparate impact can result from the use of a prediction tool that is perceived to be free from predictive bias. Just because an algorithm satisfies a particular definition of fairness doesn't infer that the algorithm is \emph{fair} in every sense of that word. Balancing overall error rates alone is not enough as it does not produce models that are free from bias or that guarantee fairness at finer levels of granularity. This highlights the need for human value and domain expertise in defining fairness within the context of a particular problem before the fairness constraints can be set. Once that is done, Chapter \ref{chap-2} introduces a framework for setting these constraints.
+As observed, disparate impact can result from the use of a prediction tool that is perceived to be free from predictive bias. Just because an algorithm satisfies a particular definition of fairness doesn't infer that the algorithm is \emph{fair} in every sense of that word. Balancing overall error rates alone is not enough as it does not produce models that are free from bias or that guarantee fairness at finer levels of granularity. This highlights the need for human value and domain expertise in defining fairness within the context of a particular problem before the fairness constraints can be set. Chapter \ref{chap-2} introduces a framework for setting these constraints.
 
 \hypertarget{chap-2}{%
 \chapter{Seldonian Algorithms}\label{chap-2}}
@@ -741,6 +739,12 @@ Unbiased estimates of the MSE and each \(g_i(\theta)\) will be computed from the
 
 \caption{Quasi-Seldonian Linear Regression}\label{fig:fig3}
 \end{figure}
+To conclude this chapter, Section \ref{exp} scales this process to repeatedly run a Quasi-Seldonian linear regression algorithm using different amounts of data and analyzing the results.
+
+\hypertarget{exp}{%
+\subsection{Experimentation}\label{exp}}
+
+Consistent with the set-up in Section \ref{toy}, the aim of this experimentation is to assess 3 things: performance loss, frequency of solutions, and frequency of undesirable behavior for varying amounts of data.
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
 \noindent What's left in this section is displaying the experiment results.
@@ -751,6 +755,10 @@ Unbiased estimates of the MSE and each \(g_i(\theta)\) will be computed from the
 \item
   I also need to review my notes to fill in any missing pieces for the complete version of the Chapter.
 \end{itemize}
+Add experimentation code to appendix B as well!
+
+Revise and edit appendix B!
+
 \hypertarget{chap-3}{%
 \chapter{Seldonian Algorithms for Classification}\label{chap-3}}
 
@@ -1139,6 +1147,9 @@ Chouldechova, A., \& Roth, A. (2018). The frontiers of fairness in machine learn
 
 \leavevmode\vadjust pre{\hypertarget{ref-durahly2023fairness}{}}%
 Durahly, L. (2023). A gentle introduction to ML fairness metrics. Retrieved from \url{https://superwise.ai/blog/gentle-introduction-ml-fairness-metrics/}
+
+\leavevmode\vadjust pre{\hypertarget{ref-larson2016compas}{}}%
+Larson, J., Mattu, S., Kirchner, L., \& Angwin, J. (2016). How we analyzed the COMPAS recidivism algorithm. \emph{ProPublica, May}, \emph{23}.
 
 \leavevmode\vadjust pre{\hypertarget{ref-mehrabi2021survey}{}}%
 Mehrabi, N., Morstatter, F., Saxena, N., Lerman, K., \& Galstyan, A. (2021). A survey on bias and fairness in machine learning. \emph{ACM Computing Surveys (CSUR)}, \emph{54}(6), 1--35.

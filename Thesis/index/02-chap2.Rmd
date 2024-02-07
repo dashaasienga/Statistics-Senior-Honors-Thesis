@@ -568,7 +568,8 @@ Consistent with the set-up in Section \@ref(toy), the aim of this experimentatio
 
 - I also need to review my notes to fill in any missing pieces for the complete version of the Chapter. 
 
-Add experimentation code to appendix as well!
+Add experimentation code to appendix B as well!
 
+Revise and edit appendix B!
 
 
