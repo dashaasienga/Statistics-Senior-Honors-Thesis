@@ -9,7 +9,7 @@ library(RColorBrewer)
 
 # Seldonian Algorithms {#chap-2}
 
-Chapter \@ref(intro) introduced the problem of algorithmic bias, discussed existing statistical definitions of fairness both in regression and classification settings, and finally, highlighted  fairness conflicts that can arise in certain settings. Of important note is that there are a plethora of fairness definitions that have been developed in statistical machine learning, many of which have been shown to be incompatible in ways similar to the illustration in Appendix \@ref(appendix-a). In any effort to enforce fairness on machine learning models, a critical first step is to define what fairness means in the specific context [@thomas2020housetestimony]. This responsibility falls on domain experts, social scientists, and regulators. Once there is consensus on that, machine learning researchers can work to develop appropriate algorithms that enforce the chosen definition of fairness. The Seldonian framework, introduced in this chapter, offers one such way to place probabilistic fairness constraints on traditional algorithms. However, because Seldonian algorithms place constraints on traditional machine learning (ML) algorithms, an initial in-depth understanding of the standard approach is key. Section \@ref(standardml) discusses the typical ML approach before diving into the Seldonian framework later in Section \@ref(seldonian). 
+Chapter \@ref(intro) introduced the problem of algorithmic bias, discussed existing statistical definitions of fairness both in regression and classification settings, and finally, highlighted  fairness conflicts that can arise in certain settings. Of important note is that there are a plethora of fairness definitions that have been developed in statistical machine learning, many of which have been shown to be incompatible in ways similar to the illustration in Appendix \@ref(appendix-a). In any effort to enforce fairness on machine learning models, a critical first step is to define what fairness means in the specific context [@thomas2020housetestimony]. This responsibility falls on domain experts, social scientists, and regulators. Once there is consensus on that, machine learning researchers can work to develop appropriate algorithms that enforce the chosen definition of fairness. The Seldonian framework, introduced in this chapter, offers one such way to place probabilistic fairness constraints on traditional algorithms. However, because Seldonian algorithms place constraints on traditional machine learning (ML) algorithms, an initial in-depth understanding of the standard approach is key. Section \@ref(standardml) discusses the typical ML approach before diving into the Seldonian framework in Section \@ref(seldonian). 
 
 ## The Standard Machine Learning Approach {#standardml}
 
@@ -111,7 +111,7 @@ diff <- data %>%
 d <- diff$average[1] - diff$average[2]
 ```
 
-The least squares fit on Figure \@ref(fig:fig1) is impartial to an observation's gender with an objective to make the most accurate predictions. While it may be expected that impartiality would produce fair results, observe that the linear model tends to over-predict if $G = 1$ and under-predict if $G=0$, on the contrary, producing discriminatory behavior. In fact, by defining a discrimination statistic, $d(\theta)$, as defined below in line with the specified fairness definition, the discrimination statistic for the synthetic data set in Figure \@ref(fig:fig1) can be shown to be `r d`, suggesting that the model predictions are in favor of $G = 1$:
+The least squares fit on Figure \@ref(fig:fig1) is impartial to an observation's gender with an objective to make the most accurate predictions. While it may be expected that impartiality would produce fair results, observe that the linear model tends to over-predict if $G = 1$ and under-predict if $G=0$, producing discriminatory behavior. In fact, by defining a discrimination statistic, $d(\theta)$, that measures whether the model satisfies separation (equal error rates), the discrimination statistic for the synthetic data set in Figure \@ref(fig:fig1) can be shown to be `r d`, suggesting that the model predictions are in favor of $G = 1$:
  
 \begin{equation}
 \label{ch2eq4}
@@ -119,12 +119,12 @@ d(\theta) =  E[\hat{Y}-Y|G = 0 ] - E[\hat{Y}-Y|G = 1 ].
 \end{equation}
 
 
-In crucial applications such as hiring, this is concerning and highlights how linear regression algorithms designed using the standard approach can result in predictions of applicant performance that systematically discriminate against a demographic group.
+In crucial applications such as hiring, this is concerning and highlights how group-blind linear regression algorithms designed using the standard approach and following statistical best practices can result in predictions that systematically discriminate against a demographic group.
 
 
 ### Potential Remedies
 
-As illustrated in Section \@ref(standardlimitations) above, machine learning algorithms that use the standard approach may produce undesirable behavior. In an attempt to remedy this problem, a number of approaches can be taken. One potential remedy is to identify the root cause of the undesirable behavior such as class imbalance in the training data, bias in the data set, the choice of linear estimator, the model's blindness to the demographic group, or insufficient data, to name a few [@thomas2019supplementary]. For instance, in the example set up in Section \@ref(standardlimitations) and displayed in Figure \@ref(fig:fig1), the root cause of the discriminatory behavior when using ordinary least squares linear regression was the fact that the objective function was designed to minimize MSE, which was at odds with minimizing the discrimination statistic. However, even though it might be possible to determine and correct the root cause of the undesirable behavior, doing so can be difficult, error-prone, and require extensive data analysis, rendering the central goal of machine learning algorithms, which are designed to automate and make decision-making processes simpler, obsolete.
+In an attempt to remedy this undesirable behavior, a number of approaches can be taken. One potential remedy is to identify the root cause of the undesirable behavior such as class imbalance in the training data, bias in the data set, the choice of linear estimator, the model's blindness to the demographic group, or insufficient data, to name a few [@thomas2019supplementary]. For instance, in the example set up in Section \@ref(standardlimitations) and displayed in Figure \@ref(fig:fig1), the root cause of the discriminatory behavior when using ordinary least squares linear regression was the fact that the objective function was designed to minimize MSE, which was at odds with minimizing the discrimination statistic. However, even though it might be possible to determine and correct the root cause of the undesirable behavior, doing so can be difficult, error-prone, and require extensive data analysis, rendering the central goal of machine learning algorithms, which are designed to automate and make decision-making processes simpler, obsolete.
 
 Assuming that the problem is with the objective function and provided that detailed knowledge of the problem is available, hard constraints may be placed on the objective function, for example, requiring that MSE is minimized only on the set of solutions with a discrimination value $d(\theta)$ less than some value $\epsilon$ [@thomas2019supplementary]. Additionally, rather than placing hard constraints on the set of solutions, soft constraints that penalize undesirable behavior may also be placed on $f$, the objective function [@boyd2004convex]. Although such penalty functions can be effective, they require a careful choice of the value of the parameter $\lambda$ that places relative importance on the objective function and the constraint. For the linear regression example, the new objective function with a soft constraint would now be:
 
@@ -137,7 +137,7 @@ Observe that as $\lambda$ increases, MSE increases and the discrimination statis
 
 In principle, there might be definitions of $\Theta$ or $f$ that prevent the algorithm from converging on solutions that exhibit undesirable behavior [@thomas2019preventing]. However, in practice and as explained, this might require extensive domain expertise and data analysis in order to properly balance the relative importance of the objective function and the constraints, which can be at odds with each other. These techniques may also require knowledge of the probability distribution from which the data is sampled, which is not always available and limits applications to parametric statistics.
 
-A Seldonian algorithm, thus, addresses this problem precisely by allowing probabilistic constraints on undesirable behavior to be placed more easily without detailed knowledge of the specific problem or the distribution of the data, shifting the burden from the domain experts who use these tools to the experts in ML and statistics [@thomas2019preventing]. It's named after Isaac Asimov’s fictional character, Hari Seldon ^[In the fictional book, Hari Seldon was a resident of a fictional planet where he develops psycho-history, an algorithmic science that allows him to predict the future in probabilistic terms.] [@asimov1994forward]. 
+Seldonian algorithms address this problem precisely by allowing probabilistic constraints on undesirable behavior to be placed more easily without detailed knowledge of the specific problem or the distribution of the data, shifting the burden from the domain experts who use these tools to the experts in ML and statistics [@thomas2019preventing]. It's named after Isaac Asimov’s fictional character, Hari Seldon ^[In the fictional book, Hari Seldon was a resident of a fictional planet where he develops psycho-history, an algorithmic science that allows him to predict the future in probabilistic terms.] [@asimov1994forward]. It's important to note that while Seldonian algorithms allow for more seamless implementation in practice, domain experts are still needed to define the relevant fairness constraints for a given context.
 
 ## The Seldonian Framework {#seldonian}
 
@@ -160,7 +160,7 @@ Section \@ref(sop) goes into further detail about the Seldonian framework and ho
 
 ### The Seldonian Optimization Problem {#sop}
 
-As detailed, the Seldonian framework is different from current potential remedies of undesirable behavior because it defines a search over a possible set of algorithms with constraints, rather than over a possible set of solutions. This means that the constraints require that the probability that a machine learning algorithm returns an unsafe solution be bounded by some desired level of confidence, rather than the probability that a solution itself is unsafe. In summary, a Seldonian optimization problem (SOP) can be written as [@thomas2019preventing]:
+As detailed, the Seldonian framework is different from current potential remedies of undesirable behavior because it defines a search over a possible set of algorithms with constraints, rather than over a possible set of solutions. This means that the constraints require that the probability that a machine learning algorithm returns an unsafe solution be bounded by some desired level of confidence, rather than the probability that a solution itself is unsafe. In summary, the Seldonian optimization problem (SOP) can be written as [@thomas2019preventing]:
 
 
 \begin{equation}
@@ -172,36 +172,30 @@ $$\text{ s.t. } \forall \text{ } i \in \{1, 2, \ldots, n\} \text{, } P(g_i(a(D))
 
 A Seldonian algorithm $a$, thus, returns, with high probability, a solution that guarantees desirable behavior. If one were to apply machine algorithm $a$ to obtain a solution from a large number of different data sets $D$ drawn from the same distribution, then it would be expected that at most $100\delta_i \%$ solutions (models) would produce undesirable behavior. 
 
-Taking the previous regression example and turning it into a Seldonian optimization problem using the discrimination statistic in Section \@ref(standardlimitations), $f$ would still be an objective function like the MSE, $\Theta$ would still be the set of all possible linear models, and $D$ would be the data set as described. There would be 1 behavioral constraint, $g_1(a(D)) = |d(a(D))| - \epsilon$, to guarantee with probability at least $1-\delta_1$, that the absolute value of the discrimination statistic would be at most $\epsilon$, where $\epsilon$ and $\delta_1$ are chosen based on the specific application. Note that the user of the machine learning algorithm need not perform data analysis to determine whether $g_1(\theta) \leq 0$ for a particular solution $\theta \in \Theta$ returned. The burden is shifted to the computation algorithm to determine this with some desired level of probability. 
+Taking the previous regression example and turning it into a Seldonian optimization problem using the discrimination statistic in Section \@ref(standardlimitations), $f$ would still be an objective function like the MSE, $\Theta$ would still be the set of all possible linear models, and $D$ would be the data set as described. There would be 1 behavioral constraint, $g_1(a(D)) = |d(a(D))| - \epsilon$, to guarantee with probability at least $1-\delta_1$, that the absolute value of the discrimination statistic would be at most $\epsilon$, where $\epsilon$ and $\delta_1$ are chosen by domain experts based on the specific application. Note that the user of the machine learning algorithm need not perform data analysis to determine whether $g_1(\theta) \leq 0$ for a particular solution $\theta \in \Theta$ returned. The computation algorithm guarantees this with some desired level of probability. 
 
 ```{r seldonian1, fig.cap="Overview of the Seldonian Framework (P. S. Thomas et al., 2019a)", out.width = '100%', echo=FALSE, fig.scap="Overview of the Seldonian Framework"}
 include_graphics(path = "figures/seldonian1.png")
 ```
 
-Figure \@ref(fig:seldonian1) illustrates how this is achieved at a high level. A Seldonian algorithm takes in $n$ behavioral constraints $(g_i,\delta_i)_{i=1}^n$ and a data set $D$ as the inputs and returns either a solution (model) $\theta$ or $NSF$, which means "No Solution Found". That is, no algorithm was found that returned a model which satisfied the behavioral constraints with the desired probability. First, the data $D$ is partitioned into 2 sets $D_1$ and $D_2$ that essentially serve as train and test sets, respectively. $D_1$ is then passed through the candidate selection mechanism, which performs a search over algorithms to settle on a candidate solution $\theta_c$. $\theta_c$ is selected not only so that it optimizes the primary objective function $f$, but also so that it is predicted to pass the subsequent safety test. $D_2$ is then passed through the safety test to check whether $\theta_c$ indeed satisfies the $n$ behavioral constraints with the desired confidence for each, that is $P(g_i(\theta_c) \leq 0) \geq 1 - \delta_i$ for each constraint $i \in \{ 1,2, \ldots, n \}$. If so, $\theta_c$ is returned as the desired solution, and otherwise, NSF [@thomas2019preventing]. 
+Figure \@ref(fig:seldonian1) illustrates how this is achieved at a high level. A Seldonian algorithm takes in $n$ behavioral constraints $(g_i,\delta_i)_{i=1}^n$ and a data set $D$ as the inputs and returns either a solution (model) $\theta$ or $NSF$, which means "No Solution Found". An NSF result means no algorithm was found that returned a model which satisfied the behavioral constraints with the desired probability, so solutions are not guaranteed when employing Seldonian algorithms. 
+
+First, the data $D$ is partitioned into 2 sets $D_1$ and $D_2$ that essentially serve as train and test sets, respectively. $D_1$ is then passed through the candidate selection mechanism, which performs a search over algorithms to settle on a candidate solution $\theta_c$. $\theta_c$ is selected not only so that it optimizes the primary objective function $f$, but also so that it is predicted to pass the subsequent safety test. $D_2$ is then passed through the safety test to check whether $\theta_c$ indeed satisfies the $n$ behavioral constraints with the desired confidence for each, that is $P(g_i(\theta_c) \leq 0) \geq 1 - \delta_i$ for each constraint $i \in \{ 1,2, \ldots, n \}$. If so, $\theta_c$ is returned as the desired solution, and otherwise, NSF [@thomas2019preventing]. 
 
 Note that finding exact confidence bounds may be impractical and require large amounts of data. Quasi-Seldonian algorithms, thus, are an extension of this idea that rely on standard statistical tools to transform sample statistics computed from $D$ into approximate bounds on the probability of undesirable behavior [@thomas2019preventing]. Section \@ref(qsa) discusses the statistical framework employed to achieve this. 
 
 ### Quasi-Seldonian Algorithms {#qsa}
 
-Recall that the Seldonian goal is to create an algorithm $a$ that maximizes an objective function $f$ while satisfying behavioral constraints with high probability. In this Chapter, the focus has been on linear regression, so the aim would be to create a Seldonian linear regression algorithm, rather than one that follows the standard ML process described in Section \@ref(standardml). A Seldonian linear regression algorithm would be an approximate solution to:
+Recall that the Seldonian goal is to create an algorithm $a$ that is an approximate solution to the Seldonian optimization problem defined in Equation \@ref(ch2eq7). This framework is non-parametric and relies on exact values of the objective function and fairness constraints. However, these values are often unknown and need to be estimated from the data provided. 
 
-\begin{equation}
-\label{ch2eq8}
-\underset{a \in \textbf{A}}{\text{ arg max }} f(a)
-\end{equation}
-
-$$\text{ s.t. } \forall \text{ } i \in \{1, 2, \ldots, n\} \text{, } P(g_i(a(D)) \leq 0) \geq 1 - \delta_i.$$
-
-
-Because the value of $f(a)$, the objective function, is unknown, it'll be estimated from the data provided such that $\hat{f}: \Theta \text{ x } \textbf{D} \rightarrow \textbf{R}$ is a measure of the utility of the algorithm that returns a solution $\theta$ when given input $D$, the only random variable [@thomas2019preventing]. In this case, the MSE for a data set of size $m$ can be estimated by
+For example, $f(a)$, the objective function, can be estimated from the data provided such that $\hat{f}: \Theta \text{ x } \textbf{D} \rightarrow \textbf{R}$ serves as a measure of the utility of the algorithm that returns a solution $\theta$ when given input $D$ [@thomas2019preventing]. In a linear regression setting, the MSE for a data set of size $m$ can be estimated by
 
 \begin{equation}
 \label{ch2eq9}
 \hat{f}(\theta, D) = -\frac{1}{m} \sum_{i=1}^{m}(\hat{y}(X_i, \theta) - Y_i)^2.
 \end{equation}
 
-However, the optimization of this objective function is constrained to solutions that have probabilistic guarantees of safe behavior. As observed in Figure \@ref(fig:seldonian1), the candidate selection and safety test mechanisms are crucial to achieve this. 
+In a similar fashion, the following section discusses how the candidate selection and safety test mechanisms further employ statistical estimation techniques to estimate the confidence bounds of the fairness constraints and probabilistically guarantee safe behavior.
 
 #### The Safety Test Mechanism {#safety}
 
@@ -276,7 +270,7 @@ $$\text{ s.t. } \forall \text{ } i \in \{1,2,\ldots,n\}, \text{  } \hat{\mu}(\ha
 
 \
 
-This culminates the discussion on the Seldonian theoretical framework at a high level. To conclude this Chapter, Section \@ref(toy) walks through how this is implemented computationally using a toy regression example. 
+This concludes the discussion on the Seldonian theoretical framework at a high level. To conclude this Chapter, Section \@ref(toy) walks through how this is implemented computationally using a toy regression example. 
 
 ## Toy Example: A Seldonian Regression Algorithm {#toy}
 
@@ -560,6 +554,7 @@ Consistent with the set-up in Section \@ref(toy), the aim of this experimentatio
 
 ---- 
 
+Read through and revise the toy example section!! Then work on the experimentation section!
 
 \noindent What's left in this section is displaying the experiment results. 
 
