@@ -272,11 +272,11 @@ $$\text{ s.t. } \forall \text{ } i \in \{1,2,\ldots,n\}, \text{  } \hat{\mu}(\ha
 
 This concludes the discussion on the Seldonian theoretical framework at a high level. To conclude this Chapter, Section \@ref(toy) walks through how this is implemented computationally using a toy regression example. 
 
-## Toy Example: A Seldonian Regression Algorithm {#toy}
+## Toy Example: A Quasi-Seldonian Regression Algorithm {#toy}
 
-The tutorial in this section follows the presentation by @aisafety on the AI Safety webpage focusing on the key computational aspects of the Seldonian Algorithm. Consistent with the linear regression set-up in this chapter, consider $X, Y \in \textbf{R}$ as two dependent random variables with the goal of estimating $Y$ given $X$ through a sample of $m$ observations. $X$ is drawn synthetically from a $N(0,1)$ distribution and $Y$ is dependent on $X$ with a $N(X,1)$ distribution. Figure \@ref(fig:fig2) displays 5000 such points. $\hat{y}(X, \theta) = \theta_1X+\theta_2$ and $MSE = E[(\hat{y}(X, \theta)-Y)^2]$ are computed as previously defined.
+The tutorial in this section follows the presentation by @aisafety on the AI Safety webpage focusing on the key computational aspects of the Seldonian framework. Consistent with the linear regression set-up in this chapter, consider $X, Y \in \textbf{R}$ as two dependent random variables with the goal of estimating $Y$ given $X$ through a sample of $m$ observations. $X$ is drawn synthetically from a $N(0,1)$ distribution and $Y$ is dependent on $X$ with a $N(X,1)$ distribution. Figure \@ref(fig:fig2) displays 5000 such points. $\hat{y}(X, \theta) = \theta_1X+\theta_2$ and $MSE = E[(\hat{y}(X, \theta)-Y)^2]$ are computed as previously defined.
 
-```{r fig2, fig.align='center', fig.cap="Synthetic Data for Seldonian Linear Regression Tutorial", warning = FALSE, message = FALSE, fig.width = 4.5, fig.height = 3, echo = FALSE}
+```{r fig2, fig.align='center', fig.cap="Synthetic Data for Quasi-Seldonian Linear Regression Tutorial", warning = FALSE, message = FALSE, fig.width = 4.5, fig.height = 3, echo = FALSE}
 # set seed for reproducibility 
 set.seed(123)
 
@@ -306,7 +306,7 @@ In this example, the goal of the linear regression algorithm is two-fold: to min
 
 - $g_2(\theta) = 1.25 - MSE(\theta) \text{; } \delta_2 = 0.1$.
 
-Unbiased estimates of the MSE and each $g_i(\theta)$ will be computed from the data set as elucidated in Section \@ref(qsa). The Python code used to implement and compute the Quasi-Seldonian linear regression algorithm is displayed in detail in Appendix \@ref(appendix-b). In this case, a solution that minimizes the MSE while satisfying the 2 behavioral constraints, $g_1(\theta)$ and $g_2(\theta)$, was found -- the MSE was $1.385$. Figure \@ref(fig:fig3) visually compares the quasi-Seldonian solution (blue) with the ordinary least squares solution (red). 
+Unbiased estimates of the MSE and each $g_i(\theta)$ will be computed from the data set as elucidated in Section \@ref(qsa). The Python code used to implement and compute the quasi-Seldonian linear regression algorithm is displayed in detail in Appendix \@ref(appendix-b). To reduce computational burden, all the computation was performed on the Amherst College High-Performance Computing System. In this case, a solution that minimizes the MSE while satisfying the 2 behavioral constraints, $g_1(\theta)$ and $g_2(\theta)$, was found -- the MSE was $1.385$. Figure \@ref(fig:fig3) visually compares the quasi-Seldonian solution (blue) with the ordinary least squares solution (red). 
 
 
 ```{r, echo = FALSE}
@@ -527,7 +527,7 @@ main()
 y_hat <- 0.6050927032 + 1.0201681981*x
 
 # define the legend
-colors <- c("OLS" = "red", "QSA" = "blue")
+colors <- c("LS" = "red", "QSA" = "blue")
 
 # plot the results
 ggplot(data = seldonian_data, mapping = aes(x = x, y = y)) +
@@ -544,11 +544,11 @@ ggplot(data = seldonian_data, mapping = aes(x = x, y = y)) +
         panel.grid.minor = element_blank()) 
 ```
 
-To conclude this chapter, Section \@ref(exp) scales this process to repeatedly run a Quasi-Seldonian linear regression algorithm using different amounts of data and analyze the results. 
+To conclude this chapter, Section \@ref(exp) scales this process to repeatedly run a quasi-Seldonian linear regression algorithm using different amounts of data and analyze the results. 
 
 ### Experimentation {#exp}
 
-Consistent with the set-up in Section \@ref(toy), the aim of this experimentation is to assess three aspects of the defined quasi-Seldonian linear regression algorithm: performance loss, frequency of solutions, and frequency of undesirable behavior for varying sample sizes. 
+Consistent with the set-up in Section \@ref(toy) and following the presentation by @aisafety, the aim of the experimentation in this section is to assess three aspects of the quasi-Seldonian linear regression algorithm defined in Section \@ref(toy): performance loss, frequency of solutions, and frequency of undesirable behavior for varying sample sizes. 
 
 ```{python, echo = FALSE}
 import timeit               
@@ -846,18 +846,22 @@ loadAndPlotResults(csv_path+'failures_g1.csv',     r'Probability of $g_1(a(D))>0
 loadAndPlotResults(csv_path+'failures_g2.csv',     r'Probability of $g_2(a(D))>0$', img_path+'tutorial7PrFail2_py.png', True,  'best')
 ```
 
----- 
+Each of the figures show how different properties of the quasi-Seldonian linear regression (QSLR) algorithm  for different data set sizes, $\textit{m}$. The horizontal axis is on a logarithmic scale, with values of $\textit{m}$ starting at $\textit{m} = 32$ and going up to $\textit{m} = 65,536$, doubling each time such that $\textit{m} \in \{32, 64, 128, \ldots, 65536 \}$. 1000 trials are run for each value of $m$. Each figure plots the mean and includes a standard error bar to visualize the variance of results. 
 
-Work on the writw-up for the experimentation section!
+#### Performance Loss
+A Seldonian algorithm that has probabilistic guarantees of safe or fair behavior will typically perform worse, with regard to accuracy or error, than an algorithm that is purely focused on optimizing performance [@aisafety]. In Figure \@ref(fig:fig4), the dotted lines represent the desired range for the MSE as defined by the behavioral constraints set in Section \@ref(toy). In this setting, MSE was forced to be higher. Notice that the QSLR did not return a solution for small amounts of data, but when a solution was returned, it was always within the MSE bounds set by the constraints. Additionally, the bigger the sample size, the closer the MSE was to the lower boundary. This highlights the role that the primary objective plays by encouraging solutions with lower error, albeit still within the desired window. In a different setting where the behavioral constraints are not at odds with the primary objective function, it would be worthwhile to investigate performance loss when using a QSLR algorithm rather than ordinary least squares (OLS). Chapter \@ref(chap-3) attempts to answer this question by investigating performance loss for Seldonian algorithms in classification settings.  
+
+#### Probability of a Solution
+Quasi-Seldonian algorithms don't always return a solution, especially with little data because there is insufficient confidence that any solution would satisfy the behavioral constraints, but how much data is necessary to return one? Figure \@ref(fig:fig5) illustrates that with more data, there is a higher probability of a solution. Nevertheless, there isn't a definitive threshold ensuring a solution for data sizes exceeding it. However, when provided with ample data, the results suggested that the likelihood of obtaining a solution tends to exceed 0.8. 
+
+#### Probability of Undesirable Behavior
+Finally, Figures \@ref(fig:fig6) and \@ref(fig:fig7) plot the probability that each algorithm produced undesirable behavior, that is, the probability that each algorithm had a solution with $g_1(a(D)) > 0$ as in Figure \@ref(fig:fig6) and a solution with $g_2(a(D)) > 0$ as in Figure \@ref(fig:fig7). Recall that $\delta_1 = \delta_2 = 0.1$, so for the QSA solution, the probability of undesirable behavior should lie below 0.1, or at least around 0.1. QSA always satisfied both constraints when a solution was returned. Notice, however, that since OLS does not take behavioral constraints into account, it frequently violates the second behavioral constraint that requires MSE to be greater than 1.25. This is expected because this constraint is in conflict with the primary objective function. 
 
 
+$\\$ 
 
-\
+The toy example in this Chapter illustrates some of the desirable qualities of Seldonian (or quasi-Seldonian) algorithms and some of the limitations. The focus was in the quantitative setting when using linear regression. Chapter \@ref(chap-3), on the other hand, delves deeper into the properties of Seldonian algorithms with a particular focus on classification. 
 
-- I also need to review my notes to fill in any missing pieces for the complete version of the Chapter. 
 
-Add experimentation code to appendix B as well!
-
-Revise and edit appendix B!
 
 
