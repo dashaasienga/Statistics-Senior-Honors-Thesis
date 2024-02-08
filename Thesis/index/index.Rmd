@@ -1,5 +1,5 @@
 ---
-title: 'Algorithmic Bias, Statistical Notions of Fairness, and the Seldonian Algorithm'
+title: 'Algorithmic Bias, Statistical Notions of Fairness, and the Seldonian Framework'
 author: 'Dasha Asienga'
 date: 'April DD, 20YY'
 institution: 'Amherst College'
