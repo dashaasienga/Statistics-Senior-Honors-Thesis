@@ -745,12 +745,42 @@ To conclude this chapter, Section \ref{exp} scales this process to repeatedly ru
 \hypertarget{exp}{%
 \subsection{Experimentation}\label{exp}}
 
-Consistent with the set-up in Section \ref{toy}, the aim of this experimentation is to assess 3 things: performance loss, frequency of solutions, and frequency of undesirable behavior for varying amounts of data.
+Consistent with the set-up in Section \ref{toy}, the aim of this experimentation is to assess three aspects of the defined quasi-Seldonian linear regression algorithm: performance loss, frequency of solutions, and frequency of undesirable behavior for varying sample sizes.
+\begin{figure}
+
+{\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/fig4-1} 
+
+}
+
+\caption{QSA Experiment: Performance Loss}\label{fig:fig4}
+\end{figure}
+\begin{figure}
+
+{\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/fig5-3} 
+
+}
+
+\caption{QSA Experiment: Probability of a Solution}\label{fig:fig5}
+\end{figure}
+\begin{figure}
+
+{\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/fig6-5} 
+
+}
+
+\caption{QSA Experiment: Satisfaction of 1st Behavioral Constraint}\label{fig:fig6}
+\end{figure}
+\begin{figure}
+
+{\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/fig7-7} 
+
+}
+
+\caption{QSA Experiment: Satisfaction of 2nd Behavioral Constraint}\label{fig:fig7}
+\end{figure}
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-Work on the experimentation section!
-
-\noindent What's left in this section is displaying the experiment results.
+Work on the writw-up for the experimentation section!
 
 \hfill\break
 \begin{itemize}
@@ -882,7 +912,7 @@ The code chunk below fixes arbitrary sensitivity (1 - FNR) and specificity (1 - 
 \FunctionTok{grid.arrange}\NormalTok{(g1,g2, }\AttributeTok{nrow=}\DecValTok{1}\NormalTok{, }\AttributeTok{ncol=}\DecValTok{2}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
-\begin{center}\includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/unnamed-chunk-25-1} \end{center}
+\begin{center}\includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/unnamed-chunk-40-1} \end{center}
 
 \hypertarget{appendix-b}{%
 \chapter{Key Python Code}\label{appendix-b}}
@@ -956,7 +986,7 @@ Explain the code in this section using the Jupyter notebook as a guide: \url{htt
 \begin{Shaded}
 \begin{Highlighting}[]
 \KeywordTok{def}\NormalTok{ main():}
-\NormalTok{    np.random.seed(}\DecValTok{0}\NormalTok{)  }
+\NormalTok{    np.random.seed(}\DecValTok{123}\NormalTok{)  }
 \NormalTok{    numPoints }\OperatorTok{=} \DecValTok{5000}   
 
 \NormalTok{    (X,Y)  }\OperatorTok{=}\NormalTok{ generateData(numPoints)  }
