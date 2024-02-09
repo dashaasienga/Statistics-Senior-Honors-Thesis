@@ -924,11 +924,7 @@ The code chunk below fixes arbitrary sensitivity (1 - FNR) and specificity (1 - 
 \hypertarget{appendix-b}{%
 \chapter{QSLR Python Code}\label{appendix-b}}
 
-Explain the code in this section using the Jupyter notebook as a guide: \url{https://jupyter.hpc.amherst.edu/user/dasienga24/lab}?
-
-Add experimentation code to appendix B as well!
-
-Revise and edit appendix B!
+The \texttt{reticulate} package is useful for setting up the correct Python environment within RStudio.
 \begin{Shaded}
 \begin{Highlighting}[]
 \FunctionTok{library}\NormalTok{(reticulate)}
@@ -938,10 +934,10 @@ Revise and edit appendix B!
 \CommentTok{\#conda\_list()}
 \end{Highlighting}
 \end{Shaded}
+\noindent Python packages not already pre-installed need to be imported into the \texttt{reticulate} package first before being imported into the Python environment, as illustrated using \texttt{sklearn} below.
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{sklearn }\OtherTok{\textless{}{-}} \FunctionTok{import}\NormalTok{(}\StringTok{"sklearn"}\NormalTok{)}
-\CommentTok{\#conda\_list()}
 \end{Highlighting}
 \end{Shaded}
 \begin{Shaded}
@@ -949,6 +945,7 @@ Revise and edit appendix B!
 \ImportTok{import}\NormalTok{ sklearn}
 \end{Highlighting}
 \end{Shaded}
+\noindent \texttt{math} provides access to the standard mathematical functions. \texttt{numpy} supports large, multi-dimensional arrays and matrices, along with a large collection of high-level mathematical functions to operate on these arrays. \texttt{sys} provides functions and variables used to manipulate different parts of the Python run-time environment. \texttt{sklearn} features various classification, regression and clustering algorithms. \texttt{scipy.stats} contains a large number of probability distributions, summary and frequency statistics, correlation functions and statistical tests, masked statistics, kernel density estimation, quasi-Monte Carlo functionality, and more. \texttt{scipy.optimize} provides functions for minimizing (or maximizing) objective functions, possibly subject to constraints. It includes solvers for nonlinear problems (with support for both local and global optimization algorithms), linear programing, constrained and nonlinear least-squares, root finding, and curve fitting.
 \begin{Shaded}
 \begin{Highlighting}[]
 \ImportTok{import}\NormalTok{ math}
@@ -962,15 +959,18 @@ Revise and edit appendix B!
 \end{Shaded}
 \begin{Shaded}
 \begin{Highlighting}[]
+\CommentTok{\# display 5 decimal places for all results}
 \NormalTok{np.set\_printoptions(precision}\OperatorTok{=}\DecValTok{5}\NormalTok{, suppress}\OperatorTok{=}\VariableTok{True}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
+\noindent The \texttt{tinv} function returns the inverse of \texttt{Student\textquotesingle{}s\ t} CDF using the degrees of freedom in \texttt{nu} for the corresponding probabilities in \texttt{p}.
 \begin{Shaded}
 \begin{Highlighting}[]
 \KeywordTok{def}\NormalTok{ tinv(p, nu):}
     \ControlFlowTok{return}\NormalTok{ t.ppf(p, nu)}
 \end{Highlighting}
 \end{Shaded}
+\noindent The \texttt{stddev} function computes the sample standard deviation of the vector \(v\), with Bessel's correction. In statistics, Bessel's correction is the use of \(n-1\) instead of \(n\) in the formula for the sample variance and sample standard deviation, where n is the number of observations in a sample. This method corrects the bias in the estimation of the population variance.
 \begin{Shaded}
 \begin{Highlighting}[]
 \KeywordTok{def}\NormalTok{ stddev(v):}
@@ -979,6 +979,7 @@ Revise and edit appendix B!
     \ControlFlowTok{return}\NormalTok{ np.sqrt(variance) }
 \end{Highlighting}
 \end{Shaded}
+\noindent The \texttt{ttestUpperBound} function computes a (\(1 - \delta\))-confidence upper bound on the expected value of a random variable using Student's t-test. It analyzes the data in \(v\), which holds i.i.d. samples of the random variable. The upper confidence bound is given by \(\text{sampleMean} + \frac{\text{sampleStandardDeviation}}{\sqrt(n)} * tinv(1-\delta, n-1)\), where \(n\) is the number of observations in \(v\).
 \begin{Shaded}
 \begin{Highlighting}[]
 \KeywordTok{def}\NormalTok{ ttestUpperBound(v, delta):}
@@ -987,6 +988,9 @@ Revise and edit appendix B!
     \ControlFlowTok{return}\NormalTok{ res}
 \end{Highlighting}
 \end{Shaded}
+\noindent The \texttt{predictTTestUpperBound} function works similarly to \texttt{ttestUpperBound}, but returns a more conservative upper bound. This function uses data in the vector \(v\) to compute all relevant statistics (mean and standard deviation) but assumes that the number of points being analyzed is \(k\) instead of \(|v|\).
+
+\noindent This function is used to estimate what the output of \texttt{ttestUpperBound} would be if it were to be run on a new vector, \(v\), containing values sampled from the same distribution as the points in \(v\). The 2.0 factor in the calculation is used to double the width of the confidence interval when predicting the outcome of the safety test in order to make the algorithm less confident/ more conservative.
 \begin{Shaded}
 \begin{Highlighting}[]
 \KeywordTok{def}\NormalTok{ predictTTestUpperBound(v, delta, k):}
@@ -995,6 +999,7 @@ Revise and edit appendix B!
     \ControlFlowTok{return}\NormalTok{ res}
 \end{Highlighting}
 \end{Shaded}
+\noindent The function \texttt{main()} below is set up to run a simple experiment.
 \begin{Shaded}
 \begin{Highlighting}[]
 \KeywordTok{def}\NormalTok{ main():}
@@ -1016,6 +1021,7 @@ Revise and edit appendix B!
         \BuiltInTok{print}\NormalTok{(}\StringTok{"No solution found"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
+\noindent The \texttt{generateData} function samples data as described in the problem description.
 \begin{Shaded}
 \begin{Highlighting}[]
 \KeywordTok{def}\NormalTok{ generateData(numPoints):}
@@ -1024,12 +1030,16 @@ Revise and edit appendix B!
     \ControlFlowTok{return}\NormalTok{ (X,Y)}
 \end{Highlighting}
 \end{Shaded}
+\noindent The \texttt{predict} function takes in a solution \(\theta\) and an input \(X\), and produces as output the prediction of \(Y\). In other words, this function will implement \(\hat{y}(X, \theta)\).
+
+\noindent Recall \(\hat{y}(X, \theta) = \theta_1 X + \theta_2\).
 \begin{Shaded}
 \begin{Highlighting}[]
 \KeywordTok{def}\NormalTok{ predict(theta, x):}
     \ControlFlowTok{return}\NormalTok{ theta[}\DecValTok{0}\NormalTok{] }\OperatorTok{+}\NormalTok{ theta[}\DecValTok{1}\NormalTok{] }\OperatorTok{*}\NormalTok{ x}
 \end{Highlighting}
 \end{Shaded}
+\noindent The \texttt{fHat} function specifies the primary objective: to minimize the sample mean squared error. since the attempt is to maximize \(\hat{f}\), however, the negative sample mean squared error is returned, so that maximizing \(\hat{f}\) corresponds to minimizing the mean squared error.
 \begin{Shaded}
 \begin{Highlighting}[]
 \KeywordTok{def}\NormalTok{ fHat(theta, X, Y):}
@@ -1042,6 +1052,7 @@ Revise and edit appendix B!
     \ControlFlowTok{return} \OperatorTok{{-}}\NormalTok{res         }
 \end{Highlighting}
 \end{Shaded}
+\noindent The \texttt{gHat1} and \texttt{gHat2} functions set up the behavioral constraints.
 \begin{Shaded}
 \begin{Highlighting}[]
 \KeywordTok{def}\NormalTok{ gHat1(theta, X, Y):}
@@ -1063,6 +1074,7 @@ Revise and edit appendix B!
     \ControlFlowTok{return}\NormalTok{ res}
 \end{Highlighting}
 \end{Shaded}
+\noindent The \texttt{leastSq} function implements least squares linear regression, which will be used as a starting point in the search for a candidate solution.
 \begin{Shaded}
 \begin{Highlighting}[]
 \KeywordTok{def}\NormalTok{ leastSq(X, Y):}
@@ -1074,6 +1086,7 @@ Revise and edit appendix B!
     \ControlFlowTok{return}\NormalTok{ np.array([theta0, theta1])}
 \end{Highlighting}
 \end{Shaded}
+\noindent The \texttt{QSA} function is the shell code that partitions the data set, gets a candidate solution, and runs the safety test.
 \begin{Shaded}
 \begin{Highlighting}[]
 \KeywordTok{def}\NormalTok{ QSA(X, Y, gHats, deltas):}
@@ -1091,6 +1104,7 @@ Revise and edit appendix B!
     \ControlFlowTok{return}\NormalTok{ [candidateSolution, passedSafety]}
 \end{Highlighting}
 \end{Shaded}
+\noindent The \texttt{safetyTest} function uses the previously defined functions to implement the safety test.
 \begin{Shaded}
 \begin{Highlighting}[]
 \KeywordTok{def}\NormalTok{ safetyTest(candidateSolution, safetyData\_X, safetyData\_Y, gHats, deltas):}
@@ -1110,6 +1124,19 @@ Revise and edit appendix B!
     \ControlFlowTok{return} \VariableTok{True}
 \end{Highlighting}
 \end{Shaded}
+\noindent Finally, the \texttt{candidateObjective} and \texttt{getCandidateSolution} functions use a black-box optimization algorithm to search for a candidate solution.
+
+\noindent The black box algorithm used to search for a candidate solution is called Powell, which is an algorithm designed for finding a local minimum of a function using a bi-directional linear search. Powell, however, is not a constrained algorithm. One way of addressing this limitation is by incorporating the constraint into the objective function as a barrier function. In constrained optimization, a field of mathematics, barrier functions are used to replace inequality constraints by a penalizing term in the objective function that is easier to handle. That is, an approximate solution to the following unconstrained problem:
+
+\[
+\theta_c \in arg \: \underset{\theta \in \mathbb{R}^2}{max} 
+    \begin{cases} 
+      \hat{f}(\theta, D_1)  \text{    if} \:\: \hat{\mu}(\hat{g_i}(\theta_c, D_1)) + 2 \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_1))}{\sqrt{|D_2|}} t_{1-\delta_i, |D_2|-1} \leq 0 \forall i \in \{1,2,...,n\}\\
+      -100,000 - \sum_{i=1}^n max(0, \hat{\mu}(\hat{g_i}(\theta_c, D_1)) + 2 \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_1))}{\sqrt{|D_2|}} t_{1-\delta_i, |D_2|-1})) \text{  otherwise}
+    \end{cases}
+\]
+
+\noindent In this case, solutions that are predicted not to pass the safety test will not be selected by the optimization algorithm because a large negative performance is assigned to them. This barrier functions encourages Powell to tend towards solutions that will pass the safety test.
 \begin{Shaded}
 \begin{Highlighting}[]
 \KeywordTok{def}\NormalTok{ candidateObjective(thetaToEvaluate, candidateData\_X, candidateData\_Y, gHats, }
@@ -1156,22 +1183,26 @@ Revise and edit appendix B!
     \ControlFlowTok{return}\NormalTok{ res.x}
 \end{Highlighting}
 \end{Shaded}
+\noindent Calling \texttt{main()} returns either a solution or NSF.
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{main()}
 \end{Highlighting}
 \end{Shaded}
+\noindent The following code chunks utilize the above functions to perform the experimentation in Chapter \ref{exp}. \texttt{timeit} allows timing of the execution of experiments. \texttt{numba} allows the use of a Just-in-Time (JIT) compiler to accelerate Python code.
 \begin{Shaded}
 \begin{Highlighting}[]
+\CommentTok{\#import necessary packages}
 \ImportTok{import}\NormalTok{ timeit               }
 \ImportTok{from}\NormalTok{ numba }\ImportTok{import}\NormalTok{ jit       }
 \end{Highlighting}
 \end{Shaded}
 \begin{Shaded}
 \begin{Highlighting}[]
+\CommentTok{\#path where experiment results are saved}
 \NormalTok{bin\_path }\OperatorTok{=} 
-\CommentTok{\textquotesingle{}/home/dasienga24/Statistics{-}Senior{-}Honors{-}Thesis/Thesis/index/experiment\_results/\textquotesingle{}}
-\CommentTok{\textquotesingle{}chapter\_2/\textquotesingle{}}
+\CommentTok{\textquotesingle{}/home/dasienga24/Statistics{-}Senior{-}Honors{-}Thesis/Thesis/index/\textquotesingle{}}
+\CommentTok{\textquotesingle{}experiment\_results/chapter\_2/\textquotesingle{}}
 \end{Highlighting}
 \end{Shaded}
 \begin{Shaded}
@@ -1258,13 +1289,15 @@ Revise and edit appendix B!
 \NormalTok{gHats  }\OperatorTok{=}\NormalTok{ [gHat1, gHat2]}
 \NormalTok{deltas }\OperatorTok{=}\NormalTok{ [}\FloatTok{0.1}\NormalTok{, }\FloatTok{0.1}\NormalTok{]}
 
+\CommentTok{\# Initialize one worker because we\textquotesingle{}re not using parallelization}
 \NormalTok{nWorkers }\OperatorTok{=} \DecValTok{1}  
 
+\CommentTok{\# sample sizes}
 \NormalTok{ms   }\OperatorTok{=}\NormalTok{ [}\DecValTok{2}\OperatorTok{**}\NormalTok{i }\ControlFlowTok{for}\NormalTok{ i }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(}\DecValTok{5}\NormalTok{, }\DecValTok{17}\NormalTok{)]  }
 \NormalTok{numM }\OperatorTok{=} \BuiltInTok{len}\NormalTok{(ms)}
     
-\CommentTok{\# How many trials should we average over?}
-\NormalTok{numTrials }\OperatorTok{=} \DecValTok{5}  \CommentTok{\# Reduced for demonstration purposes}
+\CommentTok{\# The number of trials}
+\NormalTok{numTrials }\OperatorTok{=} \DecValTok{100}  
 
 \NormalTok{mTest }\OperatorTok{=}\NormalTok{ ms[}\OperatorTok{{-}}\DecValTok{1}\NormalTok{] }\OperatorTok{*} \DecValTok{100} \CommentTok{\# about 5,000,000 test samples}
 
@@ -1276,8 +1309,10 @@ Revise and edit appendix B!
 \NormalTok{time\_sequential }\OperatorTok{=}\NormalTok{ toc }\OperatorTok{{-}}\NormalTok{ tic }\CommentTok{\# Elapsed time in seconds}
 \end{Highlighting}
 \end{Shaded}
+\noindent Finally, the following code chunks compile the results from the experiments and presents them visually. \texttt{csv} implements classes to read and write tabular data in CSV format. \texttt{glob} finds all the path names matching a specified pattern according to the rules used by the Unix shell. This will be useful for referencing file paths and names. \texttt{re} provides regular expression matching operations similar to those found in Perl.
 \begin{Shaded}
 \begin{Highlighting}[]
+\CommentTok{\#import necessary packages}
 \ImportTok{import}\NormalTok{ csv }
 \ImportTok{import}\NormalTok{ glob }
 \ImportTok{import}\NormalTok{ re }
@@ -1286,6 +1321,7 @@ Revise and edit appendix B!
 \end{Shaded}
 \begin{Shaded}
 \begin{Highlighting}[]
+\CommentTok{\#specify path names}
 \NormalTok{bin\_path }\OperatorTok{=} 
 \CommentTok{\textquotesingle{}/home/dasienga24/Statistics{-}Senior{-}Honors{-}Thesis/Thesis/index/experiment\_results/\textquotesingle{}}
 \CommentTok{\textquotesingle{}chapter\_2/\textquotesingle{}}
@@ -1296,6 +1332,7 @@ Revise and edit appendix B!
 \end{Shaded}
 \begin{Shaded}
 \begin{Highlighting}[]
+\CommentTok{\#parse through files to obtain the experiment numbers}
 \KeywordTok{def}\NormalTok{ get\_existing\_experiment\_numbers():}
 \NormalTok{    result\_files       }\OperatorTok{=}\NormalTok{ glob.glob(bin\_path }\OperatorTok{+} \StringTok{\textquotesingle{}results*.npz\textquotesingle{}}\NormalTok{)}
 \NormalTok{    experiment\_numbers }\OperatorTok{=}\NormalTok{ [re.search(}\StringTok{\textquotesingle{}.*results([0{-}9]*).*\textquotesingle{}}\NormalTok{, }
@@ -1307,10 +1344,33 @@ Revise and edit appendix B!
 \end{Shaded}
 \begin{Shaded}
 \begin{Highlighting}[]
+\CommentTok{\#generate the file names for the results}
 \KeywordTok{def}\NormalTok{ genFilename(n):}
     \ControlFlowTok{return}\NormalTok{ bin\_path }\OperatorTok{+} \StringTok{\textquotesingle{}results}\SpecialCharTok{\%d}\StringTok{.npz\textquotesingle{}} \OperatorTok{\%}\NormalTok{ n}
 \end{Highlighting}
 \end{Shaded}
+\noindent For the \texttt{addMoreResults} function, recall that:
+\begin{itemize}
+\tightlist
+\item
+  \texttt{ms}: data set size
+\item
+  \texttt{seldonian\_solutions\_found}: stores whether a solution was found (1=True,0=False)
+\item
+  \texttt{seldonian\_fs}: stores the primary objective values (fHat) if a solution was found
+\item
+  \texttt{seldonian\_failures\_g1}: stores whether Seldonian solution was unsafe, (1=True,0=False), for the 1st constraint, g\_1
+\item
+  \texttt{seldonian\_failures\_g2}: stores whether Seldonian solution was unsafe, (1=True,0=False), for the 2nd constraint, g\_2
+\item
+  \texttt{LS\_solutions\_found}: stores whether a solution was found. These will all be true (=1)
+\item
+  \texttt{LS\_fs}: stores the primary objective values (f)
+\item
+  \texttt{LS\_failures\_g1}: stores whether LS solution was unsafe, (1=True,0=False), for the 1st constraint, g\_1
+\item
+  \texttt{LS\_failures\_g2}: stores whether LS solution was unsafe, (1=True,0=False), for the 2nd constraint, g\_2
+\end{itemize}
 \begin{Shaded}
 \begin{Highlighting}[]
 \KeywordTok{def}\NormalTok{ addMoreResults(newFileId, ms, seldonian\_solutions\_found, seldonian\_fs,}
@@ -1362,6 +1422,22 @@ Revise and edit appendix B!
     \ControlFlowTok{return}\NormalTok{ np.nanstd(v, ddof}\OperatorTok{=}\DecValTok{1}\NormalTok{) }\OperatorTok{/}\NormalTok{ np.sqrt(non\_nan)}
 \end{Highlighting}
 \end{Shaded}
+\noindent The output CSV file will have columns corresponding to:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \texttt{m} -- the size of the data set
+\item
+  QSA mean value
+\item
+  QSA standard error bar size
+\item
+  LS mean value
+\item
+  LS standard error bar size
+\end{enumerate}
+\noindent There will be one column per value of \texttt{m} (amount of training data).
 \begin{Shaded}
 \begin{Highlighting}[]
 \KeywordTok{def}\NormalTok{ saveToCSV(ms, resultsQSA, resultsLS, filename):}
@@ -1393,6 +1469,7 @@ Revise and edit appendix B!
 \end{Shaded}
 \begin{Shaded}
 \begin{Highlighting}[]
+\CommentTok{\#gather the results and compile into CSV file}
 \KeywordTok{def}\NormalTok{ gather\_results():}
 \NormalTok{    ms                        }\OperatorTok{=} \VariableTok{None}
 \NormalTok{    seldonian\_solutions\_found }\OperatorTok{=} \VariableTok{None}
@@ -1449,6 +1526,7 @@ Revise and edit appendix B!
 \CommentTok{\textquotesingle{}experiment\_results/chapter\_2/images/\textquotesingle{}}
 \end{Highlighting}
 \end{Shaded}
+\noindent: Finally, the results are plotted as shown below.
 \begin{Shaded}
 \begin{Highlighting}[]
 \KeywordTok{def}\NormalTok{ loadAndPlotResults(fileName, ylabel, output\_file, is\_yAxis\_prob, legend\_loc):}

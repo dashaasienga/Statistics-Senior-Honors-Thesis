@@ -1,10 +1,6 @@
 # QSLR Python Code {#appendix-b}
 
-Explain the code in this section using the Jupyter notebook as a guide: https://jupyter.hpc.amherst.edu/user/dasienga24/lab?
-
-Add experimentation code to appendix B as well!
-
-Revise and edit appendix B!
+The `reticulate` package is useful for setting up the correct Python environment within RStudio.
 
 ```{r, eval = FALSE}
 library(reticulate)
@@ -14,18 +10,17 @@ use_python("/cm/shared/apps/amh-Rstudio/python-3.11.4/bin/python3",
 #conda_list()
 ```
 
+\noindent Python packages not already pre-installed need to be imported into the `reticulate` package first before being imported into the Python environment, as illustrated using `sklearn` below.
+
 ```{r, eval = FALSE}
 sklearn <- import("sklearn")
-#conda_list()
-```
-
-```{r, include = FALSE}
-py_config()
 ```
 
 ```{python, eval = FALSE}
 import sklearn
 ```
+
+\noindent `math` provides access to the standard mathematical functions. `numpy` supports large, multi-dimensional arrays and matrices, along with a large collection of high-level mathematical functions to operate on these arrays. `sys` provides functions and variables used to manipulate different parts of the Python run-time environment. `sklearn` features various classification, regression and clustering algorithms. `scipy.stats` contains a large number of probability distributions, summary and frequency statistics, correlation functions and statistical tests, masked statistics, kernel density estimation, quasi-Monte Carlo functionality, and more. `scipy.optimize` provides functions for minimizing (or maximizing) objective functions, possibly subject to constraints. It includes solvers for nonlinear problems (with support for both local and global optimization algorithms), linear programing, constrained and nonlinear least-squares, root finding, and curve fitting.
 
 ```{python, eval = FALSE}
 import math
@@ -38,17 +33,18 @@ from scipy.optimize import minimize
 ```
 
 ```{python, eval = FALSE}
+# display 5 decimal places for all results
 np.set_printoptions(precision=5, suppress=True)
 ```
+
+\noindent The `tinv` function returns the inverse of `Student's t` CDF using the degrees of freedom in `nu` for the corresponding probabilities in `p`.
 
 ```{python, eval = FALSE}
 def tinv(p, nu):
     return t.ppf(p, nu)
 ```
 
-```{python, include = FALSE}
-tinv(0.95,50)
-```
+\noindent The `stddev` function computes the sample standard deviation of the vector $v$, with Bessel's correction. In statistics, Bessel's correction is the use of $n-1$ instead of $n$ in the formula for the sample variance and sample standard deviation, where n is the number of observations in a sample. This method corrects the bias in the estimation of the population variance.
 
 ```{python, eval = FALSE}
 def stddev(v):
@@ -57,6 +53,9 @@ def stddev(v):
     return np.sqrt(variance) 
 ```
 
+\noindent The `ttestUpperBound` function computes a ($1 - \delta$)-confidence upper bound on the expected value of a random variable using Student's t-test. It analyzes the data in $v$, which holds i.i.d. samples of the random variable. The upper confidence bound is given by $\text{sampleMean} + \frac{\text{sampleStandardDeviation}}{\sqrt(n)} * tinv(1-\delta, n-1)$, where $n$ is the number of observations in $v$.
+
+
 ```{python, eval = FALSE}
 def ttestUpperBound(v, delta):
     n  = v.size
@@ -64,12 +63,19 @@ def ttestUpperBound(v, delta):
     return res
 ```
 
+
+\noindent The `predictTTestUpperBound` function works similarly to `ttestUpperBound`, but returns a more conservative upper bound. This function uses data in the vector $v$ to compute all relevant statistics (mean and standard deviation) but assumes that the number of points being analyzed is $k$ instead of $|v|$.
+
+\noindent This function is used to estimate what the output of `ttestUpperBound` would be if it were to be run on a new vector, $v$, containing values sampled from the same distribution as the points in $v$. The 2.0 factor in the calculation is used to double the width of the confidence interval when predicting the outcome of the safety test in order to make the algorithm less confident/ more conservative.
+
 ```{python, eval = FALSE}
 def predictTTestUpperBound(v, delta, k):
     
     res = v.mean() + 2.0 * stddev(v) / math.sqrt(k) * tinv(1.0 - delta, k - 1)
     return res
 ```
+
+\noindent The function `main()` below is set up to run a simple experiment.
 
 ```{python, eval = FALSE}
 def main():
@@ -91,6 +97,8 @@ def main():
         print("No solution found")
 ```
 
+\noindent The `generateData` function samples data as described in the problem description.
+
 ```{python, eval = FALSE}
 def generateData(numPoints):
     X =     np.random.normal(0.0, 1.0, numPoints) 
@@ -98,10 +106,17 @@ def generateData(numPoints):
     return (X,Y)
 ```
 
+
+\noindent The `predict` function takes in a solution $\theta$ and an input $X$, and produces as output the prediction of $Y$. In other words, this function will implement $\hat{y}(X, \theta)$.
+
+\noindent Recall $\hat{y}(X, \theta) = \theta_1 X + \theta_2$.
+
 ```{python, eval = FALSE}
 def predict(theta, x):
     return theta[0] + theta[1] * x
 ```
+
+\noindent The `fHat` function specifies the primary objective: to minimize the sample mean squared error. since the attempt is to maximize $\hat{f}$, however, the negative sample mean squared error is returned, so that maximizing $\hat{f}$ corresponds to minimizing the mean squared error.
 
 ```{python, eval = FALSE}
 def fHat(theta, X, Y):
@@ -113,6 +128,8 @@ def fHat(theta, X, Y):
     res /= n            
     return -res         
 ```
+
+\noindent The `gHat1` and `gHat2` functions set up the behavioral constraints.  
 
 ```{python, eval = FALSE}
 def gHat1(theta, X, Y):
@@ -134,6 +151,8 @@ def gHat2(theta, X, Y):
     return res
 ```
 
+\noindent The `leastSq` function implements least squares linear regression, which will be used as a starting point in the search for a candidate solution. 
+
 ```{python, eval = FALSE}
 def leastSq(X, Y):
     X = np.expand_dims(X, axis=1) 
@@ -143,6 +162,8 @@ def leastSq(X, Y):
     theta1 = reg.coef_[0][0]     
     return np.array([theta0, theta1])
 ```
+
+\noindent The `QSA` function is the shell code that partitions the data set, gets a candidate solution, and runs the safety test.
 
 ```{python, eval = FALSE}
 def QSA(X, Y, gHats, deltas):
@@ -159,6 +180,8 @@ def QSA(X, Y, gHats, deltas):
 
     return [candidateSolution, passedSafety]
 ```
+
+\noindent The `safetyTest` function uses the previously defined functions to implement the safety test. 
 
 ```{python, eval = FALSE}
 def safetyTest(candidateSolution, safetyData_X, safetyData_Y, gHats, deltas):
@@ -177,6 +200,22 @@ def safetyTest(candidateSolution, safetyData_X, safetyData_Y, gHats, deltas):
 
     return True
 ```
+
+\noindent Finally, the `candidateObjective` and `getCandidateSolution` functions use a black-box optimization algorithm to search for a candidate solution. 
+
+\noindent The black box algorithm used to search for a candidate solution is called Powell, which is an algorithm designed for finding a local minimum of a function using a bi-directional linear search. Powell, however, is not a constrained algorithm. One way of addressing this limitation is by incorporating the constraint into the objective function as a barrier function. In constrained optimization, a field of mathematics, barrier functions are used to replace inequality constraints by a penalizing term in the objective function that is easier to handle. That is, an approximate solution to the following unconstrained problem:
+
+$$
+\theta_c \in arg \: \underset{\theta \in \mathbb{R}^2}{max} 
+    \begin{cases} 
+      \hat{f}(\theta, D_1)  \text{    if} \:\: \hat{\mu}(\hat{g_i}(\theta_c, D_1)) + 2 \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_1))}{\sqrt{|D_2|}} t_{1-\delta_i, |D_2|-1} \leq 0 \forall i \in \{1,2,...,n\}\\
+      -100,000 - \sum_{i=1}^n max(0, \hat{\mu}(\hat{g_i}(\theta_c, D_1)) + 2 \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_1))}{\sqrt{|D_2|}} t_{1-\delta_i, |D_2|-1})) \text{  otherwise}
+    \end{cases}
+$$
+
+\noindent In this case, solutions that are predicted not to pass the safety test will not be selected by the optimization algorithm because a large negative performance is assigned to them. This barrier functions encourages Powell to tend towards solutions that will pass the safety test. 
+
+
 
 ```{python, eval = FALSE}
 def candidateObjective(thetaToEvaluate, candidateData_X, candidateData_Y, gHats, 
@@ -222,21 +261,25 @@ safetyDataSize):
     return res.x
 ```
 
+\noindent Calling `main()` returns either a solution or NSF. 
 
 ```{python, eval = FALSE}
 main()
 ```
 
+\noindent The following code chunks utilize the above functions to perform the experimentation in Chapter \@ref(exp). `timeit` allows timing of the execution of experiments. `numba` allows the use of a Just-in-Time (JIT) compiler to accelerate Python code.
 
 ```{python, eval = FALSE}
+#import necessary packages
 import timeit               
 from numba import jit       
 ```
 
 ```{python, eval = FALSE}
+#path where experiment results are saved
 bin_path = 
-'/home/dasienga24/Statistics-Senior-Honors-Thesis/Thesis/index/experiment_results/'
-'chapter_2/'
+'/home/dasienga24/Statistics-Senior-Honors-Thesis/Thesis/index/'
+'experiment_results/chapter_2/'
 ```
 
 ```{python, eval = FALSE}
@@ -321,13 +364,15 @@ def run_experiments(worker_id, nWorkers, ms, numM, numTrials, mTest):
 gHats  = [gHat1, gHat2]
 deltas = [0.1, 0.1]
 
+# Initialize one worker because we're not using parallelization
 nWorkers = 1  
 
+# sample sizes
 ms   = [2**i for i in range(5, 17)]  
 numM = len(ms)
     
-# How many trials should we average over?
-numTrials = 5  # Reduced for demonstration purposes
+# The number of trials
+numTrials = 100  
 
 mTest = ms[-1] * 100 # about 5,000,000 test samples
 
@@ -339,7 +384,10 @@ toc = timeit.default_timer()
 time_sequential = toc - tic # Elapsed time in seconds
 ```
 
+\noindent Finally, the following code chunks compile the results from the experiments and presents them visually. `csv` implements classes to read and write tabular data in CSV format. `glob` finds all the path names matching a specified pattern according to the rules used by the Unix shell. This will be useful for referencing file paths and names. `re` provides regular expression matching operations similar to those found in Perl.
+
 ```{python, eval = FALSE}
+#import necessary packages
 import csv 
 import glob 
 import re 
@@ -347,6 +395,7 @@ import matplotlib.pyplot as plt
 ```
 
 ```{python, eval = FALSE}
+#specify path names
 bin_path = 
 '/home/dasienga24/Statistics-Senior-Honors-Thesis/Thesis/index/experiment_results/'
 'chapter_2/'
@@ -356,6 +405,7 @@ csv_path =
 ```
 
 ```{python, eval = FALSE}
+#parse through files to obtain the experiment numbers
 def get_existing_experiment_numbers():
     result_files       = glob.glob(bin_path + 'results*.npz')
     experiment_numbers = [re.search('.*results([0-9]*).*', 
@@ -366,9 +416,23 @@ def get_existing_experiment_numbers():
 ```
 
 ```{python, eval = FALSE}
+#generate the file names for the results
 def genFilename(n):
     return bin_path + 'results%d.npz' % n
 ```
+
+\noindent For the `addMoreResults` function, recall that: 
+
+
+- `ms`: data set size
+- `seldonian_solutions_found`: stores whether a solution was found (1=True,0=False)
+- `seldonian_fs`: stores the primary objective values (fHat) if a solution was found
+- `seldonian_failures_g1`: stores whether Seldonian solution was unsafe, (1=True,0=False), for the 1st constraint, g_1
+- `seldonian_failures_g2`: stores whether Seldonian solution was unsafe, (1=True,0=False), for the 2nd constraint, g_2
+- `LS_solutions_found`: stores whether a solution was found. These will all be true (=1)
+- `LS_fs`: stores the primary objective values (f) 
+- `LS_failures_g1`: stores whether LS solution was unsafe, (1=True,0=False), for the 1st constraint, g_1
+- `LS_failures_g2`: stores whether LS solution was unsafe, (1=True,0=False), for the 2nd constraint, g_2
 
 ```{python, eval = FALSE}
 def addMoreResults(newFileId, ms, seldonian_solutions_found, seldonian_fs,
@@ -420,6 +484,17 @@ def stderror(v):
     return np.nanstd(v, ddof=1) / np.sqrt(non_nan)
 ```
 
+\noindent The output CSV file will have columns corresponding to:
+
+
+1. `m` -- the size of the data set
+2. QSA mean value
+3. QSA standard error bar size
+4. LS mean value
+5. LS standard error bar size 
+
+\noindent There will be one column per value of `m` (amount of training data). 
+
 ```{python, eval = FALSE}
 def saveToCSV(ms, resultsQSA, resultsLS, filename):
     nCols = resultsQSA.shape[1]
@@ -450,6 +525,7 @@ def saveToCSV(ms, resultsQSA, resultsLS, filename):
 ```
 
 ```{python, eval = FALSE}
+#gather the results and compile into CSV file
 def gather_results():
     ms                        = None
     seldonian_solutions_found = None
@@ -507,6 +583,8 @@ img_path =
 '/home/dasienga24/Statistics-Senior-Honors-Thesis/Thesis/index/'
 'experiment_results/chapter_2/images/'
 ```
+
+\noindent: Finally, the results are plotted as shown below.
 
 ```{python, eval = FALSE}
 def loadAndPlotResults(fileName, ylabel, output_file, is_yAxis_prob, legend_loc):
@@ -574,3 +652,5 @@ img_path+'tutorial7PrFail2_py.png',
 True,  
 'best')
 ```
+
+
