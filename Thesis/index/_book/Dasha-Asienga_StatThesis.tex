@@ -922,7 +922,7 @@ The code chunk below fixes arbitrary sensitivity (1 - FNR) and specificity (1 - 
 \begin{center}\includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/unnamed-chunk-40-1} \end{center}
 
 \hypertarget{appendix-b}{%
-\chapter{Key Python Code}\label{appendix-b}}
+\chapter{QSLR Python Code}\label{appendix-b}}
 
 Explain the code in this section using the Jupyter notebook as a guide: \url{https://jupyter.hpc.amherst.edu/user/dasienga24/lab}?
 
@@ -932,7 +932,8 @@ Revise and edit appendix B!
 \begin{Shaded}
 \begin{Highlighting}[]
 \FunctionTok{library}\NormalTok{(reticulate)}
-\FunctionTok{use\_python}\NormalTok{(}\StringTok{"/cm/shared/apps/amh{-}Rstudio/python{-}3.11.4/bin/python3"}\NormalTok{, }\AttributeTok{required =} \ConstantTok{TRUE}\NormalTok{)}
+\FunctionTok{use\_python}\NormalTok{(}\StringTok{"/cm/shared/apps/amh{-}Rstudio/python{-}3.11.4/bin/python3"}\NormalTok{, }
+           \AttributeTok{required =} \ConstantTok{TRUE}\NormalTok{)}
 \CommentTok{\#py\_config()}
 \CommentTok{\#conda\_list()}
 \end{Highlighting}
@@ -1009,7 +1010,8 @@ Revise and edit appendix B!
     
     \ControlFlowTok{if}\NormalTok{ found:}
         \BuiltInTok{print}\NormalTok{(}\StringTok{"A solution was found: [}\SpecialCharTok{\%.10f}\StringTok{, }\SpecialCharTok{\%.10f}\StringTok{]"} \OperatorTok{\%}\NormalTok{ (result[}\DecValTok{0}\NormalTok{], result[}\DecValTok{1}\NormalTok{]))}
-        \BuiltInTok{print}\NormalTok{(}\StringTok{"fHat of solution (computed over all data, D):"}\NormalTok{, fHat(result, X, Y))}
+        \BuiltInTok{print}\NormalTok{(}\StringTok{"fHat of solution (computed over all data, D):"}\NormalTok{, }
+\NormalTok{        fHat(result, X, Y))}
     \ControlFlowTok{else}\NormalTok{:}
         \BuiltInTok{print}\NormalTok{(}\StringTok{"No solution found"}\NormalTok{)}
 \end{Highlighting}
@@ -1077,12 +1079,14 @@ Revise and edit appendix B!
 \KeywordTok{def}\NormalTok{ QSA(X, Y, gHats, deltas):}
 
 \NormalTok{    candidateData\_len }\OperatorTok{=} \FloatTok{0.40}
-\NormalTok{    candidateData\_X, safetyData\_X, candidateData\_Y, safetyData\_Y }\OperatorTok{=}\NormalTok{ train\_test\_split(}
-\NormalTok{      X, Y, test\_size}\OperatorTok{=}\DecValTok{1}\OperatorTok{{-}}\NormalTok{candidateData\_len, shuffle}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
+\NormalTok{    candidateData\_X, safetyData\_X, candidateData\_Y, safetyData\_Y }\OperatorTok{=} 
+\NormalTok{    train\_test\_split(X, Y, test\_size}\OperatorTok{=}\DecValTok{1}\OperatorTok{{-}}\NormalTok{candidateData\_len, shuffle}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
   
-\NormalTok{    candidateSolution }\OperatorTok{=}\NormalTok{ getCandidateSolution(candidateData\_X, candidateData\_Y, gHats, deltas, safetyData\_X.size)}
+\NormalTok{    candidateSolution }\OperatorTok{=}\NormalTok{ getCandidateSolution(candidateData\_X, candidateData\_Y, }
+\NormalTok{    gHats, deltas, safetyData\_X.size)}
 
-\NormalTok{    passedSafety      }\OperatorTok{=}\NormalTok{ safetyTest(candidateSolution, safetyData\_X, safetyData\_Y, gHats, deltas)}
+\NormalTok{    passedSafety      }\OperatorTok{=}\NormalTok{ safetyTest(candidateSolution, safetyData\_X, }
+\NormalTok{    safetyData\_Y, gHats, deltas)}
 
     \ControlFlowTok{return}\NormalTok{ [candidateSolution, passedSafety]}
 \end{Highlighting}
@@ -1108,7 +1112,8 @@ Revise and edit appendix B!
 \end{Shaded}
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{def}\NormalTok{ candidateObjective(thetaToEvaluate, candidateData\_X, candidateData\_Y, gHats, deltas, safetyDataSize): }
+\KeywordTok{def}\NormalTok{ candidateObjective(thetaToEvaluate, candidateData\_X, candidateData\_Y, gHats, }
+\NormalTok{deltas, safetyDataSize): }
 
 \NormalTok{    result }\OperatorTok{=}\NormalTok{ fHat(thetaToEvaluate, candidateData\_X, candidateData\_Y)}
 
@@ -1136,14 +1141,16 @@ Revise and edit appendix B!
 \end{Shaded}
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{def}\NormalTok{ getCandidateSolution(candidateData\_X, candidateData\_Y, gHats, deltas, safetyDataSize):}
+\KeywordTok{def}\NormalTok{ getCandidateSolution(candidateData\_X, candidateData\_Y, gHats, deltas, }
+\NormalTok{safetyDataSize):}
   
 \NormalTok{    minimizer\_method }\OperatorTok{=} \StringTok{\textquotesingle{}Powell\textquotesingle{}}
 \NormalTok{    minimizer\_options}\OperatorTok{=}\NormalTok{\{}\StringTok{\textquotesingle{}disp\textquotesingle{}}\NormalTok{: }\VariableTok{False}\NormalTok{\}}
 
 \NormalTok{    initialSolution }\OperatorTok{=}\NormalTok{ leastSq(candidateData\_X, candidateData\_Y)}
 
-\NormalTok{    res }\OperatorTok{=}\NormalTok{ minimize(candidateObjective, x0}\OperatorTok{=}\NormalTok{initialSolution, method}\OperatorTok{=}\NormalTok{minimizer\_method, options}\OperatorTok{=}\NormalTok{minimizer\_options, }
+\NormalTok{    res }\OperatorTok{=}\NormalTok{ minimize(candidateObjective, x0}\OperatorTok{=}\NormalTok{initialSolution, }
+\NormalTok{    method}\OperatorTok{=}\NormalTok{minimizer\_method, options}\OperatorTok{=}\NormalTok{minimizer\_options, }
 \NormalTok{    args}\OperatorTok{=}\NormalTok{(candidateData\_X, candidateData\_Y, gHats, deltas, safetyDataSize))}
 
     \ControlFlowTok{return}\NormalTok{ res.x}
@@ -1152,6 +1159,367 @@ Revise and edit appendix B!
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{main()}
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\ImportTok{import}\NormalTok{ timeit               }
+\ImportTok{from}\NormalTok{ numba }\ImportTok{import}\NormalTok{ jit       }
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{bin\_path }\OperatorTok{=} 
+\CommentTok{\textquotesingle{}/home/dasienga24/Statistics{-}Senior{-}Honors{-}Thesis/Thesis/index/experiment\_results/\textquotesingle{}}
+\CommentTok{\textquotesingle{}chapter\_2/\textquotesingle{}}
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ run\_experiments(worker\_id, nWorkers, ms, numM, numTrials, mTest):}
+    
+    \CommentTok{\# Results of the Seldonian algorithm runs}
+    \CommentTok{\#\# The following code initializes an array filled with 0\textquotesingle{}s. }
+    \CommentTok{\#\# The resulting array will have numTrials rows (each trial) }
+    \CommentTok{\#\# and numM columns (each data set size).}
+    \CommentTok{\#\# Default is 0=False.}
+    
+\NormalTok{    seldonian\_solutions\_found }\OperatorTok{=}\NormalTok{ np.zeros((numTrials, numM)) }
+\NormalTok{    seldonian\_failures\_g1     }\OperatorTok{=}\NormalTok{ np.zeros((numTrials, numM)) }
+\NormalTok{    seldonian\_failures\_g2     }\OperatorTok{=}\NormalTok{ np.zeros((numTrials, numM)) }
+\NormalTok{    seldonian\_fs              }\OperatorTok{=}\NormalTok{ np.zeros((numTrials, numM)) }
+    
+    \CommentTok{\# Results of the Least{-}Squares (LS) linear regression runs}
+\NormalTok{    LS\_solutions\_found }\OperatorTok{=}\NormalTok{ np.ones((numTrials, numM))  }
+\NormalTok{    LS\_failures\_g1     }\OperatorTok{=}\NormalTok{ np.zeros((numTrials, numM)) }
+\NormalTok{    LS\_failures\_g2     }\OperatorTok{=}\NormalTok{ np.zeros((numTrials, numM)) }
+\NormalTok{    LS\_fs              }\OperatorTok{=}\NormalTok{ np.zeros((numTrials, numM)) }
+    
+    
+    \CommentTok{\# Prepares file where experiment results will be saved}
+\NormalTok{    experiment\_number }\OperatorTok{=}\NormalTok{ worker\_id}
+\NormalTok{    outputFile }\OperatorTok{=}\NormalTok{ bin\_path }\OperatorTok{+} \StringTok{\textquotesingle{}results}\SpecialCharTok{\%d}\StringTok{.npz\textquotesingle{}} \OperatorTok{\%}\NormalTok{ experiment\_number}
+    
+    
+    \CommentTok{\# Generate the data used to evaluate the primary objective and failure rates}
+\NormalTok{    np.random.seed( (experiment\_number}\OperatorTok{+}\DecValTok{1}\NormalTok{) }\OperatorTok{*} \DecValTok{9999}\NormalTok{ )}
+\NormalTok{    (testX, testY) }\OperatorTok{=}\NormalTok{ generateData(mTest) }
+    
+    
+    \ControlFlowTok{for}\NormalTok{ trial }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(numTrials): }\CommentTok{\#numTrials trials for each value of m }
+        \ControlFlowTok{for}\NormalTok{ (mIndex, m) }\KeywordTok{in} \BuiltInTok{enumerate}\NormalTok{(ms): }
+          
+            \CommentTok{\# Generate the training data, D}
+\NormalTok{            base\_seed         }\OperatorTok{=}\NormalTok{ (experiment\_number }\OperatorTok{*}\NormalTok{ numTrials)}\OperatorTok{+}\DecValTok{1}
+\NormalTok{            np.random.seed(base\_seed}\OperatorTok{+}\NormalTok{trial) }
+\NormalTok{            (trainX, trainY)  }\OperatorTok{=}\NormalTok{ generateData(m)}
+            
+            \CommentTok{\# Run the Quasi{-}Seldonian algorithm}
+\NormalTok{            (result, passedSafetyTest) }\OperatorTok{=}\NormalTok{ QSA(trainX, trainY, gHats, deltas)}
+            
+            \ControlFlowTok{if}\NormalTok{ passedSafetyTest:}
+\NormalTok{                seldonian\_solutions\_found[trial, mIndex] }\OperatorTok{=} \DecValTok{1}                        
+\NormalTok{                trueMSE }\OperatorTok{=} \OperatorTok{{-}}\NormalTok{fHat(result, testX, testY)                               }
+\NormalTok{                seldonian\_failures\_g1[trial, mIndex] }\OperatorTok{=} \DecValTok{1} \ControlFlowTok{if}\NormalTok{ trueMSE }\OperatorTok{\textgreater{}} \FloatTok{2.0}  \ControlFlowTok{else} \DecValTok{0}   
+\NormalTok{                seldonian\_failures\_g2[trial, mIndex] }\OperatorTok{=} \DecValTok{1} \ControlFlowTok{if}\NormalTok{ trueMSE }\OperatorTok{\textless{}} \FloatTok{1.25} \ControlFlowTok{else} \DecValTok{0}   
+\NormalTok{                seldonian\_fs[trial, mIndex] }\OperatorTok{=} \OperatorTok{{-}}\NormalTok{trueMSE                              }
+                
+            \ControlFlowTok{else}\NormalTok{:}
+\NormalTok{                seldonian\_solutions\_found[trial, mIndex] }\OperatorTok{=} \DecValTok{0}             
+\NormalTok{                seldonian\_failures\_g1[trial, mIndex]     }\OperatorTok{=} \DecValTok{0}             
+\NormalTok{                seldonian\_failures\_g2[trial, mIndex]     }\OperatorTok{=} \DecValTok{0}            
+\NormalTok{                seldonian\_fs[trial, mIndex]              }\OperatorTok{=} \VariableTok{None}          
+
+            \CommentTok{\# Run the Least Squares algorithm}
+\NormalTok{            theta }\OperatorTok{=}\NormalTok{ leastSq(trainX, trainY)                              }
+\NormalTok{            trueMSE }\OperatorTok{=} \OperatorTok{{-}}\NormalTok{fHat(theta, testX, testY)                         }
+\NormalTok{            LS\_failures\_g1[trial, mIndex] }\OperatorTok{=} \DecValTok{1} \ControlFlowTok{if}\NormalTok{ trueMSE }\OperatorTok{\textgreater{}} \FloatTok{2.0}  \ControlFlowTok{else} \DecValTok{0}   
+\NormalTok{            LS\_failures\_g2[trial, mIndex] }\OperatorTok{=} \DecValTok{1} \ControlFlowTok{if}\NormalTok{ trueMSE }\OperatorTok{\textless{}} \FloatTok{1.25} \ControlFlowTok{else} \DecValTok{0}   
+\NormalTok{            LS\_fs[trial, mIndex] }\OperatorTok{=} \OperatorTok{{-}}\NormalTok{trueMSE                             }
+        
+        
+        
+    \CommentTok{\# Save the arrays in a compressed format}
+\NormalTok{    np.savez(outputFile, }
+\NormalTok{             ms}\OperatorTok{=}\NormalTok{ms, }
+\NormalTok{             seldonian\_solutions\_found}\OperatorTok{=}\NormalTok{seldonian\_solutions\_found,}
+\NormalTok{             seldonian\_fs}\OperatorTok{=}\NormalTok{seldonian\_fs, }
+\NormalTok{             seldonian\_failures\_g1}\OperatorTok{=}\NormalTok{seldonian\_failures\_g1, }
+\NormalTok{             seldonian\_failures\_g2}\OperatorTok{=}\NormalTok{seldonian\_failures\_g2,}
+\NormalTok{             LS\_solutions\_found}\OperatorTok{=}\NormalTok{LS\_solutions\_found,}
+\NormalTok{             LS\_fs}\OperatorTok{=}\NormalTok{LS\_fs,}
+\NormalTok{             LS\_failures\_g1}\OperatorTok{=}\NormalTok{LS\_failures\_g1,}
+\NormalTok{             LS\_failures\_g2}\OperatorTok{=}\NormalTok{LS\_failures\_g2)}
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Create the behavioral constraints}
+\NormalTok{gHats  }\OperatorTok{=}\NormalTok{ [gHat1, gHat2]}
+\NormalTok{deltas }\OperatorTok{=}\NormalTok{ [}\FloatTok{0.1}\NormalTok{, }\FloatTok{0.1}\NormalTok{]}
+
+\NormalTok{nWorkers }\OperatorTok{=} \DecValTok{1}  
+
+\NormalTok{ms   }\OperatorTok{=}\NormalTok{ [}\DecValTok{2}\OperatorTok{**}\NormalTok{i }\ControlFlowTok{for}\NormalTok{ i }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(}\DecValTok{5}\NormalTok{, }\DecValTok{17}\NormalTok{)]  }
+\NormalTok{numM }\OperatorTok{=} \BuiltInTok{len}\NormalTok{(ms)}
+    
+\CommentTok{\# How many trials should we average over?}
+\NormalTok{numTrials }\OperatorTok{=} \DecValTok{5}  \CommentTok{\# Reduced for demonstration purposes}
+
+\NormalTok{mTest }\OperatorTok{=}\NormalTok{ ms[}\OperatorTok{{-}}\DecValTok{1}\NormalTok{] }\OperatorTok{*} \DecValTok{100} \CommentTok{\# about 5,000,000 test samples}
+
+\CommentTok{\# Run experiments sequentially without parallelization}
+\NormalTok{tic }\OperatorTok{=}\NormalTok{ timeit.default\_timer()}
+\ControlFlowTok{for}\NormalTok{ worker\_id }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(}\DecValTok{1}\NormalTok{, nWorkers }\OperatorTok{+} \DecValTok{1}\NormalTok{):}
+\NormalTok{    run\_experiments(worker\_id, nWorkers, ms, numM, numTrials, mTest)}
+\NormalTok{toc }\OperatorTok{=}\NormalTok{ timeit.default\_timer()}
+\NormalTok{time\_sequential }\OperatorTok{=}\NormalTok{ toc }\OperatorTok{{-}}\NormalTok{ tic }\CommentTok{\# Elapsed time in seconds}
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\ImportTok{import}\NormalTok{ csv }
+\ImportTok{import}\NormalTok{ glob }
+\ImportTok{import}\NormalTok{ re }
+\ImportTok{import}\NormalTok{ matplotlib.pyplot }\ImportTok{as}\NormalTok{ plt }
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{bin\_path }\OperatorTok{=} 
+\CommentTok{\textquotesingle{}/home/dasienga24/Statistics{-}Senior{-}Honors{-}Thesis/Thesis/index/experiment\_results/\textquotesingle{}}
+\CommentTok{\textquotesingle{}chapter\_2/\textquotesingle{}}
+\NormalTok{csv\_path }\OperatorTok{=} 
+\CommentTok{\textquotesingle{}/home/dasienga24/Statistics{-}Senior{-}Honors{-}Thesis/Thesis/index/experiment\_results/\textquotesingle{}}
+\CommentTok{\textquotesingle{}chapter\_2/csv/\textquotesingle{}}
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ get\_existing\_experiment\_numbers():}
+\NormalTok{    result\_files       }\OperatorTok{=}\NormalTok{ glob.glob(bin\_path }\OperatorTok{+} \StringTok{\textquotesingle{}results*.npz\textquotesingle{}}\NormalTok{)}
+\NormalTok{    experiment\_numbers }\OperatorTok{=}\NormalTok{ [re.search(}\StringTok{\textquotesingle{}.*results([0{-}9]*).*\textquotesingle{}}\NormalTok{, }
+\NormalTok{    fn, re.IGNORECASE) }\ControlFlowTok{for}\NormalTok{ fn }\KeywordTok{in}\NormalTok{ result\_files]}
+\NormalTok{    experiment\_numbers }\OperatorTok{=}\NormalTok{ [}\BuiltInTok{int}\NormalTok{(i.group(}\DecValTok{1}\NormalTok{)) }\ControlFlowTok{for}\NormalTok{ i }\KeywordTok{in}\NormalTok{ experiment\_numbers]}
+\NormalTok{    experiment\_numbers.sort()}
+    \ControlFlowTok{return}\NormalTok{ experiment\_numbers}
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ genFilename(n):}
+    \ControlFlowTok{return}\NormalTok{ bin\_path }\OperatorTok{+} \StringTok{\textquotesingle{}results}\SpecialCharTok{\%d}\StringTok{.npz\textquotesingle{}} \OperatorTok{\%}\NormalTok{ n}
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ addMoreResults(newFileId, ms, seldonian\_solutions\_found, seldonian\_fs,}
+\NormalTok{seldonian\_failures\_g1, seldonian\_failures\_g2, LS\_solutions\_found, LS\_fs, }
+\NormalTok{LS\_failures\_g1, LS\_failures\_g2):}
+
+\NormalTok{    newFile }\OperatorTok{=}\NormalTok{ np.load(genFilename(newFileId))}
+\NormalTok{    new\_ms                        }\OperatorTok{=}\NormalTok{ newFile[}\StringTok{\textquotesingle{}ms\textquotesingle{}}\NormalTok{]}
+\NormalTok{    new\_seldonian\_solutions\_found }\OperatorTok{=}\NormalTok{ newFile[}\StringTok{\textquotesingle{}seldonian\_solutions\_found\textquotesingle{}}\NormalTok{]}
+\NormalTok{    new\_seldonian\_fs              }\OperatorTok{=}\NormalTok{ newFile[}\StringTok{\textquotesingle{}seldonian\_fs\textquotesingle{}}\NormalTok{]}
+\NormalTok{    new\_seldonian\_failures\_g1     }\OperatorTok{=}\NormalTok{ newFile[}\StringTok{\textquotesingle{}seldonian\_failures\_g1\textquotesingle{}}\NormalTok{]}
+\NormalTok{    new\_seldonian\_failures\_g2     }\OperatorTok{=}\NormalTok{ newFile[}\StringTok{\textquotesingle{}seldonian\_failures\_g2\textquotesingle{}}\NormalTok{]}
+\NormalTok{    new\_LS\_solutions\_found        }\OperatorTok{=}\NormalTok{ newFile[}\StringTok{\textquotesingle{}LS\_solutions\_found\textquotesingle{}}\NormalTok{]}
+\NormalTok{    new\_LS\_fs                     }\OperatorTok{=}\NormalTok{ newFile[}\StringTok{\textquotesingle{}LS\_fs\textquotesingle{}}\NormalTok{]}
+\NormalTok{    new\_LS\_failures\_g1            }\OperatorTok{=}\NormalTok{ newFile[}\StringTok{\textquotesingle{}LS\_failures\_g1\textquotesingle{}}\NormalTok{]}
+\NormalTok{    new\_LS\_failures\_g2            }\OperatorTok{=}\NormalTok{ newFile[}\StringTok{\textquotesingle{}LS\_failures\_g2\textquotesingle{}}\NormalTok{]}
+
+    \ControlFlowTok{if} \BuiltInTok{type}\NormalTok{(ms)}\OperatorTok{==}\BuiltInTok{type}\NormalTok{(}\VariableTok{None}\NormalTok{):}
+        \ControlFlowTok{return}\NormalTok{ [new\_ms, new\_seldonian\_solutions\_found, new\_seldonian\_fs,}
+\NormalTok{      new\_seldonian\_failures\_g1, new\_seldonian\_failures\_g2,}
+\NormalTok{      new\_LS\_solutions\_found, new\_LS\_fs, new\_LS\_failures\_g1, }
+\NormalTok{      new\_LS\_failures\_g2]}
+    \ControlFlowTok{else}\NormalTok{:}
+\NormalTok{        seldonian\_solutions\_found  }\OperatorTok{=} 
+\NormalTok{        np.vstack([seldonian\_solutions\_found, new\_seldonian\_solutions\_found])}
+\NormalTok{        seldonian\_fs               }\OperatorTok{=} 
+\NormalTok{        np.vstack([seldonian\_fs,              new\_seldonian\_fs])}
+\NormalTok{        seldonian\_failures\_g1      }\OperatorTok{=} 
+\NormalTok{        np.vstack([seldonian\_failures\_g1,     new\_seldonian\_failures\_g1])}
+\NormalTok{        seldonian\_failures\_g2      }\OperatorTok{=} 
+\NormalTok{        np.vstack([seldonian\_failures\_g2,     new\_seldonian\_failures\_g2])}
+\NormalTok{        LS\_solutions\_found         }\OperatorTok{=} 
+\NormalTok{        np.vstack([LS\_solutions\_found,        new\_LS\_solutions\_found])}
+\NormalTok{        LS\_fs                      }\OperatorTok{=} 
+\NormalTok{        np.vstack([LS\_fs,                     new\_LS\_fs])}
+\NormalTok{        LS\_failures\_g1             }\OperatorTok{=} 
+\NormalTok{        np.vstack([LS\_failures\_g1,            new\_LS\_failures\_g1])}
+\NormalTok{        LS\_failures\_g2             }\OperatorTok{=} 
+\NormalTok{        np.vstack([LS\_failures\_g2,            new\_LS\_failures\_g2])}
+
+        \ControlFlowTok{return}\NormalTok{ [ms, seldonian\_solutions\_found, seldonian\_fs, seldonian\_failures\_g1,}
+\NormalTok{      seldonian\_failures\_g2, LS\_solutions\_found, LS\_fs, LS\_failures\_g1, LS\_failures\_g2]}
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ stderror(v):}
+\NormalTok{    non\_nan }\OperatorTok{=}\NormalTok{ np.count\_nonzero(}\OperatorTok{\textasciitilde{}}\NormalTok{np.isnan(v))        }
+    \ControlFlowTok{return}\NormalTok{ np.nanstd(v, ddof}\OperatorTok{=}\DecValTok{1}\NormalTok{) }\OperatorTok{/}\NormalTok{ np.sqrt(non\_nan)}
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ saveToCSV(ms, resultsQSA, resultsLS, filename):}
+\NormalTok{    nCols }\OperatorTok{=}\NormalTok{ resultsQSA.shape[}\DecValTok{1}\NormalTok{]}
+
+    \ControlFlowTok{with} \BuiltInTok{open}\NormalTok{(filename, mode}\OperatorTok{=}\StringTok{\textquotesingle{}w\textquotesingle{}}\NormalTok{) }\ImportTok{as} \BuiltInTok{file}\NormalTok{:}
+\NormalTok{        writer }\OperatorTok{=}\NormalTok{ csv.writer(}\BuiltInTok{file}\NormalTok{, delimiter}\OperatorTok{=}\StringTok{\textquotesingle{},\textquotesingle{}}\NormalTok{)}
+
+        \ControlFlowTok{for}\NormalTok{ col }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(nCols):}
+
+\NormalTok{            cur\_m          }\OperatorTok{=}\NormalTok{ ms[col]}
+\NormalTok{            seldonian\_data }\OperatorTok{=}\NormalTok{ resultsQSA[:,col]}
+\NormalTok{            LS\_data        }\OperatorTok{=}\NormalTok{ resultsLS[:,col]}
+
+\NormalTok{            non\_nan }\OperatorTok{=}\NormalTok{ np.count\_nonzero(}\OperatorTok{\textasciitilde{}}\NormalTok{np.isnan(seldonian\_data))}
+            \ControlFlowTok{if}\NormalTok{ non\_nan }\OperatorTok{\textgreater{}} \DecValTok{0}\NormalTok{:}
+\NormalTok{                seldonian\_mean     }\OperatorTok{=}\NormalTok{ np.nanmean(seldonian\_data)}
+\NormalTok{                seldonian\_stderror }\OperatorTok{=}\NormalTok{ stderror(seldonian\_data)}
+            \ControlFlowTok{else}\NormalTok{:}
+\NormalTok{                seldonian\_mean     }\OperatorTok{=} \StringTok{\textquotesingle{}NaN\textquotesingle{}}
+\NormalTok{                seldonian\_stderror }\OperatorTok{=} \StringTok{\textquotesingle{}NaN\textquotesingle{}}
+
+\NormalTok{            LS\_mean     }\OperatorTok{=}\NormalTok{ np.mean(LS\_data)}
+\NormalTok{            LS\_stderror }\OperatorTok{=}\NormalTok{ stderror(LS\_data)}
+
+\NormalTok{            writer.writerow([cur\_m, seldonian\_mean, seldonian\_stderror, }
+\NormalTok{            LS\_mean, LS\_stderror])}
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ gather\_results():}
+\NormalTok{    ms                        }\OperatorTok{=} \VariableTok{None}
+\NormalTok{    seldonian\_solutions\_found }\OperatorTok{=} \VariableTok{None}
+\NormalTok{    seldonian\_fs              }\OperatorTok{=} \VariableTok{None}
+\NormalTok{    seldonian\_failures\_g1     }\OperatorTok{=} \VariableTok{None}
+\NormalTok{    seldonian\_failures\_g2     }\OperatorTok{=} \VariableTok{None}
+\NormalTok{    LS\_solutions\_found        }\OperatorTok{=} \VariableTok{None}
+\NormalTok{    LS\_fs                     }\OperatorTok{=} \VariableTok{None}
+\NormalTok{    LS\_failures\_g1            }\OperatorTok{=} \VariableTok{None}
+\NormalTok{    LS\_failures\_g2            }\OperatorTok{=} \VariableTok{None}
+
+\NormalTok{    experiment\_numbers }\OperatorTok{=}\NormalTok{ get\_existing\_experiment\_numbers()}
+
+    \ControlFlowTok{for}\NormalTok{ file\_idx }\KeywordTok{in}\NormalTok{ experiment\_numbers:}
+\NormalTok{        res }\OperatorTok{=}\NormalTok{ addMoreResults(file\_idx, }
+\NormalTok{            ms, }
+\NormalTok{            seldonian\_solutions\_found, }
+\NormalTok{            seldonian\_fs, seldonian\_failures\_g1, seldonian\_failures\_g2, }
+\NormalTok{            LS\_solutions\_found, LS\_fs, LS\_failures\_g1, LS\_failures\_g2)}
+        
+\NormalTok{        [ms, }
+\NormalTok{        seldonian\_solutions\_found, seldonian\_fs, seldonian\_failures\_g1,}
+\NormalTok{        seldonian\_failures\_g2, LS\_solutions\_found, LS\_fs, LS\_failures\_g1, }
+\NormalTok{        LS\_failures\_g2] }\OperatorTok{=}\NormalTok{ res}
+
+\NormalTok{    saveToCSV(ms,  }
+    \OperatorTok{{-}}\DecValTok{1}\OperatorTok{*}\NormalTok{seldonian\_fs,           }
+    \OperatorTok{{-}}\DecValTok{1}\OperatorTok{*}\NormalTok{LS\_fs,           }
+\NormalTok{    csv\_path}\OperatorTok{+}\StringTok{\textquotesingle{}fs.csv\textquotesingle{}}\NormalTok{) }\CommentTok{\# here, negative to return MSE rather than negative MSE}
+    
+\NormalTok{    saveToCSV(ms,  }
+\NormalTok{    seldonian\_solutions\_found,  }
+\NormalTok{    LS\_solutions\_found, }
+\NormalTok{    csv\_path}\OperatorTok{+}\StringTok{\textquotesingle{}solutions\_found.csv\textquotesingle{}}\NormalTok{)}
+    
+\NormalTok{    saveToCSV(ms,  }
+\NormalTok{    seldonian\_failures\_g1,      }
+\NormalTok{    LS\_failures\_g1,     }
+\NormalTok{    csv\_path}\OperatorTok{+}\StringTok{\textquotesingle{}failures\_g1.csv\textquotesingle{}}\NormalTok{)}
+    
+\NormalTok{    saveToCSV(ms,  }
+\NormalTok{    seldonian\_failures\_g2,      }
+\NormalTok{    LS\_failures\_g2,     }
+\NormalTok{    csv\_path}\OperatorTok{+}\StringTok{\textquotesingle{}failures\_g2.csv\textquotesingle{}}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{csv\_path }\OperatorTok{=} 
+\CommentTok{\textquotesingle{}/home/dasienga24/Statistics{-}Senior{-}Honors{-}Thesis/Thesis/index/\textquotesingle{}}
+\CommentTok{\textquotesingle{}experiment\_results/chapter\_2/csv/\textquotesingle{}}
+\NormalTok{img\_path }\OperatorTok{=} 
+\CommentTok{\textquotesingle{}/home/dasienga24/Statistics{-}Senior{-}Honors{-}Thesis/Thesis/index/\textquotesingle{}}
+\CommentTok{\textquotesingle{}experiment\_results/chapter\_2/images/\textquotesingle{}}
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ loadAndPlotResults(fileName, ylabel, output\_file, is\_yAxis\_prob, legend\_loc):}
+\NormalTok{    file\_ms, file\_QSA, file\_QSA\_stderror, file\_LS, }
+\NormalTok{    file\_LS\_stderror }\OperatorTok{=}\NormalTok{ np.loadtxt(fileName, delimiter}\OperatorTok{=}\StringTok{\textquotesingle{},\textquotesingle{}}\NormalTok{, unpack}\OperatorTok{=}\VariableTok{True}\NormalTok{)}
+
+\NormalTok{    fig }\OperatorTok{=}\NormalTok{ plt.figure()}
+
+\NormalTok{    plt.xlim(}\BuiltInTok{min}\NormalTok{(file\_ms), }\BuiltInTok{max}\NormalTok{(file\_ms))}
+\NormalTok{    plt.xlabel(}\StringTok{"Amount of data (m)"}\NormalTok{, fontsize}\OperatorTok{=}\DecValTok{12}\NormalTok{)}
+\NormalTok{    plt.xscale(}\StringTok{\textquotesingle{}log\textquotesingle{}}\NormalTok{)}
+\NormalTok{    plt.xticks(fontsize}\OperatorTok{=}\DecValTok{12}\NormalTok{)}
+\NormalTok{    plt.ylabel(ylabel, fontsize}\OperatorTok{=}\DecValTok{12}\NormalTok{)}
+
+    \ControlFlowTok{if}\NormalTok{ is\_yAxis\_prob:}
+\NormalTok{        plt.ylim(}\OperatorTok{{-}}\FloatTok{0.1}\NormalTok{, }\FloatTok{1.1}\NormalTok{)}
+    \ControlFlowTok{else}\NormalTok{:}
+\NormalTok{        plt.ylim(}\OperatorTok{{-}}\FloatTok{0.2}\NormalTok{, }\FloatTok{2.2}\NormalTok{)}
+\NormalTok{        plt.plot([}\DecValTok{1}\NormalTok{, }\DecValTok{100000}\NormalTok{], [}\FloatTok{1.25}\NormalTok{, }\FloatTok{1.25}\NormalTok{], }\StringTok{\textquotesingle{}:k\textquotesingle{}}\NormalTok{)}\OperatorTok{;}
+\NormalTok{        plt.plot([}\DecValTok{1}\NormalTok{, }\DecValTok{100000}\NormalTok{], [}\FloatTok{2.1}\NormalTok{,  }\FloatTok{2.1}\NormalTok{],  }\StringTok{\textquotesingle{}:k\textquotesingle{}}\NormalTok{)}\OperatorTok{;}      
+
+\NormalTok{    plt.plot(     file\_ms,     file\_QSA, }\StringTok{\textquotesingle{}b{-}\textquotesingle{}}\NormalTok{, linewidth}\OperatorTok{=}\DecValTok{3}\NormalTok{, label}\OperatorTok{=}\StringTok{\textquotesingle{}QSA\textquotesingle{}}\NormalTok{)}
+\NormalTok{    plt.errorbar( file\_ms,     file\_QSA, yerr}\OperatorTok{=}\NormalTok{file\_QSA\_stderror, fmt}\OperatorTok{=}\StringTok{\textquotesingle{}.k\textquotesingle{}}\NormalTok{)}\OperatorTok{;}
+\NormalTok{    plt.plot(     file\_ms,     file\_LS,  }\StringTok{\textquotesingle{}r{-}\textquotesingle{}}\NormalTok{, linewidth}\OperatorTok{=}\DecValTok{3}\NormalTok{, label}\OperatorTok{=}\StringTok{\textquotesingle{}LS\textquotesingle{}}\NormalTok{)}
+\NormalTok{    plt.errorbar( file\_ms,     file\_LS,  yerr}\OperatorTok{=}\NormalTok{file\_LS\_stderror, fmt}\OperatorTok{=}\StringTok{\textquotesingle{}.k\textquotesingle{}}\NormalTok{)}\OperatorTok{;}
+\NormalTok{    plt.legend(loc}\OperatorTok{=}\NormalTok{legend\_loc, fontsize}\OperatorTok{=}\DecValTok{12}\NormalTok{)}
+\NormalTok{    plt.tight\_layout()}
+
+\NormalTok{    plt.savefig(output\_file)}
+\NormalTok{    plt.show(block}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{gather\_results()}
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{loadAndPlotResults(csv\_path}\OperatorTok{+}\StringTok{\textquotesingle{}fs.csv\textquotesingle{}}\NormalTok{, }
+\StringTok{\textquotesingle{}Mean Squared Error\textquotesingle{}}\NormalTok{, }
+\NormalTok{img\_path}\OperatorTok{+}\StringTok{\textquotesingle{}tutorial7MSE\_py.png\textquotesingle{}}\NormalTok{, }
+\VariableTok{False}\NormalTok{, }
+\StringTok{\textquotesingle{}lower right\textquotesingle{}}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{loadAndPlotResults(csv\_path}\OperatorTok{+}\StringTok{\textquotesingle{}solutions\_found.csv\textquotesingle{}}\NormalTok{, }
+\StringTok{\textquotesingle{}Probability of Solution\textquotesingle{}}\NormalTok{,   }
+\NormalTok{img\_path}\OperatorTok{+}\StringTok{\textquotesingle{}tutorial7PrSoln\_py.png\textquotesingle{}}\NormalTok{,  }
+\VariableTok{True}\NormalTok{,  }
+\StringTok{\textquotesingle{}best\textquotesingle{}}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{loadAndPlotResults(csv\_path}\OperatorTok{+}\StringTok{\textquotesingle{}failures\_g1.csv\textquotesingle{}}\NormalTok{,     }
+\VerbatimStringTok{r\textquotesingle{}Probability of $g\_1(a(D))\textgreater{}0$\textquotesingle{}}\NormalTok{, }
+\NormalTok{img\_path}\OperatorTok{+}\StringTok{\textquotesingle{}tutorial7PrFail1\_py.png\textquotesingle{}}\NormalTok{, }
+\VariableTok{True}\NormalTok{,  }
+\StringTok{\textquotesingle{}best\textquotesingle{}}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{loadAndPlotResults(csv\_path}\OperatorTok{+}\StringTok{\textquotesingle{}failures\_g2.csv\textquotesingle{}}\NormalTok{,     }
+\VerbatimStringTok{r\textquotesingle{}Probability of $g\_2(a(D))\textgreater{}0$\textquotesingle{}}\NormalTok{, }
+\NormalTok{img\_path}\OperatorTok{+}\StringTok{\textquotesingle{}tutorial7PrFail2\_py.png\textquotesingle{}}\NormalTok{, }
+\VariableTok{True}\NormalTok{,  }
+\StringTok{\textquotesingle{}best\textquotesingle{}}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 \backmatter

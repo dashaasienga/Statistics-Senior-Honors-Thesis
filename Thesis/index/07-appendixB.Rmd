@@ -1,15 +1,20 @@
-# Key Python Code {#appendix-b}
+# QSLR Python Code {#appendix-b}
 
 Explain the code in this section using the Jupyter notebook as a guide: https://jupyter.hpc.amherst.edu/user/dasienga24/lab?
 
-```{r,  eval = FALSE}
+Add experimentation code to appendix B as well!
+
+Revise and edit appendix B!
+
+```{r, eval = FALSE}
 library(reticulate)
-use_python("/cm/shared/apps/amh-Rstudio/python-3.11.4/bin/python3", required = TRUE)
+use_python("/cm/shared/apps/amh-Rstudio/python-3.11.4/bin/python3", 
+           required = TRUE)
 #py_config()
 #conda_list()
 ```
 
-```{r,  eval = FALSE}
+```{r, eval = FALSE}
 sklearn <- import("sklearn")
 #conda_list()
 ```
@@ -18,11 +23,11 @@ sklearn <- import("sklearn")
 py_config()
 ```
 
-```{python,  eval = FALSE}
+```{python, eval = FALSE}
 import sklearn
 ```
 
-```{python,  eval = FALSE}
+```{python, eval = FALSE}
 import math
 import numpy as np
 import sys
@@ -32,11 +37,11 @@ from scipy.stats import t
 from scipy.optimize import minimize
 ```
 
-```{python,  eval = FALSE}
+```{python, eval = FALSE}
 np.set_printoptions(precision=5, suppress=True)
 ```
 
-```{python,  eval = FALSE}
+```{python, eval = FALSE}
 def tinv(p, nu):
     return t.ppf(p, nu)
 ```
@@ -45,28 +50,28 @@ def tinv(p, nu):
 tinv(0.95,50)
 ```
 
-```{python,  eval = FALSE}
+```{python, eval = FALSE}
 def stddev(v):
     n = v.size
     variance = (np.var(v) * n) / (n-1) 
     return np.sqrt(variance) 
 ```
 
-```{python,  eval = FALSE}
+```{python, eval = FALSE}
 def ttestUpperBound(v, delta):
     n  = v.size
     res = v.mean() + stddev(v) / math.sqrt(n) * tinv(1.0 - delta, n - 1)
     return res
 ```
 
-```{python,  eval = FALSE}
+```{python, eval = FALSE}
 def predictTTestUpperBound(v, delta, k):
     
     res = v.mean() + 2.0 * stddev(v) / math.sqrt(k) * tinv(1.0 - delta, k - 1)
     return res
 ```
 
-```{python,  eval = FALSE}
+```{python, eval = FALSE}
 def main():
     np.random.seed(123)  
     numPoints = 5000   
@@ -80,24 +85,25 @@ def main():
     
     if found:
         print("A solution was found: [%.10f, %.10f]" % (result[0], result[1]))
-        print("fHat of solution (computed over all data, D):", fHat(result, X, Y))
+        print("fHat of solution (computed over all data, D):", 
+        fHat(result, X, Y))
     else:
         print("No solution found")
 ```
 
-```{python,  eval = FALSE}
+```{python, eval = FALSE}
 def generateData(numPoints):
     X =     np.random.normal(0.0, 1.0, numPoints) 
     Y = X + np.random.normal(0.0, 1.0, numPoints) 
     return (X,Y)
 ```
 
-```{python,  eval = FALSE}
+```{python, eval = FALSE}
 def predict(theta, x):
     return theta[0] + theta[1] * x
 ```
 
-```{python,  eval = FALSE}
+```{python, eval = FALSE}
 def fHat(theta, X, Y):
     n = X.size          
     res = 0.0           
@@ -108,7 +114,7 @@ def fHat(theta, X, Y):
     return -res         
 ```
 
-```{python,  eval = FALSE}
+```{python, eval = FALSE}
 def gHat1(theta, X, Y):
     n = X.size          
     res = np.zeros(n)   
@@ -128,7 +134,7 @@ def gHat2(theta, X, Y):
     return res
 ```
 
-```{python,  eval = FALSE}
+```{python, eval = FALSE}
 def leastSq(X, Y):
     X = np.expand_dims(X, axis=1) 
     Y = np.expand_dims(Y, axis=1) 
@@ -138,21 +144,23 @@ def leastSq(X, Y):
     return np.array([theta0, theta1])
 ```
 
-```{python,  eval = FALSE}
+```{python, eval = FALSE}
 def QSA(X, Y, gHats, deltas):
 
     candidateData_len = 0.40
-    candidateData_X, safetyData_X, candidateData_Y, safetyData_Y = train_test_split(
-      X, Y, test_size=1-candidateData_len, shuffle=False)
+    candidateData_X, safetyData_X, candidateData_Y, safetyData_Y = 
+    train_test_split(X, Y, test_size=1-candidateData_len, shuffle=False)
   
-    candidateSolution = getCandidateSolution(candidateData_X, candidateData_Y, gHats, deltas, safetyData_X.size)
+    candidateSolution = getCandidateSolution(candidateData_X, candidateData_Y, 
+    gHats, deltas, safetyData_X.size)
 
-    passedSafety      = safetyTest(candidateSolution, safetyData_X, safetyData_Y, gHats, deltas)
+    passedSafety      = safetyTest(candidateSolution, safetyData_X, 
+    safetyData_Y, gHats, deltas)
 
     return [candidateSolution, passedSafety]
 ```
 
-```{python,  eval = FALSE}
+```{python, eval = FALSE}
 def safetyTest(candidateSolution, safetyData_X, safetyData_Y, gHats, deltas):
 
     for i in range(len(gHats)):  
@@ -170,8 +178,9 @@ def safetyTest(candidateSolution, safetyData_X, safetyData_Y, gHats, deltas):
     return True
 ```
 
-```{python,  eval = FALSE}
-def candidateObjective(thetaToEvaluate, candidateData_X, candidateData_Y, gHats, deltas, safetyDataSize): 
+```{python, eval = FALSE}
+def candidateObjective(thetaToEvaluate, candidateData_X, candidateData_Y, gHats, 
+deltas, safetyDataSize): 
 
     result = fHat(thetaToEvaluate, candidateData_X, candidateData_Y)
 
@@ -197,20 +206,371 @@ def candidateObjective(thetaToEvaluate, candidateData_X, candidateData_Y, gHats,
     return -result  
 ```
 
-```{python,  eval = FALSE}
-def getCandidateSolution(candidateData_X, candidateData_Y, gHats, deltas, safetyDataSize):
+```{python, eval = FALSE}
+def getCandidateSolution(candidateData_X, candidateData_Y, gHats, deltas, 
+safetyDataSize):
   
     minimizer_method = 'Powell'
     minimizer_options={'disp': False}
 
     initialSolution = leastSq(candidateData_X, candidateData_Y)
 
-    res = minimize(candidateObjective, x0=initialSolution, method=minimizer_method, options=minimizer_options, 
+    res = minimize(candidateObjective, x0=initialSolution, 
+    method=minimizer_method, options=minimizer_options, 
     args=(candidateData_X, candidateData_Y, gHats, deltas, safetyDataSize))
 
     return res.x
 ```
 
-```{python,  eval = FALSE}
+
+```{python, eval = FALSE}
 main()
+```
+
+
+```{python, eval = FALSE}
+import timeit               
+from numba import jit       
+```
+
+```{python, eval = FALSE}
+bin_path = 
+'/home/dasienga24/Statistics-Senior-Honors-Thesis/Thesis/index/experiment_results/'
+'chapter_2/'
+```
+
+```{python, eval = FALSE}
+def run_experiments(worker_id, nWorkers, ms, numM, numTrials, mTest):
+    
+    # Results of the Seldonian algorithm runs
+    ## The following code initializes an array filled with 0's. 
+    ## The resulting array will have numTrials rows (each trial) 
+    ## and numM columns (each data set size).
+    ## Default is 0=False.
+    
+    seldonian_solutions_found = np.zeros((numTrials, numM)) 
+    seldonian_failures_g1     = np.zeros((numTrials, numM)) 
+    seldonian_failures_g2     = np.zeros((numTrials, numM)) 
+    seldonian_fs              = np.zeros((numTrials, numM)) 
+    
+    # Results of the Least-Squares (LS) linear regression runs
+    LS_solutions_found = np.ones((numTrials, numM))  
+    LS_failures_g1     = np.zeros((numTrials, numM)) 
+    LS_failures_g2     = np.zeros((numTrials, numM)) 
+    LS_fs              = np.zeros((numTrials, numM)) 
+    
+    
+    # Prepares file where experiment results will be saved
+    experiment_number = worker_id
+    outputFile = bin_path + 'results%d.npz' % experiment_number
+    
+    
+    # Generate the data used to evaluate the primary objective and failure rates
+    np.random.seed( (experiment_number+1) * 9999 )
+    (testX, testY) = generateData(mTest) 
+    
+    
+    for trial in range(numTrials): #numTrials trials for each value of m 
+        for (mIndex, m) in enumerate(ms): 
+          
+            # Generate the training data, D
+            base_seed         = (experiment_number * numTrials)+1
+            np.random.seed(base_seed+trial) 
+            (trainX, trainY)  = generateData(m)
+            
+            # Run the Quasi-Seldonian algorithm
+            (result, passedSafetyTest) = QSA(trainX, trainY, gHats, deltas)
+            
+            if passedSafetyTest:
+                seldonian_solutions_found[trial, mIndex] = 1                        
+                trueMSE = -fHat(result, testX, testY)                               
+                seldonian_failures_g1[trial, mIndex] = 1 if trueMSE > 2.0  else 0   
+                seldonian_failures_g2[trial, mIndex] = 1 if trueMSE < 1.25 else 0   
+                seldonian_fs[trial, mIndex] = -trueMSE                              
+                
+            else:
+                seldonian_solutions_found[trial, mIndex] = 0             
+                seldonian_failures_g1[trial, mIndex]     = 0             
+                seldonian_failures_g2[trial, mIndex]     = 0            
+                seldonian_fs[trial, mIndex]              = None          
+
+            # Run the Least Squares algorithm
+            theta = leastSq(trainX, trainY)                              
+            trueMSE = -fHat(theta, testX, testY)                         
+            LS_failures_g1[trial, mIndex] = 1 if trueMSE > 2.0  else 0   
+            LS_failures_g2[trial, mIndex] = 1 if trueMSE < 1.25 else 0   
+            LS_fs[trial, mIndex] = -trueMSE                             
+        
+        
+        
+    # Save the arrays in a compressed format
+    np.savez(outputFile, 
+             ms=ms, 
+             seldonian_solutions_found=seldonian_solutions_found,
+             seldonian_fs=seldonian_fs, 
+             seldonian_failures_g1=seldonian_failures_g1, 
+             seldonian_failures_g2=seldonian_failures_g2,
+             LS_solutions_found=LS_solutions_found,
+             LS_fs=LS_fs,
+             LS_failures_g1=LS_failures_g1,
+             LS_failures_g2=LS_failures_g2)
+```
+
+```{python, eval = FALSE, cache = TRUE, message = FALSE, warning = FALSE}
+# Create the behavioral constraints
+gHats  = [gHat1, gHat2]
+deltas = [0.1, 0.1]
+
+nWorkers = 1  
+
+ms   = [2**i for i in range(5, 17)]  
+numM = len(ms)
+    
+# How many trials should we average over?
+numTrials = 5  # Reduced for demonstration purposes
+
+mTest = ms[-1] * 100 # about 5,000,000 test samples
+
+# Run experiments sequentially without parallelization
+tic = timeit.default_timer()
+for worker_id in range(1, nWorkers + 1):
+    run_experiments(worker_id, nWorkers, ms, numM, numTrials, mTest)
+toc = timeit.default_timer()
+time_sequential = toc - tic # Elapsed time in seconds
+```
+
+```{python, eval = FALSE}
+import csv 
+import glob 
+import re 
+import matplotlib.pyplot as plt 
+```
+
+```{python, eval = FALSE}
+bin_path = 
+'/home/dasienga24/Statistics-Senior-Honors-Thesis/Thesis/index/experiment_results/'
+'chapter_2/'
+csv_path = 
+'/home/dasienga24/Statistics-Senior-Honors-Thesis/Thesis/index/experiment_results/'
+'chapter_2/csv/'
+```
+
+```{python, eval = FALSE}
+def get_existing_experiment_numbers():
+    result_files       = glob.glob(bin_path + 'results*.npz')
+    experiment_numbers = [re.search('.*results([0-9]*).*', 
+    fn, re.IGNORECASE) for fn in result_files]
+    experiment_numbers = [int(i.group(1)) for i in experiment_numbers]
+    experiment_numbers.sort()
+    return experiment_numbers
+```
+
+```{python, eval = FALSE}
+def genFilename(n):
+    return bin_path + 'results%d.npz' % n
+```
+
+```{python, eval = FALSE}
+def addMoreResults(newFileId, ms, seldonian_solutions_found, seldonian_fs,
+seldonian_failures_g1, seldonian_failures_g2, LS_solutions_found, LS_fs, 
+LS_failures_g1, LS_failures_g2):
+
+    newFile = np.load(genFilename(newFileId))
+    new_ms                        = newFile['ms']
+    new_seldonian_solutions_found = newFile['seldonian_solutions_found']
+    new_seldonian_fs              = newFile['seldonian_fs']
+    new_seldonian_failures_g1     = newFile['seldonian_failures_g1']
+    new_seldonian_failures_g2     = newFile['seldonian_failures_g2']
+    new_LS_solutions_found        = newFile['LS_solutions_found']
+    new_LS_fs                     = newFile['LS_fs']
+    new_LS_failures_g1            = newFile['LS_failures_g1']
+    new_LS_failures_g2            = newFile['LS_failures_g2']
+
+    if type(ms)==type(None):
+        return [new_ms, new_seldonian_solutions_found, new_seldonian_fs,
+      new_seldonian_failures_g1, new_seldonian_failures_g2,
+      new_LS_solutions_found, new_LS_fs, new_LS_failures_g1, 
+      new_LS_failures_g2]
+    else:
+        seldonian_solutions_found  = 
+        np.vstack([seldonian_solutions_found, new_seldonian_solutions_found])
+        seldonian_fs               = 
+        np.vstack([seldonian_fs,              new_seldonian_fs])
+        seldonian_failures_g1      = 
+        np.vstack([seldonian_failures_g1,     new_seldonian_failures_g1])
+        seldonian_failures_g2      = 
+        np.vstack([seldonian_failures_g2,     new_seldonian_failures_g2])
+        LS_solutions_found         = 
+        np.vstack([LS_solutions_found,        new_LS_solutions_found])
+        LS_fs                      = 
+        np.vstack([LS_fs,                     new_LS_fs])
+        LS_failures_g1             = 
+        np.vstack([LS_failures_g1,            new_LS_failures_g1])
+        LS_failures_g2             = 
+        np.vstack([LS_failures_g2,            new_LS_failures_g2])
+
+        return [ms, seldonian_solutions_found, seldonian_fs, seldonian_failures_g1,
+      seldonian_failures_g2, LS_solutions_found, LS_fs, LS_failures_g1, LS_failures_g2]
+
+```
+
+```{python, eval = FALSE}
+def stderror(v):
+    non_nan = np.count_nonzero(~np.isnan(v))        
+    return np.nanstd(v, ddof=1) / np.sqrt(non_nan)
+```
+
+```{python, eval = FALSE}
+def saveToCSV(ms, resultsQSA, resultsLS, filename):
+    nCols = resultsQSA.shape[1]
+
+
+    with open(filename, mode='w') as file:
+        writer = csv.writer(file, delimiter=',')
+
+        for col in range(nCols):
+
+            cur_m          = ms[col]
+            seldonian_data = resultsQSA[:,col]
+            LS_data        = resultsLS[:,col]
+
+            non_nan = np.count_nonzero(~np.isnan(seldonian_data))
+            if non_nan > 0:
+                seldonian_mean     = np.nanmean(seldonian_data)
+                seldonian_stderror = stderror(seldonian_data)
+            else:
+                seldonian_mean     = 'NaN'
+                seldonian_stderror = 'NaN'
+
+            LS_mean     = np.mean(LS_data)
+            LS_stderror = stderror(LS_data)
+
+            writer.writerow([cur_m, seldonian_mean, seldonian_stderror, 
+            LS_mean, LS_stderror])
+```
+
+```{python, eval = FALSE}
+def gather_results():
+    ms                        = None
+    seldonian_solutions_found = None
+    seldonian_fs              = None
+    seldonian_failures_g1     = None
+    seldonian_failures_g2     = None
+    LS_solutions_found        = None
+    LS_fs                     = None
+    LS_failures_g1            = None
+    LS_failures_g2            = None
+
+    experiment_numbers = get_existing_experiment_numbers()
+
+    for file_idx in experiment_numbers:
+        res = addMoreResults(file_idx, 
+            ms, 
+            seldonian_solutions_found, 
+            seldonian_fs, seldonian_failures_g1, seldonian_failures_g2, 
+            LS_solutions_found, LS_fs, LS_failures_g1, LS_failures_g2)
+        
+        [ms, 
+        seldonian_solutions_found, seldonian_fs, seldonian_failures_g1,
+        seldonian_failures_g2, LS_solutions_found, LS_fs, LS_failures_g1, 
+        LS_failures_g2] = res
+
+
+    saveToCSV(ms,  
+    -1*seldonian_fs,           
+    -1*LS_fs,           
+    csv_path+'fs.csv') # here, negative to return MSE rather than negative MSE
+    
+    saveToCSV(ms,  
+    seldonian_solutions_found,  
+    LS_solutions_found, 
+    csv_path+'solutions_found.csv')
+    
+    saveToCSV(ms,  
+    seldonian_failures_g1,      
+    LS_failures_g1,     
+    csv_path+'failures_g1.csv')
+    
+    saveToCSV(ms,  
+    seldonian_failures_g2,      
+    LS_failures_g2,     
+    csv_path+'failures_g2.csv')
+
+```
+
+
+```{python, eval = FALSE}
+csv_path = 
+'/home/dasienga24/Statistics-Senior-Honors-Thesis/Thesis/index/'
+'experiment_results/chapter_2/csv/'
+img_path = 
+'/home/dasienga24/Statistics-Senior-Honors-Thesis/Thesis/index/'
+'experiment_results/chapter_2/images/'
+```
+
+```{python, eval = FALSE}
+def loadAndPlotResults(fileName, ylabel, output_file, is_yAxis_prob, legend_loc):
+    file_ms, file_QSA, file_QSA_stderror, file_LS, 
+    file_LS_stderror = np.loadtxt(fileName, delimiter=',', unpack=True)
+
+    fig = plt.figure()
+
+    plt.xlim(min(file_ms), max(file_ms))
+    plt.xlabel("Amount of data (m)", fontsize=12)
+    plt.xscale('log')
+    plt.xticks(fontsize=12)
+    plt.ylabel(ylabel, fontsize=12)
+
+    if is_yAxis_prob:
+        plt.ylim(-0.1, 1.1)
+    else:
+        plt.ylim(-0.2, 2.2)
+        plt.plot([1, 100000], [1.25, 1.25], ':k');
+        plt.plot([1, 100000], [2.1,  2.1],  ':k');		
+
+    plt.plot(     file_ms,     file_QSA, 'b-', linewidth=3, label='QSA')
+    plt.errorbar( file_ms,     file_QSA, yerr=file_QSA_stderror, fmt='.k');
+    plt.plot(     file_ms,     file_LS,  'r-', linewidth=3, label='LS')
+    plt.errorbar( file_ms,     file_LS,  yerr=file_LS_stderror, fmt='.k');
+    plt.legend(loc=legend_loc, fontsize=12)
+    plt.tight_layout()
+
+    plt.savefig(output_file)
+    plt.show(block=False)
+```
+
+```{python, eval = FALSE, message = FALSE, warning = FALSE}
+gather_results()
+```
+
+```{python, fig.align='center', fig.cap="QSA Experiment: Performance Loss", warning = FALSE, message = FALSE, fig.width = 5.25, fig.height = 3.5, eval = FALSE}
+loadAndPlotResults(csv_path+'fs.csv', 
+'Mean Squared Error', 
+img_path+'tutorial7MSE_py.png', 
+False, 
+'lower right')
+```
+
+```{python, fig.align='center', fig.cap="QSA Experiment: Probability of a Solution", warning = FALSE, message = FALSE, fig.width = 5.25, fig.height = 3.5, eval = FALSE}
+loadAndPlotResults(csv_path+'solutions_found.csv', 
+'Probability of Solution',   
+img_path+'tutorial7PrSoln_py.png',  
+True,  
+'best')
+```
+
+```{python, fig.align='center', fig.cap="QSA Experiment: Satisfaction of 1st Behavioral Constraint", warning = FALSE, message = FALSE, fig.width = 5.25, fig.height = 3.5, eval = FALSE}
+loadAndPlotResults(csv_path+'failures_g1.csv',     
+r'Probability of $g_1(a(D))>0$', 
+img_path+'tutorial7PrFail1_py.png', 
+True,  
+'best')
+```
+
+```{python, fig.align='center', fig.cap="QSA Experiment: Satisfaction of 2nd Behavioral Constraint", warning = FALSE, message = FALSE, fig.width = 5.25, fig.height = 3.5, eval = FALSE}
+loadAndPlotResults(csv_path+'failures_g2.csv',     
+r'Probability of $g_2(a(D))>0$', 
+img_path+'tutorial7PrFail2_py.png', 
+True,  
+'best')
 ```
