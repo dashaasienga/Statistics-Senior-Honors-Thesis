@@ -813,7 +813,8 @@ Recall from Chapter \ref{intro} that (Castelnovo et al., 2022):
 \[ FPR = P(\hat{Y} = 1| Y = 0),\]
 \[FNR = P(\hat{Y} = 0| Y = 1),\]
 \[ p = P(Y=1).\]
-Using Bayes' rule,
+
+\noindent Using Bayes' rule,
 
 \[PPV = P(Y=1|\hat{Y} = 1) = \frac{P(\hat{Y} = 1|Y=1)P(Y=1)}{P(\hat{Y} = 1|Y=1)P(Y=1) + P(\hat{Y} = 1|Y=0)P(Y=0)} \]
 \[\Rightarrow PPV = \frac{P(\hat{Y} = 1|Y=1)p}{P(\hat{Y} = 1|Y=1)p + P(\hat{Y} = 1|Y=0)(1-p)}\]
@@ -828,17 +829,19 @@ Using Bayes' rule,
 \[\Rightarrow FPR = \frac{p}{1-p} \left[  \frac{(1-FNR) (1 - PPV)}{PPV} \right]\]
 \[\Rightarrow FPR = \frac{p}{1-p} \frac{1 - PPV}{PPV} (1-FNR) \blacksquare.\]
 
-A similar equation can be derived relating \(NPV = P(Y=0|\hat{Y} = 0)\) and both FPR and FNR.
+\noindent A similar equation can be derived relating \(NPV = P(Y=0|\hat{Y} = 0)\) and both FPR and FNR.
 
-Additionally, in conventional statistics notation, the sensitivity of a prediction tool can be defined as \(P(\hat{Y}=1|Y=1) = 1 - FNR\) and its specificity can be defined as \(P(\hat{Y}=0|Y=0) = 1 - FPR\). Given a prevalence \(p\), sensitivity \(s_e\), and specificity \(s_p\), then:
+\(\\\)
+
+\noindent Additionally, in conventional statistics notation, the sensitivity of a prediction tool can be defined as \(P(\hat{Y}=1|Y=1) = 1 - FNR\) and its specificity can be defined as \(P(\hat{Y}=0|Y=0) = 1 - FPR\). Given a prevalence \(p\), sensitivity \(s_e\), and specificity \(s_p\), then:
 
 \[PPV = \frac{s_ep}{s_ep + (1-s_p)(1-p)}.\]
 
-Similarly, it can shown that:
+\noindent Similarly, it can shown that:
 
 \[NPV = \frac{s_p(1-p)}{(1-s_e)p + s_p(1-p)}.\]
 
-The code chunk below fixes arbitrary sensitivity (1 - FNR) and specificity (1 - FPR) values to illustrate through the proceeding plots that as prevalence varies, then PPV/ NPV varies and cannot be equal as long as sensitivity and specificity are held constant, hence a conflict.
+\noindent The code chunk below fixes arbitrary sensitivity (1 - FNR) and specificity (1 - FPR) values to illustrate through the proceeding plots that as prevalence varies, then PPV/ NPV varies and cannot be equal as long as sensitivity and specificity are held constant, hence a conflict.
 \begin{Shaded}
 \begin{Highlighting}[]
 \FunctionTok{library}\NormalTok{(dplyr)}
