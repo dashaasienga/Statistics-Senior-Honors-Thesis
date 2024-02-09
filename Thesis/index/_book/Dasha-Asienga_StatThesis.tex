@@ -993,7 +993,7 @@ The \texttt{reticulate} package is useful for setting up the correct Python envi
 \end{Shaded}
 \noindent The \texttt{predictTTestUpperBound} function works similarly to \texttt{ttestUpperBound}, but returns a more conservative upper bound. This function uses data in the vector \(v\) to compute all relevant statistics (mean and standard deviation) but assumes that the number of points being analyzed is \(k\) instead of \(|v|\).
 
-\noindent This function is used to estimate what the output of \texttt{ttestUpperBound} would be if it were to be run on a new vector, \(v\), containing values sampled from the same distribution as the points in \(v\). The 2.0 factor in the calculation is used to double the width of the confidence interval when predicting the outcome of the safety test in order to make the algorithm less confident/ more conservative.
+This function is used to estimate what the output of \texttt{ttestUpperBound} would be if it were to be run on a new vector, \(v\), containing values sampled from the same distribution as the points in \(v\). The 2.0 factor in the calculation is used to double the width of the confidence interval when predicting the outcome of the safety test in order to make the algorithm less confident/ more conservative.
 \begin{Shaded}
 \begin{Highlighting}[]
 \KeywordTok{def}\NormalTok{ predictTTestUpperBound(v, delta, k):}
@@ -1127,9 +1127,7 @@ The \texttt{reticulate} package is useful for setting up the correct Python envi
     \ControlFlowTok{return} \VariableTok{True}
 \end{Highlighting}
 \end{Shaded}
-\noindent Finally, the \texttt{candidateObjective} and \texttt{getCandidateSolution} functions use a black-box optimization algorithm to search for a candidate solution.
-
-\noindent The black box algorithm used to search for a candidate solution is called Powell, which is an algorithm designed for finding a local minimum of a function using a bi-directional linear search. Powell, however, is not a constrained algorithm. One way of addressing this limitation is by incorporating the constraint into the objective function as a barrier function. In constrained optimization, a field of mathematics, barrier functions are used to replace inequality constraints by a penalizing term in the objective function that is easier to handle. That is, an approximate solution to the following unconstrained problem:
+\noindent Finally, the \texttt{candidateObjective} and \texttt{getCandidateSolution} functions use a black-box optimization algorithm to search for a candidate solution. The black box algorithm used to search for a candidate solution is called Powell, which is an algorithm designed for finding a local minimum of a function using a bi-directional linear search. Powell, however, is not a constrained algorithm. One way of addressing this limitation is by incorporating the constraint into the objective function as a barrier function. In constrained optimization, a field of mathematics, barrier functions are used to replace inequality constraints by a penalizing term in the objective function that is easier to handle. That is, an approximate solution to the following unconstrained problem:
 
 \[
 \theta_c \in arg \: \underset{\theta \in \mathbb{R}^2}{max} 
