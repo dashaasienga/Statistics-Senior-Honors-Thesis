@@ -650,8 +650,8 @@ nWorkers = 1  # Since we're not using Ray, we set the number of workers to 1 for
 ms   = [2**i for i in range(5, 17)]  # ms = [32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536]
 numM = len(ms)
     
-# How many trials should we average over?
-numTrials = 5  # Reduced for demonstration purposes
+# Set number of trials
+numTrials = 50  
 
 # How much data should we generate to compute the estimates of the primary objective and behavioral constraint function values 
 # that we call "ground truth"? Each candidate solution deemed safe, and identified using limited training data, will be evaluated 
@@ -848,7 +848,7 @@ loadAndPlotResults(csv_path+'failures_g1.csv',     r'Probability of $g_1(a(D))>0
 loadAndPlotResults(csv_path+'failures_g2.csv',     r'Probability of $g_2(a(D))>0$', img_path+'tutorial7PrFail2_py.png', True,  'best')
 ```
 
-Each of the figures show how different properties of the quasi-Seldonian linear regression (QSLR) algorithm vary for different data set sizes, $\textit{m}$. The horizontal axis is on a logarithmic scale, with values of $\textit{m}$ starting at $\textit{m} = 32$ and going up to $\textit{m} = 65,536$, doubling each time such that $\textit{m} \in \{32, 64, 128, \ldots, 65536 \}$. 1000 trials are run for each value of $m$. Each figure plots the mean and includes a standard error bar to visualize the variance of results. 
+Each of the figures show how different properties of the quasi-Seldonian linear regression (QSLR) algorithm vary for different data set sizes, $\textit{m}$. The horizontal axis is on a logarithmic scale, with values of $\textit{m}$ starting at $\textit{m} = 32$ and going up to $\textit{m} = 65,536$, doubling each time such that $\textit{m} \in \{32, 64, 128, \ldots, 65536 \}$. 50 trials are run for each value of $m$. Each figure plots the mean and includes a standard error bar to visualize the variance of results. 
 
 #### Performance Loss
 A Seldonian algorithm that has probabilistic guarantees of safe or fair behavior will typically perform worse, with regard to accuracy or error, than an algorithm that is purely focused on optimizing performance [@aisafety]. In Figure \@ref(fig:fig4), the dotted lines represent the desired range for the MSE as defined by the behavioral constraints set in Section \@ref(toy). In this setting, MSE was forced to be higher. Notice that the QSLR did not return a solution for small amounts of data, but when a solution was returned, it was always within the MSE bounds set by the constraints. Additionally, the bigger the sample size, the closer the MSE was to the lower boundary. This highlights the role that the primary objective plays by encouraging solutions with lower error, albeit still within the desired window. In a different setting where the behavioral constraints are not at odds with the primary objective function, it would be worthwhile to investigate performance loss when using a QSLR algorithm rather than ordinary least squares (OLS). Chapter \@ref(chap-3) attempts to answer this question by investigating performance loss for Seldonian algorithms in classification settings.  
@@ -857,7 +857,7 @@ A Seldonian algorithm that has probabilistic guarantees of safe or fair behavior
 Quasi-Seldonian algorithms don't always return a solution, especially with little data because there is insufficient confidence that any solution would satisfy the behavioral constraints. Figure \@ref(fig:fig5) illustrates that with more data, there is a higher probability of a solution. Nevertheless, there isn't a definitive threshold ensuring a solution for data sizes exceeding it. However, when provided with ample data, the results suggested that the likelihood of obtaining a solution tends to exceed 0.8. 
 
 #### Probability of Undesirable Behavior
-Finally, Figures \@ref(fig:fig6) and \@ref(fig:fig7) plot the probability that each algorithm produced undesirable behavior, that is, the probability that each algorithm had a solution with $g_1(a(D)) > 0$ as in Figure \@ref(fig:fig6) and the probability that each algorithm had a solution with $g_2(a(D)) > 0$ as in Figure \@ref(fig:fig7). Recall that $\delta_1 = \delta_2 = 0.1$, so for the QSA solution, the probability of undesirable behavior should lie below 0.1, or at least around 0.1. QSA always satisfied both constraints when a solution was returned. Notice, however, that since OLS does not take behavioral constraints into account, it frequently violates the second behavioral constraint that requires MSE to be greater than 1.25. This is expected because this constraint is in conflict with the primary objective function. 
+Finally, Figures \@ref(fig:fig6) and \@ref(fig:fig7) plot the probability that each algorithm produced undesirable behavior, that is, the probability that each algorithm had a solution with $g_1(a(D)) > 0$ as in Figure \@ref(fig:fig6) and the probability that each algorithm had a solution with $g_2(a(D)) > 0$ as in Figure \@ref(fig:fig7). Recall that $\delta_1 = \delta_2 = 0.1$, so for the QSA solution, the probability of undesirable behavior should lie below 0.1, or at least around 0.1. QSA always satisfied both constraints with probability at least 0.9 when a solution was returned. Notice, however, that since OLS does not take behavioral constraints into account, it frequently violates the second behavioral constraint that requires MSE to be greater than 1.25. This is expected because this constraint is in conflict with the primary objective function. 
 
 
 $\\$ 

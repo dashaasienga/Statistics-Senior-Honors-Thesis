@@ -778,7 +778,7 @@ Consistent with the set-up in Section \ref{toy} and following the presentation b
 
 \caption{QSA Experiment: Satisfaction of 2nd Behavioral Constraint}\label{fig:fig7}
 \end{figure}
-Each of the figures show how different properties of the quasi-Seldonian linear regression (QSLR) algorithm vary for different data set sizes, \(\textit{m}\). The horizontal axis is on a logarithmic scale, with values of \(\textit{m}\) starting at \(\textit{m} = 32\) and going up to \(\textit{m} = 65,536\), doubling each time such that \(\textit{m} \in \{32, 64, 128, \ldots, 65536 \}\). 1000 trials are run for each value of \(m\). Each figure plots the mean and includes a standard error bar to visualize the variance of results.
+Each of the figures show how different properties of the quasi-Seldonian linear regression (QSLR) algorithm vary for different data set sizes, \(\textit{m}\). The horizontal axis is on a logarithmic scale, with values of \(\textit{m}\) starting at \(\textit{m} = 32\) and going up to \(\textit{m} = 65,536\), doubling each time such that \(\textit{m} \in \{32, 64, 128, \ldots, 65536 \}\). 50 trials are run for each value of \(m\). Each figure plots the mean and includes a standard error bar to visualize the variance of results.
 
 \hypertarget{performance-loss}{%
 \subsubsection{Performance Loss}\label{performance-loss}}
@@ -793,7 +793,7 @@ Quasi-Seldonian algorithms don't always return a solution, especially with littl
 \hypertarget{probability-of-undesirable-behavior}{%
 \subsubsection{Probability of Undesirable Behavior}\label{probability-of-undesirable-behavior}}
 
-Finally, Figures \ref{fig:fig6} and \ref{fig:fig7} plot the probability that each algorithm produced undesirable behavior, that is, the probability that each algorithm had a solution with \(g_1(a(D)) > 0\) as in Figure \ref{fig:fig6} and the probability that each algorithm had a solution with \(g_2(a(D)) > 0\) as in Figure \ref{fig:fig7}. Recall that \(\delta_1 = \delta_2 = 0.1\), so for the QSA solution, the probability of undesirable behavior should lie below 0.1, or at least around 0.1. QSA always satisfied both constraints when a solution was returned. Notice, however, that since OLS does not take behavioral constraints into account, it frequently violates the second behavioral constraint that requires MSE to be greater than 1.25. This is expected because this constraint is in conflict with the primary objective function.
+Finally, Figures \ref{fig:fig6} and \ref{fig:fig7} plot the probability that each algorithm produced undesirable behavior, that is, the probability that each algorithm had a solution with \(g_1(a(D)) > 0\) as in Figure \ref{fig:fig6} and the probability that each algorithm had a solution with \(g_2(a(D)) > 0\) as in Figure \ref{fig:fig7}. Recall that \(\delta_1 = \delta_2 = 0.1\), so for the QSA solution, the probability of undesirable behavior should lie below 0.1, or at least around 0.1. QSA always satisfied both constraints with probability at least 0.9 when a solution was returned. Notice, however, that since OLS does not take behavioral constraints into account, it frequently violates the second behavioral constraint that requires MSE to be greater than 1.25. This is expected because this constraint is in conflict with the primary objective function.
 
 \(\\\)
 
