@@ -1,4 +1,22 @@
 # Seldonian Algorithms for Classification {#chap-3}
 
+```{r load_packages, include = FALSE}
+library(mosaic)
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(RColorBrewer)
+```
 
+```{r, echo = FALSE}
+library(reticulate)
+use_python("/cm/shared/apps/amh-Rstudio/python-3.11.4/bin/python3", required = TRUE)
+```
 
+```{r, echo = FALSE}
+seldonian <- import("seldonian")
+```
+
+```{python, echo = FALSE}
+import seldonian
+```
