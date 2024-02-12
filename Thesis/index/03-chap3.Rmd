@@ -1,6 +1,6 @@
 # Seldonian Algorithms for Classification {#chap-3}
 
-```{r load_packages, include = FALSE}
+```{r, include = FALSE}
 library(mosaic)
 library(dplyr)
 library(tidyverse)

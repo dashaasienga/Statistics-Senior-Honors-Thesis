@@ -862,7 +862,7 @@ Finally, Figures \@ref(fig:fig6) and \@ref(fig:fig7) plot the probability that e
 
 $\\$ 
 
-The toy example in this Chapter illustrates some of the desirable qualities of Seldonian (or quasi-Seldonian) algorithms and some of the limitations. The focus was in the quantitative setting when using linear regression. Chapter \@ref(chap-3), on the other hand, delves deeper into the properties of Seldonian algorithms with a particular focus on classification. 
+The toy example in this Chapter illustrates some of the desirable qualities of Seldonian (or quasi-Seldonian) algorithms and some of the limitations. The focus was in the quantitative setting when using linear regression. Next, Chapter \@ref(chap-3) delves into the properties of Seldonian algorithms within a classification setting.
 
 
 
