@@ -186,7 +186,7 @@ Note that finding exact confidence bounds may be impractical and require large a
 
 ### Quasi-Seldonian Algorithms {#qsa}
 
-Recall that the Seldonian goal is to create an algorithm $a$ that is an approximate solution to the Seldonian optimization problem defined in Equation \@ref(ch2eq7). This framework is non-parametric and relies on exact values of the objective function and fairness constraints. However, these values are often unknown and need to be estimated from the data provided. 
+Recall that the Seldonian goal is to create an algorithm $a$ that is an approximate solution to the Seldonian optimization problem defined in Equation \@ref(ch2eq7). This framework is non-parametric and relies on exact values of the objective function and fairness constraints without making any assumptions about the data. However, these values are often unknown and need to be estimated from the data provided. This may require making some assumptions about the underlying population distribution the sample was drawn from, hence the name $\textit{quasi}$-Seldonian.
 
 For example, $f(a)$, the objective function, can be estimated from the data provided such that $\hat{f}: \Theta \text{ x } \textbf{D} \rightarrow \textbf{R}$ serves as a measure of the utility of the algorithm that returns a solution $\theta$ when given input $D$ [@thomas2019preventing]. In a linear regression setting, the MSE for a data set of size $m$ can be estimated by
 
@@ -195,13 +195,13 @@ For example, $f(a)$, the objective function, can be estimated from the data prov
 \hat{f}(\theta, D) = -\frac{1}{m} \sum_{i=1}^{m}(\hat{y}(X_i, \theta) - Y_i)^2.
 \end{equation}
 
-In a similar fashion, the following section discusses how the candidate selection and safety test mechanisms further employ statistical estimation techniques to estimate the confidence bounds of the fairness constraints and probabilistically guarantee safe behavior.
+In a similar fashion, the following section discusses how the candidate selection and safety test mechanisms further employ statistical estimation techniques and assumptions of normality to estimate the confidence bounds of the fairness constraints and probabilistically guarantee safe behavior.
 
 #### The Safety Test Mechanism {#safety}
 
 Seldonian algorithms ensure that $P(g_i(\theta_c) \leq 0) \geq 1 - \delta_i$ for each constraint $i \in \{ 1,2, \ldots, n \}$ and the safety test mechanism is the component that verifies whether these behavioral constraints actually hold [@thomas2019preventing]. This is achieved by computing an upper bound for each $g_i(\theta)$ using the data and a confidence interval derived from the Student $t$-statistic. If the high confidence upper bound is less than or equal to 0, then the solution is safe to return, otherwise, no solution will be returned. 
 
-Let $X = (X_1, \ldots, X_m)$ be $m$ independent and identically distributed ($i.i.d.$) random variables. Under the assumption that $\frac{1}{m} \sum_{i=1}^m X_i$ is normally distributed or if $m$ is sufficiently large -- by the Central Limit Theorem --, then the Student $t$-statistic can be used to compute an upper bound of the expected value of these random variables as follows:
+Let $X = (X_1, \ldots, X_m)$ be $m$ independent and identically distributed ($i.i.d.$) random observations. Under the assumption that $\frac{1}{m} \sum_{i=1}^m X_i$ is normally distributed or if $m$ is sufficiently large -- by the Central Limit Theorem --, then the Student $t$-statistic can be used to compute an upper bound of the expected value of these random variables as follows:
 
 \begin{equation}
 \label{ch2eq10}
@@ -857,7 +857,7 @@ A Seldonian algorithm that has probabilistic guarantees of safe or fair behavior
 Quasi-Seldonian algorithms don't always return a solution, especially with little data because there is insufficient confidence that any solution would satisfy the behavioral constraints. Figure \@ref(fig:fig5) illustrates that with more data, there is a higher probability of a solution. Nevertheless, there isn't a definitive threshold ensuring a solution for data sizes exceeding it. However, when provided with ample data, the results suggested that the likelihood of obtaining a solution tends to exceed 0.8. 
 
 #### Probability of Undesirable Behavior
-Finally, Figures \@ref(fig:fig6) and \@ref(fig:fig7) plot the probability that each algorithm produced undesirable behavior, that is, the probability that each algorithm had a solution with $g_1(a(D)) > 0$ as in Figure \@ref(fig:fig6) and the probability that each algorithm had a solution with $g_2(a(D)) > 0$ as in Figure \@ref(fig:fig7). Recall that $\delta_1 = \delta_2 = 0.1$, so for the QSA solution, the probability of undesirable behavior should lie below 0.1, or at least around 0.1. QSA always satisfied both constraints with probability at least 0.9 when a solution was returned. Notice, however, that since OLS does not take behavioral constraints into account, it frequently violates the second behavioral constraint that requires MSE to be greater than 1.25. This is expected because this constraint is in conflict with the primary objective function. 
+Finally, Figures \@ref(fig:fig6) and \@ref(fig:fig7) plot the probability that each algorithm produced undesirable behavior, that is, the probability that each algorithm had a solution with $g_1(a(D)) > 0$ as in Figure \@ref(fig:fig6) and the probability that each algorithm had a solution with $g_2(a(D)) > 0$ as in Figure \@ref(fig:fig7). Recall that $\delta_1 = \delta_2 = 0.1$, so for the QSA solution, the probability of undesirable behavior should lie below 0.1, or at least around 0.1. QSA always satisfied both constraints with probability at least 0.9 when a solution was returned. Notice, however, that since OLS does not take behavioral constraints into account, it always violated the second behavioral constraint that requires MSE to be greater than 1.25. This is expected because this constraint is in conflict with the primary objective function. 
 
 
 $\\$ 
