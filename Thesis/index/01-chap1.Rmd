@@ -26,6 +26,7 @@ COMPAS is based on data from 7000 people arrested in Broward County, Florida in 
 The COMPAS algorithm is a color-blind model -- race was not included directly as a predictor during its development. However, a statistical analysis showed that even when the effects of race, age, and gender are controlled for through their inclusion as variables in a logistic regression model, Black defendants were still 77% more likely to be predicted at higher risk of committing a future violent crime and 45% more likely to be predicted of committing a future crime of any kind as compared to white defendants [@larson2016compas]. The table in Figure \@ref(fig:compas1) highlights the performance discrepancy across race. 
 
 ```{r compas1, fig.cap="Prediction Fails Differently for Black v White Defendants (Angwin et al., 2016)", out.width = '100%', echo=FALSE, fig.scap="COMPAS Prediction Fails Differently for Black v White Defendants", fig.align='center'}
+
 include_graphics(path = "figures/compas1.png")
 ```
 

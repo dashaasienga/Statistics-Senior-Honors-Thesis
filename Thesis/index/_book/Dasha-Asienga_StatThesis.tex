@@ -816,11 +816,17 @@ Before conducting the simulation study and analyzing the results, this section p
 \hypertarget{aims}{%
 \subsection{Aims}\label{aims}}
 
+The aim of this simulation study is to present a proof of concept for the use of the Seldonian framework in classification problems. Seldonian algorithms \(\textit{can}\) fail, especially with insufficient data, as elucidated in Chapter \ref{toy}. Solutions returned are also probabilistic. With these limitations in mind, this simulation study aims to compare the predictive performance of Seldonian algorithms with that of the standard ML approach in practical classification settings.
+
 \hypertarget{data-generation-mechanism}{%
 \subsection{Data-Generation Mechanism}\label{data-generation-mechanism}}
 
+Given this is a proof-of-concept simulation study, the data-generation mechanism will follow a realistic design. In real-world applications, it may be realistic to expect a setting with \(p\) different quantitative and categorical variables such that \(X = (X_1, X_2, \ldots, X_p)\) is the set of variables. Some, or all, of the \(X_i\) variables have moderate to strong correlations with \(A\), the protected attribute. The protected attribute, \(A\), has varying levels, likely two or three akin to Black v White or Male v Female. This correlation structure highlights the role that proxies play in group-blind classifiers, even when the protected attribute is not included in the model as a variable. Finally, the \(X_i\)'s, and \(A\) by extension, have moderate to strong correlations with the binary target variable \(Y\), further highlighting the varying prevalence of \(Y\) for different demographic groups and the inherent bias that may already be present in the training data of classification algorithms.
+
 \hypertarget{target}{%
 \subsection{Target}\label{target}}
+
+The target of this simulation study is prediction, that is, to evaluate Seldonian algorithms for predictive performance of classification outcomes.
 
 \hypertarget{methods}{%
 \subsection{Methods}\label{methods}}
