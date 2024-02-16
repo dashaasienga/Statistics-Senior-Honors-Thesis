@@ -832,8 +832,8 @@ Before conducting the simulation study and analyzing the results, this section p
 
 The aim of this simulation study is to present a proof of concept for the use of the Seldonian framework in classification problems. Seldonian algorithms \(\textit{can}\) fail, especially with insufficient data, as elucidated in Chapter \ref{toy}. Solutions returned are also probabilistic. With these limitations in mind, this simulation study aims to compare the predictive performance of Seldonian algorithms with that of the standard ML approach in practical classification settings.
 
-\hypertarget{data-generation-mechanism}{%
-\subsection{Data-Generation Mechanism}\label{data-generation-mechanism}}
+\hypertarget{data-gen}{%
+\subsection{Data-Generation Mechanism}\label{data-gen}}
 
 Given that this is a proof-of-concept simulation study, the data-generation mechanism will follow a realistic design. In real-world applications, it may be realistic to expect a setting with \(p\) different quantitative and categorical variables such that \(X = (X_1, X_2, \ldots, X_p)\) is the set of variables. Some, or all, of the \(X_i\) variables have moderate to strong correlations with \(A\), the protected attribute. The protected attribute, \(A\), has varying levels, likely two or three, akin to Black v White or Male v Female. This correlation structure highlights the role that proxies play in group-blind classifiers, even when the protected attribute is not included in the model as a variable. Finally, the \(X_i\)'s, and \(A\) by extension, have moderate to strong correlations with the binary target variable \(Y\), further highlighting the varying prevalence of \(Y\) for different demographic groups and the inherent bias that may already be present in the training data of classification algorithms.
 
@@ -883,7 +883,7 @@ High & 8 & 10\\
 \end{figure}
 {[}define notation to be consistent with the COMPAS dat set, may need to do some data massaging here{]} Consistent with the notation, \(X\) is the set of predictors and \(Y\) is the risk \ldots{}
 
-{[}Describe the rest of the data-generation mechanism and which populations the results of this simulation study will extend to.{]}
+{[}Describe the rest of the data-generation mechanism and which populations the results of this simulation study will extend to. Talk about what will vary as well - basically everything data-related should go here{]}
 
 relationship between A and Y and X and Y?
 
@@ -895,10 +895,34 @@ The target of this simulation study is prediction, that is, to evaluate Seldonia
 \hypertarget{methods}{%
 \subsection{Methods}\label{methods}}
 
-{[}Discuss the methods{]}
+As described in Chapter \ref{chap-2}, the Seldonian framework was designed to place probabilistic fairness constraints on traditional algorithms. Solutions produced by Seldonian algorithms will be compared to those produced through the standard ML framework, specifically by logistic regression, to assess the predictive performance and feasibility of the Seldonian framework.
 
-\hypertarget{performance-measures}{%
-\subsection{Performance Measures}\label{performance-measures}}
+Drawing from the fairness definitions described in Chapter \ref{fairnessdefinitions} with a particular focus on practical situations, it may be less important that a model satisfies independence. That is, that the model, on average, has the same likelihood of a positive prediction for all demographic groups. Instead, it may be more realistic to expect that the model be equally wrong or equally correct in its predictions of \(Y\) for each demographic group. For this reason, two fairness constraints (\(n=2\)) will be set on the Seldonian algorithms to satisfy separation, otherwise known as equality of the error rates or equality of odds, as defined in Equations \ref{ch3eq3} and \ref{ch3eq4}.
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi})}
+\tightlist
+\item
+  \emph{Predictive Equality}: equality of false positive rates (FPR)/ Type I error rates across groups:
+\end{enumerate}
+\begin{equation}
+\label{ch3eq3}
+g_1(\theta): P (\hat{Y} = 1 | A = a, Y = 0) = P (\hat{Y} = 1 | A = b, Y = 0).
+\end{equation}
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi})}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  \emph{Equality of Opportunity}: equality of false negative rates (FNR)/ Type II error rates across groups:
+\end{enumerate}
+\begin{equation}
+\label{ch3eq4}
+g_2(\theta): P (\hat{Y} = 0 | A = a, Y = 1) = P (\hat{Y} = 0 | A = b, Y = 1).
+\end{equation}
+Simulated data sets will be generated independently before being fed into both algorithms. The relevant performance measures, as detailed in Section \ref{performancemeasures}, will be recorded for each trial. One thousand trials will be run for each sample setting described in Section \ref{data-gen}, that is, each combination of sample size and \(Y\) prevalence. The code will be run in Python using the Rstudio software interface and the Amherst College High-Performance Computing System. The \texttt{seldonian} package is readily available for installation in Python -- it is equipped with functions that allow for the implementation of Seldonian algorithms. Other Python packages, such as \texttt{pandas}, \texttt{numpy}, and \texttt{sklearn}, will be helpful in conducting the rest of the simulation study.
+
+\hypertarget{performancemeasures}{%
+\subsection{Performance Measures}\label{performancemeasures}}
 
 Compared to the logistic regression models, the predictive performance of the Seldonian models will be assessed along three dimensions: the accuracy of the solutions, the satisfaction or violation of the behavioral constraint set, and the probability of a Seldonian solution.
 
