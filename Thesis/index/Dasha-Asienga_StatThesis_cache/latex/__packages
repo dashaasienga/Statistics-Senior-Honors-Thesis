@@ -20,3 +20,4 @@ lubridate
 RColorBrewer
 reticulate
 gridExtra
+kableExtra
