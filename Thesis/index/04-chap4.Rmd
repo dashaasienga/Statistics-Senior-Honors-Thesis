@@ -1,121 +1,239 @@
-# Tables, Graphics, References, and Labels {#ref-labels}
-```{r include_packages2, include = FALSE}
-require(knitr)
-require(dplyr)
-require(ggplot2)
+# Chapter 4 (RENAME & EDIT) {#chap-4}
+
+```{r, include = FALSE}
+library(mosaic)
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(RColorBrewer)
+library(knitr)
+library(kableExtra)
+library(ggplot2)
+library(GGally)
+library(MASS)
+```
+
+```{r, echo = FALSE}
+library(reticulate)
+use_python("/cm/shared/apps/amh-Rstudio/python-3.11.4/bin/python3", required = TRUE)
+```
+
+```{r, echo = FALSE}
+seldonian <- import("seldonian")
+```
+
+```{python, echo = FALSE}
+import seldonian
 ```
 
 
-## Tables
+Chapter \@ref(chap-2) introduced the Seldonian framework, which offers probabilistic guarantees for satisfying defined behavioral constraints. However, the toy linear regression example demonstrated some of the limitations of Seldonian algorithms, particularly in scenarios with limited sample sizes where convergence may pose a challenge. In practice, sample sizes vary. 
 
-In addition to the tables that can be automatically generated from a data frame in **R** that you saw in [R Markdown Basics] using the `kable` function, you can also create tables using _pandoc_. (More information is available at <http://pandoc.org/README.html#tables>.)  This might be useful if you don't have values specifically stored in **R**, but you'd like to display them in table form.  Below is an example.  Pay careful attention to the alignment in the table and hyphens to create the rows and columns.
+Furthermore, many machine learning applications deal with classification problems. Applications range from risk assessment tools like COMPAS, discussed in Chapter \@ref(intro), to credit scoring and employment prediction algorithms, naming a few. However, the deployment of such algorithms raises significant ethical concerns as discussed in Chapters \@ref(intro) and \@ref(chap-2), primarily with regard to fairness and the potential reinforcement of discriminatory practices. Given the historical and social biases inherent in the data used to train these algorithms, there is a pressing need to assess their fairness and mitigate any potential harm they may cause to disadvantaged groups.
 
-----------------------------------------------------------------------------------
-  Factors                    Correlation between Parents & Child      Inherited
-------------------------- ----------------------------------------- --------------
-  Education                                -0.49                         Yes
-  
-  Socio-Economic Status                     0.28                        Slight   
-  
-  Income                                    0.08                          No
-  
-  Family Size                               0.18                        Slight
-  
-  Occupational Prestige                     0.21                        Slight
-------------------------- ----------------------------------------- --------------
-Table: (\#tab:inher) Correlation of Inheritance Factors for Parents and Child 
+To address this concern, this chapter aims to investigate the efficacy and applicability of Seldonian algorithms in practical classification settings. By conducting a simulation study, the aim is to evaluate whether Seldonian approaches can effectively produce fairer outcomes and mitigate discriminatory tendencies, drawing on some of the statistical definitions of fairness from Chapter \@ref(fairnessdefinitions). Specifically, the objective is to assess the feasibility of leveraging Seldonian algorithms to enhance the fairness and equity of predictive models across various classification tasks.
 
-We can also create a link to the table by doing the following: Table \@ref(tab:inher).  If you go back to [Loading and exploring data] and look at the `kable` table, we can create a reference to this max delays table too: Table \@ref(tab:maxdelays). The addition of the `(\#tab:inher)` option to the end of the table caption allows us to then make a reference to Table `\@ref(tab:label)`. Note that this reference could appear anywhere throughout the document after the table has appeared.  
+## Simulation Design {#sim-design}
 
-<!-- We will next explore ways to create this label-ref link using figures. -->
+Before conducting the simulation study and analyzing the results, this section provides detailed explanations of the simulation set-up and design. 
 
-\clearpage
+### Aims
 
-<!-- clearpage ends the page, and also dumps out all floats.
-  Floats are things like tables and figures. -->
+The aim of this simulation study is to present a proof of concept for the use of the Seldonian framework in classification problems. Seldonian algorithms $\textit{can}$ fail, especially with insufficient data, as elucidated in Chapter \@ref(toy). Solutions returned are also probabilistic. With these limitations in mind, this simulation study aims to compare the predictive performance of Seldonian algorithms with that of the standard ML approach in practical classification settings. 
 
+### Data-Generation Mechanism WIP {#data-gen} 
 
-## Figures
+Given that this is a proof-of-concept simulation study, the data-generation mechanism will follow a realistic design. In real-world applications, it may be realistic to expect a setting with $p$ different quantitative and categorical variables such that $X = (X_1, X_2, \ldots, X_p)$ is the set of variables. Some, or all, of the $X_i$ variables have moderate to strong correlations with $A$, the protected attribute. The protected attribute, $A$, has varying levels, likely two or three, akin to Black v White or Male v Female. This correlation structure highlights the role that proxies play in group-blind classifiers, even when the protected attribute is not included in the model as a variable. Finally, the $X_i$'s, and $A$ by extension, have moderate to strong correlations with the binary target variable $Y$, further highlighting the varying prevalence of $Y$ for different demographic groups and the inherent bias that may already be present in the training data of classification algorithms. 
 
-If your thesis has a lot of figures, _R Markdown_ might behave better for you than that other word processor.  One perk is that it will automatically number the figures accordingly in each chapter.    You'll also be able to create a label for each figure, add a caption, and then reference the figure in a way similar to what we saw with tables earlier.  If you label your figures, you can move the figures around and _R Markdown_ will automatically adjust the numbering for you.  No need for you to remember!  So that you don't have to get too far into LaTeX to do this, a couple **R** functions have been created for you to assist.  You'll see their use below.
+\noindent *OPTION 1: Generate simulation data in R.*
 
-<!--
-One thing that may be annoying is the way _R Markdown_ handles "floats" like tables and figures (it's really \LaTeX's fault). \LaTeX\ will try to find the best place to put your object based on the text around it and until you're really, truly done writing you should just leave it where it lies. There are some optional arguments specified in the options parameter of the `label` function.  If you need to shift your figure around, it might be good to look here on tweaking the options argument:  <https://en.wikibooks.org/wiki/LaTeX/Floats,_Figures_and_Captions>
+\noindent I've included the code just so you can look at it. It will not be visible in the final document, perhaps in the appendix instead. I can write up more specifics on it if we decide to go this route. With this approach, we can vary covariate correlations, sample size, and potentially the prevalence of Y for each level of A. 
 
-If you need a graphic or tabular material to be part of the text, you can just put it inline. If you need it to appear in the list of figures or tables, it should be placed in a code chunk.
--->
+```{r, warning=FALSE, message=FALSE}
+# Set seed for reproducibility
+set.seed(123)
 
+# Number of observations
+n <- 200
 
-In the **R** chunk below, we will load in a picture stored as `amherst.png` in our main directory.  We then give it the caption of "Amherst logo", the label of "amherstlogo", and specify that this is a figure.  Make note of the different **R** chunk options that are given in the R Markdown file (not shown in the knitted document).
+# Number of variables
+p <- 3
 
-```{r amherstlogo, fig.cap="Amherst logo", out.width = '50%'}
-include_graphics(path = "figures/amherst.png")
+# Generate covariance matrix for predictor variables 
+Sigma <- matrix(c(0.7,0.5, 0.7,0.5), nrow = p, ncol = p)
+diag(Sigma) <- 1
+Sigma 
+
+# Generate X variables with multivariate normal distribution
+X <- mvrnorm(n = n, mu = rep(0, p), Sigma = Sigma)
+
+# Generate protected attribute A with 2 levels
+# Assume A is dependent on X 
+# Let's say the first variable in X has a strong effect on A
+# We will simulate this by adding X[,1] + some noise
+A <- X[,1] + rnorm(n)
+
+# Convert Y to binary based on some threshold
+A <- as.numeric(A > mean(A))
+
+# Generate binary target variable Y
+# Assume Y is dependent on X and A
+# Let's say the first variable in X has a strong effect on Y, while A also has an effect
+# We will simulate this by adding X[,1] + A + some noise
+Y <- X[,1] + A + rnorm(n)
+
+# Convert Y to binary based on some threshold
+Y <- as.numeric(Y > mean(Y))
+
+# Check correlation between variables
+cor(X, A)
+cor(X, Y)
+cor(A, Y)
+
+# Create a data frame
+data <- data.frame(X, A, Y)
+
+# Print first few rows of the data frame
+head(data)
 ```
 
-Here is a reference to the Amherst logo: Figure \@ref(fig:amherstlogo).  Note the use of the `fig:` code here.  By naming the **R** chunk that contains the figure, we can then reference that figure later as done in the first sentence here.  We can also specify the caption for the figure via the R chunk option `fig.cap`.
 
-\clearpage 
+\noindent *Option 2: Resample from the COMPAS data set* 
 
-<!-- starts a new page and stops trying to place floats such as tables and figures -->
+Because emulating such a structure can be complex and error-prone and because the aim is to have a realistic data-generation mechanism, rather than generating data from a parametric model, the simulated data sets will be generated by resampling with replacement from the COMPAS data set. 
 
-Below we will investigate how to save the output of an **R** plot and label it in a way similar to that done above.  Recall the `flights` dataset from Chapter \@ref(rmd-basics).  (Note that we've shown a different way to reference a section or chapter here.)  We will next explore a bar graph with the mean flight departure delays by airline from Portland for 2014.  Note also the use of the `scale` parameter which is discussed on the next page.
-
-```{r delaysboxplot, warnings=FALSE, messages=FALSE, fig.cap="Mean Delays by Airline", fig.width=6}
-#if(!exists("flights")) flights <- read.csv("data/flights.csv")
-flights %>% group_by(carrier) %>%
-  summarize(mean_dep_delay = mean(dep_delay)) %>%
-  ggplot(aes(x = carrier, y = mean_dep_delay)) +
-  geom_bar(position = "identity", stat = "identity", fill = "red")
+```{r, echo = FALSE}
+#read in the data
+compasdata <- read.csv("/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/COMPAS/compas_data1.csv")
 ```
 
-Here is a reference to this image: Figure \@ref(fig:delaysboxplot).
+The COMPAS data set has records of `r length(unique(compasdata$person_id))` people from Broward County, Florida. The data set contains information on each defendant such as their name, sex, age, race, marital status, juvenile felony count, juvenile misdeameanor count, and number of prior offenses. All of the variables are used in the COMPAS tool to calibrate a raw score, which is then used to assess a defendant's risk of recidivism, risk of violence, and  risk of failure to appear if granted bail or parole. This is achieved by converting the raw scores into decile scores that then determine whether the defendant's risk is high, medium, or low for the three different types of assessments. Table \@ref(tab:ch3table1) displays how the decile scores are mapped into the three risk levels.
 
-A table linking these carrier codes to airline names is available at <https://github.com/ismayc/pnwflights14/blob/master/data/airlines.csv>.
-
-\clearpage
-
-Next, we will explore the use of the `out.extra` chunk option, which can be used to shrink or expand an image loaded from a file by specifying `"scale= "`. Here we use the mathematical graph stored in the "subdivision.pdf" file.
-
-```{r subd, results="asis", echo=FALSE, fig.cap="Subdiv. graph", out.extra="scale=0.75"}
-include_graphics("figures/subdivision.pdf")
+```{r ch3table1, echo = FALSE}
+compasdata %>%
+  dplyr::select(decile_score, score_text) %>%
+  filter(score_text != 'N/A') %>%
+  rename("Risk" = score_text) %>%
+  group_by(Risk) %>%
+  summarise("Min" = min(decile_score),
+            "Max" = max(decile_score)) %>%
+  arrange(Min) %>%
+  kable(digits = 2,
+        caption = "COMPAS Decile Scores",
+        booktabs = TRUE)
 ```
 
-Here is a reference to this image: Figure \@ref(fig:subd).  Note that `echo=FALSE` is specified so that the **R** code is hidden in the document.
+\noindent Table \@ref(tab:ch3table2) displays the correlation structure of some predictor variables.
 
-**More Figure Stuff**
+```{r ch3table2, warning = FALSE, message = FALSE, echo = FALSE}
+compas_data_gg <- compasdata %>%
+  filter(type_of_assessment == 'Risk of Recidivism') %>%
+  filter(is_recid != -1) %>%
+  filter(score_text != 'N/A') 
 
-Lastly, we will explore how to rotate and enlarge figures using the `out.extra` chunk option.  (Currently this only works in the PDF version of the book.)
+mycordata <- compas_data_gg %>%
+  rename("Misdemeanors" = juv_misd_count,
+         "Felonies" = juv_fel_count,
+         "Other" = juv_other_count,
+         "Priors" = priors_count) %>%
+  select_("Misdemeanors", "Felonies", "Other", "Priors")
 
-```{r subd2, results="asis", echo=FALSE, out.extra="angle=180, scale=1.1", fig.cap="A Larger Figure, Flipped Upside Down"}
-include_graphics("figures/subdivision.pdf")
+cor(mycordata) %>%
+  kable(digits = 2,
+        caption = "COMPAS Covariate Correlation Structure",
+        booktabs = TRUE)
 ```
 
-As another example, here is a reference: Figure \@ref(fig:subd2).  
+\noindent Figure \@ref(fig:ch3fig2) displays recidivism by race to explore the relationship between $Y$ and $A$.
 
-## Footnotes and Endnotes
+```{r ch3fig2, warning = FALSE, message = FALSE, echo = FALSE, fig.align='center', fig.cap="Recidivism by Race", warning = FALSE, message = FALSE, fig.width = 4.5, fig.height = 3}
+ggplot(data = compas_data_gg, mapping = aes(x=as.factor(is_recid))) +
+  geom_bar() +
+  scale_x_discrete(c(0,1)) +
+  theme_minimal() +
+  facet_wrap( ~ race) +
+  labs(x = "Recidivated") 
+```
 
-You might want to footnote something. ^[footnote text] The footnote will be in a smaller font and placed appropriately. Endnotes work in much the same way. More information can be found about both on the Reed Thesis site <https://www.reed.edu/cis/help/latex/thesis.html> or feel free to reach out to Prof. Bailey at <bebailey@amherst.edu>.
+\noindent Figure \@ref(fig:ch3fig3) displays prior offenses, one of the predictor variables, by race to explore ther relationship between one of the $X's$ and $A$. 
 
-## Bibliographies
+```{r ch3fig3, warning = FALSE, message = FALSE, echo = FALSE, fig.align='center', fig.cap="Prior Offenses by Race", warning = FALSE, message = FALSE, fig.width = 4.5, fig.height = 3}
+ggplot(data = compas_data_gg, mapping = aes(x=priors_count)) +
+  geom_histogram() +
+  theme_minimal() +
+  labs(x = "Priors") +
+  facet_wrap( ~ race)
+```
 
-Of course you will need to cite things, and you will probably accumulate an armful of sources. There are a variety of tools available for creating a bibliography database (stored with the .bib extension).  In addition to BibTeX suggested below, you may want to consider using the free and easy-to-use tool called Zotero.  The Amherst librarians have created Zotero documentation at <https://www.amherst.edu/library/find/citation/zotero>.  In addition, a tutorial is available from Middlebury College at <http://sites.middlebury.edu/zoteromiddlebury/>.
+\noindent Finally, Figure \@ref(fig:ch3fig4) displays prior offenses, one of the predictor variables, by whether the defendant recidivated to explore the relationship between one of the $X's$ and $Y$. 
 
-_R Markdown_ uses _pandoc_ (<http://pandoc.org/>) to build its bibliographies.  One nice caveat of this is that you won't have to do a second compile to load in references as standard LaTeX requires. To cite references in your thesis (after creating your bibliography database), place the reference name inside square brackets and precede it by the "at" symbol.  For example, here's a reference to a book about worrying:  [@Molina1994].  This `Molina1994` entry appears in a file called `thesis.bib` in the `bib` folder.  This bibliography database file was created by a program called BibTeX.  You can call this file something else if you like (look at the YAML header in the main .Rmd file) and, by default, is to placed in the `bib` folder.  
+```{r ch3fig4, warning = FALSE, message = FALSE, echo = FALSE, fig.align='center', fig.cap="Prior Offenses by Recidivation", warning = FALSE, message = FALSE, fig.width = 4.5, fig.height = 3}
+ggplot(data = compas_data_gg, mapping = aes(x=priors_count)) +
+  geom_histogram() +
+  theme_minimal() +
+  labs(x = "Priors") +
+  facet_wrap( ~ as.factor(is_recid))
+```
 
-For more information about BibTeX and bibliographies, see the Reed College CUS site (<http://web.reed.edu/cis/help/latex/index.html>)^[@reedweb2007]. There are three pages on this topic:  _bibtex_ (which talks about using BibTeX, at <http://web.reed.edu/cis/help/latex/bibtex.html>), _bibtexstyles_ (about how to find and use the bibliography style that best suits your needs, at <http://web.reed.edu/cis/help/latex/bibtexstyles.html>) and _bibman_ (which covers how to make and maintain a bibliography by hand, without BibTeX, at <http://web.reed.edu/cis/help/latex/bibman.html>). The last page will not be useful unless you have only a few sources.
+$\\$
 
-If you look at the YAML header at the top of the main .Rmd file you can see that we can specify the style of the bibliography by referencing the appropriate csl file.  You can download a variety of different style files at <https://www.zotero.org/styles>.  Make sure to download the file into the csl folder.
+\noindent I'll hold off on completing this section until we finalize which data generation mechanism we will us based on the information we now have. To-Do's: 
 
-**Tips for Bibliographies**
+\noindent - [if resampling from COMPAS, define notation specifically using the COMPAS data set to be consistent with the rest of the thesis] 
 
-- Like with thesis formatting, the sooner you start compiling your bibliography for something as large as thesis, the better. Typing in source after source is mind-numbing enough; do you really want to do it for hours on end in late April? Think of it as procrastination.
-- The cite key (a citation's label) needs to be unique from the other entries.
-- When you have more than one author or editor, you need to separate each author's name by the word "and" e.g. `Author = {Noble, Sam and Youngberg, Jessica},`.
-- Bibliographies made using BibTeX (whether manually or using a manager) accept LaTeX markup, so you can italicize and add symbols as necessary.
-- To force capitalization in an article title or where all lowercase is generally used, bracket the capital letter in curly braces.
-- You can add a Reed Thesis citation^[@noble2002] option. The best way to do this is to use the phdthesis type of citation, and use the optional "type" field to enter "Reed thesis" or "Undergraduate thesis." 
+\noindent - [overall, need to finalize the rest of this section in a robust way, including what will vary (and what levels they'll have -- refer to Git issue/ adjust below) as well as which populations the results of this simulation study will extend to.]
 
-## Anything else?
 
-If you'd like to see examples of other things in this template, please contact Professor Bailey (email <bebailey@amherst.edu>) with your suggestions. 
+### Target
+
+The target of this simulation study is prediction, that is, to evaluate Seldonian algorithms for predictive performance of classification outcomes. 
+
+### Methods
+
+As described in Chapter \@ref(chap-2), the Seldonian framework was designed to place probabilistic fairness constraints on traditional algorithms. Solutions produced by Seldonian algorithms will be compared to those produced through the standard ML framework, specifically by logistic regression, to assess the predictive performance and feasibility of the Seldonian framework.
+
+Drawing from the fairness definitions described in Chapter \@ref(fairnessdefinitions) with a particular focus on practical situations, it may be less important that a model satisfies independence. That is, that the model, on average, has the same likelihood of a positive prediction for all demographic groups. Instead, it may be more realistic to expect that the model be equally wrong or equally correct in its predictions of $Y$ for each demographic group. For this reason, two fairness constraints ($n=2$) will be set on the Seldonian algorithms to satisfy separation, otherwise known as equality of the error rates or equality of odds, as defined in Equations \@ref(ch3eq3) and \@ref(ch3eq4). 
+
+1) *Predictive Equality*: equality of false positive rates (FPR)/ Type I error rates across groups:
+
+\begin{equation}
+\label{ch3eq3}
+g_1(\theta): P (\hat{Y} = 1 | A = a, Y = 0) = P (\hat{Y} = 1 | A = b, Y = 0).
+\end{equation}
+
+2) *Equality of Opportunity*: equality of false negative rates (FNR)/ Type II error rates across groups:
+
+\begin{equation}
+\label{ch3eq4}
+g_2(\theta): P (\hat{Y} = 0 | A = a, Y = 1) = P (\hat{Y} = 0 | A = b, Y = 1).
+\end{equation}
+
+
+Simulated data sets will be generated independently before being fed into both algorithms. The relevant performance measures, as detailed in Section \@ref(performancemeasures), will be recorded for each trial. One thousand trials will be run for each sample setting described in Section \@ref(data-gen), that is, each combination of sample size and $Y$ prevalence. The code will be run in Python using the Rstudio software interface and the Amherst College High-Performance Computing System. The `seldonian` package is readily available for installation in Python -- it is equipped with functions that allow for the implementation of Seldonian algorithms. Other Python packages, such as `pandas`, `numpy`, and `sklearn`, will be helpful in conducting the rest of the simulation study. 
+
+
+### Performance Measures {#performancemeasures}
+
+Compared to the logistic regression models, the predictive performance of the Seldonian models will be assessed along three dimensions: the accuracy of the solutions, the satisfaction or violation of the behavioral constraints set, and the probability of a Seldonian solution.
+
+For each simulation trial, the overall accuracy of both the Seldonian model and the logistic regression model will be recorded and eventually averaged over the specific sample setting, that is, for a data set with a specific sample size and specific $Y$ prevalence for each demographic group $a \in A$. Both the mean and the standard error will be reported in tabular format and visualized graphically to compare the models' predictive performances and, potentially, evaluate the trade-offs that may occur by employing the Seldonian framework and enforcing behavioral constraints.
+
+The satisfaction or violation of the behavioral constraint will be assessed in two ways. First, for each sample setting as described above, a count of the times both frameworks satisfied the behavioral constraint, by some margin, will be reported in tabular format. Additionally, the FPR and FNR discrimination statistics, as defined in Equations \@ref(ch3eq1) and \@ref(ch3eq2), respectively, will be recorded for each simulation trial. The mean and standard error will be reported and visualized for each sample setting to compare the magnitude and direction of the models' unfairness with regard to the separation fairness definition.
+
+\begin{equation}
+\label{ch3eq1}
+d_1(\theta) = P (\hat{Y} = 1 | A = a, Y = 0) - P (\hat{Y} = 1 | A = b, Y = 0).
+\end{equation}
+
+\begin{equation}
+\label{ch3eq2}
+d_2(\theta) = P (\hat{Y} = 0 | A = a, Y = 1) - P (\hat{Y} = 0 | A = b, Y = 1).
+\end{equation}
+
+
+Finally, it is essential to account for the fact that the Seldonian algorithms will not always return a solution. Recording the probability of a solution being returned in each sample setting will be crucial for evaluating the practical feasibility of this framework. Additionally, for fair statistical comparisons, the first and second performance measures will be compared only with Seldonian solutions that converge. However, the performance of the logistic regression models in trials where no solutions were found using the Seldonian framework will be analyzed to elucidate learnings about the nature of those trials. 
+
+## Simulation Results {#sim-results}
+
+
 
