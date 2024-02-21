@@ -18,7 +18,21 @@ library(GGally)
 library(MASS)
 ```
 
+The thesis body will have more in-depth descriptions of the data analysis as well as select output and results from this file. This file is intended for general preliminary analysis of the COMPAS data set.
 
+# The Data Set
+
+## Reading in the Data 
+
+# Descriptive Statistics 
+
+# Demographic Group Analysis 
+
+# Logistic Regression 
+
+# Seldonian Classification
+
+# Results
 
 
 
