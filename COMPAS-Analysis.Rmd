@@ -1,0 +1,27 @@
+---
+title: "COMPAS Data Wrangling and Analysis"
+author: "Dasha Asienga"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(mosaic)
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(RColorBrewer)
+library(knitr)
+library(kableExtra)
+library(ggplot2)
+library(GGally)
+library(MASS)
+```
+
+
+
+
+
+
+
+
