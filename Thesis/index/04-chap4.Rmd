@@ -104,7 +104,7 @@ Because emulating such a structure can be complex and error-prone and because th
 
 ```{r, echo = FALSE}
 #read in the data
-compasdata <- read.csv("/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/COMPAS/compas_data1.csv")
+compasdata <- read.csv("/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/COMPAS/compas_data.csv")
 ```
 
 The COMPAS data set has records of `r length(unique(compasdata$person_id))` people from Broward County, Florida. The data set contains information on each defendant such as their name, sex, age, race, marital status, juvenile felony count, juvenile misdeameanor count, and number of prior offenses. All of the variables are used in the COMPAS tool to calibrate a raw score, which is then used to assess a defendant's risk of recidivism, risk of violence, and  risk of failure to appear if granted bail or parole. This is achieved by converting the raw scores into decile scores that then determine whether the defendant's risk is high, medium, or low for the three different types of assessments. Table \@ref(tab:ch3table1) displays how the decile scores are mapped into the three risk levels.
