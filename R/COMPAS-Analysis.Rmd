@@ -2,7 +2,10 @@
 title: "COMPAS Data Wrangling and Analysis"
 author: "Dasha Asienga"
 date: "`r Sys.Date()`"
-output: pdf_document
+output: 
+  pdf_document:
+    toc: TRUE
+
 ---
 
 ```{r setup, include=FALSE}
@@ -16,7 +19,10 @@ library(kableExtra)
 library(ggplot2)
 library(GGally)
 library(MASS)
+library(reshape2)
 ```
+
+$\\$
 
 The thesis body will have more in-depth descriptions of the data analysis as well as select output and results from this file. This file is intended for general preliminary analysis of the COMPAS data set.
 
@@ -136,7 +142,8 @@ tally(clean_compasdata$race)
 ```{r, fig.width = 5, fig.height = 3}
 ggplot(data = clean_compasdata, mapping = aes(x = race)) +
   geom_bar() +
-  theme_minimal() 
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 25, vjust = 1.2, hjust=1))
 ```
 $\\$
 
@@ -236,7 +243,8 @@ tally(clean_compasdata$is_violent_recid)
 Out of the 3188 who recommitted a crime, 2443 re-committed a non-violent crime, 
 
 ```{r}
-tally(clean_compasdata[clean_compasdata$is_recid == 1, ]$is_violent_recid)
+tally(clean_compasdata[clean_compasdata$is_recid == 1, ]$is_violent_recid,
+      margins = TRUE)
 ```
 
 ```{r, fig.width = 4.5, fig.height = 3}
@@ -411,9 +419,75 @@ $\\$
 
 This concludes our univariate analysis of the variables in the COMPAS data set. Next, we will look at some of the bivariate relationships.
 
+
+
 ## Bivariate Analysis
 
 In this section, we will explore the relationships between our variables and the response variable, `is_recid`, which records whether or not a participant recommitted a crime within 2 years.
+
+### Categorical Variables
+
+It doesn't appear as though there is much evident relationship between sex and recidivism. 
+
+```{r, fig.width = 4.5, fig.height = 3}
+ggplot(data = clean_compasdata, mapping = aes(x = sex, fill = sex)) +
+  geom_bar() +
+  theme_minimal() +
+  facet_wrap(~is_recid) +
+  labs(title = "Recidivism by Sex")
+```
+
+$\\$
+
+Among defendants who do not recidivate, there are more defendants thatt are aged 45 in comparison to those less than 25. However, among those that recidivated, there are more defendants that are less than 25 in comparison to those that are greater than 45. This indicates that age may hold some valuable information regarding a defendant's likelihood of recidivism. 
+
+```{r, fig.width = 4.5, fig.height = 3}
+order <- c("Less than 25", "25 - 45", "Greater than 45")
+  
+ggplot(data = clean_compasdata, 
+       mapping = aes(x = age_cat, fill = age_cat)) +
+  geom_bar() +
+  theme_minimal() +
+  facet_wrap(~is_recid) +
+  labs(title = "Recidivism by Age Categories",
+       x = "Age Category",
+       fill = "Age Category") +
+  theme(axis.text.x = element_text(angle = 25, vjust = 1.2, hjust=1)) +
+  scale_x_discrete(limits = order) 
+```
+
+$\\$
+
+It doesn't appear as though there is much relationship between recidivism and marital status.
+
+```{r, fig.width = 6, fig.height = 3}
+ggplot(data = clean_compasdata, 
+       mapping = aes(x = marital_status, fill = marital_status)) +
+  geom_bar() +
+  theme_minimal() +
+  facet_wrap(~is_recid) +
+  labs(title = "Recidivism by Marital Status",
+       x = "Marital Status",
+       fill = "Marital Status") +
+  theme(axis.text.x = element_text(angle = 25, vjust = 1.2, hjust=1))
+```
+$\\$
+
+It doesn't appear as though there is much relationship between recidivism and custody status.
+
+```{r, fig.width = 6, fig.height = 3}
+ggplot(data = clean_compasdata, 
+       mapping = aes(x = custody_status, fill = custody_status)) +
+  geom_bar() +
+  theme_minimal() +
+  facet_wrap(~is_recid) +
+  labs(title = "Recidivism by Custody Status",
+       x = "Custody Status",
+       fill = "Custody Status") +
+  theme(axis.text.x = element_text(angle = 25, vjust = 1.2, hjust=1))
+```
+
+### Continous Variables
 
 break everything by response variable.
 
@@ -437,7 +511,7 @@ look at visuals/ tables from chap 4
 
 ex. mapping of score text to decile scores. 
 
-
+align figures on the center.
 
 
 
