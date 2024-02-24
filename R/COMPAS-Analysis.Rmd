@@ -30,7 +30,7 @@ compasdata <- read.csv(compas_path)
 
 # The Data Set
 
-The COMPAS data set has 12076 observations of participants that were evaluated for the risk of recidivism by the COMPAS tool. There are 29 variables of interest as described below:
+The COMPAS data set has 12076 observations of defendants that were evaluated for the risk of recidivism by the COMPAS tool. There are 29 variables of interest as described below:
 
 - `id`: unique person identifier.
 - `compas_person_id`: unique COMPAS case identifier. 
@@ -82,7 +82,7 @@ compasdata <- compasdata %>%
 
 count(compasdata)
 ```
-Next, let's also make sure that there are no duplicate participants. 
+Next, let's also make sure that there are no duplicate defendants. 
 
 ```{r}
 clean_compasdata <- compasdata[-which(duplicated(compasdata$id)), ]
@@ -97,7 +97,7 @@ We'll proceed with this data set and 9387 observations total.
 
 Now that the data is clean, let's generate some descriptive statistics to understand the distribution of the variables in the data set and their relationships with each other.
 
-First, below is a glimpse of the data as described above. Notice that there is a lot of missing data for `num_vr_cases` and `num_r_cases` because that information is only recorded for participants that recommit a crime in the next 2 years. 
+First, below is a glimpse of the data as described above. Notice that there is a lot of missing data for `num_vr_cases` and `num_r_cases` because that information is only recorded for defendants that recommit a crime in the next 2 years. 
 
 ```{r}
 glimpse(clean_compasdata)
@@ -127,7 +127,7 @@ ggplot(data = clean_compasdata, mapping = aes(x = sex)) +
 
 $\\$
 
-Most of the participants are African-American and Caucasian, with only 27 Native Americans and 48 Asians.
+Most of the defendants are African-American and Caucasian, with only 27 Native Americans and 48 Asians.
 
 ```{r}
 tally(clean_compasdata$race)
@@ -140,7 +140,7 @@ ggplot(data = clean_compasdata, mapping = aes(x = race)) +
 ```
 $\\$
 
-Majority of the participants are between the age of 25 and 45, with about the same number of participants less than 25 and greater than 25.
+Majority of the defendants are between the age of 25 and 45, with about the same number of defendants less than 25 and greater than 25.
 
 ```{r}
 tally(clean_compasdata$age_cat)
@@ -156,13 +156,276 @@ ggplot(data = clean_compasdata, mapping = aes(x = age_cat)) +
   labs(x = "Age Category")
 ```
 
+$\\$
+
+Most of the defendants are single, followed by married. 
+
+```{r}
+tally(clean_compasdata$marital_status)
+```
+
+
+```{r, fig.width = 5, fig.height = 3}
+ggplot(data = clean_compasdata, mapping = aes(x = marital_status)) +
+  geom_bar() +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 25, vjust = 1.2, hjust=1)) +
+  labs(x = "Marital Status")
+```
+$\\$
+
+Most of the defendants are jail inmates, with only a handful of prison inmates, probationers, and defendants of the residential program. 
+
+```{r}
+tally(clean_compasdata$custody_status)
+```
+
+```{r, fig.width = 5, fig.height = 3}
+ggplot(data = clean_compasdata, mapping = aes(x = custody_status)) +
+  geom_bar() +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 25, vjust = 1.2, hjust=1)) +
+  labs(x = "Custody Status")
+```
+$\\$
+
+As a data check, all the assessments are for risk of recidivism.
+
+```{r}
+tally(clean_compasdata$type_of_assessment)
+```
+
+$\\$
+
+There are 13 different charge degrees present in the data set. Most defendants were charged with (F3), which are felonies of the third degree. These are the least serious felonies in Florida and typically include crimes like breaking and entering, collecting and keeping stolen property, fraud, and petty theft. Many other defendants were also charged with (M1), which are a first-degree misdemeanors and can be punished by up to one year in jail. These include simple battery, disorderly conduct, DUI, indecent exposure, marijuana possession, shoplifting, prostitution, and vandalism, among others.
+
+```{r}
+tally(clean_compasdata$c_charge_degree)
+```
+
+```{r, fig.width = 5, fig.height = 3}
+ggplot(data = clean_compasdata, mapping = aes(x = c_charge_degree)) +
+  geom_bar() +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 25, vjust = 1.2, hjust=1)) +
+  labs(x = "Charge Degree")
+```
+$\\$
+
+About two-thirds of the defendants did not recommit a crime within two years, while one-thirds did. This is our response variable and is indicative of class imbalance, which can affect the performance of machine learning classification algorithms. This is important to keep in mind when assessing model performance later on.  
+
+```{r}
+tally(clean_compasdata$is_recid)
+```
+
+```{r, fig.width = 4.5, fig.height = 3}
+ggplot(data = clean_compasdata, mapping = aes(x = as.factor(is_recid))) +
+  geom_bar() +
+  theme_minimal() +
+  labs(x = "Recommited a Crime Within Two Years")
+```
+
+$\\$
+
+Only 745 defendants recommitted a violent crime. 
+
+```{r}
+tally(clean_compasdata$is_violent_recid)
+```
+
+Out of the 3188 who recommitted a crime, 2443 re-committed a non-violent crime, 
+
+```{r}
+tally(clean_compasdata[clean_compasdata$is_recid == 1, ]$is_violent_recid)
+```
+
+```{r, fig.width = 4.5, fig.height = 3}
+ggplot(data = clean_compasdata[clean_compasdata$is_recid == 1, ], 
+       mapping = aes(x = as.factor(is_violent_recid))) +
+  geom_bar() +
+  theme_minimal() +
+  labs(x = "Violent Crime Recommitted",
+       title = "Recommitted a Crime Within Two Years")
+```
+
+$\\$
+
+Finally, the COMPAS tool classified more than half of the defendants as low risk. In particular, 5370 were classified as low risk and 1677 as high risk, with the remaining 2340 as medium risk. This is expected since most of the defendants did not recommit a crime within the two year time window. 
+
+```{r}
+tally(clean_compasdata$score_text)
+```
+
+```{r, fig.width = 4.5, fig.height = 3}
+order <- c("Low", "Medium", "High")
+
+ggplot(data = clean_compasdata, mapping = aes(x = score_text)) +
+  geom_bar() +
+  theme_minimal() +
+  scale_x_discrete(limits = order) +
+  labs(x = "COMPAS Classification")
+```
+
+$\\$ 
+
+This wraps up our univariate analysis of the categorical variables. Next, let's examine the univariate distribution of the continuous variables. 
+
 ### Continuous Variables
+
+The age of the defendants ranges from 18 to 96 with a mean of 34 and a median of 32. There is no missing data. There's a right-skew in the distribution because of the few really old defendants. 
+
+```{r}
+favstats(clean_compasdata$age)
+```
+```{r, fig.width = 4.5, fig.height = 3, warning = FALSE, message = FALSE}
+ggplot(data = clean_compasdata, mapping = aes(x = age)) +
+  geom_histogram() +
+  theme_minimal() 
+```
+
+$\\$
+
+Most of the defendants had no juvenile felony accounts. The maximum juvenile felony count is 20. There is not enough variation in this variable. 
+
+```{r}
+favstats(clean_compasdata$juv_fel_count)
+```
+$\\$
+
+Similarly, most defendants had no juvenile misdemeanor counts, which are less serious crimes than felonies. The maximum was 13, but there is not enough variation in this variable.
+
+```{r}
+favstats(clean_compasdata$juv_misd_count)
+```
+$\\$
+
+Similarly, most defendants had no other juvenile counts, excluding misdemeanors and felonies. The maximum was 11, but there is not enough variation in this variable.
+
+```{r}
+favstats(clean_compasdata$juv_other_count)
+```
+$\\$
+
+There is slightly more variation in the `priors_count` variable which records the number of non-juvenile prior offenses for each defendant. It ranges from 0 to 38, with a median of 1 and a mean of 3.02, indicating a right skew as visualized in the histogram below. There is no missing data and the standard deviation is 4.586, suggesting that this may be a more informative variable when modeling. 
+
+```{r}
+favstats(clean_compasdata$priors_count)
+```
+
+```{r, fig.width = 4.5, fig.height = 3, warning = FALSE, message = FALSE}
+ggplot(data = clean_compasdata, mapping = aes(x = priors_count)) +
+  geom_histogram() +
+  theme_minimal() +
+  labs(x = "priors")
+```
+
+$\\$
+
+The `days_b_screening_arrest` variable indicates how many days passed between arrest and COMPAS screening. It may not be indicative of recidivism, however. We will evaluate this when performing bivariate analysis.
+
+```{r}
+favstats(clean_compasdata$days_b_screening_arrest)
+```
+
+$\\$
+
+The interpretation of this variable is not clear -- it seems to indicate the number of days since COMPAS screening to date. We will not include this in the analysis. 
+
+```{r}
+favstats(clean_compasdata$c_days_from_compas)
+```
+$\\$
+
+The number of days spent in jail ranges from 0 to 21540, with a median of 4 days and a mean of 100 days. This variable is extremely right skewed, as visualized in the histogram. The standard deviation is also 393, indicating a lot of variation that may potentially be useful for predicting the risk of recidivism. 
+
+```{r}
+favstats(clean_compasdata$days_in_jail)
+```
+```{r, fig.width = 4.5, fig.height = 3, warning = FALSE, message = FALSE}
+ggplot(data = clean_compasdata, mapping = aes(x = days_in_jail)) +
+  geom_histogram() +
+  theme_minimal() +
+  labs(x = "Days in Jail")
+```
+
+$\\$
+
+The days spent in prison is not as variable as the days spent in jail. The minimum 0 and the maximum is 190739. This skews the mean to 784.7951, but the median is 0. The distinction between jail and prison is still unclear.
+
+```{r}
+favstats(clean_compasdata$days_in_prison)
+```
+
+$\\$
+
+The number of crimes recommitted by the defendants who re-committed a crime within two years ranges from 1 to 55, with a median of 1 and a mean of 1.73. 
+
+```{r}
+favstats(clean_compasdata$num_r_cases)
+```
+$\\$
+
+Finally, the COMPAS tool outputs a raw score for each defendant. The raw score ranges from -3.21 to 1.69 with a median of -0.74 and a mean of -0.78. The distribution of the raw scores is visualized on the histogram below. The distribution is unimodal and symmetric with a slight left skew.
+
+```{r}
+favstats(clean_compasdata$raw_score)
+```
+```{r, fig.width = 4.5, fig.height = 3, warning = FALSE, message = FALSE}
+ggplot(data = clean_compasdata, mapping = aes(x = raw_score)) +
+  geom_histogram() +
+  theme_minimal() +
+  labs(x = "COMPAS Raw Score")
+```
+
+$\\$
+
+The raw scores are then converted into decile scores that determine the predicted risk of recidivism. The decile scores range from 1 to 10 with a median of 4 and a mean of 4.3. The histogram displays the distribution of the decile scores -- it makes me wonder how, or whether, the decile scores are computed from the raw scores.  
+
+```{r}
+favstats(clean_compasdata$decile_score)
+```
+```{r, fig.width = 4.5, fig.height = 3, warning = FALSE, message = FALSE}
+ggplot(data = clean_compasdata, mapping = aes(x = as.factor(decile_score))) +
+  geom_bar() +
+  theme_minimal() +
+  labs(x = "COMPAS Decile Score")
+```
+
+$\\$
+
+Note that the decile scores are mapped to 'low', 'medium', and 'high' risk as detailed in the table below.
+
+```{r}
+clean_compasdata %>%
+  dplyr::select(decile_score, score_text) %>%
+  filter(score_text != 'N/A') %>%
+  rename("Risk" = score_text) %>%
+  group_by(Risk) %>%
+  summarise("Min" = min(decile_score),
+            "Max" = max(decile_score)) %>%
+  arrange(Min) %>%
+  kable(booktabs = TRUE)
+```
+
+$\\$
+
+This concludes our univariate analysis of the variables in the COMPAS data set. Next, we will look at some of the bivariate relationships.
 
 ## Bivariate Analysis
 
+In this section, we will explore the relationships between our variables and the response variable, `is_recid`, which records whether or not a participant recommitted a crime within 2 years.
+
+break everything by response variable.
+
 ## Multivariate Analysis 
 
+choose most informative variables from bivariate analysis to include in the model. 
+
+
+age, days in jail, priors count, the categorical vars. 
+
 # Demographic Group Analysis 
+break everything by race.
 
 # Logistic Regression 
 
@@ -170,6 +433,9 @@ ggplot(data = clean_compasdata, mapping = aes(x = age_cat)) +
 
 # Results
 
+look at visuals/ tables from chap 4 
+
+ex. mapping of score text to decile scores. 
 
 
 
