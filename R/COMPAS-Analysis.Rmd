@@ -125,7 +125,7 @@ There 7457 males and 1930 females in the data set.
 tally(clean_compasdata$sex) 
 ```
 
-```{r, fig.width = 4.5, fig.height = 3}
+```{r, fig.width = 4.5, fig.height = 3, fig.align = 'center'}
 ggplot(data = clean_compasdata, mapping = aes(x = sex)) +
   geom_bar() +
   theme_minimal()
@@ -139,7 +139,7 @@ Most of the defendants are African-American and Caucasian, with only 27 Native A
 tally(clean_compasdata$race)
 ```
 
-```{r, fig.width = 5, fig.height = 3}
+```{r, fig.width = 5, fig.height = 3, fig.align = 'center'}
 ggplot(data = clean_compasdata, mapping = aes(x = race)) +
   geom_bar() +
   theme_minimal() +
@@ -153,7 +153,7 @@ Majority of the defendants are between the age of 25 and 45, with about the same
 tally(clean_compasdata$age_cat)
 ```
 
-```{r, fig.width = 4.5, fig.height = 3}
+```{r, fig.width = 4.5, fig.height = 3, fig.align = 'center'}
 order <- c("Less than 25", "25 - 45", "Greater than 45")
 
 ggplot(data = clean_compasdata, mapping = aes(x = age_cat)) +
@@ -172,7 +172,7 @@ tally(clean_compasdata$marital_status)
 ```
 
 
-```{r, fig.width = 5, fig.height = 3}
+```{r, fig.width = 5, fig.height = 3, fig.align = 'center'}
 ggplot(data = clean_compasdata, mapping = aes(x = marital_status)) +
   geom_bar() +
   theme_minimal() +
@@ -187,7 +187,7 @@ Most of the defendants are jail inmates, with only a handful of prison inmates, 
 tally(clean_compasdata$custody_status)
 ```
 
-```{r, fig.width = 5, fig.height = 3}
+```{r, fig.width = 5, fig.height = 3, fig.align = 'center'}
 ggplot(data = clean_compasdata, mapping = aes(x = custody_status)) +
   geom_bar() +
   theme_minimal() +
@@ -210,7 +210,7 @@ There are 13 different charge degrees present in the data set. Most defendants w
 tally(clean_compasdata$c_charge_degree)
 ```
 
-```{r, fig.width = 5, fig.height = 3}
+```{r, fig.width = 5, fig.height = 3, fig.align = 'center'}
 ggplot(data = clean_compasdata, mapping = aes(x = c_charge_degree)) +
   geom_bar() +
   theme_minimal() +
@@ -225,7 +225,7 @@ About two-thirds of the defendants did not recommit a crime within two years, wh
 tally(clean_compasdata$is_recid)
 ```
 
-```{r, fig.width = 4.5, fig.height = 3}
+```{r, fig.width = 4.5, fig.height = 3, fig.align = 'center'}
 ggplot(data = clean_compasdata, mapping = aes(x = as.factor(is_recid))) +
   geom_bar() +
   theme_minimal() +
@@ -247,7 +247,7 @@ tally(clean_compasdata[clean_compasdata$is_recid == 1, ]$is_violent_recid,
       margins = TRUE)
 ```
 
-```{r, fig.width = 4.5, fig.height = 3}
+```{r, fig.width = 4.5, fig.height = 3, fig.align = 'center'}
 ggplot(data = clean_compasdata[clean_compasdata$is_recid == 1, ], 
        mapping = aes(x = as.factor(is_violent_recid))) +
   geom_bar() +
@@ -264,7 +264,7 @@ Finally, the COMPAS tool classified more than half of the defendants as low risk
 tally(clean_compasdata$score_text)
 ```
 
-```{r, fig.width = 4.5, fig.height = 3}
+```{r, fig.width = 4.5, fig.height = 3, fig.align = 'center'}
 order <- c("Low", "Medium", "High")
 
 ggplot(data = clean_compasdata, mapping = aes(x = score_text)) +
@@ -285,6 +285,7 @@ The age of the defendants ranges from 18 to 96 with a mean of 34 and a median of
 ```{r}
 favstats(clean_compasdata$age)
 ```
+
 ```{r, fig.width = 4.5, fig.height = 3, warning = FALSE, message = FALSE}
 ggplot(data = clean_compasdata, mapping = aes(x = age)) +
   geom_histogram() +
@@ -429,7 +430,7 @@ In this section, we will explore the relationships between our variables and the
 
 It doesn't appear as though there is much evident relationship between sex and recidivism. 
 
-```{r, fig.width = 4.5, fig.height = 3}
+```{r, fig.width = 4.5, fig.height = 3, fig.align = 'center'}
 ggplot(data = clean_compasdata, mapping = aes(x = sex, fill = sex)) +
   geom_bar() +
   theme_minimal() +
@@ -441,7 +442,7 @@ $\\$
 
 Among defendants who do not recidivate, there are more defendants thatt are aged 45 in comparison to those less than 25. However, among those that recidivated, there are more defendants that are less than 25 in comparison to those that are greater than 45. This indicates that age may hold some valuable information regarding a defendant's likelihood of recidivism. 
 
-```{r, fig.width = 4.5, fig.height = 3}
+```{r, fig.width = 4.5, fig.height = 3, fig.align = 'center'}
 order <- c("Less than 25", "25 - 45", "Greater than 45")
   
 ggplot(data = clean_compasdata, 
@@ -460,7 +461,7 @@ $\\$
 
 It doesn't appear as though there is much relationship between recidivism and marital status.
 
-```{r, fig.width = 6, fig.height = 3}
+```{r, fig.width = 6, fig.height = 3, fig.align = 'center'}
 ggplot(data = clean_compasdata, 
        mapping = aes(x = marital_status, fill = marital_status)) +
   geom_bar() +
@@ -475,7 +476,7 @@ $\\$
 
 It doesn't appear as though there is much relationship between recidivism and custody status.
 
-```{r, fig.width = 6, fig.height = 3}
+```{r, fig.width = 6, fig.height = 3, fig.align = 'center'}
 ggplot(data = clean_compasdata, 
        mapping = aes(x = custody_status, fill = custody_status)) +
   geom_bar() +
@@ -487,9 +488,90 @@ ggplot(data = clean_compasdata,
   theme(axis.text.x = element_text(angle = 25, vjust = 1.2, hjust=1))
 ```
 
+$\\$
+
+It doesn't appear as though there is much relationship between recidivism and charge degree.
+
+```{r, fig.width = 6, fig.height = 5, fig.align = 'center'}
+ggplot(data = clean_compasdata, 
+       mapping = aes(x = c_charge_degree, fill = c_charge_degree)) +
+  geom_bar() +
+  theme_minimal() +
+  facet_wrap(~is_recid, ncol = 1) +
+  labs(title = "Recidivism by Charge Degree",
+       x = "Charge Degree",
+       fill = "Charge Degree") +
+  theme(axis.text.x = element_text(angle = 25, vjust = 1.2, hjust=1))
+```
+
+$\\$
+
+However, it appears as though the COMPAS tool classifies defendants who recommit a crime as almost as equally risky of recidivism -- there is no significant distinction between 'low', 'medium', and 'high' risk for these defendants. For the defendants that don't recommit a crime, most are predicted as 'low' risk, followed by 'medium', and then 'high' risk. Note, however, that this variable will not be included as a predictor in the model as the purpose of this analysis is to assess COMPAS performance, or more generally, standard ML approaches, in comparison to the Seldonian framework. 
+
+```{r, fig.width = 6, fig.height = 3, fig.align = 'center'}
+order <- c("Low", "Medium", "High")
+  
+ggplot(data = clean_compasdata, 
+       mapping = aes(x = score_text, fill = score_text)) +
+  geom_bar() +
+  theme_minimal() +
+  facet_wrap(~is_recid) +
+  labs(title = "Recidivism by COMPAS Risk Score",
+       x = "COMPAS Risk Score",
+       fill = "COMPAS Risk Score") +
+  theme(axis.text.x = element_text(angle = 25, vjust = 1.2, hjust=1)) +
+  scale_x_discrete(limits = order) 
+```
+
+$\\$
+
+Next, let's perform a similar analysis for the continuous variables. 
+
 ### Continous Variables
 
-break everything by response variable.
+There is a difference in the mean and median ages for defendants who recommit a crime within two years versus though who don't. Those who recidivate tend to be younger than those who don't, indicating that this may be a useful variable.
+
+```{r}
+favstats(data = clean_compasdata, age ~ is_recid)
+```
+
+```{r, fig.width = 4.5, fig.height = 5, warning = FALSE, message = FALSE, fig.align = 'center'}
+ggplot(data = clean_compasdata, 
+       mapping = aes(x = age, color = as.factor(is_recid))) +
+  geom_histogram() +
+  theme_minimal() +
+  facet_wrap(~ is_recid, ncol = 1) +
+  labs(title = "Recidivism by Age",
+       color = "Recidivism")
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
 
 ## Multivariate Analysis 
 
