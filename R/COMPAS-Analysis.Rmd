@@ -424,7 +424,7 @@ This concludes our univariate analysis of the variables in the COMPAS data set. 
 
 ## Bivariate Analysis
 
-In this section, we will explore the relationships between our variables and the response variable, `is_recid`, which records whether or not a participant recommitted a crime within 2 years.
+In this section, we will explore the relationships between our variables and the response variable, `is_recid`, which records whether or not a defendant recommitted a crime within 2 years.
 
 ### Categorical Variables
 
@@ -529,37 +529,108 @@ Next, let's perform a similar analysis for the continuous variables.
 
 ### Continous Variables
 
-There is a difference in the mean and median ages for defendants who recommit a crime within two years versus though who don't. Those who recidivate tend to be younger than those who don't, indicating that this may be a useful variable.
+There is a difference in the mean and median ages for defendants who recommit a crime within two years versus though who don't. Those who recidivate tend to be younger than those who don't, indicating that this will be a useful variable in the model. This is in line with intuition from society.
 
 ```{r}
 favstats(data = clean_compasdata, age ~ is_recid)
 ```
 
-```{r, fig.width = 4.5, fig.height = 5, warning = FALSE, message = FALSE, fig.align = 'center'}
+```{r, fig.width = 4.5, fig.height = 3, warning = FALSE, message = FALSE, fig.align = 'center'}
 ggplot(data = clean_compasdata, 
-       mapping = aes(x = age, color = as.factor(is_recid))) +
-  geom_histogram() +
+       mapping = aes(x = as.factor(is_recid), y = age)) +
+  geom_boxplot() +
   theme_minimal() +
-  facet_wrap(~ is_recid, ncol = 1) +
   labs(title = "Recidivism by Age",
-       color = "Recidivism")
+       x = "Age",
+       y = "Recidivism")
 ```
+
+
+$\\$
+
+There is not much distributional difference in juvenile felony counts for defendants who recidivate versus those who don't.
 
 ```{r}
-
+favstats(data = clean_compasdata, juv_fel_count ~ is_recid)
 ```
+
+$\\$
+
+There is not much distributional difference in juvenile misdemeanor counts for defendants who recidivate versus those who don't.
 
 ```{r}
-
+favstats(data = clean_compasdata, juv_misd_count ~ is_recid)
 ```
+$\\$
+
+There is not much distributional difference in juvenile offenses for defendants who recidivate versus those who don't.
 
 ```{r}
-
+favstats(data = clean_compasdata, juv_other_count ~ is_recid)
 ```
+
+$\\$
+
+There is some distributional difference in non-juvenile prior offenses for defendants who recidivate versus those who don't, as is indicated by the different means and medians. Those who recommit a crime within two years tend to have more prior offenses. This will be a useful variable to include in the models. 
 
 ```{r}
-
+favstats(data = clean_compasdata, priors_count ~ is_recid)
 ```
+```{r, fig.width = 4.5, fig.height = 3, warning = FALSE, message = FALSE, fig.align = 'center'}
+ggplot(data = clean_compasdata, 
+       mapping = aes(x = as.factor(is_recid), y = priors_count)) +
+  geom_boxplot() +
+  theme_minimal() +
+  labs(title = "Recidivism by Prior Offenses",
+       x = "Prior Offenses",
+       y = "Recidivism")
+```
+
+$\\$
+
+There doesn't appear to be any distributional difference in days between COMPAS screening and arrest for defendants who recidivate versus those who don't. This will not be a useful variable for modeling.
+
+```{r}
+favstats(data = clean_compasdata, days_b_screening_arrest ~ is_recid)
+```
+$\\$
+
+While the means differ because of the right-skew nature of the data, there doesn't appear to be much distributional difference in days since COMPAS screening for defendants who recidivate versus those who don't. This will not be a useful variable for modeling.
+
+```{r}
+favstats(data = clean_compasdata, c_days_from_compas ~ is_recid)
+```
+
+$\\$
+
+There is an evident difference in the distribution of the number of days spent in jail for participants who recommit a crime within two years versus those who don't. The mean, median, and max value differ significantly, indicating variation that may be useful in modeling. It's hard to visualize the boxplots with all the outliers, so the second boxplot trims the y-axis to better visualize this relationship.
+
+```{r}
+favstats(data = clean_compasdata, days_in_jail ~ is_recid)
+```
+```{r, fig.width = 4.5, fig.height = 3, warning = FALSE, message = FALSE, fig.align = 'center'}
+ggplot(data = clean_compasdata, 
+       mapping = aes(x = as.factor(is_recid), y = days_in_jail)) +
+  geom_boxplot() +
+  theme_minimal() +
+  labs(title = "Recidivism by Days Spent in Jail (w/ Outliers)",
+       x = "Days in Jail",
+       y = "Recidivism")
+```
+
+```{r, fig.width = 4.5, fig.height = 3, warning = FALSE, message = FALSE, fig.align = 'center'}
+ggplot(data = clean_compasdata, 
+       mapping = aes(x = as.factor(is_recid), y = days_in_jail)) +
+  geom_boxplot() +
+  theme_minimal() +
+  labs(title = "Recidivism by Days Spent in Jail (Trimmed)",
+       x = "Days in Jail",
+       y = "Recidivism") +
+  ylim(0,1500)
+```
+
+
+$\\$
 
 ```{r}
 
