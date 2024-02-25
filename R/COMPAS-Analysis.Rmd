@@ -440,7 +440,7 @@ ggplot(data = clean_compasdata, mapping = aes(x = sex, fill = sex)) +
 
 $\\$
 
-Among defendants who do not recidivate, there are more defendants thatt are aged 45 in comparison to those less than 25. However, among those that recidivated, there are more defendants that are less than 25 in comparison to those that are greater than 45. This indicates that age may hold some valuable information regarding a defendant's likelihood of recidivism. 
+Among defendants who do not recidivate, there are more defendants that are aged 45 in comparison to those less than 25. However, among those that recidivated, there are more defendants that are less than 25 in comparison to those that are greater than 45. This indicates that age may hold some valuable information regarding a defendant's likelihood of recidivism. 
 
 ```{r, fig.width = 4.5, fig.height = 3, fig.align = 'center'}
 order <- c("Less than 25", "25 - 45", "Greater than 45")
@@ -689,18 +689,140 @@ glimpse(compas_final)
 ```
 
 
- 
+### Scatterplot Matrix
+
+First, a scatterplot matrix with just the 3 continuous predictive variables in the final data set, `age`, `prior offenses`, and `days in jail`, will help to elucidate the covariate relationships between the variables. All the variables have moderate to weak correlations, with the strongest correlation of 0.357 being between the number of prior offenses and the number of days spent in jail. There are no concerns for multicollinearity. 
+
+```{r, fig.align = 'center'}
+ggpairs(data = compas_final,
+        columns = c("age", "priors_count", "days_in_jail"),
+        title = "Scatterplot Matrix of the COMPAS Continuous Variables")
+```
+
+$\\$
+
+As observed, the variables have a significant right skew and the relationship is non-linear. Let's explore what effect different transformations may have on the covariate relationships. The log transformation resulted in many non-finite values, so we will look at a square root transformation instead.
+
+```{r}
+compas_final <- compas_final %>%
+  mutate(sqrt_age = sqrt(age),
+         sqrt_priors_count = sqrt(priors_count),
+         sqrt_days_in_jail = sqrt(days_in_jail))
+```
+
+$\\$
+
+While this transformation strengthened the relationship between the number of prior offenses and the number of days spent in jail, it weakened the other correlations. Next, we'll assess how much this affects the relationship with the COMPAS decile scores. 
+
+```{r}
+ggpairs(data = compas_final,
+        columns = c("sqrt_age", "sqrt_priors_count", "sqrt_days_in_jail"),
+        title = "Scatterplot Matrix of the COMPAS Continuous Variables
+        (Square Root)")
+```
+
+$\\$
+
+### Pearson's Correlation  Matrix
+
+Decile scores has a moderate relationship with age, prior offenses, and number of days spent in jail -- this suggests that these variables may indeed be useful for modeling recidivism.
+
+```{r}
+mycordata1 <- compas_final %>%
+  dplyr::rename("Age" = age,
+         "Priors" = priors_count,
+         "Days in Jail" = days_in_jail,
+         "Decile Scores" = decile_score) %>%
+  dplyr::select("Age", "Priors", "Days in Jail", "Decile Scores")
+
+cor(mycordata1) %>%
+  kable(digits = 2,
+        booktabs = TRUE)
+```
+
+$\\$
+
+The square root transformation of the predictor variables actually strengthens the relationship with decile scores -- this suggests that the square root transformation of these variables may be better for modeling recidivism.
+
+```{r}
+mycordata2 <- compas_final %>%
+  dplyr::rename("Square Root Age" = sqrt_age,
+         "Priors" = sqrt_priors_count,
+         "Days in Jail" = sqrt_days_in_jail,
+         "Decile Scores" = decile_score) %>%
+  dplyr::select("Square Root Age", "Priors", "Days in Jail", "Decile Scores")
+
+cor(mycordata2) %>%
+  kable(digits = 2,
+        booktabs = TRUE)
+```
+
+$\\$
+
+### Spearman's Correlation  Matrix
+
+Spearman's Correlation is better at capturing non-linear relationships. Using Spearman correlations reveals stronger correlations between the variables and the COMPAS decile scores. 
+
+There is no observable difference when calculating Spearman's correlation with the square-root transformed variables versus the original variables. 
+
+```{r}
+mycordata3 <- compas_final %>%
+  dplyr::rename("Age" = age,
+         "Priors" = priors_count,
+         "Days in Jail" = days_in_jail,
+         "Decile Scores" = decile_score) %>%
+  dplyr::select("Age", "Priors", "Days in Jail", "Decile Scores")
+
+cor(mycordata3, method = "spearman") %>%
+  kable(digits = 2,
+        booktabs = TRUE)
+```
+
+$\\$
+
+Finally, let's visualize these correlations. 
+
+```{r, fig.align = 'center', fig.width = 4.5, fig.height = 3}
+mycors <- round(cor(mycordata3, method = "spearman"),2)
+mycorplot <- melt(mycors)
+
+ggplot(data = mycorplot, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile() +
+  labs(x = "",
+       y = "",
+       title = "Spearman's Correlation Matrix") +
+  scale_fill_gradient2(
+    low = "blue",
+    high = "red",
+    mid = "white",
+    midpoint = 0,
+    limit = c(-1, 1),
+    space = "Lab",
+    name = "Spearman\nCorrelation"
+  ) +
+  geom_text(aes(Var2, Var1, label = value),
+            color = "black",
+            size = 3) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 30, vjust = 1, hjust = 1))
+```
+
+
+$\\$
+
+Now that we have a thorough understanding of the make-up of the data set, we will perform a demographic analysis next to get a better understanding of the racial discrepancies that may be present before, finally, proceeding with the recidivism risk modeling. 
 
 # Demographic Group Analysis 
-break everything by race.
+analyze variables by race.
 
 # Logistic Regression 
+run logistic regression and analyze results.
 
 # Seldonian Classification
+run seldonian framework on the data set and analyze results.
 
 # Results
-
-look at visuals/ tables from chap 4 
+* remember to look at visuals/ tables from chap 4 and add as appropriate 
 
 
 
