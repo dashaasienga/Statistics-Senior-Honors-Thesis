@@ -541,8 +541,8 @@ ggplot(data = clean_compasdata,
   geom_boxplot() +
   theme_minimal() +
   labs(title = "Recidivism by Age",
-       x = "Age",
-       y = "Recidivism")
+       x = "Recidivism",
+       y = "Age")
 ```
 
 
@@ -582,8 +582,8 @@ ggplot(data = clean_compasdata,
   geom_boxplot() +
   theme_minimal() +
   labs(title = "Recidivism by Prior Offenses",
-       x = "Prior Offenses",
-       y = "Recidivism")
+       x = "Recidivism",
+       y = "Prior Offenses")
 ```
 
 $\\$
@@ -614,8 +614,8 @@ ggplot(data = clean_compasdata,
   geom_boxplot() +
   theme_minimal() +
   labs(title = "Recidivism by Days Spent in Jail (w/ Outliers)",
-       x = "Days in Jail",
-       y = "Recidivism")
+       x = "Recidivism",
+       y = "Days in Jail")
 ```
 
 ```{r, fig.width = 4.5, fig.height = 3, warning = FALSE, message = FALSE, fig.align = 'center'}
@@ -624,32 +624,72 @@ ggplot(data = clean_compasdata,
   geom_boxplot() +
   theme_minimal() +
   labs(title = "Recidivism by Days Spent in Jail (Trimmed)",
-       x = "Days in Jail",
-       y = "Recidivism") +
+       x = "Recidivism",
+       y = "Days in Jail") +
   ylim(0,1500)
 ```
 
 
 $\\$
 
-```{r}
-
-```
+There doesn't appear to be much distributional difference, rather than the effects of extreme right skews, in days spent in prison for defendants who recidivate versus those who don't. The difference between jail and prison is still not clear, so this will not be a useful variable for modeling.
 
 ```{r}
-
+favstats(data = clean_compasdata, days_in_prison ~ is_recid)
 ```
+
+$\\$
+
+Finally, let's assess the COMPAS decile scores. The median and mean decile scores differ for defendants who recommit a crime within 2 years versus those who don't. The median score for those who don't is 3, which is mapped to low risk. The median score for those who do is 6, which is mapped to medium risk. This indicates that the COMPAS tool has some predictive accuracy. However, the range of scores is the same for both defendants who recidivate versus those who do not, suggesting that the tool is not entirely accurate in its predictions. 
 
 ```{r}
-
+favstats(data = clean_compasdata, decile_score ~ is_recid)
 ```
+```{r, fig.width = 4.5, fig.height = 3, warning = FALSE, message = FALSE, fig.align = 'center'}
+ggplot(data = clean_compasdata, 
+       mapping = aes(x = as.factor(is_recid), y = decile_score)) +
+  geom_boxplot() +
+  theme_minimal() +
+  labs(title = "Recidivism by Decile Scores",
+       x = "Recidivism",
+       y = "Decile Score")
+```
+
+$\\$
+
+This wraps up our analysis of the bivariate relationships between the continuous variables in the data set and the response variable: `is_recid`.
+
 
 ## Multivariate Analysis 
 
-choose most informative variables from bivariate analysis to include in the model. 
+Based on the univariate and bivariate analysis, the 8 most informative predictive variables for modeling will be: 
+
+- `sex`
+- `age`
+- `age category`
+- `marital status`
+- `custody status` 
+- `prior offenses` 
+- `charge degree`
+- `days in jail`
+
+We will also include `race` in the modeling data set as our demographic variable, though it will not be included in the models themselves. Finally, `is_recid`, the response variable, will also be selected in the data set. 
+
+For further analysis, we will also include the COMPAS decile scores to assess which of these variables may have been used to model the COMPAS risk assessment tool.
+
+Now, let's create a new data set with these 11 variables. Below is a glimpse of the data set.
+
+```{r}
+compas_final <- clean_compasdata %>%
+  dplyr::select(c(race, sex, age, age_cat, marital_status, 
+                  custody_status, priors_count, c_charge_degree,
+                  days_in_jail, decile_score, is_recid))
+
+glimpse(compas_final)
+```
 
 
-age, days in jail, priors count, the categorical vars. 
+ 
 
 # Demographic Group Analysis 
 break everything by race.
@@ -662,9 +702,7 @@ break everything by race.
 
 look at visuals/ tables from chap 4 
 
-ex. mapping of score text to decile scores. 
 
-align figures on the center.
 
 
 
