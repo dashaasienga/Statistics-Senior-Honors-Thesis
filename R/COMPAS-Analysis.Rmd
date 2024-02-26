@@ -24,7 +24,7 @@ library(reshape2)
 
 $\\$
 
-The thesis body will have more in-depth descriptions of the data analysis as well as select output and results from this file. This file is intended for general preliminary analysis of the COMPAS data set.
+The thesis body will have more in-depth descriptions of the data analysis as well as select output and results from this file. This file is intended for general preliminary analysis of the COMPAS data set. Note that the results can only be generalized to Broward County, Florida, but there are important findings about the United States judicial system nevertheless.
 
 # Reading in the Data 
 
@@ -813,7 +813,164 @@ $\\$
 Now that we have a thorough understanding of the make-up of the data set, we will perform a demographic analysis next to get a better understanding of the racial discrepancies that may be present before, finally, proceeding with the recidivism risk modeling. 
 
 # Demographic Group Analysis 
-analyze variables by race.
+
+## Bivariate Analsyis
+
+The demographic variable of interest for this analysis is `race`, and we will employ the Seldonian algorithm in a hope to achieve fairer recidivism risk predictions. With that goal in mind, it's important to perform a demographic group analysis along the defendants' races to better understand any underlying or proxy relationships with the variables. 
+
+First, let's analyze the bivariate relationships of some of the most important variables with race.
+
+For all the races, with the exception of native Americans for who there are not many data points available, there are more male defendants than female defendants. 
+
+```{r, fig.width = 6, fig.height = 3, fig.align = 'center'}
+ggplot(data = compas_final, mapping = aes(x = sex, fill = sex)) +
+  geom_bar() +
+  theme_minimal() +
+  facet_wrap(~race) +
+  labs(title = "Sex by Race")
+```
+$\\$
+
+African-American defendants tend to be, on average, the youngest compared to all the other races. Asian defendants, followed by Caucasian defendants, tend to be the oldest. However, there is considerable overlap among all the races, and the relationships is visualized in the boxplot below. 
+
+```{r}
+favstats(data = compas_final, age ~ race)
+```
+```{r, fig.width = 6, fig.height = 3, warning = FALSE, message = FALSE, fig.align = 'center'}
+ggplot(data = compas_final, 
+       mapping = aes(x = as.factor(race), y = age)) +
+  geom_boxplot() +
+  theme_minimal() +
+  labs(title = "Age by Race",
+       x = "Race",
+       y = "Age")
+```
+The bar plot below illustrates that for all races, most defendants fall between the ages of 25 and 45. Notice, however, that for African-American defendants, there are more defendants that are less than 25 than those that are greater than 45. The converse is true for Caucasians, with more defendants that are greater than 45 in comparison to those less than 25. 
+
+This illustrates that there is some relationship between age and race in this data set, particularly for African-Americans versus Caucasians. 
+
+```{r, fig.width = 6, fig.height = 3, fig.align = 'center'}
+order <- c("Less than 25", "25 - 45", "Greater than 45")
+  
+ggplot(data = compas_final, 
+       mapping = aes(x = age_cat, fill = age_cat)) +
+  geom_bar() +
+  theme_minimal() +
+  facet_wrap(~race) +
+  labs(title = "Age Categories by Race",
+       x = "Age Category",
+       fill = "Age Category") +
+  theme(axis.text.x = element_text(angle = 25, vjust = 1.2, hjust=1)) +
+  scale_x_discrete(limits = order) 
+```
+$\\$
+
+For simpler visualization, let's assess the marital status just for Black and White defendants. For both races, most defendants are single. There are no distinct distributional differences.
+
+```{r, fig.width = 6, fig.height = 3, fig.align = 'center'}
+compas_final_bw <- compas_final %>%
+  filter(race %in% c("African-American", "Caucasian"))
+
+ggplot(data = compas_final_bw, 
+       mapping = aes(x = marital_status, fill = marital_status)) +
+  geom_bar() +
+  theme_minimal() +
+  facet_wrap(~race) +
+  labs(title = "Marital Status by Race",
+       x = "Marital Status",
+       fill = "Marital Status") +
+  theme(axis.text.x = element_text(angle = 25, vjust = 1.2, hjust=1)) 
+```
+
+$\\$
+
+Similarly, there is no observable distribution difference in custody status by race. However, as much as there are less Caucasian defendants overall in comparison to African-American defendants, there are slightly more Caucasian prison defendants.
+
+```{r, fig.width = 6, fig.height = 3, fig.align = 'center'}
+ggplot(data = compas_final_bw, 
+       mapping = aes(x = custody_status, fill = custody_status)) +
+  geom_bar() +
+  theme_minimal() +
+  facet_wrap(~race) +
+  labs(title = "Custody Status by Race",
+       x = "Custody Status",
+       fill = "Custody Status") +
+  theme(axis.text.x = element_text(angle = 25, vjust = 1.2, hjust=1)) 
+```
+$\\$
+
+Notably, African-Americans have the most prior offenses, on average, followed by Native Americans. When comparing with Caucasian defendants, African-Americans have almost twice as many prior offenses, suggesting a strong proxy relationship between race and prior offenses. Asian defendants have the least prior offenses. This is an important result and illustrates how a system that pre-disposes certain races to prison can perpetuate that discriminatory trend by using those same variables to predict risk of recommiting another crime. The boxplot helps to visualize this relationship more clearly.
+
+```{r}
+favstats(data = compas_final, priors_count ~ race)
+```
+```{r, fig.width = 6, fig.height = 3, warning = FALSE, message = FALSE, fig.align = 'center'}
+ggplot(data = compas_final, 
+       mapping = aes(x = as.factor(race), y = priors_count)) +
+  geom_boxplot() +
+  theme_minimal() +
+  labs(title = "Prior Offenses by Race",
+       x = "Race",
+       y = "Prior Offenses")
+```
+$\\$
+
+The same trend is observed when observing the difference in the days spent in jail. On average, African-Americans and Native Americans spend the most time in jail. In fact, their average jail time is more than double that of Caucasian defendants. Asian defendants spend the least time on average. When looking at the medians, 50% of the African-American defendants spent 9 or more days in jail, as compared to only 2 or more days for 50% of the Caucasian defendants. The boxplot below helps to visualize this better.
+
+```{r}
+favstats(data = compas_final, days_in_jail ~ race)
+```
+```{r, fig.width = 6, fig.height = 3, warning = FALSE, message = FALSE, fig.align = 'center'}
+ggplot(data = compas_final, 
+       mapping = aes(x = as.factor(race), y = days_in_jail)) +
+  geom_boxplot() +
+  theme_minimal() +
+  labs(title = "Days in Jail by Race (Trimmed Y-Axis)",
+       x = "Race",
+       y = "Days in Jail") +
+  ylim(0,1000)
+```
+$\\$
+
+Next, let's look at the distribution of the charge degrees just for Black and White defendants. There are no notable distributional differences.
+
+```{r, fig.width = 6, fig.height = 5, fig.align = 'center'}
+ggplot(data = compas_final_bw, 
+       mapping = aes(x = c_charge_degree, fill = c_charge_degree)) +
+  geom_bar() +
+  theme_minimal() +
+  facet_wrap(~race, ncol = 1) +
+  labs(title = "Charge Degree by Race",
+       x = "Charge Degree",
+       fill = "Charge Degree") +
+  theme(axis.text.x = element_text(angle = 25, vjust = 1.2, hjust=1))
+```
+
+$\\$
+
+Finally, let's look at the response variable: `is_recid`. Most defendants do not re-commit a crime, although the ratio of those who don't against those who do appears to be larger for African-American defendants than for Caucasian defendants. Nevertheless, of important note is that the class imbalance is in the same direction. 
+
+```{r, fig.width = 6, fig.height = 5, fig.align = 'center'}
+ggplot(data = compas_final, 
+       mapping = aes(x = as.factor(is_recid), fill = as.factor(is_recid))) +
+  geom_bar() +
+  theme_minimal() +
+  facet_wrap(~race) +
+  labs(title = "Recidivism by Race",
+       x = "Recidivism",
+       fill = "Recidivism") 
+```
+
+
+$\\$
+
+In conclusion, our demographic variable, `race` ($A$), has proxy relationships with some of the predictor variables ($X$). Even a group-blind classifier will not be entirely blind to race because of the correlations present and the information that can be gained from the proxy variables.
+
+Additionally, we've learned that the distribution of those who recommit a crime within 2 years versus those who don't is not drastically different for Black v White defendants -- the class imbalance is in the same direction, so ideally, the model should not misclassify defendants in different directions on the basis of race. 
+
+Next, let's see how the COMPAS tool actually performs with regard to race and whether it is in line with these expectations. 
+
+## COMPAS Analysis
 
 # Logistic Regression 
 run logistic regression and analyze results.
