@@ -990,6 +990,43 @@ compas %>%
   kable(booktabs = TRUE)
 ```
 
+$\\$
+
+Now, let's recreate the table from Chapter 1 using this data set to assess the false positive and false negative rates for Black v White defendants (incomplete). 
+
+```{r, warning = FALSE, message = FALSE}
+compas %>%
+  filter(race %in% c("African-American", "Caucasian")) %>%
+  dplyr::select(race, risk, is_recid) %>%
+  rename("Risk" = risk,
+         "Race" = race) %>%
+  group_by(Risk, Race) %>%
+  summarise("Reoffended" = count(is_recid == 1),
+            "Did Not Reoffend" = count(is_recid == 0)) %>%
+  pivot_longer(cols = c("Reoffended", "Did Not Reoffend"),
+               names_to = "Recidivism") %>%
+  pivot_wider(
+    id_cols = c("Risk", "Recidivism"),
+    names_from = "Race",
+    values_from = value
+  ) %>%
+  arrange(Recidivism) %>%
+  
+  #**summing on risk instead?
+  mutate(
+    `African-American` = round(100 * `African-American` / sum(`African-American`[Recidivism == Recidivism]), 2),
+    `Caucasian` = round(100 * `Caucasian` / sum(`Caucasian`[Recidivism == Recidivism]), 2)
+  ) %>%
+  kable(booktabs = TRUE)
+```
+
+What's left in this section:
+
+* Recreate table from Chapter 1 (still need to correct the proportions)
+
+* Plot decile scores by Black v White
+
+* Extend to all races.
 
 
 # Logistic Regression 
