@@ -814,7 +814,7 @@ Now that we have a thorough understanding of the make-up of the data set, we wil
 
 # Demographic Group Analysis 
 
-## Bivariate Analsyis
+## Bivariate Analysis
 
 The demographic variable of interest for this analysis is `race`, and we will employ the Seldonian algorithm in a hope to achieve fairer recidivism risk predictions. With that goal in mind, it's important to perform a demographic group analysis along the defendants' races to better understand any underlying or proxy relationships with the variables. 
 
@@ -899,7 +899,7 @@ ggplot(data = compas_final_bw,
 ```
 $\\$
 
-Notably, African-Americans have the most prior offenses, on average, followed by Native Americans. When comparing with Caucasian defendants, African-Americans have almost twice as many prior offenses, suggesting a strong proxy relationship between race and prior offenses. Asian defendants have the least prior offenses. This is an important result and illustrates how a system that pre-disposes certain races to prison can perpetuate that discriminatory trend by using those same variables to predict risk of recommiting another crime. The boxplot helps to visualize this relationship more clearly.
+Notably, African-Americans have the most prior offenses, on average, followed by Native Americans. When comparing with Caucasian defendants, African-Americans have almost twice as many prior offenses, suggesting a strong proxy relationship between race and prior offenses. Asian defendants have the least prior offenses. This is an important result and illustrates how a system that pre-disposes certain races to prison can perpetuate that discriminatory trend by using those same variables to predict risk of recommitting another crime. The boxplot helps to visualize this relationship more clearly.
 
 ```{r}
 favstats(data = compas_final, priors_count ~ race)
@@ -972,6 +972,26 @@ Next, let's see how the COMPAS tool actually performs with regard to race and wh
 
 ## COMPAS Analysis
 
+Before we can analyze the COMPAS performance, recall that that the decile scores are mapped to 3 different risk levels -- low, medium, or high -- yet the response variable only has 2 levels -- 0 or 1. Let's recreate this mapping such that there are only 2 risk levels to line up with the 2 levels of the response variable. Instead, decile scores of 1 to 5 will be associated with lower risk of recidivism and decile scores of 6 to 10 will be associated with higher risk as displayed in the table below.
+
+```{r}
+compas <- compas_final %>%
+  mutate(risk = ifelse(decile_score %in% c(1, 2, 3, 4, 5),'Lower','Higher'))
+```
+
+```{r}
+compas %>%
+  dplyr::select(decile_score, risk) %>%
+  rename("Risk" = risk) %>%
+  group_by(Risk) %>%
+  summarise("Min" = min(decile_score),
+            "Max" = max(decile_score)) %>%
+  arrange(Min) %>%
+  kable(booktabs = TRUE)
+```
+
+
+
 # Logistic Regression 
 run logistic regression and analyze results.
 
@@ -979,7 +999,6 @@ run logistic regression and analyze results.
 run seldonian framework on the data set and analyze results.
 
 # Results
-* remember to look at visuals/ tables from chap 4 and add as appropriate 
 
 
 
