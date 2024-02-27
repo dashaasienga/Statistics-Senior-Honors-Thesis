@@ -128,7 +128,8 @@ tally(clean_compasdata$sex)
 ```{r, fig.width = 4.5, fig.height = 3, fig.align = 'center'}
 ggplot(data = clean_compasdata, mapping = aes(x = sex)) +
   geom_bar() +
-  theme_minimal()
+  theme_minimal() +
+  labs(title = "Sex in the COMPAS Data Set")
 ```
 
 $\\$
@@ -143,7 +144,8 @@ tally(clean_compasdata$race)
 ggplot(data = clean_compasdata, mapping = aes(x = race)) +
   geom_bar() +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 25, vjust = 1.2, hjust=1))
+  theme(axis.text.x = element_text(angle = 25, vjust = 1.2, hjust=1)) +
+  labs(title = "Race in the COMPAS Data Set")
 ```
 $\\$
 
@@ -160,7 +162,8 @@ ggplot(data = clean_compasdata, mapping = aes(x = age_cat)) +
   geom_bar() +
   theme_minimal() +
   scale_x_discrete(limits = order) +
-  labs(x = "Age Category")
+  labs(x = "Age Category",
+       title = "Age in the COMPAS Data Set")
 ```
 
 $\\$
@@ -177,7 +180,8 @@ ggplot(data = clean_compasdata, mapping = aes(x = marital_status)) +
   geom_bar() +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 25, vjust = 1.2, hjust=1)) +
-  labs(x = "Marital Status")
+  labs(x = "Marital Status",
+       title = "Marital Status in the COMPAS Data Set") 
 ```
 $\\$
 
@@ -192,7 +196,8 @@ ggplot(data = clean_compasdata, mapping = aes(x = custody_status)) +
   geom_bar() +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 25, vjust = 1.2, hjust=1)) +
-  labs(x = "Custody Status")
+  labs(x = "Custody Status",
+       title = "Custody Status in the COMPAS Data Set")
 ```
 $\\$
 
@@ -215,7 +220,8 @@ ggplot(data = clean_compasdata, mapping = aes(x = c_charge_degree)) +
   geom_bar() +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 25, vjust = 1.2, hjust=1)) +
-  labs(x = "Charge Degree")
+  labs(x = "Charge Degree",
+       title = "Charge Degree in the COMPAS Data Set")
 ```
 $\\$
 
@@ -229,7 +235,8 @@ tally(clean_compasdata$is_recid)
 ggplot(data = clean_compasdata, mapping = aes(x = as.factor(is_recid))) +
   geom_bar() +
   theme_minimal() +
-  labs(x = "Recommited a Crime Within Two Years")
+  labs(x = "Recommited a Crime Within Two Years",
+       title = "Recidivism in the COMPAS Data Set")
 ```
 
 $\\$
@@ -271,7 +278,8 @@ ggplot(data = clean_compasdata, mapping = aes(x = score_text)) +
   geom_bar() +
   theme_minimal() +
   scale_x_discrete(limits = order) +
-  labs(x = "COMPAS Classification")
+  labs(x = "COMPAS Classification",
+       title = "COMPAS Risk Predictions in the Data Set")
 ```
 
 $\\$ 
@@ -289,7 +297,8 @@ favstats(clean_compasdata$age)
 ```{r, fig.width = 4.5, fig.height = 3, warning = FALSE, message = FALSE}
 ggplot(data = clean_compasdata, mapping = aes(x = age)) +
   geom_histogram() +
-  theme_minimal() 
+  theme_minimal() +
+  labs(title = "Age in the COMPAS Data Set")
 ```
 
 $\\$
@@ -325,7 +334,8 @@ favstats(clean_compasdata$priors_count)
 ggplot(data = clean_compasdata, mapping = aes(x = priors_count)) +
   geom_histogram() +
   theme_minimal() +
-  labs(x = "priors")
+  labs(x = "priors",
+       title = "Prior Offenses in the COMPAS Data Set")
 ```
 
 $\\$
@@ -354,7 +364,8 @@ favstats(clean_compasdata$days_in_jail)
 ggplot(data = clean_compasdata, mapping = aes(x = days_in_jail)) +
   geom_histogram() +
   theme_minimal() +
-  labs(x = "Days in Jail")
+  labs(x = "Days in Jail",
+       title = "Days in Jail in the COMPAS Data Set")
 ```
 
 $\\$
@@ -383,7 +394,8 @@ favstats(clean_compasdata$raw_score)
 ggplot(data = clean_compasdata, mapping = aes(x = raw_score)) +
   geom_histogram() +
   theme_minimal() +
-  labs(x = "COMPAS Raw Score")
+  labs(x = "COMPAS Raw Score",
+       title = "Raw Scores in the COMPAS Data Set")
 ```
 
 $\\$
@@ -397,7 +409,8 @@ favstats(clean_compasdata$decile_score)
 ggplot(data = clean_compasdata, mapping = aes(x = as.factor(decile_score))) +
   geom_bar() +
   theme_minimal() +
-  labs(x = "COMPAS Decile Score")
+  labs(x = "COMPAS Decile Score",
+       title = "Decile Scores in the COMPAS Data Set")
 ```
 
 $\\$
@@ -1063,6 +1076,8 @@ $\\$
 
 The table below replicates the above table with raw numbers instead of proportions. This reveals that the model has an overall accuracy of 66.61%, but the analysis above reveals the discrepancies (and unfairness) in the model results for Black v White defendants. 
 
+However, if we classified every observation in the majority class (no recidivism), we'd expect an accuracy of 66.04%. The COMPAS model, thus, is not useful in a predictive sense, and on the contrary, introduces more bias into the judicial system.
+
 ```{r, message = FALSE}
 compas %>%
   dplyr::select(risk, is_recid) %>%
@@ -1075,6 +1090,10 @@ compas %>%
 
 ```{r}
 (1618 + 4635)/ 9387
+```
+
+```{r}
+count(compas$is_recid == 0)/ 9387
 ```
 
 $\\$
@@ -1142,9 +1161,15 @@ We have a thorough understanding of the data set now and the results we would ex
 We're ready to proceed with modeling now. First, we will fit a logistic regression, which uses the standard ML approach discussed in Chapter 2. We expect it to behave similarly to the COMPAS tool. Then, we will define a fairness metric and fit a Seldonian classification algorithm on this data set. We expect to observe less disparities along racial lines, but perhaps with a slight trade-off in overall accuracy. 
 
 # Logistic Regression 
-run logistic regression and analyze results.
 
-refer to compas analysis (racial bias in compas).
+Logistic regression is a generalized linear model (GLM) that is particularly designed for predicting binary outcomes such as ours. We will use logistic regression to model the probability of a defendant re-committing a crime within two years in Broward County, Florida. We’ll then set cutoffs to divide the probabilities into 2 bins: 0 for ‘no’ and 1 for ‘yes’ based on the probability predictions. This will also allow us to analyze which features may be most important in predicting recidivism. 
+
+Recall that if we classified every observation in the majority class, we'd expect an accuracy 66%. This serves as a benchmark for the race-blind logistic regression model we will implement. Note that logistic regression follows the standard ML process [will describe in more detail in the thesis body] and is one of the most widely used classification algorithms -- this will allow us to assess how we might expect state-of-the-art traditional algorithms that do not take fairness guarantees into account to perform. 
+
+
+* run logistic regression and analyze results.
+
+* refer to compas analysis (racial bias in compas).
 
 # Seldonian Classification
 run seldonian framework on the data set and analyze results.
