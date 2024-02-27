@@ -390,6 +390,8 @@ Finally, the COMPAS tool outputs a raw score for each defendant. The raw score r
 ```{r}
 favstats(clean_compasdata$raw_score)
 ```
+
+
 ```{r, fig.width = 4.5, fig.height = 3, warning = FALSE, message = FALSE}
 ggplot(data = clean_compasdata, mapping = aes(x = raw_score)) +
   geom_histogram() +
@@ -411,6 +413,9 @@ ggplot(data = clean_compasdata, mapping = aes(x = as.factor(decile_score))) +
   theme_minimal() +
   labs(x = "COMPAS Decile Score",
        title = "Decile Scores in the COMPAS Data Set")
+```
+```{r}
+favstats(clean_compasdata$raw_score ~ clean_compasdata$score_text)
 ```
 
 $\\$
