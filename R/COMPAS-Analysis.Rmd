@@ -1145,7 +1145,7 @@ $\\$
 Finally, to visualize these results better, let's plot the distribution of the decile scores by race. Observe that while we observed a similar distribution of recidivism for all races, the African-American decile scores are distributed differently from the Caucasian decile scores. The decile scores for the Caucasian defendants is quite right-skewed in comparison to that of the African-Americans which appears to be more evenly distributed, further emphasizing the racial disparity in the risk scores.
 
 ```{r, fig.width = 6, fig.height = 4.5, fig.align = 'center'}
-ggplot(data = compas_final, 
+ggplot(data = compas, 
        mapping = aes(x = as.factor(decile_score))) +
   geom_bar() +
   theme_minimal() +
@@ -1162,10 +1162,61 @@ We're ready to proceed with modeling now. First, we will fit a logistic regressi
 
 # Logistic Regression 
 
-Logistic regression is a generalized linear model (GLM) that is particularly designed for predicting binary outcomes such as ours. We will use logistic regression to model the probability of a defendant re-committing a crime within two years in Broward County, Florida. We’ll then set cutoffs to divide the probabilities into 2 bins: 0 for ‘no’ and 1 for ‘yes’ based on the probability predictions. This will also allow us to analyze which features may be most important in predicting recidivism. 
+Logistic regression is a statistical generalized linear model (GLM) that is particularly designed for predicting dichotomous/ binary outcomes such as ours. We will use logistic regression to model the probability of a defendant re-committing a crime within two years in Broward County, Florida. We’ll then set cutoffs to divide the probabilities into 2 bins: 0 for ‘no’ and 1 for ‘yes’ based on the probability predictions. This will also allow us to analyze which features may be most important in predicting recidivism. 
 
 Recall that if we classified every observation in the majority class, we'd expect an accuracy 66%. This serves as a benchmark for the race-blind logistic regression model we will implement. Note that logistic regression follows the standard ML process [will describe in more detail in the thesis body] and is one of the most widely used classification algorithms -- this will allow us to assess how we might expect state-of-the-art traditional algorithms that do not take fairness guarantees into account to perform. 
 
+## Check for Missing Data
+
+Linear models do not handle missing observations well. Let’s ensure that there are no missing observations. There were no missing observations!
+
+```{r}
+comopas <- tidyr::drop_na(compas) 
+count(compas)
+```
+
+## Train and Test Split
+
+Before we proceed to fitting the models, we need to perform a train/ test split. The reason for this is to be able to test how our model would perform on unseen data and to avoid over-fitting. Therefore, we will train our models using the `train` data, and then assess performance on “new” data, that is, the `test` set. Let’s partition 70% of the data into the train set and 30% into the test set. We will use randomization without replacement for this.
+
+```{r}
+set.seed(123)
+n <- nrow(compas)
+train_index <- sample(1:n, 0.70 * n) 
+test_index <- setdiff(1:n, train_index)
+train <- compas[train_index, ]
+test <- compas[test_index, ]
+```
+
+$\\$
+
+There are now `r count(train)`	observations in the train set and `r count(test)` observations in the test set. Let's ensure that the distribution of the response variable is preserved in each set. There split appears to be stratified so there is no concern. 
+
+```{r}
+tally(train$is_recid)
+```
+
+```{r}
+tally(test$is_recid)
+```
+
+$\\$
+
+Finally, let's also make sure that there are enough observations in each race category for both the train and test splits. There is concern for the Native American and Asian race categories, which have very few observations. We may fit a separate model with just the Caucasian and African-American offenders if this poses a challenge. 
+
+```{r}
+tally(train$race)
+```
+
+```{r}
+tally(test$race)
+```
+
+$\\$
+
+We're ready for model fitting!
+
+## Modeling
 
 * run logistic regression and analyze results.
 
