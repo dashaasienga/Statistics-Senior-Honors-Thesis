@@ -814,7 +814,7 @@ Now that we have a thorough understanding of the make-up of the data set, we wil
 
 # Demographic Group Analysis 
 
-## Bivariate Analysis
+## Bivariate Analysis by Race
 
 The demographic variable of interest for this analysis is `race`, and we will employ the Seldonian algorithm in a hope to achieve fairer recidivism risk predictions. With that goal in mind, it's important to perform a demographic group analysis along the defendants' races to better understand any underlying or proxy relationships with the variables. 
 
@@ -1077,17 +1077,67 @@ compas %>%
 
 $\\$
 
-For further analysis, let's examine the decile scores by race for Black v White defendants. 
+Now that we've recreated the table from Chapter 1, let's examine the false negative and false positive rates for all the races in the data set.
+
+Asian defendants who did not re-offend were the least likely to be labelled as higher risk -- Black defendants were the most likely. Conversely, excluding the "Other" group, White defendants who re-offended were the most likely to be labelled as lower risk -- Native Americans were the least likely. This, and previous analysis, suggest disparities with favorable outcomes for white and Asian defendants, and unfavorable outcomes for Black and Native American defendants.
+
+```{r, warning = FALSE, message = FALSE}
+compas %>%
+  dplyr::select(race, risk, is_recid) %>%
+  rename("Risk" = risk,
+         "Race" = race) %>%
+  group_by(Race, is_recid) %>%
+  mutate(Total = n()) %>%
+  group_by(Risk, Race, Total) %>%
+  summarise("Reoffended" = count(is_recid == 1),
+            "Did Not Reoffend" = count(is_recid == 0)) %>%
+  pivot_longer(cols = c("Reoffended", "Did Not Reoffend"),
+               names_to = "Recidivism") %>%
+  pivot_wider(
+    id_cols = c("Risk", "Recidivism", "Total"),
+    names_from = "Race",
+    values_from = value
+  ) %>%
+  rename("Black" = `African-American`,
+         "White" = `Caucasian`) %>%
+  mutate(Black = round(100 * Black / Total, 2),
+         White = round(100 * White / Total, 2),
+         Asian = round(100 * Asian / Total, 2),
+         `Native American` = round(100 * `Native American` / Total, 2),
+         Other = round(100 * Other / Total, 2)) %>%
+  dplyr::select(-Total) %>%
+  group_by(Risk, Recidivism) %>%
+  summarize(Black = max(Black, na.rm = TRUE),
+            White = max(White, na.rm = TRUE),
+            Asian = max(Asian, na.rm = TRUE),
+            `Native American` = max(`Native American`, na.rm = TRUE),
+            Other = max(Other, na.rm = TRUE)) %>%
+  filter((Risk == "Higher" & Recidivism == "Did Not Reoffend") |
+           (Risk == "Lower" & Recidivism == "Reoffended")
+  ) %>%
+  kable(booktabs = TRUE)
+```
 
 
+$\\$
 
-What's left in this section:
+Finally, to visualize these results better, let's plot the distribution of the decile scores by race. Observe that while we observed a similar distribution of recidivism for all races, the African-American decile scores are distributed differently from the Caucasian decile scores. The decile scores for the Caucasian defendants is quite right-skewed in comparison to that of the African-Americans which appears to be more evenly distributed, further emphasizing the racial disparity in the risk scores.
 
+```{r, fig.width = 6, fig.height = 4.5, fig.align = 'center'}
+ggplot(data = compas_final, 
+       mapping = aes(x = as.factor(decile_score))) +
+  geom_bar() +
+  theme_minimal() +
+  facet_wrap(~race, ncol = 2) +
+  labs(title = "Decile Scores by Race",
+       x = "Decile Scores") 
+```
 
-* Plot decile scores by Black v White
+$\\$
 
-* Extend to all races.
+We have a thorough understanding of the data set now and the results we would expect from the COMPAS tool. 
 
+We're ready to proceed with modeling now. First, we will fit a logistic regression, which uses the standard ML approach discussed in Chapter 2. We expect it to behave similarly to the COMPAS tool. Then, we will define a fairness metric and fit a Seldonian classification algorithm on this data set. We expect to observe less disparities along racial lines, but perhaps with a slight trade-off in overall accuracy. 
 
 # Logistic Regression 
 run logistic regression and analyze results.
@@ -1096,7 +1146,6 @@ run logistic regression and analyze results.
 run seldonian framework on the data set and analyze results.
 
 # Results
-
 
 
 
