@@ -992,37 +992,97 @@ compas %>%
 
 $\\$
 
-Now, let's recreate the table from Chapter 1 using this data set to assess the false positive and false negative rates for Black v White defendants (incomplete). 
+Now, let's recreate the table from Chapter 1 using this data set to assess the false positive and false negative rates for Black v White defendants.
+
+While the numbers are different, which could likely be due to a host of reasons such as different subsets of the data set, the same trends are evident. 16.34% of White defendants who did not re-offend are labelled as higher risk, compared to more than twice as many Black defendants (37.71%). Similarly, 62.26% of White defendants who do re-offend are labelled as lower risk, compared to 39.01% of Black defendants. This is in line with ProPublica's findings, and is alarming given that race was not included in the model.
 
 ```{r, warning = FALSE, message = FALSE}
-compas %>%
+compas_table <- compas %>%
   filter(race %in% c("African-American", "Caucasian")) %>%
   dplyr::select(race, risk, is_recid) %>%
   rename("Risk" = risk,
          "Race" = race) %>%
-  group_by(Risk, Race) %>%
+  group_by(Race, is_recid) %>%
+  mutate(Total = n()) %>%
+  group_by(Risk, Race, Total) %>%
   summarise("Reoffended" = count(is_recid == 1),
             "Did Not Reoffend" = count(is_recid == 0)) %>%
   pivot_longer(cols = c("Reoffended", "Did Not Reoffend"),
                names_to = "Recidivism") %>%
   pivot_wider(
-    id_cols = c("Risk", "Recidivism"),
+    id_cols = c("Risk", "Recidivism", "Total"),
     names_from = "Race",
     values_from = value
   ) %>%
-  arrange(Recidivism) %>%
-  
-  #**summing on risk instead?
-  mutate(
-    `African-American` = round(100 * `African-American` / sum(`African-American`[Recidivism == Recidivism]), 2),
-    `Caucasian` = round(100 * `Caucasian` / sum(`Caucasian`[Recidivism == Recidivism]), 2)
-  ) %>%
+  rename("Black" = `African-American`,
+         "White" = `Caucasian`) %>%
+  mutate(Black = round(100 * Black / Total, 2),
+         White = round(100 * White / Total, 2)) %>%
+  dplyr::select(-Total) %>%
+  group_by(Risk, Recidivism) %>%
+  summarize(Black = max(Black, na.rm = TRUE),
+            White = max(White, na.rm = TRUE)) %>%
+  filter((Risk == "Higher" & Recidivism == "Did Not Reoffend") |
+           (Risk == "Lower" & Recidivism == "Reoffended")
+  )
+
+compas_table %>%
   kable(booktabs = TRUE)
 ```
 
+
+$\\$
+
+The results in this section also show that the model is more wrong in predicting whether defendants will re-offend versus predicting defendants who do not re-offend. This is expected because of the class imbalance we observed when performing exploratory data analysis -- there are more defendants that don't re-offend, so the model maximizes performance for those defendants.
+
+However, it also raises a question of what type of prediction is more important: the risk of recidivism or the risk of non-recidivism. Is wrongly attributing a defendant as higher risk may cause or wrongly attributing a defendant as lower risk worse? 
+
+The table below shows the confusion matrix of the COMPAS model as a whole, including all races. As observed, a larger proportion (49.25%) of defendants who re-offended are incorrectly labelled as lower risk in comparison to the proportion (25.23%) that did not re-offend but are incorrectly labelled as higher risk. 
+
+```{r, message = FALSE}
+compas %>%
+  dplyr::select(risk, is_recid) %>%
+  rename("Risk" = risk) %>%
+  group_by(is_recid) %>%
+  mutate(Total = n()) %>%
+  group_by(Risk, Total) %>%
+  summarise("Reoffended" = count(is_recid == 1),
+            "Did Not Reoffend" = count(is_recid == 0)) %>%
+  mutate(Reoffended = round(100 * Reoffended / Total, 2),
+         `Did Not Reoffend` = round(100 * `Did Not Reoffend` / Total, 2)) %>%
+  dplyr::select(-Total) %>%
+  group_by(Risk) %>%
+  summarize(Reoffended = max(Reoffended, na.rm = TRUE),
+            `Did Not Reoffend` = max(`Did Not Reoffend`, na.rm = TRUE)) %>%
+  kable()
+```
+
+$\\$
+
+The table below replicates the above table with raw numbers instead of proportions. This reveals that the model has an overall accuracy of 66.61%, but the analysis above reveals the discrepancies (and unfairness) in the model results for Black v White defendants. 
+
+```{r, message = FALSE}
+compas %>%
+  dplyr::select(risk, is_recid) %>%
+  rename("Risk" = risk) %>%
+  group_by(Risk) %>%
+  summarise("Reoffended" = count(is_recid == 1),
+            "Did Not Reoffend" = count(is_recid == 0)) %>%
+  kable()
+```
+
+```{r}
+(1618 + 4635)/ 9387
+```
+
+$\\$
+
+For further analysis, let's examine the decile scores by race for Black v White defendants. 
+
+
+
 What's left in this section:
 
-* Recreate table from Chapter 1 (still need to correct the proportions)
 
 * Plot decile scores by Black v White
 
