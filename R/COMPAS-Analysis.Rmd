@@ -1039,6 +1039,8 @@ However, it also raises a question of what type of prediction is more important:
 
 The table below shows the confusion matrix of the COMPAS model as a whole, including all races. As observed, a larger proportion (49.25%) of defendants who re-offended are incorrectly labelled as lower risk in comparison to the proportion (25.23%) that did not re-offend but are incorrectly labelled as higher risk. 
 
+Observe that while the overall FPR is 25.23%, it's much higher for Black defendants (37.71%) and much lower for White defendants (16.34%). Similarly, while the overall FNR is 49.25%, it's much higher for White defendants (62.26%) and much lower for Black defendants (39.01%). 
+
 ```{r, message = FALSE}
 compas %>%
   dplyr::select(risk, is_recid) %>%
@@ -1142,11 +1144,16 @@ We're ready to proceed with modeling now. First, we will fit a logistic regressi
 # Logistic Regression 
 run logistic regression and analyze results.
 
+refer to compas analysis (racial bias in compas).
+
 # Seldonian Classification
 run seldonian framework on the data set and analyze results.
 
 # Results
 
+Cox Proportional Hazards model for the length of time to recidivate? probably not necessary since the focus is on classification. 
+
+Northepoint: https://www.equivant.com/wp-content/uploads/Practitioners-Guide-to-COMPAS-Core-040419.pdf
 
 
 
