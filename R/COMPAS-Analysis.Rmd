@@ -36,7 +36,7 @@ compasdata <- read.csv(compas_path)
 
 # The Data Set
 
-The COMPAS data set has 12076 observations of defendants that were evaluated for the risk of recidivism by the COMPAS tool. There are 29 variables of interest as described below:
+The COMPAS data set has 12160 observations of defendants that were evaluated for the risk of recidivism by the COMPAS tool. There are 29 variables of interest as described below:
 
 - `id`: unique person identifier.
 - `compas_person_id`: unique COMPAS case identifier. 
@@ -65,8 +65,8 @@ The COMPAS data set has 12076 observations of defendants that were evaluated for
 - `num_vr_cases`: number of times a defendant was accused of a violent crime within 2 years.
 - `is_recid`: categorical variable recording whether a defendant was accused of a crime within 2 years (0 = N, 1 = Y).
 - `num_r_cases`: number of times a defendant was accused of a crime within 2 years.
-- `days_in_jail`: number of days spent in jail.
-- `days_in_prison`: number of days spent in prison.
+- `days_in_jail`: number of days spent in jail before COMPAS screening.
+- `days_in_prison`: number of days spent in prison before COMPAS screening.
 
 $\\$
 
@@ -76,7 +76,7 @@ colnames(compasdata)
 
 # Data Wrangling
 
-Before proceeding with the data analysis, we first need to handle some data anomalies. We'll also only consider COMPAS cases within 30 days of arrest to improve the data quality. This resulted in 9638 total observations. 
+Before proceeding with the data analysis, we first need to handle some data anomalies. We'll also only consider COMPAS cases within 30 days of arrest to improve the data quality. This resulted in 9683 total observations. 
 
 $\\$
 
@@ -282,7 +282,7 @@ ggplot(data = clean_compasdata, mapping = aes(x = score_text)) +
        title = "COMPAS Risk Predictions in the Data Set")
 ```
 
-$\\$ 
+$\\$
 
 This wraps up our univariate analysis of the categorical variables. Next, let's examine the univariate distribution of the continuous variables. 
 
@@ -355,7 +355,7 @@ favstats(clean_compasdata$c_days_from_compas)
 ```
 $\\$
 
-The number of days spent in jail ranges from 0 to 21540, with a median of 4 days and a mean of 100 days. This variable is extremely right skewed, as visualized in the histogram. The standard deviation is also 393, indicating a lot of variation that may potentially be useful for predicting the risk of recidivism. 
+Considering only the observations for which we have data, the number of days spent in jail ranges from 0 to 2154 days (5.9 years), with a median of 2 days and a mean of 29 days. This variable is extremely right skewed, as visualized in the histogram. The standard deviation is also 82.9, indicating a lot of variation that may potentially be useful for predicting the risk of recidivism. 
 
 ```{r}
 favstats(clean_compasdata$days_in_jail)
@@ -370,10 +370,51 @@ ggplot(data = clean_compasdata, mapping = aes(x = days_in_jail)) +
 
 $\\$
 
-The days spent in prison is not as variable as the days spent in jail. The minimum 0 and the maximum is 190739. This skews the mean to 784.7951, but the median is 0. The distinction between jail and prison is still unclear.
+Considering only the observations for which we have data, the number of days spent in prison ranges from 0 to 10840 days (29.6 years), with a median of 1005 days (2.8 years) and a mean of 1534 days (4.2 years). This variable is quite right skewed, as visualized in the histogram. The standard deviation is also 1554.728, indicating a lot of variation that may potentially be useful for predicting the risk of recidivism. 
 
 ```{r}
 favstats(clean_compasdata$days_in_prison)
+```
+
+```{r, fig.width = 4.5, fig.height = 3, warning = FALSE, message = FALSE}
+ggplot(data = clean_compasdata, mapping = aes(x = days_in_prison)) +
+  geom_histogram() +
+  theme_minimal() +
+  labs(x = "Days in Prison",
+       title = "Days in Prison in the COMPAS Data Set")
+```
+
+$\\$
+
+Notice, however, that there is a lot of missing data for the `days_in_jail` and `days_in_prison` variables, with the former having 1660 missing observations and the latter having 8304 missing observations. Let's sum both columns up and create a new variable, `days_in_jail_or_prison`, to assess the impact on the amount of missing observations.
+
+```{r}
+clean_compasdata <- clean_compasdata %>%
+  rowwise() %>%
+  mutate(days_in_jail_or_prison = sum(days_in_jail, days_in_prison, na.rm=TRUE)) %>%
+  ungroup()
+```
+
+$\\$
+
+There are 1732 defendants with either no jail or prison history, or that spent less than half a day in jail or prison.
+
+```{r}
+count(clean_compasdata$days_in_jail_or_prison == 0)
+```
+
+The mean of this variable is now 200 days, with a median of 1 day, indicating an extreme right skew. There is no missing data, however.
+
+```{r}
+favstats(clean_compasdata$days_in_jail_or_prison)
+```
+
+```{r, fig.width = 4.5, fig.height = 3, warning = FALSE, message = FALSE}
+ggplot(data = clean_compasdata, mapping = aes(x = days_in_jail_or_prison)) +
+  geom_histogram() +
+  theme_minimal() +
+  labs(x = "Days in Jail or Prison",
+       title = "Days in Jail or Prison in the COMPAS Data Set")
 ```
 
 $\\$
@@ -414,8 +455,12 @@ ggplot(data = clean_compasdata, mapping = aes(x = as.factor(decile_score))) +
   labs(x = "COMPAS Decile Score",
        title = "Decile Scores in the COMPAS Data Set")
 ```
+$\\$
+
+There is significant overlap between the decile scores and the raw scores. It's unclear how exactly these scores were mapped. However, because the decile score is what is handed to judges at court and what determines the risk of recidivism, we will proceed with that variable. 
+
 ```{r}
-favstats(clean_compasdata$raw_score ~ clean_compasdata$score_text)
+favstats(clean_compasdata$raw_score ~ clean_compasdata$decile_score)
 ```
 
 $\\$
@@ -433,6 +478,47 @@ clean_compasdata %>%
   arrange(Min) %>%
   kable(booktabs = TRUE)
 ```
+
+$\\$
+
+### Adding Some New Variables 
+
+Based on the univariate analysis in this section, we will create 2 more columns:
+
+- `juv_offense_count`, which is a continuous variable that records how many total prior juvenile offenses a defendant had. 
+- `juv_offense`, which is a binary variable that records whether or not a defendant had a juvenile offense (0 = 'No'; 1 = 'Yes').
+
+Combining the information from multiple non-informative variables may create more informative variables. 
+
+```{r}
+clean_compasdata <- clean_compasdata %>%
+  mutate(juv_offense_count = juv_fel_count + juv_misd_count + juv_other_count,
+         juv_offense = ifelse(juv_offense_count == 0, 0, 1))
+```
+
+$\\$
+
+Let's assess the univariate distribution of these new variables.
+
+`juv_offense_count` variable is still highly invariable, with at least $\frac{3}{4}$ of observations have no juvenile offenses. 
+
+```{r}
+favstats(clean_compasdata$juv_offense_count)
+```
+
+$\\$
+
+We see the same trends for `juv_offense`, the categorical variable, with only 1133 defendants reporting a juvenile offense.
+
+```{r}
+tally(clean_compasdata$juv_offense)
+```
+
+$\\$
+
+We'll keep the continuous variable, which may have slightly more quantifiable information than the binary variable.
+
+
 
 $\\$
 
@@ -589,6 +675,29 @@ favstats(data = clean_compasdata, juv_other_count ~ is_recid)
 
 $\\$
 
+As expected, there is not much distributional difference in the number of juveline offenses for defendants who do not recidivate versus those who do.
+
+```{r}
+favstats(data = clean_compasdata, juv_offense_count ~ is_recid)
+```
+$\\$
+
+However, the bar plot below reveals that while most defendants don't have juvenile offenses, the proportion of those who don't to those who do is much smaller for defendants that re-offend in comparison to those that don't. This may be a useful variable to include in the model. 
+
+```{r, fig.width = 4.5, fig.height = 3}
+ggplot(data = clean_compasdata, 
+       mapping = aes(x = as.factor(juv_offense), fill = as.factor(juv_offense))) +
+  geom_bar() +
+  theme_minimal() +
+  facet_wrap(~is_recid) +
+  labs(title = "Recidivism by Juvenile Offense",
+       x = "Juvenile Offense",
+       fill = "Juvenile Offense")
+```
+
+
+$\\$
+
 There is some distributional difference in non-juvenile prior offenses for defendants who recidivate versus those who don't, as is indicated by the different means and medians. Those who recommit a crime within two years tend to have more prior offenses. This will be a useful variable to include in the models. 
 
 ```{r}
@@ -621,7 +730,7 @@ favstats(data = clean_compasdata, c_days_from_compas ~ is_recid)
 
 $\\$
 
-There is an evident difference in the distribution of the number of days spent in jail for participants who recommit a crime within two years versus those who don't. The mean, median, and max value differ significantly, indicating variation that may be useful in modeling. It's hard to visualize the boxplots with all the outliers, so the second boxplot trims the y-axis to better visualize this relationship.
+There is an evident difference in the distribution of the number of days spent in jail for participants who recommit a crime within two years versus those who don't. The mean and medians differ, with those who recommit spending more time in jail on average, indicating a distinction that may be useful in modeling. It's hard to visualize the boxplots with all the outliers, so the second boxplot trims the y-axis to better visualize this relationship.
 
 ```{r}
 favstats(data = clean_compasdata, days_in_jail ~ is_recid)
@@ -644,16 +753,47 @@ ggplot(data = clean_compasdata,
   labs(title = "Recidivism by Days Spent in Jail (Trimmed)",
        x = "Recidivism",
        y = "Days in Jail") +
-  ylim(0,1500)
+  ylim(0,400)
 ```
 
 
 $\\$
 
-There doesn't appear to be much distributional difference, rather than the effects of extreme right skews, in days spent in prison for defendants who recidivate versus those who don't. The difference between jail and prison is still not clear, so this will not be a useful variable for modeling.
+Similarly, there is some distributional difference in the days spent in prison, although in the opposite direction that might be expected and not as extreme as for the days spent in jail. Defendants who don't re-offend spend more days in prison, on average. 
+
+The difference between jail and prison is still not clear, however. 
 
 ```{r}
 favstats(data = clean_compasdata, days_in_prison ~ is_recid)
+```
+
+```{r, fig.width = 4.5, fig.height = 3, warning = FALSE, message = FALSE, fig.align = 'center'}
+ggplot(data = clean_compasdata, 
+       mapping = aes(x = as.factor(is_recid), y = days_in_prison)) +
+  geom_boxplot() +
+  theme_minimal() +
+  labs(title = "Recidivism by Days Spent in Prison",
+       x = "Recidivism",
+       y = "Days in Prison") 
+```
+
+$\\$
+
+Using the new variable we created, we observe that defendants who reoffend spend, on average, more days in jail or prison. This is a useful variable that may aid our analysis. The boxplot below visualizes the distributional difference, although it is quite difficult to visually assess.
+
+```{r}
+favstats(data = clean_compasdata, days_in_jail_or_prison ~ is_recid)
+```
+
+```{r, fig.width = 4.5, fig.height = 3, warning = FALSE, message = FALSE, fig.align = 'center'}
+ggplot(data = clean_compasdata, 
+       mapping = aes(x = as.factor(is_recid), y = days_in_jail_or_prison)) +
+  geom_boxplot() +
+  theme_minimal() +
+  labs(title = "Recidivism by Days Spent in Jail/ Prison (Trimmed)",
+       x = "Recidivism",
+       y = "Days in Jail/ Prison") +
+  ylim(0, 1000)
 ```
 
 $\\$
@@ -680,28 +820,29 @@ This wraps up our analysis of the bivariate relationships between the continuous
 
 ## Multivariate Analysis 
 
-Based on the univariate and bivariate analysis, the 8 most informative predictive variables for modeling will be: 
+Based on the univariate and bivariate analysis, the 9 most informative predictive variables for modeling will be: 
 
 - `sex`
 - `age`
 - `age category`
 - `marital status`
 - `custody status` 
+- `juvenile offense` (binary)
 - `prior offenses` 
 - `charge degree`
-- `days in jail`
+- `days in jail or prison`
 
 We will also include `race` in the modeling data set as our demographic variable, though it will not be included in the models themselves. Finally, `is_recid`, the response variable, will also be selected in the data set. 
 
 For further analysis, we will also include the COMPAS decile scores to assess which of these variables may have been used to model the COMPAS risk assessment tool.
 
-Now, let's create a new data set with these 11 variables. Below is a glimpse of the data set.
+Now, let's create a new data set with these 12 variables. Below is a glimpse of the data set.
 
 ```{r}
 compas_final <- clean_compasdata %>%
   dplyr::select(c(race, sex, age, age_cat, marital_status, 
-                  custody_status, priors_count, c_charge_degree,
-                  days_in_jail, decile_score, is_recid))
+                  custody_status, juv_offense, priors_count, c_charge_degree,
+                  days_in_jail_or_prison, decile_score, is_recid))
 
 glimpse(compas_final)
 ```
@@ -709,32 +850,32 @@ glimpse(compas_final)
 
 ### Scatterplot Matrix
 
-First, a scatterplot matrix with just the 3 continuous predictive variables in the final data set, `age`, `prior offenses`, and `days in jail`, will help to elucidate the covariate relationships between the variables. All the variables have moderate to weak correlations, with the strongest correlation of 0.357 being between the number of prior offenses and the number of days spent in jail. There are no concerns for multicollinearity. 
+First, a scatterplot matrix with just the 3 continuous predictive variables in the final data set, `age`, `prior offenses`, and `days in jail or prison`, will help to elucidate the covariate relationships between the variables. All the variables have moderate to weak correlations, with the strongest correlation of 0.412 being between the number of prior offenses and the number of days spent in jail. All correlations are significant. There are no major concerns for multicollinearity. 
 
 ```{r, fig.align = 'center'}
 ggpairs(data = compas_final,
-        columns = c("age", "priors_count", "days_in_jail"),
+        columns = c("age", "priors_count", "days_in_jail_or_prison"),
         title = "Scatterplot Matrix of the COMPAS Continuous Variables")
 ```
 
 $\\$
 
-As observed, the variables have a significant right skew and the relationship is non-linear. Let's explore what effect different transformations may have on the covariate relationships. The log transformation resulted in many non-finite values, so we will look at a square root transformation instead.
+As observed, the variables have a significant right skew and the relationship is non-linear. Let's explore what effect different transformations may have on the covariate relationships. The log transformation resulted in many non-finite values because of the present of zeros, so we will look at a square root transformation instead.
 
 ```{r}
 compas_final <- compas_final %>%
   mutate(sqrt_age = sqrt(age),
          sqrt_priors_count = sqrt(priors_count),
-         sqrt_days_in_jail = sqrt(days_in_jail))
+         sqrt_days_in_jail_or_prison = sqrt(days_in_jail_or_prison))
 ```
 
 $\\$
 
-While this transformation strengthened the relationship between the number of prior offenses and the number of days spent in jail, it weakened the other correlations. Next, we'll assess how much this affects the relationship with the COMPAS decile scores. 
+While this transformation strengthened the relationship between the number of prior offenses and the number of days spent in jail or prison ($r = 0.459$), it weakened the other correlations slightly. Next, we'll assess how much this affects the relationship with the COMPAS decile scores. 
 
 ```{r}
 ggpairs(data = compas_final,
-        columns = c("sqrt_age", "sqrt_priors_count", "sqrt_days_in_jail"),
+        columns = c("sqrt_age", "sqrt_priors_count", "sqrt_days_in_jail_or_prison"),
         title = "Scatterplot Matrix of the COMPAS Continuous Variables
         (Square Root)")
 ```
@@ -743,15 +884,15 @@ $\\$
 
 ### Pearson's Correlation  Matrix
 
-Decile scores has a moderate relationship with age, prior offenses, and number of days spent in jail -- this suggests that these variables may indeed be useful for modeling recidivism.
+Decile scores has a moderate relationship with age, prior offenses, and number of days spent in jail or prison -- this suggests that these variables may indeed be useful for modeling recidivism.
 
 ```{r}
 mycordata1 <- compas_final %>%
   dplyr::rename("Age" = age,
          "Priors" = priors_count,
-         "Days in Jail" = days_in_jail,
+         "Days in Jail or Prison" = days_in_jail_or_prison,
          "Decile Scores" = decile_score) %>%
-  dplyr::select("Age", "Priors", "Days in Jail", "Decile Scores")
+  dplyr::select("Age", "Priors", "Days in Jail or Prison", "Decile Scores")
 
 cor(mycordata1) %>%
   kable(digits = 2,
@@ -760,15 +901,15 @@ cor(mycordata1) %>%
 
 $\\$
 
-The square root transformation of the predictor variables actually strengthens the relationship with decile scores -- this suggests that the square root transformation of these variables may be better for modeling recidivism.
+The square root transformation of the predictor variables actually slightly strengthens the relationship with decile scores -- this suggests that the square root transformation of these variables may be better for modeling recidivism.
 
 ```{r}
 mycordata2 <- compas_final %>%
   dplyr::rename("Square Root Age" = sqrt_age,
          "Priors" = sqrt_priors_count,
-         "Days in Jail" = sqrt_days_in_jail,
+         "Days in Jail or Prison" = sqrt_days_in_jail_or_prison,
          "Decile Scores" = decile_score) %>%
-  dplyr::select("Square Root Age", "Priors", "Days in Jail", "Decile Scores")
+  dplyr::select("Square Root Age", "Priors", "Days in Jail or Prison", "Decile Scores")
 
 cor(mycordata2) %>%
   kable(digits = 2,
@@ -779,7 +920,7 @@ $\\$
 
 ### Spearman's Correlation  Matrix
 
-Spearman's Correlation is better at capturing non-linear relationships. Using Spearman correlations reveals stronger correlations between the variables and the COMPAS decile scores. 
+Spearman's Correlation is better at capturing non-linear relationships. Using Spearman correlations reveals slightly stronger correlations between the variables and the COMPAS decile scores, especially the days spent in jail or prison. 
 
 There is no observable difference when calculating Spearman's correlation with the square-root transformed variables versus the original variables. 
 
@@ -787,9 +928,9 @@ There is no observable difference when calculating Spearman's correlation with t
 mycordata3 <- compas_final %>%
   dplyr::rename("Age" = age,
          "Priors" = priors_count,
-         "Days in Jail" = days_in_jail,
+         "Days in Jail or Prison" = days_in_jail_or_prison,
          "Decile Scores" = decile_score) %>%
-  dplyr::select("Age", "Priors", "Days in Jail", "Decile Scores")
+  dplyr::select("Age", "Priors", "Days in Jail or Prison", "Decile Scores")
 
 cor(mycordata3, method = "spearman") %>%
   kable(digits = 2,
@@ -915,6 +1056,22 @@ ggplot(data = compas_final_bw,
        fill = "Custody Status") +
   theme(axis.text.x = element_text(angle = 25, vjust = 1.2, hjust=1)) 
 ```
+
+$\\$
+
+There does not appear to be much distributional difference in juvenile offense by race.
+
+```{r, fig.width = 6, fig.height = 3, fig.align = 'center'}
+ggplot(data = compas_final, 
+       mapping = aes(x = as.factor(juv_offense), fill = as.factor(juv_offense))) +
+  geom_bar() +
+  theme_minimal() +
+  facet_wrap(~race) +
+  labs(title = "Juveline Offense by Race",
+       x = "Juveline Offense",
+       fill = "Juveline Offense") 
+```
+
 $\\$
 
 Notably, African-Americans have the most prior offenses, on average, followed by Native Americans. When comparing with Caucasian defendants, African-Americans have almost twice as many prior offenses, suggesting a strong proxy relationship between race and prior offenses. Asian defendants have the least prior offenses. This is an important result and illustrates how a system that pre-disposes certain races to prison can perpetuate that discriminatory trend by using those same variables to predict risk of recommitting another crime. The boxplot helps to visualize this relationship more clearly.
@@ -933,20 +1090,20 @@ ggplot(data = compas_final,
 ```
 $\\$
 
-The same trend is observed when observing the difference in the days spent in jail. On average, African-Americans and Native Americans spend the most time in jail. In fact, their average jail time is more than double that of Caucasian defendants. Asian defendants spend the least time on average. When looking at the medians, 50% of the African-American defendants spent 9 or more days in jail, as compared to only 2 or more days for 50% of the Caucasian defendants. The boxplot below helps to visualize this better.
+The same trend is observed when observing the difference in the days spent in jail. On average, Native Americans and African-Americans spend the most time in jail or prison. In fact, their average jail/ prison time is more than quadruple and triple, respectively, that of Caucasian defendants. Asian defendants spend the least time on average. When looking at the medians, 50% of the African-American defendants spent 2 days or more days in jail, as compared to only 1 or more days for 50% of the all other defendants. The relationship is hard to visualize on a boxplot because of the presence of many outlying observations.
 
 ```{r}
-favstats(data = compas_final, days_in_jail ~ race)
+favstats(data = compas_final, days_in_jail_or_prison ~ race)
 ```
 ```{r, fig.width = 6, fig.height = 3, warning = FALSE, message = FALSE, fig.align = 'center'}
 ggplot(data = compas_final, 
-       mapping = aes(x = as.factor(race), y = days_in_jail)) +
+       mapping = aes(x = as.factor(race), y = days_in_jail_or_prison)) +
   geom_boxplot() +
   theme_minimal() +
-  labs(title = "Days in Jail by Race (Trimmed Y-Axis)",
+  labs(title = "Days in Jail or Prison by Race (Trimmed Y-Axis)",
        x = "Race",
-       y = "Days in Jail") +
-  ylim(0,1000)
+       y = "Days in Jail or Prison") +
+  ylim(0,75)
 ```
 $\\$
 
@@ -1128,6 +1285,7 @@ compas %>%
          "White" = `Caucasian`) %>%
   mutate(Black = round(100 * Black / Total, 2),
          White = round(100 * White / Total, 2),
+         Hispanic = round(100 * Hispanic / Total, 2),
          Asian = round(100 * Asian / Total, 2),
          `Native American` = round(100 * `Native American` / Total, 2),
          Other = round(100 * Other / Total, 2)) %>%
@@ -1135,6 +1293,7 @@ compas %>%
   group_by(Risk, Recidivism) %>%
   summarize(Black = max(Black, na.rm = TRUE),
             White = max(White, na.rm = TRUE),
+            Hispanic = max(Hispanic, na.rm = TRUE),
             Asian = max(Asian, na.rm = TRUE),
             `Native American` = max(`Native American`, na.rm = TRUE),
             Other = max(Other, na.rm = TRUE)) %>%
