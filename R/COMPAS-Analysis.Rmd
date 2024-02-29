@@ -1382,18 +1382,135 @@ We're ready for model fitting!
 
 ## Modeling
 
-* run logistic regression and analyze results.
+First, let’s fit a kitchen sink model without transformations. This means that we’ll include all the variables in the initial model. Notice that `race` will not be used as a predictor in this model.
 
-* refer to compas analysis (racial bias in compas).
+```{r}
+glm1 <- glm(is_recid ~ sex + age + age_cat + marital_status + custody_status +
+              juv_offense + priors_count + c_charge_degree +
+              days_in_jail_or_prison,
+            data = train,
+            family = binomial(logit))
 
-# Seldonian Classification
-run seldonian framework on the data set and analyze results.
+msummary(glm1)
+```
 
-# Results
+Let's calculate the overall accuracy of this model on the train set, which tends to be overconfident.
 
-Cox Proportional Hazards model for the length of time to recidivate? probably not necessary since the focus is on classification. 
+The values in the diagonal are correct predictions while those in the off-diagonal are misclassifications using a probability cutoff of 0.5.
 
-Northepoint: https://www.equivant.com/wp-content/uploads/Practitioners-Guide-to-COMPAS-Core-040419.pdf
+```{r}
+glm1augment <- glm1 %>% 
+  broom::augment(type.predict = "response")
+glm1augment <- mutate(glm1augment, binprediction = round(.fitted, 0)) 
+with(glm1augment, table(is_recid, binprediction))
+```
 
 
+$\\$
 
+This kitchen-sink model has an accuracy of 70.2%, slightly better than the COMPAS tool accuracy of 66%. 
+
+```{r}
+(3938 + 673)/ count(train)
+```
+$\\$
+
+Using a probability cutoff of 0.34, which is the probability of being in the positive class given the class imbalance in the COMPAS data set, the accuracy is the same as the COMPAS tool: 66.7%.
+
+```{r}
+glm1augment_2 <- glm1 %>% 
+  broom::augment(type.predict = "response")
+glm1augment_2 <- mutate(glm1augment_2, binprediction = ifelse(.fitted >= 0.34, 1, 0)) 
+with(glm1augment_2, table(is_recid, binprediction))
+```
+
+```{r}
+(2905+1476)/count(train)
+```
+$\\$
+
+Using a stricter probability results in an accuracy of 68.2%
+
+```{r}
+glm1augment_2 <- glm1 %>% 
+  broom::augment(type.predict = "response")
+glm1augment_2 <- mutate(glm1augment_2, binprediction = ifelse(.fitted >= 0.66, 1, 0)) 
+with(glm1augment_2, table(is_recid, binprediction))
+```
+
+```{r}
+(4229+249)/count(train)
+```
+
+
+$\\$
+
+The probability of 0.5 is an appropriate cutoff. Notice, however, that the only significant variables in the kitchen-sink model are `sex`, `age`, `age_category`, `marital_status`, `juv_offense`, and `priors_count`. Let's fit another model with just these predictors. 
+
+```{r}
+glm2 <- glm(is_recid ~ sex + age + age_cat + marital_status +
+              juv_offense + priors_count,
+            data = train,
+            family = binomial(logit))
+
+msummary(glm2)
+```
+
+$\\$
+
+```{r}
+glm2augment <- glm2 %>% 
+  broom::augment(type.predict = "response")
+glm2augment <- mutate(glm2augment, binprediction = round(.fitted, 0)) 
+with(glm2augment, table(is_recid, binprediction))
+```
+
+There is no effect on predictive accuracy by reducing the number of variables: 70.2%.
+
+```{r}
+(3956 + 656)/ count(train)
+```
+
+$\\$
+
+Finally, let's assess performance when we use the square-root transformed variables. The same variables are significant.
+
+```{r}
+glm3 <- glm(is_recid ~ sex + sqrt_age + age_cat + marital_status + custody_status +
+              juv_offense + sqrt_priors_count + c_charge_degree +
+              sqrt_days_in_jail_or_prison,
+            data = train,
+            family = binomial(logit))
+
+msummary(glm3)
+```
+
+
+$\\$
+
+A reduced model yields the same overall accuracy observed in the other models: 70.2%.
+
+```{r}
+glm4 <- glm(is_recid ~ sex + age + age_cat + marital_status +
+              juv_offense + priors_count,
+            data = train,
+            family = binomial(logit))
+
+glm4augment <- glm4 %>% 
+  broom::augment(type.predict = "response")
+glm4augment <- mutate(glm4augment, binprediction = round(.fitted, 0)) 
+with(glm4augment, table(is_recid, binprediction))
+```
+
+```{r}
+(3956 + 656)/ count(train)
+```
+
+$\\$ 
+
+Based on the modeling results, we will proceed with `glm2`, which fits the most important non-transformed variables.
+
+## Evaluating Test Set Performance
+
+
+## Demographic Analysis by Race
