@@ -20,6 +20,7 @@ library(ggplot2)
 library(GGally)
 library(MASS)
 library(reshape2)
+library(pROC)
 ```
 
 $\\$
@@ -675,7 +676,7 @@ favstats(data = clean_compasdata, juv_other_count ~ is_recid)
 
 $\\$
 
-As expected, there is not much distributional difference in the number of juveline offenses for defendants who do not recidivate versus those who do.
+As expected, there is not much distributional difference in the number of juvenile offenses for defendants who do not recidivate versus those who do.
 
 ```{r}
 favstats(data = clean_compasdata, juv_offense_count ~ is_recid)
@@ -1512,5 +1513,52 @@ Based on the modeling results, we will proceed with `glm2`, which fits the most 
 
 ## Evaluating Test Set Performance
 
+It's important to assess performance on unseen data as that serves as a better indicator for model generalization performance and rules out over-fitting.
 
-## Demographic Analysis by Race
+The performance on the test set is comparable with the training set at 70.1% accuracy.
+
+```{r}
+preds <- predict(glm2, newdata=test, type="response")
+
+test2 <- test %>% 
+  mutate(preds = preds,
+         prediction = round(preds, 0)) 
+
+with(test2, table(is_recid, prediction))
+```
+
+```{r}
+(1699 + 276)/ count(test)
+```
+$\\$
+
+The ROC curve is a graph that also helps us assess the performance of a classification model. The diagonal line shows how the model would perform with random predictions. We prefer curves that budge out closer to the top left because those types of curves maximize the area under the curve (AUC) and the sensitivity and specificity of the model is closer to 100%.
+
+This curve has an AUC of 0.68 and it doesn't exhibit the best shape. This raises overall concerns about the model's performance.
+
+```{r}
+predlm <- predict(glm2, type=c("response"), newdata = test) 
+roccurve1 <- with(test, roc(is_recid ~ predlm))
+plot(roccurve1)
+```
+
+```{r}
+print(roccurve1)
+```
+
+$\\$
+
+In conclusion, the final logistic regression model has the following 6 variables: 
+
+- age
+- sex
+- age category
+- marital status
+- whether a defendant committed a binary offense or not
+- number of prior offenses
+
+The accuracy on the test set is 70.1%, comparable to the COMPAS test set. This means that ~30% of defendants are misclassified in the incorrect recidivism prediction. 
+
+However, the ROC curve indicated some problems with the performance of this model, particularly with regard to sensitivity (1 - FNR) and specificity ( 1- FPR). Next, let's assess the direction of these misclassifications and perform a demographic analysis by race in an attempt to assess the model's 'fairness' along racial lines. 
+
+## Demographic and 'Fairness' Analysis
