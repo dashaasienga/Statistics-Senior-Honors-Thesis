@@ -1568,7 +1568,7 @@ First, let's re-examine the confusion matrix using the test set to determine whe
 
 The first table depicts the raw numbers and the second table interprets that in terms of proportions in order to better understand the magnitude.
 
-The model correctly classifies 276 defendants as reoffenders and 1699 defendants as non-reoffenders.  675 defendants who reoffend are classified as low risk, whereas 167 defendants who did not reoffend are classified as high risk. The model does a better job at classifying those who do not reoffend, as is expected because there is more data for that group. In general, this is consistent with what we observed in the COMPAS data set. 
+The model correctly classifies 276 defendants as reoffenders and 1699 defendants as non-reoffenders.  675 defendants who reoffend are classified as low risk, whereas 167 defendants who did not reoffend are classified as high risk. The model does a better job at classifying those who do not reoffend, as is expected because there is more data for that group. In general, this is consistent with what we observed in the COMPAS tool's results. 
 
 ```{r}
 test2 <- test2 %>%
@@ -1588,11 +1588,11 @@ test2 %>%
 
 $\\$
 
-When looking at the proportions, 91% of participants who did not reoffend are correctly classified as low risk. This means only 9% of participants who do not reoffend are classified as high risk.
+When looking at the proportions, 91% of participants who did not reoffend are correctly classified as low risk. This means only 9% of participants who do not reoffend are classified as high risk. This is a lower FPR than COMPAS.
 
-On the flip side, only 29% of defendants who reoffended are correctly classified as high risk. This means 71 percent of defendants who reoffended are classified as low risk. 
+On the flip side, only 29% of defendants who reoffended are correctly classified as high risk. This means 71% of defendants who reoffended are classified as low risk. This is a higher FNR than COMPAS.
 
-The model, overall, has worse false negative rates than false positive rates. While this is the same general trend observed in the COMPAS data set, the discrepancy is much larger. 
+The model, overall, has worse false negative rates than false positive rates. While this is the same general trend observed in the COMPAS tool, the discrepancy is much larger. 
 
 ```{r, message = FALSE}
 test2 %>%
@@ -1616,8 +1616,42 @@ $\\$
 
 Now, let's examine these false positive and false negative rates along racial lines. First. we'll compare Black v White defendants.
 
-```{r}
+Recall that the overall FPR rate for the model is 8.95%. However, notice that the FPR for Black defendants is 13.93%, compared to only 5.09% for White defendants. Just like in the COMPAS tool, Black defendants who do not reoffend are incorrectly misclassified as high risk at twice the rate of White defendants. 
 
+Recall that the overall FNR rate for the model is 70.98%. However, notice that the FNR for Black defendants is 60.82%, compared to 86.17%. Just like in the COMPAS tool, the logistic regression makes the opposite mistake in predicting recidivism for Black v White defendants, with White defendants being more likely to be incorrectly classified as low risk.
+
+This serves to highlight the real danger with using standard ML procedures, even when the sensitive variable itself is not included. It has potential to perpetuate, and even introduce, harmful and discriminatory practices as we have observed. The COMPAS tool likely employs a similar standard approach. 
+
+```{r, warning = FALSE, message = FALSE}
+test2 %>%
+  filter(race %in% c("African-American", "Caucasian")) %>%
+  dplyr::select(race, pred_risk, is_recid) %>%
+  rename("Risk" = pred_risk,
+         "Race" = race) %>%
+  group_by(Race, is_recid) %>%
+  mutate(Total = n()) %>%
+  group_by(Risk, Race, Total) %>%
+  summarise("Reoffended" = count(is_recid == 1),
+            "Did Not Reoffend" = count(is_recid == 0)) %>%
+  pivot_longer(cols = c("Reoffended", "Did Not Reoffend"),
+               names_to = "Recidivism") %>%
+  pivot_wider(
+    id_cols = c("Risk", "Recidivism", "Total"),
+    names_from = "Race",
+    values_from = value
+  ) %>%
+  rename("Black" = `African-American`,
+         "White" = `Caucasian`) %>%
+  mutate(Black = round(100 * Black / Total, 2),
+         White = round(100 * White / Total, 2)) %>%
+  dplyr::select(-Total) %>%
+  group_by(Risk, Recidivism) %>%
+  summarize(Black = max(Black, na.rm = TRUE),
+            White = max(White, na.rm = TRUE)) %>%
+  filter((Risk == "High" & Recidivism == "Did Not Reoffend") |
+           (Risk == "Low" & Recidivism == "Reoffended")
+  ) %>%
+  kable(booktabs = TRUE)
 ```
 
 
