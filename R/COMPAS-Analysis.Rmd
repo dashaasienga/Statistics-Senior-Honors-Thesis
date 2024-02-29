@@ -1561,4 +1561,78 @@ The accuracy on the test set is 70.1%, comparable to the COMPAS test set. This m
 
 However, the ROC curve indicated some problems with the performance of this model, particularly with regard to sensitivity (1 - FNR) and specificity ( 1- FPR). Next, let's assess the direction of these misclassifications and perform a demographic analysis by race in an attempt to assess the model's 'fairness' along racial lines. 
 
+
 ## Demographic and 'Fairness' Analysis
+
+First, let's re-examine the confusion matrix using the test set to determine whether the model makes more false negative or more false positive results.
+
+The first table depicts the raw numbers and the second table interprets that in terms of proportions in order to better understand the magnitude.
+
+The model correctly classifies 276 defendants as reoffenders and 1699 defendants as non-reoffenders.  675 defendants who reoffend are classified as low risk, whereas 167 defendants who did not reoffend are classified as high risk. The model does a better job at classifying those who do not reoffend, as is expected because there is more data for that group. In general, this is consistent with what we observed in the COMPAS data set. 
+
+```{r}
+test2 <- test2 %>%
+  mutate(pred_risk = ifelse(prediction == 0, 'Low', 'High'))
+```
+
+
+```{r, message = FALSE}
+test2 %>%
+  dplyr::select(pred_risk, is_recid) %>%
+  rename("Risk" = pred_risk) %>%
+  group_by(Risk) %>%
+  summarise("Reoffended" = count(is_recid == 1),
+            "Did Not Reoffend" = count(is_recid == 0)) %>%
+  kable()
+```
+
+$\\$
+
+When looking at the proportions, 91% of participants who did not reoffend are correctly classified as low risk. This means only 9% of participants who do not reoffend are classified as high risk.
+
+On the flip side, only 29% of defendants who reoffended are correctly classified as high risk. This means 71 percent of defendants who reoffended are classified as low risk. 
+
+The model, overall, has worse false negative rates than false positive rates. While this is the same general trend observed in the COMPAS data set, the discrepancy is much larger. 
+
+```{r, message = FALSE}
+test2 %>%
+  dplyr::select(pred_risk, is_recid) %>%
+  rename("Risk" = pred_risk) %>%
+  group_by(is_recid) %>%
+  mutate(Total = n()) %>%
+  group_by(Risk, Total) %>%
+  summarise("Reoffended" = count(is_recid == 1),
+            "Did Not Reoffend" = count(is_recid == 0)) %>%
+  mutate(Reoffended = round(100 * Reoffended / Total, 2),
+         `Did Not Reoffend` = round(100 * `Did Not Reoffend` / Total, 2)) %>%
+  dplyr::select(-Total) %>%
+  group_by(Risk) %>%
+  summarize(Reoffended = max(Reoffended, na.rm = TRUE),
+            `Did Not Reoffend` = max(`Did Not Reoffend`, na.rm = TRUE)) %>%
+  kable()
+```
+
+$\\$ 
+
+Now, let's examine these false positive and false negative rates along racial lines. First. we'll compare Black v White defendants.
+
+```{r}
+
+```
+
+
+$\\$
+
+Now, let's compare all the defendants.
+
+```{r}
+
+```
+
+$\\$
+
+Finally, ....
+
+
+
+
