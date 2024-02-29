@@ -27,6 +27,8 @@ $\\$
 
 The thesis body will have more in-depth descriptions of the data analysis as well as select output and results from this file. This file is intended for general preliminary analysis of the COMPAS data set. Note that the results can only be generalized to Broward County, Florida, but there are important findings about the United States judicial system nevertheless.
 
+\newpage
+
 # Reading in the Data 
 
 ```{r}
@@ -75,6 +77,8 @@ $\\$
 colnames(compasdata)
 ```
 
+\newpage
+
 # Data Wrangling
 
 Before proceeding with the data analysis, we first need to handle some data anomalies. We'll also only consider COMPAS cases within 30 days of arrest to improve the data quality. This resulted in 9683 total observations. 
@@ -99,6 +103,8 @@ clean_compasdata <- compasdata[-which(duplicated(compasdata$id)), ]
 $\\$
 
 We'll proceed with this data set and 9387 observations total. 
+
+\newpage
 
 # Descriptive Statistics 
 
@@ -972,6 +978,8 @@ $\\$
 
 Now that we have a thorough understanding of the make-up of the data set, we will perform a demographic analysis next to get a better understanding of the racial discrepancies that may be present before, finally, proceeding with the recidivism risk modeling. 
 
+\newpage
+
 # Demographic Group Analysis 
 
 ## Bivariate Analysis by Race
@@ -1325,6 +1333,8 @@ We have a thorough understanding of the data set now and the results we would ex
 
 We're ready to proceed with modeling now. First, we will fit a logistic regression, which uses the standard ML approach discussed in Chapter 2. We expect it to behave similarly to the COMPAS tool. Then, we will define a fairness metric and fit a Seldonian classification algorithm on this data set. We expect to observe less disparities along racial lines, but perhaps with a slight trade-off in overall accuracy. 
 
+\newpage
+
 # Logistic Regression 
 
 Logistic regression is a statistical generalized linear model (GLM) that is particularly designed for predicting dichotomous/ binary outcomes such as ours. We will use logistic regression to model the probability of a defendant re-committing a crime within two years in Broward County, Florida. We’ll then set cutoffs to divide the probabilities into 2 bins: 0 for ‘no’ and 1 for ‘yes’ based on the probability predictions. This will also allow us to analyze which features may be most important in predicting recidivism. 
@@ -1657,16 +1667,94 @@ test2 %>%
 
 $\\$
 
-Now, let's compare all the defendants.
+Now, let's examine the false negative and false positive rates for all the races in the data set.
 
-```{r}
+Due to the low amount of data on Asian and Native American defendants, their FPR was 0. Regardless, Black defendants had the highest FPR -- more than double that of all other races. 
 
+Conversely, excluding the "Other" group, White defendants who re-offended were the most likely to be labelled as lower risk (highest FNR) -- Native Americans were the least likely, followed by Black defendants. 
+
+This, and previous analysis, suggest disparities with favorable outcomes for white and Asian defendants, and unfavorable outcomes for Black and Native American defendants.
+
+These outcomes are quite similar to the COMPAS tool. 
+
+```{r, warning = FALSE, message = FALSE}
+test2 %>%
+  dplyr::select(race, pred_risk, is_recid) %>%
+  rename("Risk" = pred_risk,
+         "Race" = race) %>%
+  group_by(Race, is_recid) %>%
+  mutate(Total = n()) %>%
+  group_by(Risk, Race, Total) %>%
+  summarise("Reoffended" = count(is_recid == 1),
+            "Did Not Reoffend" = count(is_recid == 0)) %>%
+  pivot_longer(cols = c("Reoffended", "Did Not Reoffend"),
+               names_to = "Recidivism") %>%
+  pivot_wider(
+    id_cols = c("Risk", "Recidivism", "Total"),
+    names_from = "Race",
+    values_from = value
+  ) %>%
+  rename("Black" = `African-American`,
+         "White" = `Caucasian`) %>%
+  mutate(Black = round(100 * Black / Total, 2),
+         White = round(100 * White / Total, 2),
+         Hispanic = round(100 * Hispanic / Total, 2),
+         Asian = round(100 * Asian / Total, 2),
+         `Native American` = round(100 * `Native American` / Total, 2),
+         Other = round(100 * Other / Total, 2)) %>%
+  dplyr::select(-Total) %>%
+  group_by(Risk, Recidivism) %>%
+  summarize(Black = max(Black, na.rm = TRUE),
+            White = max(White, na.rm = TRUE),
+            Hispanic = max(Hispanic, na.rm = TRUE),
+            Asian = max(Asian, na.rm = TRUE),
+            `Native American` = max(`Native American`, na.rm = TRUE),
+            Other = max(Other, na.rm = TRUE)) %>%
+  filter((Risk == "High" & Recidivism == "Did Not Reoffend") |
+           (Risk == "Low" & Recidivism == "Reoffended")
+  ) %>%
+  kable(booktabs = TRUE)
 ```
 
 $\\$
 
-Finally, ....
+Finally, let's examine how close to the COMPAS tool the logistic regression performed.
+
+There is some overlap between our risk predictions and the COMPAS decile scores. However, the mean and median of the 'High' risk group is significantly larger than that of the 'Low' risk group. There is some predictive similarity between both models.
+
+```{r}
+favstats(test2$decile_score ~ test2$pred_risk)
+```
 
 
+$\\$
+
+There is no alarming discrepancy in the risk distributions.
+
+```{r, fig.width = 6, fig.height = 4.5, fig.align = 'center'}
+ggplot(data = test2, 
+       mapping = aes(x = pred_risk)) +
+  geom_bar() +
+  theme_minimal() +
+  facet_wrap(~race, ncol = 2) +
+  labs(title = "Logistic Regression Recidivism Predictions by Race",
+       x = "Risk") 
+```
+
+$\\$
+
+In conclusion, the logistic regression performed comparably to the COMPAS tool. When assessed on the test set, the overall accuracy is 70.1% with majority of the errors being false negatives. However, there are notably higher FPR rates for Black defendants and notably higher FNR rates for White defendants. 
+
+The logistic regression, which employs the standard ML approach, thus, produces unfair outcomes with regard to race.
+
+Next, let's test the Seldonian framework on this data set in an aim to achieve more equitable results by enforcing fairness constraints. 
+
+\newpage
+
+# Seldonian Algorithm 
+
+\newpage
+
+# Results
 
 
