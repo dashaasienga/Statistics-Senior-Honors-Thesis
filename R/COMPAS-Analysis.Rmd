@@ -1758,19 +1758,22 @@ Next, let's test the Seldonian framework on this data set in an aim to achieve m
 
 # Seldonian Algorithm 
 
+## Set Up the Python Environment
+
 ```{r}
 # set up Python environment
 library(reticulate)
-use_python("/cm/shared/apps/amh-Rstudio/python-3.11.4/bin/python3", required = TRUE)
+use_python("/cm/shared/apps/amh-Rstudio/python-3.11.4/bin/python3", 
+           required = TRUE)
 ```
 
 ```{python}
 # import necessary libraries
 import autograd.numpy as np
 import os
+
 from seldonian.parse_tree.parse_tree import (ParseTree,
     make_parse_trees_from_constraints)
-
 from seldonian.dataset import DataSetLoader
 from seldonian.utils.io_utils import (load_json,save_pickle)
 from seldonian.spec import SupervisedSpec
@@ -1779,91 +1782,8 @@ from seldonian.models.models import (
 from seldonian.models import objectives
 ```
 
-```{python}
-# function that gets an initial solution to constrain 
-def initial_solution_fn(model,features,labels):
-    return model.fit(features,labels)
-
-# specify data path
-data_pth = "/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/COMPAS/compas_data_clean.csv"
-save_dir = '.'
-os.makedirs(save_dir,exist_ok=True)
-```
+## Pre-Process the Data
 
 
-```{python}
-# create data set from path
-regime='supervised_learning'
-sub_regime='classification'
-
-loader = DataSetLoader(
-  regime=regime)
-
-dataset = loader.load_supervised_dataset(
-  filename=data_pth,
-  metadata_filename=metadata_pth,
-  file_type='csv')
-
-sensitive_col_names = dataset.meta.sensitive_col_names
-
-```
-
-```{python, echo = FALSE}
-# createSpec.py
-
-
-
-    # Use logistic regression model
-    model = LogisticRegressionModel()
-    
-    # Set the primary objective to be log loss
-    primary_objective = objectives.binary_logistic_loss
-    
-    # Define behavioral constraints
-    epsilon = 0.9
-    constraint_name = "disparate_impact"
-    if constraint_name == "disparate_impact":
-        constraint_strs = [f'min((PR | [M])/(PR | [F]),(PR | [F])/(PR | [M])) >= {epsilon}'] 
-    deltas = [0.05]
-    
-    # For each constraint (in this case only one), make a parse tree
-    parse_trees = make_parse_trees_from_constraints(
-        constraint_strs,deltas,regime=regime,
-        sub_regime=sub_regime,columns=sensitive_col_names)
-
-    # Save spec object, using defaults where necessary
-    spec = SupervisedSpec(
-        dataset=dataset,
-        model=model,
-        parse_trees=parse_trees,
-        sub_regime=sub_regime,
-        frac_data_in_safety=0.6,
-        primary_objective=primary_objective,
-        initial_solution_fn=initial_solution_fn,
-        use_builtin_primary_gradient_fn=True,
-        optimization_technique='gradient_descent',
-        optimizer='adam',
-        optimization_hyperparams={
-            'lambda_init'   : np.array([0.5]),
-            'alpha_theta'   : 0.01,
-            'alpha_lamb'    : 0.01,
-            'beta_velocity' : 0.9,
-            'beta_rmsprop'  : 0.95,
-            'use_batches'   : False,
-            'num_iters'     : 1500,
-            'gradient_library': "autograd",
-            'hyper_search'  : None,
-            'verbose'       : True,
-        }
-    )
-
-    spec_save_name = os.path.join(save_dir,f'loans_{constraint_name}_{epsilon}_spec.pkl')
-    save_pickle(spec_save_name,spec)
-    print(f"Saved Spec object to: {spec_save_name}")
-```
-
-\newpage
 
 # Results
-
-
