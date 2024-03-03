@@ -1,0 +1,37 @@
+{
+  "regime": "supervised",
+  "sub_regime": "classification",
+  "all_col_names": [
+    "Black",
+    "Asian",
+    "White",
+    "Hispanic",
+    "NativeAmerican",
+    "race_Other",
+    "Female",
+    "Male",
+    "25_45",
+    "Greater_than_45",
+    "Less_than_25",
+    "Divorced",
+    "Married",
+    "Separated",
+    "Significant_Other",
+    "Single",
+    "marital_status_Unknown",
+    "Widowed",
+    "age",
+    "priors_count",
+    "juv_offense",
+    "is_recid"
+  ],
+  "label_col_names": "is_recid",
+  "sensitive_col_names": [
+    "Black",
+    "White",
+    "Hispanic",
+    "race_Other",
+    "Asian",
+    "NativeAmerican"
+  ]
+}
