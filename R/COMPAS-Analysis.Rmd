@@ -1351,10 +1351,6 @@ count(compas)
 ```
 
 
-```{r, include = FALSE}
-write_csv(compas, "/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/COMPAS/compas_data_clean.csv")
-```
-
 ## Train and Test Split
 
 Before we proceed to fitting the models, we need to perform a train/ test split. The reason for this is to be able to test how our model would perform on unseen data and to avoid over-fitting. Therefore, we will train our models using the `train` data, and then assess performance on “new” data, that is, the `test` set. Let’s partition 70% of the data into the train set and 30% into the test set. We will use randomization without replacement for this.
@@ -1757,8 +1753,18 @@ Next, let's test the Seldonian framework on this data set in an aim to achieve m
 \newpage
 
 # Seldonian Algorithm 
+Recall that Seldonian algorithms allow us to enforce probabilistic fairness constraints on traditional ML algorithms. First, let's create a data set for the Seldonian algorithm with only the most significant variables from the logistic regression. This is because the Seldonian algorithm will use the logistic regression solution as a starting point to its solution.
+
+```{r, include = FALSE}
+compas_seldonian <- compas %>%
+  dplyr::select(c(race, sex, age, age_cat, marital_status, juv_offense, priors_count, is_recid))
+
+write_csv(compas_seldonian, "/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/COMPAS/compas_seldonian.csv")
+```
 
 ## Set Up the Python Environment
+
+Let's ensure we have all the packages and libraries needed to run the Seldonian algorithm on the COMPAS data set.
 
 ```{r}
 # set up Python environment
@@ -1769,9 +1775,18 @@ use_python("/cm/shared/apps/amh-Rstudio/python-3.11.4/bin/python3",
 
 ```{python}
 # import necessary libraries
-import autograd.numpy as np
+import numpy as np
 import os
 
+import pandas as pd
+import json
+
+from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import StandardScaler
+from sklearn.compose import ColumnTransformer
+
+from seldonian.utils.io_utils import save_json
 from seldonian.parse_tree.parse_tree import (ParseTree,
     make_parse_trees_from_constraints)
 from seldonian.dataset import DataSetLoader
@@ -1780,9 +1795,141 @@ from seldonian.spec import SupervisedSpec
 from seldonian.models.models import (
     BinaryLogisticRegressionModel as LogisticRegressionModel) 
 from seldonian.models import objectives
+
+import matplotlib.pyplot as plt
 ```
 
 ## Pre-Process the Data
+
+Let's ensure our data is in the correct format.
+
+First, we'll read it in and make sure it looks alright.
+
+```{python}
+# point to the data file
+f_orig = "/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/COMPAS/compas_seldonian.csv"
+
+# list the column names that were most important
+columns_orig = [
+    "race","sex","age",
+    "age_cat","marital_status","juv_offense",
+    "priors_count", "is_recid"]
+```
+
+
+```{python}
+df = pd.read_csv(f_orig, header=1, names=columns_orig)
+df.head()
+df.dtypes
+```
+
+$\\$
+
+Next, we'll separate the predictor variables from the response variable.
+
+```{python}
+# split into inputs and outputs
+X = df.drop(columns=["is_recid"])
+y = df["is_recid"]
+```
+
+```{python}
+X
+```
+
+```{python}
+y
+```
+
+$\\$
+
+We'll one-hot encode all the categorical variables to make sure everything is numerically encoded. We will also scale all the numerical variables on a Standard N(0,1) scale.
+
+```{python}
+# one hot encode cat features only, scale numerical features using standard scaler 
+ct = ColumnTransformer([('c',OneHotEncoder(),['race', 'sex', 'age_cat', 'marital_status']), ('n',StandardScaler(),['age','priors_count'])])
+    
+# apply transformation
+X_transformed = ct.fit_transform(X)
+    
+# get names after one-hot encoding
+output_columns = ct.get_feature_names_out(ct.feature_names_in_)
+    
+# make an output dataframe to save transformed X and y
+outdf = pd.DataFrame(X_transformed,columns=output_columns)
+```
+
+```{python}
+outdf
+```
+
+
+```{python}
+outdf.columns
+```
+
+$\\$
+
+Let's rename the columns for easier interpretation. 
+
+```{python}
+# change names of columns 
+outdf.rename(columns={'c__race_African-American':'Black', 'c__race_Native American':'NativeAmerican', 'c__race_Asian':'Asian', 'c__race_Caucasian':'White', 'c__race_Hispanic':'Hispanic', 'c__race_Other':'race_Other', 'c__sex_Female':'Female', 'c__sex_Male':'Male', 'c__age_cat_25 - 45':'25_45', 'c__age_cat_Greater than 45':'Greater_than_45', 'c__age_cat_Less than 25':'Less_than_25', 'c__marital_status_Divorced':'Divorced', 'c__marital_status_Married':'Married', 'c__marital_status_Separated':'Separated', 'c__marital_status_Significant Other':'Significant_Other', 'c__marital_status_Single':'Single', 'c__marital_status_Unknown':'marital_status_Unknown', 'c__marital_status_Widowed':'Widowed', 'c__juv_offense_0':'juv_offense_0', 'c__juv_offense_1':'juv_offense_1', 'n__age':'age', 'n__priors_count':'priors_count' },
+inplace=True)
+    
+# add label column and `juv_offense` into final dataframe
+outdf['juv_offense'] = df['juv_offense']
+outdf['is_recid'] = y
+```
+
+```{python}
+outdf.columns
+```
+
+```{python}
+outdf.head()
+```
+
+$\\$
+
+Finally, we'll save the final data set for easier retrieval later.
+
+```{python}
+# save final dataframe
+output_path_data="/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/COMPAS/compas_seldonian_numeric_clean.csv"
+
+outdf.to_csv(output_path_data,index=False,header=False)
+print(f"Saved data file to: {output_path_data}")
+```
+
+$\\$
+
+Similarly, we'll save a JSON metadata file that describes the seldonian compas data set, as well specify the sensitive columns, the response variable, and the ML problem, which in our case is classification.
+
+```{python}
+# save metadata json file
+output_path_metadata="/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/COMPAS/metadata_compas_seldonian.json"
+
+metadata_dict = {
+  "regime":"supervised",
+  "sub_regime":"classification",
+  "all_col_names":list(outdf.columns),
+  "label_col_names":"is_recid",
+  "sensitive_col_names":["Black", "White", "Hispanic", "race_Other", "Asian", "NativeAmerican"]
+}
+    
+with open(output_path_metadata,'w') as outfile:
+    json.dump(metadata_dict,outfile,indent=2)
+print(f"Saved metadata file to: {output_path_metadata}")
+```
+
+$\\$
+
+We've pre-processed the data into the right format! Next, let's formulate the Seldonian ML problem before actually fitting the Seldonian algorithm.
+
+## The Seldonian ML Problem
+
+
 
 
 
