@@ -1951,6 +1951,8 @@ Therefore, the Seldonian ML problem can be formulated as: using gradient descent
 
 ## Create the Specification Object
 
+A complete script for reading the data and metadata files created above and creating the spec object for our Seldonian ML problem is shown below. This script will save the spec object as a pickle file called `spec.pkl` in the appropriate directory. That directory is currently set to `/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Application/`. 
+
 ```{python}
 import autograd.numpy as np
 
@@ -2028,7 +2030,26 @@ print(f"Saved Spec object to: {spec_save_name}")
 
 $\\$
 
-document what's going on with this code then proceed :)
+First, the spec object takes the `dataset` and `model` objects as arguments. Next, we pass the `parse_trees` list that we defined above in the script. In our case, we only have one parse tree (because there is one parse tree per constraint), but it still must be passed as a list. We also need to pass the `sub_regime` to indicate the type of supervised ML problem, which is classification for this case. Then, we set `frac_data_in_safety=0.4`, which specifies that 40% of the data points in our data set will be used for the safety test. The remaining 60% of the points will be used for candidate selection. Next, we specify the `primary_objective` function, followed by the `initial_solution_fn`, which specifies the function we will use to provide the initial solution to candidate selection. Here, we set `initial_solution_fn=model.fit`. Because model refers to our `LogisticRegressionModel()` object, `model.fit` refers to that objects' fit method. This method is just a wrapper for scikit-learn's LogisticRegression fit method. The reason we use this method to create an initial solution is so that we start gradient descent with model weights that minimize the primary objective (in the absence of constraints), that is, the logistic loss. Because we have constraints, this initial solution is not necessarily the true optimum of our optimization problem, but it can help us find the true optimum much more efficiently in some cases.
+
+The next argument is `use_builtin_primary_gradient_fn=True`. This instructs the engine to use a function that is already part of the library to calculate the gradient of the primary objective. Recall that earlier in the script we set the primary objective to be the logistic loss with the line: `primary_objective = objectives.binary_logistic_loss`. Built-in gradients exist for some common objective functions (see https://github.com/seldonian-toolkit/Engine/blob/main/seldonian/models/objectives.py), including the binary logistic loss. Setting `use_builtin_primary_gradient_fn=False` will cause the engine to use automatic differentiation to calculate the gradient of the primary objective instead. While automatic differentiation will work, using a built-in function for the gradient can speed up execution in some cases. 
+
+The next argument is `optimization_technique='gradient_descent'`, which specifies how we will search for a candidate solution during candidate selection. The other option for this argument is 'barrier_function'. The argument `optimizer='adam'` instructs the code to use the Adam optimizer during gradient descent. The final argument, `optimization_hyperparams`, is for setting the parameters of gradient descent, which include:
+
+- 'lambda_init': the initial value of the Lagrange multiplier(s).
+- 'alpha_theta': the initial learning rate for the model parameters.
+- 'alpha_lamb': the initial learning rate for the Lagrange multiplier(s).
+- 'beta_velocity': the decay rate of the velocity (also called momentum) term.
+- 'beta_rmsprop': the decay rate of the rmsprop term (adaptive learning rate optimization algorithm).
+- 'use_batches': whether to use mini batches for gradient descent.
+- 'num_iters': the number of iterations of gradient descent to run. This is only used if 'use_batches' is False. Otherwise, the batch size and number of epochs determine the number of iterations.
+- 'gradient_library': the library to use for calculating gradients automatically. Currently "autograd" is the only option.
+- 'hyper_search': how to conduct search over hyper-parameters. Set to None which does not perform a search.
+- 'verbose': whether to print out iteration progress during gradient descent.
+
+## Running the Seldonian Engine
+
+
 
 
 
