@@ -1882,12 +1882,20 @@ outdf['juv_offense'] = df['juv_offense']
 outdf['is_recid'] = y
 ```
 
+$\\$
+
+Let's also limit the analysis to just Black and White defendants. We may consider other races in future analysis. 
+
 ```{python}
-outdf.columns
+outdf_bw = outdf.drop(columns=["Asian", "race_Other", "Hispanic", "NativeAmerican"])
 ```
 
 ```{python}
-outdf.head()
+outdf_bw.columns
+```
+
+```{python}
+outdf_bw.head()
 ```
 
 $\\$
@@ -1898,7 +1906,7 @@ Finally, we'll save the final data set for easier retrieval later.
 # save final dataframe
 output_path_data="/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/COMPAS/compas_seldonian_numeric_clean.csv"
 
-outdf.to_csv(output_path_data,index=False,header=False)
+outdf_bw.to_csv(output_path_data,index=False,header=False)
 print(f"Saved data file to: {output_path_data}")
 ```
 
@@ -1913,7 +1921,7 @@ output_path_metadata="/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets
 metadata_dict = {
   "regime":"supervised",
   "sub_regime":"classification",
-  "all_col_names":list(outdf.columns),
+  "all_col_names":list(outdf_bw.columns),
   "label_col_names":"is_recid",
   "sensitive_col_names":["Black", "White", "Hispanic", "race_Other", "Asian", "NativeAmerican"]
 }
@@ -1927,7 +1935,22 @@ $\\$
 
 We've pre-processed the data into the right format! Next, let's formulate the Seldonian ML problem before actually fitting the Seldonian algorithm.
 
-## The Seldonian ML Problem
+## Formulate the Seldonian ML Problem
+
+As in Chapter 2, we first need to define the standard machine learning problem in the absence of constraints. The decision of whether to deem a defendant as being a high or low recidivism risk is a binary classification problem, where the label `is_recid` is 0 if the person is low risk and 1 if the person is high risk. We could use logistic regression and minimize an objective function, for example the logistic loss, via gradient descent to solve this standard machine learning problem as we did in the previous section. However, we observed the the logistic regression resulted in some undesirable results. 
+
+Based on the COMPAS analysis, 3 fairness definitions are most applicable:
+
+1. Equalized odds: 'abs((FNR | [Black]) - (FNR | [White])) + abs((FPR | [Black]) - (FPR | [White])) <= 0.2'
+2. Equal opportunity: 'abs((FNR | [Black]) - (FNR | [White])) <= 0.1'
+3. Predictive equality: 'abs((FPR | [Black]) - (FPR | [White])) <= 0.1'
+
+The cutoffs are arbitrary, and it may be worthwhile to investigate how tight the constraint can be. In essence, these fairness constraints ensure that the FNR and FPR between Black and White defendants does not each differ by more than 0.1. The equalized odds combines these 2 constraints by ensuring the difference in FNR and the difference in FPR do not jointly differ by more than 0.2. We will take $\delta = 0.05$ to ensure 0.95 confidence.
+
+Therefore, the Seldonian ML problem can be formulated as: using gradient descent on a logistic regression model, minimize the logistic loss, subject to either $g_1$, $g_2$, $g_3$, or both $g_2$ and $g_3$, with $\delta_1, \delta_2, \delta_3 = 0.05$.
+
+## Create the Specification Object
+
 
 
 
