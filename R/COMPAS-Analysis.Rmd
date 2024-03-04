@@ -1919,11 +1919,11 @@ Similarly, we'll save a JSON metadata file that describes the seldonian compas d
 output_path_metadata="/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/COMPAS/metadata_compas_seldonian.json"
 
 metadata_dict = {
-  "regime":"supervised",
+  "regime":"supervised_learning",
   "sub_regime":"classification",
   "all_col_names":list(outdf_bw.columns),
   "label_col_names":"is_recid",
-  "sensitive_col_names":["Black", "White", "Hispanic", "race_Other", "Asian", "NativeAmerican"]
+  "sensitive_col_names":["Black", "White"]
 }
     
 with open(output_path_metadata,'w') as outfile:
@@ -1950,6 +1950,85 @@ The cutoffs are arbitrary, and it may be worthwhile to investigate how tight the
 Therefore, the Seldonian ML problem can be formulated as: using gradient descent on a logistic regression model, minimize the logistic loss, subject to either $g_1$, $g_2$, $g_3$, or both $g_2$ and $g_3$, with $\delta_1, \delta_2, \delta_3 = 0.05$.
 
 ## Create the Specification Object
+
+```{python}
+import autograd.numpy as np
+
+# createSpec.py
+def initial_solution_fn(model,features,labels):
+    return model.fit(features,labels)
+
+data_pth = output_path_data
+metadata_pth = output_path_metadata
+save_dir = "/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Application/"
+os.makedirs(save_dir,exist_ok=True)
+
+# create dataset from data and metadata file
+regime='supervised_learning'
+sub_regime='classification'
+
+loader = DataSetLoader(regime=regime)
+
+dataset = loader.load_supervised_dataset(
+  filename=data_pth,
+  metadata_filename=metadata_pth,
+  file_type='csv')
+  
+sensitive_col_names = dataset.meta.sensitive_col_names
+
+# use logistic regression model
+model = LogisticRegressionModel()
+    
+# set the primary objective to be log loss
+primary_objective = objectives.binary_logistic_loss
+    
+# define behavioral constraints
+epsilon = 0.2
+constraint_name = "equalized_odds"
+if constraint_name == "equalized_odds":
+  constraint_strs = [f'abs((FNR | [Black]) - (FNR | [White])) + abs((FPR | [Black]) - (FPR | [White])) <= {epsilon}'] 
+deltas = [0.05]
+    
+# for each constraint (in this case only one), make a parse tree
+parse_trees = make_parse_trees_from_constraints(
+  constraint_strs, deltas, regime=regime,
+  sub_regime=sub_regime, columns=sensitive_col_names
+  )
+
+# save spec object, using defaults where necessary
+spec = SupervisedSpec(
+  dataset=dataset,
+  model=model,
+  parse_trees=parse_trees,
+  sub_regime=sub_regime,
+  frac_data_in_safety=0.4,
+  primary_objective=primary_objective,
+  initial_solution_fn=initial_solution_fn,
+  use_builtin_primary_gradient_fn=True,
+  optimization_technique='gradient_descent',
+  optimizer='adam',
+  optimization_hyperparams={
+    'lambda_init'   : np.array([0.5]),
+    'alpha_theta'   : 0.01,
+    'alpha_lamb'    : 0.01,
+    'beta_velocity' : 0.9,
+    'beta_rmsprop'  : 0.95,
+    'use_batches'   : False,
+    'num_iters'     : 1500,
+    'gradient_library': "autograd",
+    'hyper_search'  : None,
+    'verbose'       : True,
+    }
+)
+
+spec_save_name = os.path.join(save_dir,f'compas_{constraint_name}_{epsilon}_spec.pkl')
+save_pickle(spec_save_name,spec)
+print(f"Saved Spec object to: {spec_save_name}")
+```
+
+$\\$
+
+document what's going on with this code then proceed :)
 
 
 
