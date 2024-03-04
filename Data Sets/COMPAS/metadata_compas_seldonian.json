@@ -1,5 +1,5 @@
 {
-  "regime": "supervised",
+  "regime": "supervised_learning",
   "sub_regime": "classification",
   "all_col_names": [
     "Black",
@@ -24,10 +24,6 @@
   "label_col_names": "is_recid",
   "sensitive_col_names": [
     "Black",
-    "White",
-    "Hispanic",
-    "race_Other",
-    "Asian",
-    "NativeAmerican"
+    "White"
   ]
 }
