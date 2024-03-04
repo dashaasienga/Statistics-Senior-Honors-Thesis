@@ -3,11 +3,7 @@
   "sub_regime": "classification",
   "all_col_names": [
     "Black",
-    "Asian",
     "White",
-    "Hispanic",
-    "NativeAmerican",
-    "race_Other",
     "Female",
     "Male",
     "25_45",
