@@ -1941,9 +1941,9 @@ As in Chapter 2, we first need to define the standard machine learning problem i
 
 Based on the COMPAS analysis, 3 fairness definitions are most applicable:
 
-1. Equalized odds: 'abs((FNR | [Black]) - (FNR | [White])) + abs((FPR | [Black]) - (FPR | [White])) <= 0.2'
-2. Equal opportunity: 'abs((FNR | [Black]) - (FNR | [White])) <= 0.1'
-3. Predictive equality: 'abs((FPR | [Black]) - (FPR | [White])) <= 0.1'
+1. Equalized odds: 'abs((FNR | [Black]) - (FNR | [White])) + abs((FPR | [Black]) - (FPR | [White])) <= $\epsilon$'
+2. Equal opportunity: 'abs((FNR | [Black]) - (FNR | [White])) <= $\epsilon$'
+3. Predictive equality: 'abs((FPR | [Black]) - (FPR | [White])) <= $\epsilon$'
 
 The cutoffs are arbitrary, and it may be worthwhile to investigate how tight the constraint can be. In essence, these fairness constraints ensure that the FNR and FPR between Black and White defendants does not each differ by more than 0.1. The equalized odds combines these 2 constraints by ensuring the difference in FNR and the difference in FPR do not jointly differ by more than 0.2. We will take $\delta = 0.05$ to ensure 0.95 confidence.
 
@@ -1981,53 +1981,20 @@ model = LogisticRegressionModel()
 primary_objective = objectives.binary_logistic_loss
     
 # define behavioral constraints
-epsilon = 0.4
-#constraint_name = "equalized_odds"
-constraint_name = "predictive_equality"
-if constraint_name == "predictive_equality":
-  #constraint_strs = [f'abs((FNR | [Black]) - (FNR | [White])) + abs((FPR | [Black]) - (FPR | [White])) <= {epsilon}'] 
-  constraint_strs = [f'abs((FPR | [Black]) - (FPR | [White])) <= {epsilon}'] 
+epsilon = 0.2
+constraint_name = "equalized_odds"
+#constraint_name = "predictive_equality"
+if constraint_name == "equalized_odds":
+  constraint_strs = [f'abs((FNR | [Black]) - (FNR | [White])) + abs((FPR | [Black]) - (FPR | [White])) <= {epsilon}'] 
+  #constraint_strs = [f'abs((FPR | [Black]) - (FPR | [White])) <= {epsilon}'] 
 deltas = [0.05]
-    
-# for each constraint (in this case only one), make a parse tree
-parse_trees = make_parse_trees_from_constraints(
-  constraint_strs, deltas, regime=regime,
-  sub_regime=sub_regime, columns=sensitive_col_names
-  )
 
-# save spec object, using defaults where necessary
-spec = SupervisedSpec(
-  dataset=dataset,
-  model=model,
-  parse_trees=parse_trees,
-  sub_regime=sub_regime,
-  frac_data_in_safety=0.6,
-  primary_objective=primary_objective,
-  initial_solution_fn=model.fit(dataset.features, dataset.labels),
-  use_builtin_primary_gradient_fn=True,
-  optimization_technique='barrier_function'
-  # optimizer='adam',
-  # optimization_hyperparams={
-  #   'lambda_init'   : np.array([0.5]),
-  #   'alpha_theta'   : 0.0000001,
-  #   'alpha_lamb'    : 0.0000001,
-  #   'beta_velocity' : 0.9,
-  #   'beta_rmsprop'  : 0.95,
-  #   'use_batches'   : False,
-  #   'num_iters'     : 1500,
-  #   'gradient_library': "autograd",
-  #   'hyper_search'  : None,
-  #   'verbose'       : True,
-  # }
-)
-
-spec_save_name = os.path.join(save_dir,f'compas_{constraint_name}_{epsilon}_spec.pkl')
-save_pickle(spec_save_name,spec)
-print(f"Saved Spec object to: {spec_save_name}")
 ```
 
 ```{python}
 from seldonian.spec import createSupervisedSpec
+
+save_dir = "/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Application/"
 
 createSupervisedSpec(
             dataset=dataset,
@@ -2082,10 +2049,81 @@ print("Primary objective (log loss) evaluated on safety dataset:")
 print(SA.evaluate_primary_objective(branch='safety_test',theta=solution))
 ```
 
+$\\$
+
+We got a solution! Therefore, we are 95% confident that the equalized odds -- 'abs((FNR | [Black]) - (FNR | [White])) + abs((FPR | [Black]) - (FPR | [White])) -- <= 0.2'. Let's now analyze this solution in more depth.
+
+## Obtain the Predictive Values
+
+```{python}
+SA.cs_result["candidate_solution"]
+```
+
+$\\$
+
+Let's store this coefficients. The first of which is the intercept.
+
+```{python}
+coefficients = SA.cs_result["candidate_solution"]
+```
+
+```{python}
+intercept = coefficients[0]
+```
+
+$\\$
+
+Let's also separate the predictor variables from the race and output variables.
+
+```{python}
+X_outdf = outdf.drop(columns = ['is_recid', 'Black', 'White'])
+X_sens = outdf[['Black', 'White']]
+y_outdf = outdf['is_recid']
+X_sens
+X_outdf
+y_outdf
+```
+
+$\\$
+
+Now, let's compute the predictive values.
+
+```{python}
+linear_combination = np.dot(X_outdf, coefficients[1:]) + intercept
+predicted_probabilities = 1 / (1 + np.exp(-linear_combination))
+```
+
+```{python}
+seldonian_results = pd.DataFrame({'is_recid': y_outdf, 'pred': predicted_probabilities})
+seldonian_results = pd.concat([X_outdf, X_sens, seldonian_results], axis = 1)
+```
+
+```{python}
+seldonian_results.head()
+```
 
 
+$\\$ 
 
+Finally, let's obtain a binary risk prediction. 
 
+```{python}
+# define threshold
+threshold = 0.5
 
+# create risk column
+risk = np.where(predicted_probabilities >= threshold, 1, 0)
+
+# add risk column to dataframe
+seldonian_results['risk'] = risk
+```
+
+```{python}
+seldonian_results.head()
+```
+
+## Evaluating Performance
+
+## Demographic and 'Fairness' Analysis
 
 # Results
