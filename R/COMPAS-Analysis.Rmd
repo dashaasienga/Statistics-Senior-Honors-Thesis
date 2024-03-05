@@ -2124,6 +2124,40 @@ seldonian_results.head()
 
 ## Evaluating Performance
 
+We will evaluate performance on the entire data set for simplicity, even though only 40% was used to train the model.
+
+Before that, let's switch back to R!
+
+```{python}
+# write the dataframe to a CSV file
+seldonian_results.to_csv("/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/COMPAS/compas_seldonian_results_bw.csv", index=False)
+```
+
+$\\$
+
+Now, let's get the confusion matrix.
+
+```{r}
+# read in the data
+seldonian_results <- read.csv("/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/COMPAS/compas_seldonian_results_bw.csv")
+```
+
+```{r}
+tally(data = seldonian_results, risk ~ is_recid)
+```
+
+$\\$
+
+This model performs comparably to the logistic regression, with 68.2% accuracy. 
+
+```{r}
+(599 + 4803)/ 7923
+```
+
+$\\$
+
+This means that ~32% of defendants are misclassified in the incorrect recidivism prediction. However, the real determinant of this model's performance is the difference in FPR v FNR for Black v White defendants.  
+
 ## Demographic and 'Fairness' Analysis
 
 # Results
