@@ -2030,7 +2030,7 @@ The next argument is `optimization_technique='gradient_descent'`, which specifie
 We are now ready to run the Seldonian algorithm using the spec file generated in the previous step. The code below modifies some defaults of the spec object that we created and then runs the Seldonian algorithm using the modified spec object.
 
 
-```{python}
+```{python, cache = TRUE}
 from seldonian.seldonian_algorithm import SeldonianAlgorithm
 from seldonian.utils.io_utils import load_pickle
 
@@ -2160,4 +2160,109 @@ This means that ~32% of defendants are misclassified in the incorrect recidivism
 
 ## Demographic and 'Fairness' Analysis
 
+Before we perform the demographic analysis, let's reconstruct the `race` column.
+
+```{r}
+seldonian_results <- seldonian_results %>%
+  mutate(race = ifelse(Black == 1, 'Black', 'White'),
+         pred_risk = ifelse(risk == 0, 'Low', 'High')) 
+
+head(seldonian_results)
+```
+
+$\\$
+
+We can now reconstruct the tables. 
+
+First, let's re-examine the confusion matrix to determine whether the model makes more false negative or more false positive results.
+
+The first table depicts the raw numbers and the second table interprets that in terms of proportions in order to better understand the magnitude.
+
+The model correctly classifies 599 defendants as reoffenders and 4803 defendants as non-reoffenders.  2222 defendants who reoffend are classified as low risk, whereas 299 defendants who did not reoffend are classified as high risk. The model does a better job at classifying those who do not reoffend, as is expected because there is more data for that group. In general, the trends are consistent with what we observed in the COMPAS tool's results. 
+
+
+```{r, message = FALSE}
+seldonian_results %>%
+  dplyr::select(pred_risk, is_recid) %>%
+  rename("Risk" = pred_risk) %>%
+  group_by(Risk) %>%
+  summarise("Reoffended" = count(is_recid == 1),
+            "Did Not Reoffend" = count(is_recid == 0)) %>%
+  kable()
+```
+
+$\\$
+
+When looking at the proportions, 94% of participants who did not reoffend are correctly classified as low risk. This means only 6% of participants who do not reoffend are classified as high risk. This is a lower FPR than the logistic regression and COMPAS tool.
+
+On the flip side, only 21% of defendants who reoffended are correctly classified as high risk. This means 79% of defendants who reoffended are classified as low risk. This is a higher FNR than the logistic regression and COMPAS.
+
+The model, overall, has worse false negative rates than false positive rates. While this is the same general trend observed in the logistic regression and the COMPAS tool, the discrepancy is much larger. 
+
+Because of the imbalanced data, such models are prone to higher FNR rates than FPR rates.
+
+```{r, message = FALSE}
+seldonian_results %>%
+  dplyr::select(pred_risk, is_recid) %>%
+  rename("Risk" = pred_risk) %>%
+  group_by(is_recid) %>%
+  mutate(Total = n()) %>%
+  group_by(Risk, Total) %>%
+  summarise("Reoffended" = count(is_recid == 1),
+            "Did Not Reoffend" = count(is_recid == 0)) %>%
+  mutate(Reoffended = round(100 * Reoffended / Total, 2),
+         `Did Not Reoffend` = round(100 * `Did Not Reoffend` / Total, 2)) %>%
+  dplyr::select(-Total) %>%
+  group_by(Risk) %>%
+  summarize(Reoffended = max(Reoffended, na.rm = TRUE),
+            `Did Not Reoffend` = max(`Did Not Reoffend`, na.rm = TRUE)) %>%
+  kable()
+```
+
+
+$\\$ 
+
+Now, let's examine these false positive and false negative rates along racial lines for Black v White defendants.
+
+Recall that the overall FPR rate for the model is 5.86%. We still observe similar trends to the logistic regression model. The FPR for Black defendants is still higher than that of White defendants. Observe that the FPR for Black defendants is now 8.88%, lower than the previous 13.93%. On the flip side, the FPR for White defendants is 2.24%, lower than the previous 5.09%. There is still a discrepancy, but there was a decrease in FPR for both races.
+
+
+Recall that the overall FNR rate for the model is 78.77%%. We still observe similar trends to the logistic regression model. The FNR for Black defendants is still lower than that of White defendants. Observe that the FNR for Black defendants is now 73.82%, much higher than the previous 60.82%. On the flip side, the FNR for White defendants is 88.82%, only slightly higher than the previous 86.17%. There is still a discrepancy, but there was an increase in FNR for both races, significantly higher for Black defendants.
+
+
+```{r, warning = FALSE, message = FALSE}
+seldonian_results %>%
+  dplyr::select(race, pred_risk, is_recid) %>%
+  rename("Risk" = pred_risk,
+         "Race" = race) %>%
+  group_by(Race, is_recid) %>%
+  mutate(Total = n()) %>%
+  group_by(Risk, Race, Total) %>%
+  summarise("Reoffended" = count(is_recid == 1),
+            "Did Not Reoffend" = count(is_recid == 0)) %>%
+  pivot_longer(cols = c("Reoffended", "Did Not Reoffend"),
+               names_to = "Recidivism") %>%
+  pivot_wider(
+    id_cols = c("Risk", "Recidivism", "Total"),
+    names_from = "Race",
+    values_from = value
+  ) %>%
+  mutate(Black = round(100 * Black / Total, 2),
+         White = round(100 * White / Total, 2)) %>%
+  dplyr::select(-Total) %>%
+  group_by(Risk, Recidivism) %>%
+  summarize(Black = max(Black, na.rm = TRUE),
+            White = max(White, na.rm = TRUE)) %>%
+  filter((Risk == "High" & Recidivism == "Did Not Reoffend") |
+           (Risk == "Low" & Recidivism == "Reoffended")
+  ) %>%
+  kable(booktabs = TRUE)
+```
+
 # Results
+
+In conclusion, the Seldonian algorithm still exhibits discrepancies between the FPR and FNR for Black v White defendants, which perhaps is unavoidable because of the role that race plays in proxy variables. However, there was barely any accuracy trade-off, and we saw an increase in FNR for both races, accompanied by a decrease in FPR for both races. There is still inequality, but everyone is just a little bit happier.
+
+# Misc
+
+Would be interesting to see what enforcing a smaller $\epsilon$ (tighter constraint) would do!
