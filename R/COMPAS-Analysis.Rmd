@@ -1979,22 +1979,24 @@ model = LogisticRegressionModel()
     
 # set the primary objective to be log loss
 primary_objective = objectives.binary_logistic_loss
-    
-# define behavioral constraints
-epsilon = 0.2
-constraint_name = "equalized_odds"
-#constraint_name = "predictive_equality"
-if constraint_name == "equalized_odds":
-  constraint_strs = [f'abs((FNR | [Black]) - (FNR | [White])) + abs((FPR | [Black]) - (FPR | [White])) <= {epsilon}'] 
-  #constraint_strs = [f'abs((FPR | [Black]) - (FPR | [White])) <= {epsilon}'] 
-deltas = [0.05]
-
 ```
+
+$\\$
+
+We'll start with $\epsilon = 0.2$. 
 
 ```{python}
 from seldonian.spec import createSupervisedSpec
 
-save_dir = "/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Application/"
+# define behavioral constraints
+epsilon = 0.2
+constraint_name = "equalized_odds"
+if constraint_name == "equalized_odds":
+  constraint_strs = [f'abs((FNR | [Black]) - (FNR | [White])) + abs((FPR | [Black]) - (FPR | [White])) <= {epsilon}'] 
+deltas = [0.05]
+
+# create spec file
+save_dir = "/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Application/equalized_odds_0.2"
 
 createSupervisedSpec(
             dataset=dataset,
@@ -2007,6 +2009,117 @@ createSupervisedSpec(
 ```
 
 $\\$
+
+Next, we'll do $\epsilon = 0.1$. 
+
+```{python}
+from seldonian.spec import createSupervisedSpec
+
+# define behavioral constraints
+epsilon = 0.1
+constraint_name = "equalized_odds"
+if constraint_name == "equalized_odds":
+  constraint_strs = [f'abs((FNR | [Black]) - (FNR | [White])) + abs((FPR | [Black]) - (FPR | [White])) <= {epsilon}'] 
+deltas = [0.05]
+
+# create spec file
+save_dir = "/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Application/equalized_odds_0.1"
+
+createSupervisedSpec(
+            dataset=dataset,
+            metadata_pth=metadata_pth,
+            constraint_strs=constraint_strs,
+            deltas=deltas,
+            save_dir=save_dir,
+            save=True,
+            verbose=False)
+```
+
+$\\$
+
+Next, we'll do $\epsilon = 0.05$. 
+
+```{python}
+from seldonian.spec import createSupervisedSpec
+
+# define behavioral constraints
+epsilon = 0.05
+constraint_name = "equalized_odds"
+if constraint_name == "equalized_odds":
+  constraint_strs = [f'abs((FNR | [Black]) - (FNR | [White])) + abs((FPR | [Black]) - (FPR | [White])) <= {epsilon}'] 
+deltas = [0.05]
+
+# create spec file
+save_dir = "/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Application/equalized_odds_0.05"
+
+createSupervisedSpec(
+            dataset=dataset,
+            metadata_pth=metadata_pth,
+            constraint_strs=constraint_strs,
+            deltas=deltas,
+            save_dir=save_dir,
+            save=True,
+            verbose=False)
+```
+
+$\\$
+
+Finally, we'll do $\epsilon = 0.01$. 
+
+```{python}
+from seldonian.spec import createSupervisedSpec
+
+# define behavioral constraints
+epsilon = 0.01
+constraint_name = "equalized_odds"
+if constraint_name == "equalized_odds":
+  constraint_strs = [f'abs((FNR | [Black]) - (FNR | [White])) + abs((FPR | [Black]) - (FPR | [White])) <= {epsilon}'] 
+deltas = [0.05]
+
+# create spec file
+save_dir = "/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Application/equalized_odds_0.01"
+
+createSupervisedSpec(
+            dataset=dataset,
+            metadata_pth=metadata_pth,
+            constraint_strs=constraint_strs,
+            deltas=deltas,
+            save_dir=save_dir,
+            save=True,
+            verbose=False)
+```
+
+$\\$
+
+The code chunk below illustrates another way to create a spec file. This way did not work well for us. 
+
+```{python, eval = FALSE}
+spec = SupervisedSpec(
+        dataset=dataset,
+        model=model,
+        parse_trees=parse_trees,
+        sub_regime=sub_regime,
+        frac_data_in_safety=0.6,
+        primary_objective=primary_objective,
+        initial_solution_fn=initial_solution_fn,
+        use_builtin_primary_gradient_fn=True,
+        optimization_technique='gradient_descent',
+        optimizer='adam',
+        optimization_hyperparams={
+            'lambda_init'   : np.array([0.5]),
+            'alpha_theta'   : 0.01,
+            'alpha_lamb'    : 0.01,
+            'beta_velocity' : 0.9,
+            'beta_rmsprop'  : 0.95,
+            'use_batches'   : False,
+            'num_iters'     : 1500,
+            'gradient_library': "autograd",
+            'hyper_search'  : None,
+            'verbose'       : True,
+        }
+    )
+```
+
 
 First, the spec object takes the `dataset` and `model` objects as arguments. Next, we pass the `parse_trees` list that we defined above in the script. In our case, we only have one parse tree (because there is one parse tree per constraint), but it still must be passed as a list. We also need to pass the `sub_regime` to indicate the type of supervised ML problem, which is classification for this case. Then, we set `frac_data_in_safety=0.4`, which specifies that 60% of the data points in our data set will be used for the safety test. The remaining 40% of the points will be used for candidate selection. Next, we specify the `primary_objective` function, followed by the `initial_solution_fn`, which specifies the function we will use to provide the initial solution to candidate selection. Here, we set `initial_solution_fn=model.fit`. Because model refers to our `LogisticRegressionModel()` object, `model.fit` refers to that objects' fit method. This method is just a wrapper for scikit-learn's LogisticRegression fit method. The reason we use this method to create an initial solution is so that we start gradient descent with model weights that minimize the primary objective (in the absence of constraints), that is, the logistic loss. Because we have constraints, this initial solution is not necessarily the true optimum of our optimization problem, but it can help us find the true optimum much more efficiently in some cases.
 
@@ -2027,74 +2140,207 @@ The next argument is `optimization_technique='gradient_descent'`, which specifie
 
 ## Running the Seldonian Engine
 
-We are now ready to run the Seldonian algorithm using the spec file generated in the previous step. The code below modifies some defaults of the spec object that we created and then runs the Seldonian algorithm using the modified spec object.
+We are now ready to run the Seldonian algorithm using the spec files generated in the previous step. The code below modifies some defaults of the spec object that we created and then runs the Seldonian algorithm using the modified spec object.
 
+$\\$
+
+For $\epsilon = 0.2$:
 
 ```{python, cache = TRUE}
 from seldonian.seldonian_algorithm import SeldonianAlgorithm
 from seldonian.utils.io_utils import load_pickle
 
 # load the spec file
-#specfile = "/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Application/compas_predictive_equality_0.4_spec.pkl"
-specfile = '/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Application/spec.pkl'
+specfile = '/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Application/equalized_odds_0.2/spec.pkl'
 spec = load_pickle(specfile)
-SA = SeldonianAlgorithm(spec)
-passed_safety, solution = SA.run(write_cs_logfile=True)
+SA_02 = SeldonianAlgorithm(spec)
+passed_safety, solution = SA_02.run(write_cs_logfile=True)
 if passed_safety:
   print("Passed safety test!")
 else:
   print("Failed safety test")
 print()
 print("Primary objective (log loss) evaluated on safety dataset:")
-print(SA.evaluate_primary_objective(branch='safety_test',theta=solution))
+print(SA_02.evaluate_primary_objective(branch='safety_test',theta=solution))
 ```
 
 $\\$
 
-We got a solution! Therefore, we are 95% confident that the equalized odds -- 'abs((FNR | [Black]) - (FNR | [White])) + abs((FPR | [Black]) - (FPR | [White])) -- <= 0.2'. Let's now analyze this solution in more depth.
+We got a solution! Therefore, we are 95% confident that the equalized odds -- 'abs((FNR | [Black]) - (FNR | [White])) + abs((FPR | [Black]) - (FPR | [White])) -- <= 0.2'. 
+
+$\\$
+
+For $\epsilon = 0.1$:
+
+```{python, cache = TRUE}
+from seldonian.seldonian_algorithm import SeldonianAlgorithm
+from seldonian.utils.io_utils import load_pickle
+
+# load the spec file
+specfile = '/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Application/equalized_odds_0.1/spec.pkl'
+spec = load_pickle(specfile)
+SA_01 = SeldonianAlgorithm(spec)
+passed_safety, solution = SA_01.run(write_cs_logfile=True)
+if passed_safety:
+  print("Passed safety test!")
+else:
+  print("Failed safety test")
+print()
+print("Primary objective (log loss) evaluated on safety dataset:")
+print(SA_01.evaluate_primary_objective(branch='safety_test',theta=solution))
+```
+
+
+$\\$
+
+We got a solution! Therefore, we are 95% confident that the equalized odds -- 'abs((FNR | [Black]) - (FNR | [White])) + abs((FPR | [Black]) - (FPR | [White])) -- <= 0.1'. Notice that the log odds is larger than before.
+
+$\\$
+
+For $\epsilon = 0.01$:
+
+```{python, cache = TRUE}
+from seldonian.seldonian_algorithm import SeldonianAlgorithm
+from seldonian.utils.io_utils import load_pickle
+
+# load the spec file
+specfile = '/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Application/equalized_odds_0.01/spec.pkl'
+spec = load_pickle(specfile)
+SA_001 = SeldonianAlgorithm(spec)
+passed_safety, solution = SA_001.run(write_cs_logfile=True)
+if passed_safety:
+  print("Passed safety test!")
+else:
+  print("Failed safety test")
+print()
+print("Primary objective (log loss) evaluated on safety dataset:")
+print(SA_001.evaluate_primary_objective(branch='safety_test',theta=solution))
+```
+
+$\\$
+
+We got a solution! Therefore, we are 95% confident that the equalized odds -- 'abs((FNR | [Black]) - (FNR | [White])) + abs((FPR | [Black]) - (FPR | [White])) -- <= 0.01'. Notice that the log odds is larger than before.
+
+
+$\\$
+
+Finally, for $\epsilon = 0.05$:
+
+```{python, cache = TRUE}
+from seldonian.seldonian_algorithm import SeldonianAlgorithm
+from seldonian.utils.io_utils import load_pickle
+
+# load the spec file
+specfile = '/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Application/equalized_odds_0.05/spec.pkl'
+spec = load_pickle(specfile)
+SA_005 = SeldonianAlgorithm(spec)
+passed_safety, solution = SA_005.run(write_cs_logfile=True)
+if passed_safety:
+  print("Passed safety test!")
+else:
+  print("Failed safety test")
+print()
+print("Primary objective (log loss) evaluated on safety dataset:")
+print(SA_005.evaluate_primary_objective(branch='safety_test',theta=solution))
+```
+
+
+$\\$
+
+We got a solution! Therefore, we are 95% confident that the equalized odds -- 'abs((FNR | [Black]) - (FNR | [White])) + abs((FPR | [Black]) - (FPR | [White])) -- <= 0.05'. 
+
+
+$\\$
+
+We've obtained our solutions, but let's match the predictions to individual defendants.
 
 ## Obtain the Predictive Values
 
-```{python}
-SA.cs_result["candidate_solution"]
-```
-
-$\\$
-
-Let's store this coefficients. The first of which is the intercept.
+For $\epsilon = 0.2$:
 
 ```{python}
-coefficients = SA.cs_result["candidate_solution"]
-```
+# get the solution
+SA_02.cs_result["candidate_solution"]
 
-```{python}
+# store the coefficients
+coefficients = SA_02.cs_result["candidate_solution"]
+
+# get the intercept
 intercept = coefficients[0]
-```
 
-$\\$
-
-Let's also separate the predictor variables from the race and output variables.
-
-```{python}
+# separate the predictor variables from the sensitive variable and the response variable
 X_outdf = outdf.drop(columns = ['is_recid', 'Black', 'White'])
 X_sens = outdf[['Black', 'White']]
 y_outdf = outdf['is_recid']
-X_sens
-X_outdf
-y_outdf
+
+# compute the predictive values
+linear_combination = np.dot(X_outdf, coefficients[1:]) + intercept
+pred_probs_02 = 1 / (1 + np.exp(-linear_combination))
 ```
 
 $\\$
 
-Now, let's compute the predictive values.
+For $\epsilon = 0.1$:
 
 ```{python}
+# get the solution
+SA_01.cs_result["candidate_solution"]
+
+# store the coefficients
+coefficients = SA_01.cs_result["candidate_solution"]
+
+# get the intercept
+intercept = coefficients[0]
+
+# compute the predictive values
 linear_combination = np.dot(X_outdf, coefficients[1:]) + intercept
-predicted_probabilities = 1 / (1 + np.exp(-linear_combination))
+pred_probs_01 = 1 / (1 + np.exp(-linear_combination))
 ```
 
+$\\$
+
+For $\epsilon = 0.05$:
+
 ```{python}
-seldonian_results = pd.DataFrame({'is_recid': y_outdf, 'pred': predicted_probabilities})
+# get the solution
+SA_005.cs_result["candidate_solution"]
+
+# store the coefficients
+coefficients = SA_005.cs_result["candidate_solution"]
+
+# get the intercept
+intercept = coefficients[0]
+
+# compute the predictive values
+linear_combination = np.dot(X_outdf, coefficients[1:]) + intercept
+pred_probs_005 = 1 / (1 + np.exp(-linear_combination))
+```
+
+$\\$
+
+For $\epsilon = 0.01$:
+
+```{python}
+# get the solution
+SA_001.cs_result["candidate_solution"]
+
+# store the coefficients
+coefficients = SA_001.cs_result["candidate_solution"]
+
+# get the intercept
+intercept = coefficients[0]
+
+# compute the predictive values
+linear_combination = np.dot(X_outdf, coefficients[1:]) + intercept
+pred_probs_001 = 1 / (1 + np.exp(-linear_combination))
+```
+
+$\\$
+
+Now, let's store all of these results.
+
+```{python}
+seldonian_results = pd.DataFrame({'is_recid': y_outdf, 'pred_0.2': pred_probs_02, 'pred_0.1': pred_probs_01, 'pred_0.05': pred_probs_005, 'pred_0.01': pred_probs_001})
 seldonian_results = pd.concat([X_outdf, X_sens, seldonian_results], axis = 1)
 ```
 
@@ -2105,17 +2351,23 @@ seldonian_results.head()
 
 $\\$ 
 
-Finally, let's obtain a binary risk prediction. 
+Finally, let's obtain binary risk predictions. 
 
 ```{python}
 # define threshold
 threshold = 0.5
 
-# create risk column
-risk = np.where(predicted_probabilities >= threshold, 1, 0)
+# create risk columns
+risk_02 = np.where(pred_probs_02 >= threshold, 1, 0)
+risk_01 = np.where(pred_probs_01 >= threshold, 1, 0)
+risk_005 = np.where(pred_probs_005 >= threshold, 1, 0)
+risk_001 = np.where(pred_probs_001 >= threshold, 1, 0)
 
-# add risk column to dataframe
-seldonian_results['risk'] = risk
+# add risk columns to dataframe
+seldonian_results['risk_0.2'] = risk_02
+seldonian_results['risk_0.1'] = risk_01
+seldonian_results['risk_0.05'] = risk_005
+seldonian_results['risk_0.01'] = risk_001
 ```
 
 ```{python}
@@ -2135,15 +2387,17 @@ seldonian_results.to_csv("/home/dasienga24/Statistics-Senior-Honors-Thesis/Data 
 
 $\\$
 
-Now, let's get the confusion matrix.
+Now, let's get the confusion matrices.
 
 ```{r}
 # read in the data
 seldonian_results <- read.csv("/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/COMPAS/compas_seldonian_results_bw.csv")
 ```
 
+### epsilon = 0.2
+
 ```{r}
-tally(data = seldonian_results, risk ~ is_recid)
+tally(data = seldonian_results, risk_0.2 ~ is_recid)
 ```
 
 $\\$
@@ -2156,7 +2410,56 @@ This model performs comparably to the logistic regression, with 68.2% accuracy.
 
 $\\$
 
-This means that ~32% of defendants are misclassified in the incorrect recidivism prediction. However, the real determinant of this model's performance is the difference in FPR v FNR for Black v White defendants.  
+This means that ~32% of defendants are misclassified in the incorrect recidivism prediction. 
+### epsilon = 0.1
+
+```{r}
+tally(data = seldonian_results, risk_0.1 ~ is_recid)
+```
+
+$\\$
+
+This model has an accuracy of 65.59%. 
+
+```{r}
+(154 + 5043)/ 7923
+```
+
+### epsilon = 0.05
+
+```{r}
+tally(data = seldonian_results, risk_0.05 ~ is_recid)
+```
+
+
+$\\$
+
+This model has an accuracy of 64.7%. 
+
+```{r}
+(41 + 5085)/ 7923
+```
+
+### epsilon = 0.01
+
+```{r}
+tally(data = seldonian_results, risk_0.01 ~ is_recid)
+```
+
+$\\$
+
+This model has an accuracy of 64.4%. 
+
+```{r}
+(5102)/ 7923
+```
+
+$\\$
+
+Notice that as the constraint gets tighter, the accuracy drops. The models also get worse and worse at making positive predictions, with the final model classifying everything in the negative class and resulting in an accuracy of 64.4%. 
+
+
+The accuracy differences are not drastic. However, the real determinant of this models' performances is the difference in FPR v FNR for Black v White defendants since that is our fairness constraint. We are 95% confident that our conditions are met. Let's actually observe what we obtain as our results.  
 
 ## Demographic and 'Fairness' Analysis
 
@@ -2165,7 +2468,10 @@ Before we perform the demographic analysis, let's reconstruct the `race` column.
 ```{r}
 seldonian_results <- seldonian_results %>%
   mutate(race = ifelse(Black == 1, 'Black', 'White'),
-         pred_risk = ifelse(risk == 0, 'Low', 'High')) 
+         pred_risk_0.2 = ifelse(risk_0.2 == 0, 'Low', 'High'),
+         pred_risk_0.1 = ifelse(risk_0.1 == 0, 'Low', 'High'),
+         pred_risk_0.05 = ifelse(risk_0.05 == 0, 'Low', 'High'),
+         pred_risk_0.01 = ifelse(risk_0.01 == 0, 'Low', 'High')) 
 
 head(seldonian_results)
 ```
@@ -2173,6 +2479,8 @@ head(seldonian_results)
 $\\$
 
 We can now reconstruct the tables. 
+
+### epsilon = 0.2
 
 First, let's re-examine the confusion matrix to determine whether the model makes more false negative or more false positive results.
 
@@ -2183,8 +2491,8 @@ The model correctly classifies 599 defendants as reoffenders and 4803 defendants
 
 ```{r, message = FALSE}
 seldonian_results %>%
-  dplyr::select(pred_risk, is_recid) %>%
-  rename("Risk" = pred_risk) %>%
+  dplyr::select(pred_risk_0.2, is_recid) %>%
+  rename("Risk" = pred_risk_0.2) %>%
   group_by(Risk) %>%
   summarise("Reoffended" = count(is_recid == 1),
             "Did Not Reoffend" = count(is_recid == 0)) %>%
@@ -2203,8 +2511,8 @@ Because of the imbalanced data, such models are prone to higher FNR rates than F
 
 ```{r, message = FALSE}
 seldonian_results %>%
-  dplyr::select(pred_risk, is_recid) %>%
-  rename("Risk" = pred_risk) %>%
+  dplyr::select(pred_risk_0.2, is_recid) %>%
+  rename("Risk" = pred_risk_0.2) %>%
   group_by(is_recid) %>%
   mutate(Total = n()) %>%
   group_by(Risk, Total) %>%
@@ -2232,8 +2540,108 @@ Recall that the overall FNR rate for the model is 78.77%%. We still observe simi
 
 ```{r, warning = FALSE, message = FALSE}
 seldonian_results %>%
-  dplyr::select(race, pred_risk, is_recid) %>%
-  rename("Risk" = pred_risk,
+  dplyr::select(race, pred_risk_0.2, is_recid) %>%
+  rename("Risk" = pred_risk_0.2,
+         "Race" = race) %>%
+  group_by(Race, is_recid) %>%
+  mutate(Total = n()) %>%
+  group_by(Risk, Race, Total) %>%
+  summarise("Reoffended" = count(is_recid == 1),
+            "Did Not Reoffend" = count(is_recid == 0)) %>%
+  pivot_longer(cols = c("Reoffended", "Did Not Reoffend"),
+               names_to = "Recidivism") %>%
+  pivot_wider(
+    id_cols = c("Risk", "Recidivism", "Total"),
+    names_from = "Race",
+    values_from = value
+  ) %>%
+  mutate(Black = round(100 * Black / Total, 2),
+         White = round(100 * White / Total, 2)) %>%
+  dplyr::select(-Total) %>%
+  group_by(Risk, Recidivism) %>%
+  summarize(Black = max(Black, na.rm = TRUE),
+            White = max(White, na.rm = TRUE)) %>%
+  filter((Risk == "High" & Recidivism == "Did Not Reoffend") |
+           (Risk == "Low" & Recidivism == "Reoffended")
+  ) %>%
+  kable(booktabs = TRUE)
+```
+
+
+$\\$
+
+We'll only reconstruct this final table, which is the most important for us, for the remaining epsilon values.
+
+### epsilon = 0.1
+
+
+```{r, warning = FALSE, message = FALSE}
+seldonian_results %>%
+  dplyr::select(race, pred_risk_0.1, is_recid) %>%
+  rename("Risk" = pred_risk_0.1,
+         "Race" = race) %>%
+  group_by(Race, is_recid) %>%
+  mutate(Total = n()) %>%
+  group_by(Risk, Race, Total) %>%
+  summarise("Reoffended" = count(is_recid == 1),
+            "Did Not Reoffend" = count(is_recid == 0)) %>%
+  pivot_longer(cols = c("Reoffended", "Did Not Reoffend"),
+               names_to = "Recidivism") %>%
+  pivot_wider(
+    id_cols = c("Risk", "Recidivism", "Total"),
+    names_from = "Race",
+    values_from = value
+  ) %>%
+  mutate(Black = round(100 * Black / Total, 2),
+         White = round(100 * White / Total, 2)) %>%
+  dplyr::select(-Total) %>%
+  group_by(Risk, Recidivism) %>%
+  summarize(Black = max(Black, na.rm = TRUE),
+            White = max(White, na.rm = TRUE)) %>%
+  filter((Risk == "High" & Recidivism == "Did Not Reoffend") |
+           (Risk == "Low" & Recidivism == "Reoffended")
+  ) %>%
+  kable(booktabs = TRUE)
+```
+
+
+### epsilon = 0.05
+
+```{r, warning = FALSE, message = FALSE}
+seldonian_results %>%
+  dplyr::select(race, pred_risk_0.05, is_recid) %>%
+  rename("Risk" = pred_risk_0.05,
+         "Race" = race) %>%
+  group_by(Race, is_recid) %>%
+  mutate(Total = n()) %>%
+  group_by(Risk, Race, Total) %>%
+  summarise("Reoffended" = count(is_recid == 1),
+            "Did Not Reoffend" = count(is_recid == 0)) %>%
+  pivot_longer(cols = c("Reoffended", "Did Not Reoffend"),
+               names_to = "Recidivism") %>%
+  pivot_wider(
+    id_cols = c("Risk", "Recidivism", "Total"),
+    names_from = "Race",
+    values_from = value
+  ) %>%
+  mutate(Black = round(100 * Black / Total, 2),
+         White = round(100 * White / Total, 2)) %>%
+  dplyr::select(-Total) %>%
+  group_by(Risk, Recidivism) %>%
+  summarize(Black = max(Black, na.rm = TRUE),
+            White = max(White, na.rm = TRUE)) %>%
+  filter((Risk == "High" & Recidivism == "Did Not Reoffend") |
+           (Risk == "Low" & Recidivism == "Reoffended")
+  ) %>%
+  kable(booktabs = TRUE)
+```
+
+### epsilon = 0.01
+
+```{r, warning = FALSE, message = FALSE}
+seldonian_results %>%
+  dplyr::select(race, pred_risk_0.01, is_recid) %>%
+  rename("Risk" = pred_risk_0.01,
          "Race" = race) %>%
   group_by(Race, is_recid) %>%
   mutate(Total = n()) %>%
@@ -2261,8 +2669,9 @@ seldonian_results %>%
 
 # Results
 
-In conclusion, the Seldonian algorithm still exhibits discrepancies between the FPR and FNR for Black v White defendants, which perhaps is unavoidable because of the role that race plays in proxy variables. However, there was barely any accuracy trade-off, and we saw an increase in FNR for both races, accompanied by a decrease in FPR for both races. There is still inequality, but everyone is just a little bit happier.
+The false positive rates gain more parity as we tighten $\epsilon$, but we lose model accuracy! The key question this brings up is: how do we balance these trade-offs? 
 
-# Misc
+In conclusion, when $\epsilon = 0.2$, the Seldonian algorithm still exhibits discrepancies between the FPR and FNR for Black v White defendants, which perhaps is unavoidable because of the role that race plays in proxy variables. However, there was barely any accuracy trade-off, and we saw an increase in FNR for both races, accompanied by a decrease in FPR for both races. There is still inequality, although less than before, and everyone is just a little bit happier.
 
-Would be interesting to see what enforcing a smaller $\epsilon$ (tighter constraint) would do!
+However, as we tighten $\epsilon$, this discrepancy begins to disappear and we get fairer results at the cost of the FNR. At a certain threshold, the model just classifies everything into the negative class. 
+
