@@ -107,7 +107,7 @@ Because emulating such a structure can be complex and error-prone and because th
 compasdata <- read.csv("/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/COMPAS/compas_data.csv")
 ```
 
-The COMPAS data set has records of `r length(unique(compasdata$person_id))` people from Broward County, Florida. The data set contains information on each defendant such as their name, sex, age, race, marital status, juvenile felony count, juvenile misdeameanor count, and number of prior offenses. All of the variables are used in the COMPAS tool to calibrate a raw score, which is then used to assess a defendant's risk of recidivism, risk of violence, and  risk of failure to appear if granted bail or parole. This is achieved by converting the raw scores into decile scores that then determine whether the defendant's risk is high, medium, or low for the three different types of assessments. Table \@ref(tab:ch3table1) displays how the decile scores are mapped into the three risk levels.
+The COMPAS data set has records of `r length(unique(compasdata$person_id))` people from Broward County, Florida. The data set contains information on each defendant such as their name, sex, age, race, marital status, juvenile felony count, juvenile misdeameanor count, and number of prior offenses. All of the variables are used in the COMPAS tool to calibrate a raw score, which is then used to assess a defendant's risk of recidivism, risk of violence, and  risk of failure to appear if granted bail or parole. This is achieved by converting the raw scores into decile scores that then determine whether the defendant's risk is high, medium, or low for the three different types of assessments. Table \@ref(tab:ch4table1) displays how the decile scores are mapped into the three risk levels.
 
 \noindent [refer to analysis file]
 
@@ -128,19 +128,19 @@ The target of this simulation study is prediction, that is, to evaluate Seldonia
 
 As described in Chapter \@ref(chap-2), the Seldonian framework was designed to place probabilistic fairness constraints on traditional algorithms. Solutions produced by Seldonian algorithms will be compared to those produced through the standard ML framework, specifically by logistic regression, to assess the predictive performance and feasibility of the Seldonian framework.
 
-Drawing from the fairness definitions described in Chapter \@ref(fairnessdefinitions) with a particular focus on practical situations, it may be less important that a model satisfies independence. That is, that the model, on average, has the same likelihood of a positive prediction for all demographic groups. Instead, it may be more realistic to expect that the model be equally wrong or equally correct in its predictions of $Y$ for each demographic group. For this reason, two fairness constraints ($n=2$) will be set on the Seldonian algorithms to satisfy separation, otherwise known as equality of the error rates or equality of odds, as defined in Equations \@ref(ch3eq3) and \@ref(ch3eq4). 
+Drawing from the fairness definitions described in Chapter \@ref(fairnessdefinitions) with a particular focus on practical situations, it may be less important that a model satisfies independence. That is, that the model, on average, has the same likelihood of a positive prediction for all demographic groups. Instead, it may be more realistic to expect that the model be equally wrong or equally correct in its predictions of $Y$ for each demographic group. For this reason, two fairness constraints ($n=2$) will be set on the Seldonian algorithms to satisfy separation, otherwise known as equality of the error rates or equality of odds, as defined in Equations \@ref(ch4eq3) and \@ref(ch4eq4). 
 
 1) *Predictive Equality*: equality of false positive rates (FPR)/ Type I error rates across groups:
 
 \begin{equation}
-\label{ch3eq3}
+\label{ch4eq3}
 g_1(\theta): P (\hat{Y} = 1 | A = a, Y = 0) = P (\hat{Y} = 1 | A = b, Y = 0).
 \end{equation}
 
 2) *Equality of Opportunity*: equality of false negative rates (FNR)/ Type II error rates across groups:
 
 \begin{equation}
-\label{ch3eq4}
+\label{ch4eq4}
 g_2(\theta): P (\hat{Y} = 0 | A = a, Y = 1) = P (\hat{Y} = 0 | A = b, Y = 1).
 \end{equation}
 
@@ -154,15 +154,15 @@ Compared to the logistic regression models, the predictive performance of the Se
 
 For each simulation trial, the overall accuracy of both the Seldonian model and the logistic regression model will be recorded and eventually averaged over the specific sample setting, that is, for a data set with a specific sample size and specific $Y$ prevalence for each demographic group $a \in A$. Both the mean and the standard error will be reported in tabular format and visualized graphically to compare the models' predictive performances and, potentially, evaluate the trade-offs that may occur by employing the Seldonian framework and enforcing behavioral constraints.
 
-The satisfaction or violation of the behavioral constraint will be assessed in two ways. First, for each sample setting as described above, a count of the times both frameworks satisfied the behavioral constraint, by some margin, will be reported in tabular format. Additionally, the FPR and FNR discrimination statistics, as defined in Equations \@ref(ch3eq1) and \@ref(ch3eq2), respectively, will be recorded for each simulation trial. The mean and standard error will be reported and visualized for each sample setting to compare the magnitude and direction of the models' unfairness with regard to the separation fairness definition.
+The satisfaction or violation of the behavioral constraint will be assessed in two ways. First, for each sample setting as described above, a count of the times both frameworks satisfied the behavioral constraint, by some margin, will be reported in tabular format. Additionally, the FPR and FNR discrimination statistics, as defined in Equations \@ref(ch4eq1) and \@ref(ch4eq2), respectively, will be recorded for each simulation trial. The mean and standard error will be reported and visualized for each sample setting to compare the magnitude and direction of the models' unfairness with regard to the separation fairness definition.
 
 \begin{equation}
-\label{ch3eq1}
+\label{ch4eq1}
 d_1(\theta) = P (\hat{Y} = 1 | A = a, Y = 0) - P (\hat{Y} = 1 | A = b, Y = 0).
 \end{equation}
 
 \begin{equation}
-\label{ch3eq2}
+\label{ch4eq2}
 d_2(\theta) = P (\hat{Y} = 0 | A = a, Y = 1) - P (\hat{Y} = 0 | A = b, Y = 1).
 \end{equation}
 
