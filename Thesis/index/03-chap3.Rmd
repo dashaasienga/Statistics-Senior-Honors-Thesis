@@ -13,6 +13,14 @@ library(GGally)
 library(MASS)
 ```
 
+Chapter \@ref(chap-2) introduced the Seldonian framework, which offers probabilistic guarantees for satisfying defined behavioral constraints. Although impractical, the toy linear regression example demonstrated how Seldonian algorithms may be employed in a setting with a continuous real-valued response variable.
+
+However, machine learning algorithms deal with classification problems in many practical applications. Applications range from risk assessment tools like COMPAS, discussed in Chapter \@ref(intro), to credit scoring and employment prediction algorithms, to name a few. However, deploying such algorithms raises significant ethical concerns, as discussed in Chapters \@ref(intro) and \@ref(chap-2), primarily regarding fairness and the potential reinforcement of discriminatory practices. Given the historical and social biases inherent in the data used to train these algorithms, there is a pressing need to assess their fairness and mitigate any potential harm they may cause disadvantaged groups.
+
+To offer a path forward in addressing this issue, this chapter aims to apply the Seldonian framework to the COMPAS data set and assess its predictive outcomes compared to those from the COMPAS tool and those from logistic regression, a standard ML procedure. Specifically, the objective is to assess whether Seldonian approaches can produce fairer outcomes, particularly COMPAS outcomes, drawing on some of the statistical definitions of fairness defined in Chapter \@ref(fairnessdefinitions). This chapter will present a framework that can be emulated in other classification problems where fairness is a concern. 
+
+
+
 ```{r, echo = FALSE}
 library(reticulate)
 use_python("/cm/shared/apps/amh-Rstudio/python-3.11.4/bin/python3", required = TRUE)
