@@ -825,20 +825,20 @@ To offer a path forward in addressing this issue, this chapter aims to apply the
 \hypertarget{the-compas-data-set}{%
 \section{The COMPAS Data Set}\label{the-compas-data-set}}
 
-The COMPAS data set, obtained from the ProPublica Data Store (Broward County Clerk's Office, 2024), records information on defendants from Broward County, Florida that were evaluated for the risk of recidivism by the Correctional Offender Management Profiling for Alternative Sanctions (COMPAS) tool in 2013 and 2014. The data is stored in a database and a SQL query, displayed in Appendix \ref{appendix-c}, retrieved 12160 observations. There are 29 variables, 6 of which were identified to be useful for predictive analysis: age, age category, sex, marital status, whether the defendant had a history of juvenile offenses or not, and the total number of prior offenses committed by the defendant. The response variable records whether or not a defendant had recommitted a crime within two years. Finally, the protected attribute, race, has 6 levels: African-American, Caucasian, Hispanic, Asian, Native American, and Other. After cleaning the data to address some anomalies, improve the data quality, and remove duplicate observations, the data set size reduced to 9387 observations. Section \ref{descriptivestats} examines these variables in more detail as well as their relationships with each other.
+The COMPAS data set, obtained from the ProPublica Data Store (Broward County Clerk's Office, 2024), records information on defendants from Broward County, Florida, that were evaluated for the risk of recidivism by the Correctional Offender Management Profiling for Alternative Sanctions (COMPAS) tool in 2013 and 2014. A database hosts this data, and a SQL query, displayed in Appendix \ref{appendix-c}, retrieved 12160 observations. There are 29 variables, 6 of which were identified to be useful for this predictive analysis: age, age category, sex, marital status, whether the defendant had a history of juvenile offenses or not, and the total number of prior offenses committed by the defendant. The response variable records whether or not a defendant had recommitted a crime within two years. Finally, the protected attribute, race, has six levels: African-American, Caucasian, Hispanic, Asian, Native American, and Other. After cleaning the data to address anomalies, improve the data quality, and remove duplicate observations, the data set size was reduced to 9387 observations. Section \ref{descriptivestats} examines these variables in more detail and their relationships with each other.
 
 \hypertarget{descriptivestats}{%
 \section{Descriptive Statistics}\label{descriptivestats}}
 
-\hypertarget{univariate-analysis}{%
-\subsection{Univariate Analysis}\label{univariate-analysis}}
+\hypertarget{univariateanalysis}{%
+\subsection{Univariate Analysis}\label{univariateanalysis}}
 
-The six predictive variables are age, age category, sex, marital status, whether the defendant had a history of juvenile offenses or not, and the total number of prior offenses committed by the defendant. There are only two continuous variables: the number of prior offenses and the age of the defendant. The remaining variables are categorical.
+The six predictive variables are age, age category, sex, marital status, whether the defendant had a history of juvenile offenses, and the total number of prior offenses committed by the defendant. Only two variables are continuous: the number of prior offenses and the defendant's age. The remaining variables are categorical.
 
 \hypertarget{continuous-predictors}{%
 \subsubsection{Continuous Predictors}\label{continuous-predictors}}
 
-The age of the defendants ranges from 18 to 96, with a median of 32 years and a mean of 34.75 years. There is a right skew as illustrated on Figure \ref{fig:ch3fig1} and the middle 50\% of the defendants are between the ages of 25 and 42. Similarly, the variable recording the number of prior offenses has a significant right skew with median of 1 offense and a mean of 3.02 offenses. The middle 50\% of the defendants have committed between 0 and 4 offenses, and the defendant with the most prior offenses has committed 38 crimes. Figure \ref{fig:ch3fig1} visualizes this distribution.
+The defendants' ages range from 18 to 96, with a median of 32 years and a mean of 34.75 years. There is a right skew, as illustrated in Figure \ref{fig:ch3fig1}, and the middle 50\% of the defendants are between the ages of 25 and 42. Similarly, the variable recording the number of prior offenses has a significant right skew with a median of 1 offense and a mean of 3.02 offenses. The middle 50\% of the defendants have committed between 0 and 4 offenses, and the defendant with the most prior offenses has committed 38 crimes. Figure \ref{fig:ch3fig1} visualizes this distribution.
 \begin{figure}
 
 {\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/ch3fig1-1} 
@@ -850,7 +850,7 @@ The age of the defendants ranges from 18 to 96, with a median of 32 years and a 
 \hypertarget{categorical-predictors}{%
 \subsubsection{Categorical Predictors}\label{categorical-predictors}}
 
-Sex has two levels: male or female. There are 7457 males and 1930 females in the data set. The age category variable classifies participants as either `Less than 25', `25 - 45', or `Greater than 45' -- there are 2009, 5366, and 2012 observations in each group respectively. There are seven different levels of marital status. In descending order, they are: single (7202), married (1138), divorced (398), significant other (332), separated (219), unknown (58), and widowed (40). Finally, 8254 defendants had no record of juvenile offenses, with only 1133 defendants having such a record. Figure \ref{fig:ch3fig2} visually displays the distribution of these variables.
+Sex has two levels: male and female. There are 7457 males and 1930 females in the data set. The age category variable classifies participants as either `Less than 25', `25 - 45', or `Greater than 45' -- there are 2009, 5366, and 2012 observations in each group, respectively. There are seven different levels of marital status. In descending order, they are single (7202), married (1138), divorced (398), significant other (332), separated (219), unknown (58), and widowed (40). Finally, 8254 defendants had no record of juvenile offenses, with only 1133 defendants having such a record. Figure \ref{fig:ch3fig2} visually displays the distribution of these variables.
 \begin{figure}
 
 {\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/ch3fig2-1} 
@@ -862,7 +862,7 @@ Sex has two levels: male or female. There are 7457 males and 1930 females in the
 \hypertarget{response-variable}{%
 \subsubsection{Response Variable}\label{response-variable}}
 
-The response variable records whether or not a defendant recommitted any crime within two years. Figure \ref{fig:ch3fig3} illustrates that about two-thirds (6199) of the defendants did not recommit a crime within two years, while one-thirds (3188) did. This is indicative of class imbalance, which, in many cases, affects the performance of machine learning classification algorithms. This will be important when assessing model performance in the proceeding sections.
+The response variable records whether or not a defendant recommitted any crime within two years. Figure \ref{fig:ch3fig3} illustrates that about two-thirds (6199) of the defendants did not recommit a crime within two years, while one-third (3188) did. The different proportion of observations in each level indicates class imbalance, which often affects the performance of machine learning classification algorithms. Given the class imbalance, analyzing performance relative to the classes will be important when assessing model performance in the proceeding sections.
 \begin{figure}
 
 {\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/ch3fig3-1} 
@@ -874,7 +874,7 @@ The response variable records whether or not a defendant recommitted any crime w
 \hypertarget{demographic-variable}{%
 \subsubsection{Demographic Variable}\label{demographic-variable}}
 
-Finally, the demographic variable in this analysis is race. Most of the defendants are African-American (4674) and Caucasian (3250), with only 818 Hispanic, 48 Asian, and 27 Native American defendants. The remaining 570 defendants are classified as `Other'. Figure \ref{fig:ch3fig4} visualizes this.
+Finally, the demographic variable in this analysis is race. Most of the defendants are African-American (4674) and Caucasian (3250), with only 818 Hispanic, 48 Asian, and 27 Native American defendants. The remaining 570 defendants identify as `Other'. Figure \ref{fig:ch3fig4} visualizes this.
 \begin{figure}
 
 {\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/ch3fig4-1} 
@@ -883,15 +883,15 @@ Finally, the demographic variable in this analysis is race. Most of the defendan
 
 \caption{Distribution of the COMPAS Demographic Variable: Race}\label{fig:ch3fig4}
 \end{figure}
-\hypertarget{bivariate-analysis}{%
-\subsection{Bivariate Analysis}\label{bivariate-analysis}}
+\hypertarget{bivariateanalysis}{%
+\subsection{Bivariate Analysis}\label{bivariateanalysis}}
 
-This section examines the relationship between the predictive variables and the response variable, recidivism.
+With a thorough understanding of the variables from Section \ref{univariateanalysis}, this section examines the relationship between the predictive variables and the response variable, recidivism.
 
 \hypertarget{continuous-predictors-1}{%
 \subsubsection{Continuous Predictors}\label{continuous-predictors-1}}
 
-There is some difference in the mean and median ages for defendants who recommit a crime within two years versus though who don't. Those who recidivate have a mean and median age of 32 and 29, respectively, in comparison to 36 and 33 for those who don't. Defendants who recidivate tend to be younger than those who don't, as illustrated by the boxplot in in Figure \ref{fig:ch3fig5}. There is also some distributional difference in non-juvenile prior offenses for defendants who recidivate versus those who don't, as is indicated by different means and medians. Those who recommit a crime within two years tend to have more prior offenses, with a mean of 4.7 and median of 3, in comparison to a mean of 2.2 and a median of 1 offense for defendants who do not. Figure \ref{fig:ch3fig5} visualizes this distributional difference.
+There is some difference in the mean and median ages for defendants who recommit crimes within two years versus those who do not. Those who recidivate have a mean and median age of 32 and 29, respectively, compared to 36 and 33 for those who do not. Defendants who recidivate tend to be younger than those who do not, as illustrated by the boxplot in Figure \ref{fig:ch3fig5}. There is also some distributional difference in non-juvenile prior offenses for defendants who recidivate versus those who do not, as is indicated by different means and medians. Those who recommit a crime within two years tend to have more prior offenses, with a mean of 4.7 and median of 3, compared to a mean of 2.2 and a median of 1 offense for defendants who do not. Figure \ref{fig:ch3fig5} visualizes this distributional difference.
 \begin{figure}
 
 {\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/ch3fig5-1} 
@@ -903,7 +903,7 @@ There is some difference in the mean and median ages for defendants who recommit
 \hypertarget{categorical-predictors-1}{%
 \subsubsection{Categorical Predictors}\label{categorical-predictors-1}}
 
-Figure \ref{fig:ch3fig6} displays the relationship between the 4 categorical variables -- sex, age category, marital status, and juvenile offense record -- and the response variable. There isn't much evident relationship between sex and recidivism. Among defendants who do not recidivate, there are more defendants that are aged 45 in comparison to those less than 25. However, among those that recidivated, there are more defendants that are less than 25 in comparison to those that are greater than 45. There is much relationship between recidivism and marital status. Finally, while most defendants don't have juvenile offenses, the proportion of those who don't to those who do is much smaller for defendants that re-offend in comparison to those that don't.
+Figure \ref{fig:ch3fig6} displays the relationship between the four categorical variables -- sex, age category, marital status, and juvenile offense record -- and the response variable. There is not much evident relationship between sex and recidivism. Among defendants who do not recidivate, more are 45 years old compared to those under 25. However, among those who recidivated, more defendants are less than 25 compared to those greater than 45. There is not much relationship between recidivism and marital status. Finally, while most defendants do not have juvenile offenses, the proportion of those who do not to those who do is much smaller for defendants who re-offend in comparison to those who do not.
 \begin{figure}
 
 {\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/ch3fig6-1} 
@@ -912,18 +912,34 @@ Figure \ref{fig:ch3fig6} displays the relationship between the 4 categorical var
 
 \caption{Distribution of the COMPAS Categorical Variables by Recidivism}\label{fig:ch3fig6}
 \end{figure}
-\hypertarget{demograohic-variable-race}{%
-\subsubsection{Demograohic Variable: Race}\label{demograohic-variable-race}}
-
 \hypertarget{multivariate-analysis}{%
 \subsection{Multivariate Analysis}\label{multivariate-analysis}}
 
+As detailed in Section \ref{bivariateanalysis}, some predictive variables have a covariate relationship with the response variable, recidivism. A scatterplot matrix examining the relationship between the continuous variables, age and prior offenses, revealed weak correlations \((\rho = 0.12)\) and nonlinear relationships. There are no significant concerns for multicollinearity. Figure \ref{fig:ch3fig7} illustrates this using Spearman's correlation. In addition, the correlation matrix incorporates the COMPAS tool decile scores to examine the predictive relationship between the continuous variables and the COMPAS tool results. The COMPAS tool maps raw scores into decile scores ranging from 1 to 10. The decile scores are directly associated with the risk of recidivism: scores between 1 and 4 are labeled as `low' risk, between 5 and 7 as `medium' risk, and between 8 and 10 as `high risk'. Spearman's correlation revealed a moderate relationship of \(\rho = -0.44\) and \(\rho = 0.44\) for age and prior offenses, respectively.
+\begin{figure}
+
+{\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/ch3fig7-1} 
+
+}
+
+\caption{Spearman's Correlation Matrix for COMPAS Predictive Variables and the COMPAS Tool Decile Scores}\label{fig:ch3fig7}
+\end{figure}
+With a thorough understanding of the variables, Section \ref{fairnessanalysis} analyzes the data set and the COMPAS tool decile scores with a focus on fairness and an aim to examine the fairness concerns discussed in Chapters \ref{chap-1} and \ref{chap-2}.
+
+\hypertarget{fairnessanalysis}{%
+\section{Fairness Analysis}\label{fairnessanalysis}}
+
 \hypertarget{demographic-group-analysis}{%
-\section{Demographic Group Analysis}\label{demographic-group-analysis}}
+\subsection{Demographic Group Analysis}\label{demographic-group-analysis}}
 
-add compas univariate analysis visualizations
+\hypertarget{compas-tool-analysis}{%
+\subsection{COMPAS Tool Analysis}\label{compas-tool-analysis}}
 
-add compas scores by recidivism as well
+add compas univariate analysis visualizations (and decile scores)
+
+add compas scores by recidivism as well (and decile scores)
+
+add race analysis
 
 \hypertarget{logistic-regression}{%
 \section{Logistic Regression}\label{logistic-regression}}
@@ -1245,7 +1261,7 @@ Recall from Chapter \ref{intro} that (Castelnovo et al., 2022):
 \FunctionTok{grid.arrange}\NormalTok{(g1,g2, }\AttributeTok{nrow=}\DecValTok{1}\NormalTok{, }\AttributeTok{ncol=}\DecValTok{2}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
-\begin{center}\includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/unnamed-chunk-48-1} \end{center}
+\begin{center}\includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/unnamed-chunk-49-1} \end{center}
 
 \hypertarget{appendix-b}{%
 \chapter{QSLR Python Code}\label{appendix-b}}
