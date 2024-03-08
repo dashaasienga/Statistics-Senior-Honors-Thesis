@@ -12,6 +12,7 @@ library(ggplot2)
 library(GGally)
 library(MASS)
 library(gridExtra)
+library(reshape2)
 ```
 
 Chapter \@ref(chap-2) introduced the Seldonian framework, which offers probabilistic guarantees for satisfying defined behavioral constraints. Although impractical, the toy linear regression example demonstrated how Seldonian algorithms may be employed in a setting with a continuous real-valued response variable.
@@ -38,17 +39,17 @@ compasdata <- compasdata %>%
 clean_compasdata <- compasdata[-which(duplicated(compasdata$id)), ]
 ```
 
-The COMPAS data set, obtained from the ProPublica Data Store [@compasdata], records information on defendants from Broward County, Florida that were evaluated for the risk of recidivism by the Correctional Offender Management Profiling for Alternative Sanctions (COMPAS) tool in 2013 and 2014. The data is stored in a database and a SQL query, displayed in Appendix \@ref(appendix-c), retrieved 12160 observations. There are 29 variables, 6 of which were identified to be useful for predictive analysis: age, age category, sex, marital status, whether the defendant had a history of juvenile offenses or not, and the total number of prior offenses committed by the defendant. The response variable records whether or not a defendant had recommitted a crime within two years. Finally, the protected attribute, race, has 6 levels: African-American, Caucasian, Hispanic, Asian, Native American, and Other. After cleaning the data to address some anomalies, improve the data quality, and remove duplicate observations, the data set size reduced to 9387 observations. Section \@ref(descriptivestats) examines these variables in more detail as well as their relationships with each other.
+The COMPAS data set, obtained from the ProPublica Data Store [@compasdata], records information on defendants from Broward County, Florida, that were evaluated for the risk of recidivism by the Correctional Offender Management Profiling for Alternative Sanctions (COMPAS) tool in 2013 and 2014. A database hosts this data, and a SQL query, displayed in Appendix \@ref(appendix-c), retrieved 12160 observations. There are 29 variables, 6 of which were identified to be useful for this predictive analysis: age, age category, sex, marital status, whether the defendant had a history of juvenile offenses or not, and the total number of prior offenses committed by the defendant. The response variable records whether or not a defendant had recommitted a crime within two years. Finally, the protected attribute, race, has six levels: African-American, Caucasian, Hispanic, Asian, Native American, and Other. After cleaning the data to address anomalies, improve the data quality, and remove duplicate observations, the data set size was reduced to 9387 observations. Section \@ref(descriptivestats) examines these variables in more detail and their relationships with each other.
 
 ## Descriptive Statistics {#descriptivestats}
 
-### Univariate Analysis
+### Univariate Analysis {#univariateanalysis}
 
-The six predictive variables are age, age category, sex, marital status, whether the defendant had a history of juvenile offenses or not, and the total number of prior offenses committed by the defendant. There are only two continuous variables: the number of prior offenses and the age of the defendant. The remaining variables are categorical.
+The six predictive variables are age, age category, sex, marital status, whether the defendant had a history of juvenile offenses, and the total number of prior offenses committed by the defendant. Only two variables are continuous: the number of prior offenses and the defendant's age. The remaining variables are categorical.
 
 #### Continuous Predictors
 
-The age of the defendants ranges from 18 to 96, with a median of 32 years and a mean of 34.75 years. There is a right skew as illustrated on Figure \@ref(fig:ch3fig1) and the middle 50% of the defendants are between the ages of 25 and 42. Similarly, the variable recording the number of prior offenses has a significant right skew with median of 1 offense and a mean of 3.02 offenses. The middle 50% of the defendants have committed between 0 and 4 offenses, and the defendant with the most prior offenses has committed 38 crimes. Figure \@ref(fig:ch3fig1) visualizes this distribution.
+The defendants' ages range from 18 to 96, with a median of 32 years and a mean of 34.75 years. There is a right skew, as illustrated in Figure \@ref(fig:ch3fig1), and the middle 50% of the defendants are between the ages of 25 and 42. Similarly, the variable recording the number of prior offenses has a significant right skew with a median of 1 offense and a mean of 3.02 offenses. The middle 50% of the defendants have committed between 0 and 4 offenses, and the defendant with the most prior offenses has committed 38 crimes. Figure \@ref(fig:ch3fig1) visualizes this distribution.
 
 ```{r ch3fig1, fig.align='center', fig.cap="Distribution of the COMPAS Continuous Variables", warning = FALSE, message = FALSE, fig.width = 6, fig.height = 3, echo = FALSE}
 g1 <- ggplot(data = clean_compasdata, mapping = aes(x = age)) +
@@ -68,7 +69,7 @@ grid.arrange(g1, g2, nrow = 1)
 
 #### Categorical Predictors
 
-Sex has two levels: male or female. There are 7457 males and 1930 females in the data set. The age category variable classifies participants as either 'Less than 25', '25 - 45', or 'Greater than 45' -- there are 2009, 5366, and 2012 observations in each group respectively. There are seven different levels of marital status. In descending order, they are: single (7202), married (1138), divorced (398), significant other (332), separated (219), unknown (58), and widowed (40). Finally, 8254 defendants had no record of juvenile offenses, with only 1133 defendants having such a record. Figure \@ref(fig:ch3fig2) visually displays the distribution of these variables.
+Sex has two levels: male and female. There are 7457 males and 1930 females in the data set. The age category variable classifies participants as either 'Less than 25', '25 - 45', or 'Greater than 45' -- there are 2009, 5366, and 2012 observations in each group, respectively. There are seven different levels of marital status. In descending order, they are single (7202), married (1138), divorced (398), significant other (332), separated (219), unknown (58), and widowed (40). Finally, 8254 defendants had no record of juvenile offenses, with only 1133 defendants having such a record. Figure \@ref(fig:ch3fig2) visually displays the distribution of these variables.
 
 ```{r ch3fig2, fig.align='center', fig.cap="Distribution of the COMPAS Categorical Variables", warning = FALSE, message = FALSE, fig.width = 6, fig.height = 6, echo = FALSE}
 g3 <- ggplot(data = clean_compasdata, mapping = aes(x = sex)) +
@@ -104,16 +105,16 @@ g6 <- clean_compasdata %>%
   labs(x = "Committed a Juvenile Offense",
        title = "Juvenile Offense Record")
 
-grid.arrange(g3, g4, g5, g6, ncol = 2, nrow = 2)
+grid.arrange(g3, g4, g6, g5, ncol = 2, nrow = 2)
 
 ```
 
 
 #### Response Variable
 
-The response variable records whether or not a defendant recommitted any crime within two years. Figure \@ref(fig:ch3fig3) illustrates that about two-thirds (6199) of the defendants did not recommit a crime within two years, while one-thirds (3188) did. This is indicative of class imbalance, which, in many cases, affects the performance of machine learning classification algorithms. This will be important when assessing model performance in the proceeding sections. 
+The response variable records whether or not a defendant recommitted any crime within two years. Figure \@ref(fig:ch3fig3) illustrates that about two-thirds (6199) of the defendants did not recommit a crime within two years, while one-third (3188) did. The different proportion of observations in each level indicates class imbalance, which often affects the performance of machine learning classification algorithms. Given the class imbalance, analyzing performance relative to the classes will be important when assessing model performance in the proceeding sections. 
 
-```{r ch3fig3, fig.align='center', fig.cap="Distribution of the COMPAS Response Variable: Recidivism", warning = FALSE, message = FALSE, fig.width = 4.5, fig.height = 3, echo = FALSE}
+```{r ch3fig3, fig.align='center', fig.cap="Distribution of the COMPAS Response Variable: Recidivism", warning = FALSE, message = FALSE, fig.width = 4.5, fig.height = 2.5, echo = FALSE}
 clean_compasdata %>%
 mutate(is_recid = ifelse(is_recid == 0, "No", "Yes")) %>%
 ggplot(mapping = aes(x = is_recid)) +
@@ -125,9 +126,9 @@ ggplot(mapping = aes(x = is_recid)) +
 
 #### Demographic Variable
 
-Finally, the demographic variable in this analysis is race. Most of the defendants are African-American (4674) and Caucasian (3250), with only 818 Hispanic, 48 Asian, and 27 Native American defendants. The remaining 570 defendants are classified as 'Other'. Figure \@ref(fig:ch3fig4) visualizes this.
+Finally, the demographic variable in this analysis is race. Most of the defendants are African-American (4674) and Caucasian (3250), with only 818 Hispanic, 48 Asian, and 27 Native American defendants. The remaining 570 defendants identify as 'Other'. Figure \@ref(fig:ch3fig4) visualizes this.
 
-```{r ch3fig4, fig.align='center', fig.cap="Distribution of the COMPAS Demographic Variable: Race", warning = FALSE, message = FALSE, fig.width = 4.5, fig.height = 3, echo = FALSE}
+```{r ch3fig4, fig.align='center', fig.cap="Distribution of the COMPAS Demographic Variable: Race", warning = FALSE, message = FALSE, fig.width = 4.5, fig.height = 2.5, echo = FALSE}
 ggplot(data = clean_compasdata, mapping = aes(x = race)) +
   geom_bar(fill = "lightblue", color = "black") +
   theme_minimal() +
@@ -135,13 +136,141 @@ ggplot(data = clean_compasdata, mapping = aes(x = race)) +
   labs(title = "Race")
 ```
 
-### Bivariate Analysis
+### Bivariate Analysis {#bivariateanalysis}
+
+With a thorough understanding of the variables from Section \@ref(univariateanalysis), this section examines the relationship between the predictive variables and the response variable, recidivism.
+
+#### Continuous Predictors
+
+There is some difference in the mean and median ages for defendants who recommit crimes within two years versus those who do not. Those who recidivate have a mean and median age of 32 and 29, respectively, compared to 36 and 33 for those who do not. Defendants who recidivate tend to be younger than those who do not, as illustrated by the boxplot in Figure \@ref(fig:ch3fig5). There is also some distributional difference in non-juvenile prior offenses for defendants who recidivate versus those who do not, as is indicated by different means and medians. Those who recommit a crime within two years tend to have more prior offenses, with a mean of 4.7 and median of 3, compared to a mean of 2.2 and a median of 1 offense for defendants who do not. Figure \@ref(fig:ch3fig5) visualizes this distributional difference.
+
+```{r ch3fig5, fig.align='center', fig.cap="Distribution of the COMPAS Continuous Variables by Recidivism", warning = FALSE, message = FALSE, fig.width = 6, fig.height = 3, echo = FALSE}
+g7 <- clean_compasdata %>%
+  mutate(is_recid = ifelse(is_recid == 0, "No", "Yes")) %>%
+  ggplot(mapping = aes(x = is_recid, y = age)) +
+  geom_boxplot() +
+  theme_minimal() +
+  labs(title = "Recidivism by Age",
+       x = "Recidivism",
+       y = "Age")
+
+g8 <- clean_compasdata %>%
+  mutate(is_recid = ifelse(is_recid == 0, "No", "Yes")) %>%
+  ggplot(mapping = aes(x = is_recid, y = priors_count)) +
+  geom_boxplot() +
+  theme_minimal() +
+  labs(title = "Recidivism by Prior Offenses",
+       x = "Recidivism",
+       y = "Prior Offenses")
+
+grid.arrange(g7, g8, nrow = 1)
+```
+
+
+#### Categorical Predictors
+
+Figure \@ref(fig:ch3fig6) displays the relationship between the four categorical variables -- sex, age category, marital status, and juvenile offense record -- and the response variable. There is not much evident relationship between sex and recidivism. Among defendants who do not recidivate, more are 45 years old compared to those under 25. However, among those who recidivated, more defendants are less than 25 compared to those greater than 45. There is not much relationship between recidivism and marital status. Finally, while most defendants do not have juvenile offenses, the proportion of those who do not to those who do is much smaller for defendants who re-offend in comparison to those who do not.
+
+```{r ch3fig6, fig.align='center', fig.cap="Distribution of the COMPAS Categorical Variables by Recidivism", warning = FALSE, message = FALSE, fig.width = 6, fig.height = 4.5, echo = FALSE}
+g9 <- ggplot(data = clean_compasdata, mapping = aes(x = sex, fill = sex)) +
+  geom_bar() +
+  theme_minimal() +
+  facet_wrap(~is_recid) +
+  labs(title = "Recidivism by Sex") 
+
+order <- c("Less than 25", "25 - 45", "Greater than 45")
+
+g10 <- ggplot(data = clean_compasdata, 
+       mapping = aes(x = age_cat, fill = age_cat)) +
+  geom_bar() +
+  theme_minimal() +
+  facet_wrap(~is_recid) +
+  labs(title = "Recidivism by Age Categories",
+       x = "Age Category",
+       fill = "Age Category") +
+  theme(axis.text.x = element_text(angle = 25, vjust = 1.2, hjust=1)) +
+  scale_x_discrete(limits = order) 
+
+g11 <- ggplot(data = clean_compasdata, 
+       mapping = aes(x = marital_status, fill = marital_status)) +
+  geom_bar() +
+  theme_minimal() +
+  facet_wrap(~is_recid) +
+  labs(title = "Recidivism by Marital Status",
+       x = "Marital Status",
+       fill = "Marital Status") +
+  theme(axis.text.x = element_text(angle = 25, vjust = 1.2, hjust=1))
+
+g12 <- clean_compasdata %>%
+  mutate(juv_offense = ifelse(juv_offense == 0, "No", "Yes")) %>%
+  ggplot(mapping = aes(x = juv_offense, fill = juv_offense)) +
+  geom_bar() +
+  theme_minimal() +
+  facet_wrap(~is_recid) +
+  labs(title = "Recidivism by Juvenile Offense",
+       x = "Juvenile Offense",
+       fill = "Juvenile Offense") 
+
+grid.arrange(g10, g12, nrow = 2)
+```
 
 ### Multivariate Analysis
 
-## Demographic Group Analysis
+```{r, echo = FALSE}
+compas_final <- clean_compasdata %>%
+  dplyr::select(c(race, sex, age, age_cat, marital_status, 
+                  juv_offense, priors_count,
+                  decile_score, is_recid))
+```
 
-add compas univariate analysis visualizations 
+
+As detailed in Section \@ref(bivariateanalysis), some predictive variables have a covariate relationship with the response variable, recidivism. A scatterplot matrix examining the relationship between the continuous variables, age and prior offenses, revealed weak correlations $(\rho = 0.12)$ and nonlinear relationships. There are no significant concerns for multicollinearity. Figure \@ref(fig:ch3fig7) illustrates this using Spearman's correlation. In addition, the correlation matrix incorporates the COMPAS tool decile scores to examine the predictive relationship between the continuous variables and the COMPAS tool results. The COMPAS tool maps raw scores into decile scores ranging from 1 to 10. The decile scores are directly associated with the risk of recidivism: scores between 1 and 4 are labeled as 'low' risk, between 5 and 7 as 'medium' risk, and between 8 and 10 as 'high risk'. Spearman's correlation revealed a moderate relationship of $\rho = -0.44$ and $\rho = 0.44$ for age and prior offenses, respectively.
+
+```{r ch3fig7, fig.align='center', fig.cap="Spearman's Correlation Matrix for COMPAS Predictive Variables and the COMPAS Tool Decile Scores", warning = FALSE, message = FALSE, fig.width = 4.5, fig.height = 3, echo = FALSE}
+mycordata3 <- compas_final %>%
+  dplyr::rename("Age" = age,
+         "Priors" = priors_count,
+         "Decile Scores" = decile_score) %>%
+  dplyr::select("Age", "Priors", "Decile Scores")
+
+mycors <- round(cor(mycordata3, method = "spearman"),2)
+mycorplot <- melt(mycors)
+
+ggplot(data = mycorplot, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile() +
+  labs(x = "",
+       y = "",
+       title = "Spearman's Correlation Matrix") +
+  scale_fill_gradient2(
+    low = "blue",
+    high = "red",
+    mid = "white",
+    midpoint = 0,
+    limit = c(-1, 1),
+    space = "Lab",
+    name = "Spearman\nCorrelation"
+  ) +
+  geom_text(aes(Var2, Var1, label = value),
+            color = "black",
+            size = 3) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 30, vjust = 1, hjust = 1))
+
+```
+
+With a thorough understanding of the variables, Section \@ref(fairnessanalysis) analyzes the data set and the COMPAS tool decile scores with a focus on fairness and an aim to examine the fairness concerns discussed in Chapters \@ref(chap-1) and \@ref(chap-2).
+
+## Fairness Analysis {#fairnessanalysis}
+
+### Demographic Group Analysis
+
+### COMPAS Tool Analysis
+
+add compas univariate analysis visualizations (and decile scores)
+
+add compas scores by recidivism as well (and decile scores)
+
+add race analysis 
 
 ## Logistic Regression
 
