@@ -15,7 +15,7 @@ Yet, these algorithms are often regarded as ground truth and free of human limit
 
 While there are widely-accepted, though sometimes disputed, societal notions of fairness, one key question emerges: are there any established statistical notions of fairness and bias? Is it possible to mathematically and statistically define algorithmic bias and unfairness, thereby paving a way for addressing the challenges they pose? And if so, are there ways to leverage statistical tools to resolve such bias and unfairness? This thesis paper aims to explore and answer precisely these questions. 
 
-## Algorithmic Bias 
+## Algorithmic Bias {#algbias}
 
 There are multiple different types and sources of bias in the realm of statistics. In particular, algorithmic bias arises when an algorithm’s decisions are skewed towards a particular group of people, either positively or negatively [@mehrabi2021survey]. The danger with biased algorithmic outcomes is that they generate a feedback loop. Take, for example, a hiring algorithm that discriminates against female applicants for a specific job. In the long run, this algorithm can perpetuate, and even amplify, existing gender biases by further widening the gender-based class imbalance. 
 

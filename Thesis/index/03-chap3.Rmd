@@ -262,17 +262,78 @@ With a thorough understanding of the variables, Section \@ref(fairnessanalysis) 
 
 ## Fairness Analysis {#fairnessanalysis}
 
-### Demographic Group Analysis
+Chapter \@ref(algbias) introduced algorithmic bias as a situation when an algorithm’s decisions are skewed towards a particular group of people, either positively or negatively. With race as the protected attribute, this section aims to examine the COMPAS tool results, the underlying proxy relationships between the variables and the sensitive attribute, race, and create a table similar to the one in Figure \@ref(fig:compas1), which highlights the discrepancy in false positive and false negative rates of the COMPAS tool for Black and White defendants. 
 
-### COMPAS Tool Analysis
+### COMPAS Tool Analysis {#comptoolanalysis}
 
-add compas univariate analysis visualizations (and decile scores)
+Recall that COMPAS decile scores of 1 to 4 are mapped as 'low' risk, 5 to 7 as 'medium' risk, and 8 to 10 as 'high' risk. The median decile score for the entire data set is four, and Figure \@ref(fig:ch3fig8) illustrates that the COMPAS tool classifies more than half of the defendants as low risk. In particular, the tool classifies 5370 as low risk and 1677 as high risk, with the remaining 2340 as medium risk. These predictions align with expectations since most defendants did not recommit a crime within the two-year time window, as observed in Figure \@ref(fig:ch3fig3). 
 
-add compas scores by recidivism as well (and decile scores)
+```{r ch3fig8, fig.align='center', fig.cap="COMPAS Tool Decile Scores", warning = FALSE, message = FALSE, fig.width = 4.5, fig.height = 4, echo = FALSE}
+
+order <- c("Low", "Medium", "High")
+
+g14 <- ggplot(data = clean_compasdata, mapping = aes(x = score_text)) +
+  geom_bar() +
+  theme_minimal() +
+  scale_x_discrete(limits = order) +
+  labs(x = "COMPAS Risk Prediction",
+       title = "COMPAS Risk Predictions in the Data Set")
+
+g15 <- ggplot(data = clean_compasdata, mapping = aes(x = as.factor(decile_score))) +
+  geom_bar() +
+  theme_minimal() +
+  labs(x = "COMPAS Decile Score",
+       title = "Decile Scores in the COMPAS Data Set")
+
+grid.arrange(g14, g15)
+```
+
+However, when these scores are broken down by whether the defendant reoffended within two years, it is revealed that the COMPAS tool performs poorly in classifying participants who recidivate. Such participants are classified almost equally into the three risk categories: low, medium, and high. Furthermore, while most defendants who do not reoffend within two years are classified as low risk, a significant number of them are classified as 'medium' and 'high' risk. Furthermore, the decile scores of defendants who recidivate and those who do not range from 1 to 10, although the median decile score is 6 for the former group and 3 for the latter group. Generally, these results raise concerns about the COMPAS tool's predictive performance. 
+
+```{r ch3fig9, fig.align='center', fig.cap="COMPAS Tool Decile Scores by Recidivism", warning = FALSE, message = FALSE, fig.width = 4.5, fig.height = 2.5, echo = FALSE}
+order <- c("Low", "Medium", "High")
+  
+clean_compasdata %>%
+  mutate(is_recid = ifelse(is_recid == 0, "No", "Yes")) %>%
+  ggplot(mapping = aes(x = score_text, fill = score_text)) +
+  geom_bar() +
+  theme_minimal() +
+  facet_wrap(~is_recid) +
+  labs(title = "Recidivism by COMPAS Risk Score",
+       x = "COMPAS Risk Score",
+       fill = "COMPAS Risk Score") +
+  theme(axis.text.x = element_text(angle = 25, vjust = 1.2, hjust=1)) +
+  scale_x_discrete(limits = order) 
+
+```
+
+A breakdown by race, the protected attribute, will allow for further analysis of the performance of the COMPAS tool. To convert this into a binary prediction problem, decile scores of 1 to 5 will be mapped as 'lower' risk, while those ranging from 6 to 10 will be mapped as 'higher' risk. 
+
+[proceed from COMPAS Analysis section. work backwards: general FNR/ FPR --> accuracy --> race FNR/ FPR --> results and highlights of algorithmic bias]
+
+### Proxy Relationships 
+
+The COMPAS tool is a race-blind model; race was not included as a variable. Yet,
+Section \@ref(comptoolanalysis) revealed that the resulting predictions exhibit significant racial discrepancies. This section analyzes the relationship between race and the predictive variables to examine how much information regarding a defendant's race is incorporated into the model via other variables.
+
+#### Continuous Variables
+
+For all the races, there are more male defendants than female defendants. However, African-American defendants tend to be, on average, the youngest compared to all the other races. Asian defendants, followed by Caucasian defendants, tend to be the oldest. Nevertheless, there is considerable overlap among all the races, and the relationships is visualized in Figure ....
+
+(add figure and edit in Grammarly)
+
+#### Categorical Variables
+
+#### Results
+
+#### Response Variable?
+
 
 add race analysis 
 
 ## Logistic Regression
+
+mention standard ML process discussed in Chapter 2 (go into some theoretical discussion of logistic regression, describe the methods and model, then results)
 
 ## Seldonian Classification
 

@@ -297,8 +297,8 @@ Yet, these algorithms are often regarded as ground truth and free of human limit
 
 While there are widely-accepted, though sometimes disputed, societal notions of fairness, one key question emerges: are there any established statistical notions of fairness and bias? Is it possible to mathematically and statistically define algorithmic bias and unfairness, thereby paving a way for addressing the challenges they pose? And if so, are there ways to leverage statistical tools to resolve such bias and unfairness? This thesis paper aims to explore and answer precisely these questions.
 
-\hypertarget{algorithmic-bias}{%
-\section{Algorithmic Bias}\label{algorithmic-bias}}
+\hypertarget{algbias}{%
+\section{Algorithmic Bias}\label{algbias}}
 
 There are multiple different types and sources of bias in the realm of statistics. In particular, algorithmic bias arises when an algorithm's decisions are skewed towards a particular group of people, either positively or negatively (Mehrabi, Morstatter, Saxena, Lerman, \& Galstyan, 2021). The danger with biased algorithmic outcomes is that they generate a feedback loop. Take, for example, a hiring algorithm that discriminates against female applicants for a specific job. In the long run, this algorithm can perpetuate, and even amplify, existing gender biases by further widening the gender-based class imbalance.
 
@@ -929,26 +929,67 @@ With a thorough understanding of the variables, Section \ref{fairnessanalysis} a
 \hypertarget{fairnessanalysis}{%
 \section{Fairness Analysis}\label{fairnessanalysis}}
 
-\hypertarget{demographic-group-analysis}{%
-\subsection{Demographic Group Analysis}\label{demographic-group-analysis}}
+Chapter \ref{algbias} introduced algorithmic bias as a situation when an algorithm's decisions are skewed towards a particular group of people, either positively or negatively. With race as the protected attribute, this section aims to examine the COMPAS tool results, the underlying proxy relationships between the variables and the sensitive attribute, race, and create a table similar to the one in Figure \ref{fig:compas1}, which highlights the discrepancy in false positive and false negative rates of the COMPAS tool for Black and White defendants.
 
-\hypertarget{compas-tool-analysis}{%
-\subsection{COMPAS Tool Analysis}\label{compas-tool-analysis}}
+\hypertarget{comptoolanalysis}{%
+\subsection{COMPAS Tool Analysis}\label{comptoolanalysis}}
 
-add compas univariate analysis visualizations (and decile scores)
+Recall that COMPAS decile scores of 1 to 4 are mapped as `low' risk, 5 to 7 as `medium' risk, and 8 to 10 as `high' risk. The median decile score for the entire data set is four, and Figure \ref{fig:ch3fig8} illustrates that the COMPAS tool classifies more than half of the defendants as low risk. In particular, the tool classifies 5370 as low risk and 1677 as high risk, with the remaining 2340 as medium risk. These predictions align with expectations since most defendants did not recommit a crime within the two-year time window, as observed in Figure \ref{fig:ch3fig3}.
+\begin{figure}
 
-add compas scores by recidivism as well (and decile scores)
+{\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/ch3fig8-1} 
+
+}
+
+\caption{COMPAS Tool Decile Scores}\label{fig:ch3fig8}
+\end{figure}
+However, when these scores are broken down by whether the defendant reoffended within two years, it is revealed that the COMPAS tool performs poorly in classifying participants who recidivate. Such participants are classified almost equally into the three risk categories: low, medium, and high. Furthermore, while most defendants who do not reoffend within two years are classified as low risk, a significant number of them are classified as `medium' and `high' risk. Furthermore, the decile scores of defendants who recidivate and those who do not range from 1 to 10, although the median decile score is 6 for the former group and 3 for the latter group. Generally, these results raise concerns about the COMPAS tool's predictive performance.
+\begin{figure}
+
+{\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/ch3fig9-1} 
+
+}
+
+\caption{COMPAS Tool Decile Scores by Recidivism}\label{fig:ch3fig9}
+\end{figure}
+A breakdown by race, the protected attribute, will allow for further analysis of the performance of the COMPAS tool. To convert this into a binary prediction problem, decile scores of 1 to 5 will be mapped as `lower' risk, while those ranging from 6 to 10 will be mapped as `higher' risk.
+
+{[}proceed from COMPAS Analysis section. work backwards: general FNR/ FPR --\textgreater{} accuracy --\textgreater{} race FNR/ FPR --\textgreater{} results and highlights of algorithmic bias{]}
+
+\hypertarget{proxy-relationships}{%
+\subsection{Proxy Relationships}\label{proxy-relationships}}
+
+The COMPAS tool is a race-blind model; race was not included as a variable. Yet,
+Section \ref{comptoolanalysis} revealed that the resulting predictions exhibit significant racial discrepancies. This section analyzes the relationship between race and the predictive variables to examine how much information regarding a defendant's race is incorporated into the model via other variables.
+
+\hypertarget{continuous-variables}{%
+\subsubsection{Continuous Variables}\label{continuous-variables}}
+
+For all the races, there are more male defendants than female defendants. However, African-American defendants tend to be, on average, the youngest compared to all the other races. Asian defendants, followed by Caucasian defendants, tend to be the oldest. Nevertheless, there is considerable overlap among all the races, and the relationships is visualized in Figure \ldots.
+
+(add figure and edit in Grammarly)
+
+\hypertarget{categorical-variables}{%
+\subsubsection{Categorical Variables}\label{categorical-variables}}
+
+\hypertarget{results}{%
+\subsubsection{Results}\label{results}}
+
+\hypertarget{response-variable-1}{%
+\subsubsection{Response Variable?}\label{response-variable-1}}
 
 add race analysis
 
 \hypertarget{logistic-regression}{%
 \section{Logistic Regression}\label{logistic-regression}}
 
+mention standard ML process discussed in Chapter 2 (go into some theoretical discussion of logistic regression, describe the methods and model, then results)
+
 \hypertarget{seldonian-classification}{%
 \section{Seldonian Classification}\label{seldonian-classification}}
 
-\hypertarget{results}{%
-\section{Results}\label{results}}
+\hypertarget{results-1}{%
+\section{Results}\label{results-1}}
 
 \hypertarget{chap-4}{%
 \chapter{Chapter 4 (RENAME \& EDIT)}\label{chap-4}}
