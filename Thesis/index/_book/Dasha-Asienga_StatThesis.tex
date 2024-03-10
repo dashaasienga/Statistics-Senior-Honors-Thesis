@@ -349,8 +349,8 @@ This is akin to the classification setting where it may be desirable to have the
 \end{equation}
 \[ E[l(Y, f(X)) | A = a] \leq c_a.\]
 
-\hypertarget{group-fairness-in-classification-settings}{%
-\subsection{Group Fairness in Classification Settings}\label{group-fairness-in-classification-settings}}
+\hypertarget{classfairdef}{%
+\subsection{Group Fairness in Classification Settings}\label{classfairdef}}
 
 Group notions of fairness in classification, at the core, refer to treating different groups equally. They aim to remedy or prevent disparate impact, which is a setting where there is unintended disproportionate adverse impact on a particular group (Chouldechova, 2017). There are three broad notions of observational group fairness: independence, separation, and sufficiency (Castelnovo et al., 2022).
 
@@ -1089,7 +1089,7 @@ While the linear regression setting in Chapter \ref{chap-2} provides an accessib
 \hypertarget{formulating-the-seldonian-problem}{%
 \subsection{Formulating the Seldonian Problem}\label{formulating-the-seldonian-problem}}
 
-In the absence of fairness constraint, the standard ML problem is to find a solution \(\theta\) that minimizes logistic loss. However, such a solution, as illustrated in Section \ref{logreg} when fitting a logistic regression, results in unequal error rates between Black and White defendants. Defining the discrimination statistic \(d(\theta)\) to measure the difference in error rates as in Equation \ref{ch3eq2}, \(d(\theta_{LR}) = 0.34\) (or \(34.18\)\%). Similarly, for the COMPAS tool, \(d(\theta_{COMPAS}) = 0.45\) (or \(44.7\)\%) using this data set. This illustrates that the logistic regression performed slightly better than the COMPAS tool, both in overall accuracy and in error rate disparities. However, there is still a significant discrepancy between the error rates for both races.
+Without fairness constraints, the standard ML problem is finding a solution \(\theta\) that minimizes logistic loss. However, such a solution, as illustrated in Section \ref{logreg} when fitting a logistic regression, results in unequal error rates between Black and White defendants when using the COMPAS data set. Defining the discrimination statistic \(d(\theta)\) to measure the difference in error rates as in Equation \ref{ch3eq2}, \(d(\theta_{LR}) = 0.34\) (or \(34.18\)\%). Similarly, for the COMPAS tool, \(d(\theta_{COMPAS}) = 0.45\) (or \(44.7\)\%) using this data set. This illustrates that the logistic regression performed slightly better than the COMPAS tool, both in overall accuracy and error rate disparities. However, there is still a significant discrepancy between the error rates for both races.
 \begin{equation}
 \label{ch3eq2}
 d(\theta) = abs[(FPR | \text{Black} - FPR | \text{White}) + (FNR | \text{White} - FNR | \text{Black})]
@@ -1104,15 +1104,17 @@ g(\theta) = abs[(FPR | \text{Black} - FPR | \text{White}) + (FNR | \text{White} 
 \label{ch3eq4}
 P(g(\theta) \leq 0) \geq 1 - \delta.
 \end{equation}
-\noindent The problem can now be fully formulated as a Seldonian machine learning problem. That is, using gradient descent, an optimization algorithm for finding a local minimum of a differentiable function, minimize logistic loss subject to the constraint:
+\noindent The problem can now be fully formulated as a Seldonian machine learning problem. That is, using gradient descent, an optimization algorithm for finding a local minimum of a differentiable function, the Seldonian objective is to minimize logistic loss subject to the constraint:
 \begin{equation}
 \label{ch3eq3}
 P\{abs[(FPR | \text{Black} - FPR | \text{White}) + (FNR | \text{White} - FNR | \text{Black})]  - \epsilon \leq 0 \} \geq 1 - \delta \textit{; } \delta = 0.05.
 \end{equation}
-\(\delta\) will be set to 0.05 to attain 95\% confidence that separation (equalized odds) is satisfied. The data will be partitioned into a training set that will be passed into the candidate selection mechanism to compute \(\theta_c\). The remaining partition will be used in the safety test to ensure that the constraint is satisfied. \(\epsilon\) will be set to \(0.2, 0.1, 0.05, 0.01\). The code to obtain a solution is available as part of the \texttt{seldonian-engine} Python library and is displayed in Appendix \ref{appendix-e}.
+\(\delta\) will be set to 0.05 to attain 95\% confidence that separation (equalized odds) as defined in Chapter \ref{classfairdef} is satisfied, that is, \(d(\theta) \leq \epsilon\). The data will be partitioned into a training set that will be passed into the candidate selection mechanism to compute \(\theta_c\). The remaining partition will be used in the safety test to ensure probabilistic satisfaction of the constraint. \(\epsilon\) will be set to four values: \(0.2, 0.1, 0.05, \textit{and } 0.01\). The code to obtain a solution is available as part of the \texttt{seldonian-engine} Python library and is displayed in Appendix \ref{appendix-e}, along with the data pre-processing.
 
 \hypertarget{evaluating-performance-and-fairness}{%
 \subsection{Evaluating Performance and Fairness}\label{evaluating-performance-and-fairness}}
+
+A solution was obtained using all four values of \(\epsilon\), although as \(\epsilon\) got smaller, the logistic loss increased and the overall accuracy decreased\ldots{}
 
 \hypertarget{chap-4}{%
 \chapter{Chapter 4 (RENAME \& EDIT)}\label{chap-4}}
@@ -1425,7 +1427,7 @@ Recall from Chapter \ref{intro} that (Castelnovo et al., 2022):
 \FunctionTok{grid.arrange}\NormalTok{(g1,g2, }\AttributeTok{nrow=}\DecValTok{1}\NormalTok{, }\AttributeTok{ncol=}\DecValTok{2}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
-\begin{center}\includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/unnamed-chunk-51-1} \end{center}
+\begin{center}\includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/unnamed-chunk-54-1} \end{center}
 
 \hypertarget{appendix-b}{%
 \chapter{Quasi-Seldonian Linear Regression Python Code}\label{appendix-b}}
@@ -2252,6 +2254,231 @@ This function is used to estimate what the output of \texttt{ttestUpperBound} wo
 \hypertarget{appendix-e}{%
 \chapter{Seldionian Classification on the COMPAS Data Set}\label{appendix-e}}
 
+\hypertarget{set-up-the-python-document}{%
+\section{Set up the Python Document}\label{set-up-the-python-document}}
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# set up Python environment in R}
+\FunctionTok{library}\NormalTok{(reticulate)}
+\FunctionTok{use\_python}\NormalTok{(}\StringTok{"/cm/shared/apps/amh{-}Rstudio/python{-}3.11.4/bin/python3"}\NormalTok{, }
+           \AttributeTok{required =} \ConstantTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# import necessary libraries}
+\ImportTok{import}\NormalTok{ numpy }\ImportTok{as}\NormalTok{ np}
+\ImportTok{import}\NormalTok{ os}
+
+\ImportTok{import}\NormalTok{ pandas }\ImportTok{as}\NormalTok{ pd}
+\ImportTok{import}\NormalTok{ json}
+
+\ImportTok{from}\NormalTok{ sklearn.preprocessing }\ImportTok{import}\NormalTok{ LabelEncoder}
+\ImportTok{from}\NormalTok{ sklearn.preprocessing }\ImportTok{import}\NormalTok{ OneHotEncoder}
+\ImportTok{from}\NormalTok{ sklearn.preprocessing }\ImportTok{import}\NormalTok{ StandardScaler}
+\ImportTok{from}\NormalTok{ sklearn.compose }\ImportTok{import}\NormalTok{ ColumnTransformer}
+
+\ImportTok{from}\NormalTok{ seldonian.utils.io\_utils }\ImportTok{import}\NormalTok{ save\_json}
+\ImportTok{from}\NormalTok{ seldonian.parse\_tree.parse\_tree }\ImportTok{import}\NormalTok{ (ParseTree,}
+\NormalTok{    make\_parse\_trees\_from\_constraints)}
+\ImportTok{from}\NormalTok{ seldonian.dataset }\ImportTok{import}\NormalTok{ DataSetLoader}
+\ImportTok{from}\NormalTok{ seldonian.utils.io\_utils }\ImportTok{import}\NormalTok{ (load\_json,save\_pickle)}
+\ImportTok{from}\NormalTok{ seldonian.spec }\ImportTok{import}\NormalTok{ SupervisedSpec}
+\ImportTok{from}\NormalTok{ seldonian.models.models }\ImportTok{import}\NormalTok{ (}
+\NormalTok{    BinaryLogisticRegressionModel }\ImportTok{as}\NormalTok{ LogisticRegressionModel) }
+\ImportTok{from}\NormalTok{ seldonian.models }\ImportTok{import}\NormalTok{ objectives}
+
+\ImportTok{import}\NormalTok{ matplotlib.pyplot }\ImportTok{as}\NormalTok{ plt}
+\end{Highlighting}
+\end{Shaded}
+\hypertarget{data-pre-processing}{%
+\section{Data Pre-Processing}\label{data-pre-processing}}
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# point to the appropriate data file}
+\NormalTok{f\_orig }\OperatorTok{=} \StringTok{"/home/dasienga24/Statistics{-}Senior{-}Honors{-}Thesis/Data Sets/COMPAS/compas\_seldonian\_bw.csv"}
+
+\CommentTok{\# list the column names that were most important}
+\NormalTok{columns\_orig }\OperatorTok{=}\NormalTok{ [}
+    \StringTok{"race"}\NormalTok{,}\StringTok{"sex"}\NormalTok{,}\StringTok{"age"}\NormalTok{,}
+    \StringTok{"age\_cat"}\NormalTok{,}\StringTok{"marital\_status"}\NormalTok{,}\StringTok{"juv\_offense"}\NormalTok{,}
+    \StringTok{"priors\_count"}\NormalTok{, }\StringTok{"is\_recid"}\NormalTok{]}
+    
+\CommentTok{\#read in the data }
+\NormalTok{df }\OperatorTok{=}\NormalTok{ pd.read\_csv(f\_orig, header}\OperatorTok{=}\DecValTok{1}\NormalTok{, names}\OperatorTok{=}\NormalTok{columns\_orig)}
+
+\CommentTok{\# split into inputs and outputs}
+\NormalTok{X }\OperatorTok{=}\NormalTok{ df.drop(columns}\OperatorTok{=}\NormalTok{[}\StringTok{"is\_recid"}\NormalTok{])}
+\NormalTok{y }\OperatorTok{=}\NormalTok{ df[}\StringTok{"is\_recid"}\NormalTok{]}
+
+\CommentTok{\# one hot encode categorical features, scale numerical features using standard scaler }
+\NormalTok{ct }\OperatorTok{=}\NormalTok{ ColumnTransformer([(}\StringTok{\textquotesingle{}c\textquotesingle{}}\NormalTok{,OneHotEncoder(),[}\StringTok{\textquotesingle{}race\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}sex\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}age\_cat\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}marital\_status\textquotesingle{}}\NormalTok{]), (}\StringTok{\textquotesingle{}n\textquotesingle{}}\NormalTok{,StandardScaler(),[}\StringTok{\textquotesingle{}age\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}priors\_count\textquotesingle{}}\NormalTok{])])}
+    
+\CommentTok{\# apply transformation}
+\NormalTok{X\_transformed }\OperatorTok{=}\NormalTok{ ct.fit\_transform(X)}
+    
+\CommentTok{\# get names after one{-}hot encoding}
+\NormalTok{output\_columns }\OperatorTok{=}\NormalTok{ ct.get\_feature\_names\_out(ct.feature\_names\_in\_)}
+    
+\CommentTok{\# make an output dataframe to save transformed X and y}
+\NormalTok{outdf }\OperatorTok{=}\NormalTok{ pd.DataFrame(X\_transformed,columns}\OperatorTok{=}\NormalTok{output\_columns)}
+
+\CommentTok{\# change names of columns }
+\NormalTok{outdf.rename(columns}\OperatorTok{=}\NormalTok{\{}\StringTok{\textquotesingle{}c\_\_race\_African{-}American\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}Black\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}c\_\_race\_Caucasian\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}White\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}c\_\_sex\_Female\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}Female\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}c\_\_sex\_Male\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}Male\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}c\_\_age\_cat\_25 {-} 45\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}25\_45\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}c\_\_age\_cat\_Greater than 45\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}Greater\_than\_45\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}c\_\_age\_cat\_Less than 25\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}Less\_than\_25\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}c\_\_marital\_status\_Divorced\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}Divorced\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}c\_\_marital\_status\_Married\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}Married\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}c\_\_marital\_status\_Separated\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}Separated\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}c\_\_marital\_status\_Significant Other\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}Significant\_Other\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}c\_\_marital\_status\_Single\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}Single\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}c\_\_marital\_status\_Unknown\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}marital\_status\_Unknown\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}c\_\_marital\_status\_Widowed\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}Widowed\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}c\_\_juv\_offense\_0\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}juv\_offense\_0\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}c\_\_juv\_offense\_1\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}juv\_offense\_1\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}n\_\_age\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}age\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}n\_\_priors\_count\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}priors\_count\textquotesingle{}}\NormalTok{ \},}
+\NormalTok{inplace}\OperatorTok{=}\VariableTok{True}\NormalTok{)}
+    
+\CommentTok{\# add label column and \textasciigrave{}juv\_offense\textasciigrave{} back into final dataframe}
+\NormalTok{outdf[}\StringTok{\textquotesingle{}juv\_offense\textquotesingle{}}\NormalTok{] }\OperatorTok{=}\NormalTok{ df[}\StringTok{\textquotesingle{}juv\_offense\textquotesingle{}}\NormalTok{]}
+\NormalTok{outdf[}\StringTok{\textquotesingle{}is\_recid\textquotesingle{}}\NormalTok{] }\OperatorTok{=}\NormalTok{ y}
+
+\CommentTok{\# save final dataframe}
+\NormalTok{output\_path\_data}\OperatorTok{=}\StringTok{"/home/dasienga24/Statistics{-}Senior{-}Honors{-}Thesis/Data Sets/COMPAS/compas\_seldonian\_numeric\_clean\_bw.csv"}
+
+\NormalTok{outdf.to\_csv(output\_path\_data,index}\OperatorTok{=}\VariableTok{False}\NormalTok{,header}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
+
+\CommentTok{\# save metadata json file}
+\NormalTok{output\_path\_metadata}\OperatorTok{=}\StringTok{"/home/dasienga24/Statistics{-}Senior{-}Honors{-}Thesis/Data Sets/COMPAS/metadata\_compas\_seldonian\_bw.json"}
+
+\NormalTok{metadata\_dict }\OperatorTok{=}\NormalTok{ \{}
+  \StringTok{"regime"}\NormalTok{:}\StringTok{"supervised\_learning"}\NormalTok{,}
+  \StringTok{"sub\_regime"}\NormalTok{:}\StringTok{"classification"}\NormalTok{,}
+  \StringTok{"all\_col\_names"}\NormalTok{:}\BuiltInTok{list}\NormalTok{(outdf.columns),}
+  \StringTok{"label\_col\_names"}\NormalTok{:}\StringTok{"is\_recid"}\NormalTok{,}
+  \StringTok{"sensitive\_col\_names"}\NormalTok{:[}\StringTok{"Black"}\NormalTok{, }\StringTok{"White"}\NormalTok{]}
+\NormalTok{\}}
+    
+\ControlFlowTok{with} \BuiltInTok{open}\NormalTok{(output\_path\_metadata,}\StringTok{\textquotesingle{}w\textquotesingle{}}\NormalTok{) }\ImportTok{as}\NormalTok{ outfile:}
+\NormalTok{    json.dump(metadata\_dict,outfile,indent}\OperatorTok{=}\DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+\hypertarget{create-the-specification-object}{%
+\section{Create the Specification Object}\label{create-the-specification-object}}
+\begin{Shaded}
+\begin{Highlighting}[]
+\ImportTok{import}\NormalTok{ autograd.numpy }\ImportTok{as}\NormalTok{ np}
+
+\NormalTok{data\_pth }\OperatorTok{=}\NormalTok{ output\_path\_data}
+\NormalTok{metadata\_pth }\OperatorTok{=}\NormalTok{ output\_path\_metadata}
+\NormalTok{save\_dir }\OperatorTok{=} \StringTok{"/home/dasienga24/Statistics{-}Senior{-}Honors{-}Thesis/Python/COMPAS Application/"}
+\NormalTok{os.makedirs(save\_dir,exist\_ok}\OperatorTok{=}\VariableTok{True}\NormalTok{)}
+
+\CommentTok{\# create dataset from data and metadata file}
+\NormalTok{regime}\OperatorTok{=}\StringTok{\textquotesingle{}supervised\_learning\textquotesingle{}}
+\NormalTok{sub\_regime}\OperatorTok{=}\StringTok{\textquotesingle{}classification\textquotesingle{}}
+
+\NormalTok{loader }\OperatorTok{=}\NormalTok{ DataSetLoader(regime}\OperatorTok{=}\NormalTok{regime)}
+
+\NormalTok{dataset }\OperatorTok{=}\NormalTok{ loader.load\_supervised\_dataset(}
+\NormalTok{  filename}\OperatorTok{=}\NormalTok{data\_pth,}
+\NormalTok{  metadata\_filename}\OperatorTok{=}\NormalTok{metadata\_pth,}
+\NormalTok{  file\_type}\OperatorTok{=}\StringTok{\textquotesingle{}csv\textquotesingle{}}\NormalTok{)}
+  
+\NormalTok{sensitive\_col\_names }\OperatorTok{=}\NormalTok{ dataset.meta.sensitive\_col\_names}
+
+\CommentTok{\# use logistic regression model}
+\NormalTok{model }\OperatorTok{=}\NormalTok{ LogisticRegressionModel()}
+    
+\CommentTok{\# set the primary objective to be log loss}
+\NormalTok{primary\_objective }\OperatorTok{=}\NormalTok{ objectives.binary\_logistic\_loss}
+
+\ImportTok{from}\NormalTok{ seldonian.spec }\ImportTok{import}\NormalTok{ createSupervisedSpec}
+
+\CommentTok{\# define behavioral constraints}
+\NormalTok{epsilon }\OperatorTok{=} \FloatTok{0.2}
+\NormalTok{constraint\_name }\OperatorTok{=} \StringTok{"equalized\_odds"}
+\ControlFlowTok{if}\NormalTok{ constraint\_name }\OperatorTok{==} \StringTok{"equalized\_odds"}\NormalTok{:}
+\NormalTok{  constraint\_strs }\OperatorTok{=}\NormalTok{ [}\SpecialStringTok{f\textquotesingle{}abs((FNR | [Black]) {-} (FNR | [White])) + abs((FPR | [Black]) {-} (FPR | [White])) \textless{}= }\SpecialCharTok{\{}\NormalTok{epsilon}\SpecialCharTok{\}}\SpecialStringTok{\textquotesingle{}}\NormalTok{] }
+\NormalTok{deltas }\OperatorTok{=}\NormalTok{ [}\FloatTok{0.05}\NormalTok{]}
+
+\CommentTok{\# create spec file}
+\NormalTok{save\_dir }\OperatorTok{=} \StringTok{"/home/dasienga24/Statistics{-}Senior{-}Honors{-}Thesis/Python/COMPAS Application/equalized\_odds\_0.2"}
+
+\NormalTok{createSupervisedSpec(}
+\NormalTok{            dataset}\OperatorTok{=}\NormalTok{dataset,}
+\NormalTok{            metadata\_pth}\OperatorTok{=}\NormalTok{metadata\_pth,}
+\NormalTok{            constraint\_strs}\OperatorTok{=}\NormalTok{constraint\_strs,}
+\NormalTok{            deltas}\OperatorTok{=}\NormalTok{deltas,}
+\NormalTok{            save\_dir}\OperatorTok{=}\NormalTok{save\_dir,}
+\NormalTok{            save}\OperatorTok{=}\VariableTok{True}\NormalTok{,}
+\NormalTok{            verbose}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+\hypertarget{run-the-seldonian-engine}{%
+\section{Run the Seldonian Engine}\label{run-the-seldonian-engine}}
+\begin{Shaded}
+\begin{Highlighting}[]
+\ImportTok{from}\NormalTok{ seldonian.seldonian\_algorithm }\ImportTok{import}\NormalTok{ SeldonianAlgorithm}
+\ImportTok{from}\NormalTok{ seldonian.utils.io\_utils }\ImportTok{import}\NormalTok{ load\_pickle}
+
+\CommentTok{\# load the spec file {-}{-} can be replicated for the different epsilon values}
+\NormalTok{specfile }\OperatorTok{=} \StringTok{\textquotesingle{}/home/dasienga24/Statistics{-}Senior{-}Honors{-}Thesis/Python/COMPAS Application/equalized\_odds\_0.2/spec.pkl\textquotesingle{}}
+\NormalTok{spec }\OperatorTok{=}\NormalTok{ load\_pickle(specfile)}
+\NormalTok{SA\_02 }\OperatorTok{=}\NormalTok{ SeldonianAlgorithm(spec)}
+\NormalTok{passed\_safety, solution }\OperatorTok{=}\NormalTok{ SA\_02.run(write\_cs\_logfile}\OperatorTok{=}\VariableTok{True}\NormalTok{)}
+\ControlFlowTok{if}\NormalTok{ passed\_safety:}
+  \BuiltInTok{print}\NormalTok{(}\StringTok{"Passed safety test!"}\NormalTok{)}
+\ControlFlowTok{else}\NormalTok{:}
+  \BuiltInTok{print}\NormalTok{(}\StringTok{"Failed safety test"}\NormalTok{)}
+\BuiltInTok{print}\NormalTok{()}
+\BuiltInTok{print}\NormalTok{(}\StringTok{"Primary objective (log loss) evaluated on safety dataset:"}\NormalTok{)}
+\BuiltInTok{print}\NormalTok{(SA\_02.evaluate\_primary\_objective(branch}\OperatorTok{=}\StringTok{\textquotesingle{}safety\_test\textquotesingle{}}\NormalTok{,theta}\OperatorTok{=}\NormalTok{solution))}
+\end{Highlighting}
+\end{Shaded}
+\hypertarget{obtain-the-predictive-values}{%
+\section{Obtain the Predictive Values}\label{obtain-the-predictive-values}}
+
+We used the logistic sigmoid function to obtain the predictive values for each observation.
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# get the solution {-}{-} can be repeated for the different epsilon values}
+\NormalTok{SA\_02.cs\_result[}\StringTok{"candidate\_solution"}\NormalTok{]}
+
+\CommentTok{\# store the coefficients}
+\NormalTok{coefficients }\OperatorTok{=}\NormalTok{ SA\_02.cs\_result[}\StringTok{"candidate\_solution"}\NormalTok{]}
+
+\CommentTok{\# get the intercept}
+\NormalTok{intercept }\OperatorTok{=}\NormalTok{ coefficients[}\DecValTok{0}\NormalTok{]}
+
+\CommentTok{\# separate the predictor variables from the sensitive variable and the response variable}
+\NormalTok{X\_outdf }\OperatorTok{=}\NormalTok{ outdf.drop(columns }\OperatorTok{=}\NormalTok{ [}\StringTok{\textquotesingle{}is\_recid\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Black\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}White\textquotesingle{}}\NormalTok{])}
+\NormalTok{X\_sens }\OperatorTok{=}\NormalTok{ outdf[[}\StringTok{\textquotesingle{}Black\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}White\textquotesingle{}}\NormalTok{]]}
+\NormalTok{y\_outdf }\OperatorTok{=}\NormalTok{ outdf[}\StringTok{\textquotesingle{}is\_recid\textquotesingle{}}\NormalTok{]}
+
+\CommentTok{\# compute the predictive values}
+\NormalTok{linear\_combination }\OperatorTok{=}\NormalTok{ np.dot(X\_outdf, coefficients[}\DecValTok{1}\NormalTok{:]) }\OperatorTok{+}\NormalTok{ intercept}
+\NormalTok{pred\_probs\_02 }\OperatorTok{=} \DecValTok{1} \OperatorTok{/}\NormalTok{ (}\DecValTok{1} \OperatorTok{+}\NormalTok{ np.exp(}\OperatorTok{{-}}\NormalTok{linear\_combination))}
+\end{Highlighting}
+\end{Shaded}
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# store the results }
+\NormalTok{seldonian\_results }\OperatorTok{=}\NormalTok{ pd.DataFrame(\{}\StringTok{\textquotesingle{}is\_recid\textquotesingle{}}\NormalTok{: y\_outdf, }\StringTok{\textquotesingle{}pred\_0.2\textquotesingle{}}\NormalTok{: pred\_probs\_02, }
+\StringTok{\textquotesingle{}pred\_0.1\textquotesingle{}}\NormalTok{: pred\_probs\_01, }\StringTok{\textquotesingle{}pred\_0.05\textquotesingle{}}\NormalTok{: pred\_probs\_005, }\StringTok{\textquotesingle{}pred\_0.01\textquotesingle{}}\NormalTok{: pred\_probs\_001\})}
+\NormalTok{seldonian\_results }\OperatorTok{=}\NormalTok{ pd.concat([X\_outdf, X\_sens, seldonian\_results], axis }\OperatorTok{=} \DecValTok{1}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+Finally, let's obtain binary risk predictions using a 0.5 threshold.
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# define threshold}
+\NormalTok{threshold }\OperatorTok{=} \FloatTok{0.5}
+
+\CommentTok{\# create risk columns}
+\NormalTok{risk\_02 }\OperatorTok{=}\NormalTok{ np.where(pred\_probs\_02 }\OperatorTok{\textgreater{}=}\NormalTok{ threshold, }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{)}
+\NormalTok{risk\_01 }\OperatorTok{=}\NormalTok{ np.where(pred\_probs\_01 }\OperatorTok{\textgreater{}=}\NormalTok{ threshold, }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{)}
+\NormalTok{risk\_005 }\OperatorTok{=}\NormalTok{ np.where(pred\_probs\_005 }\OperatorTok{\textgreater{}=}\NormalTok{ threshold, }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{)}
+\NormalTok{risk\_001 }\OperatorTok{=}\NormalTok{ np.where(pred\_probs\_001 }\OperatorTok{\textgreater{}=}\NormalTok{ threshold, }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{)}
+
+\CommentTok{\# add risk columns to dataframe}
+\NormalTok{seldonian\_results[}\StringTok{\textquotesingle{}risk\_0.2\textquotesingle{}}\NormalTok{] }\OperatorTok{=}\NormalTok{ risk\_02}
+\NormalTok{seldonian\_results[}\StringTok{\textquotesingle{}risk\_0.1\textquotesingle{}}\NormalTok{] }\OperatorTok{=}\NormalTok{ risk\_01}
+\NormalTok{seldonian\_results[}\StringTok{\textquotesingle{}risk\_0.05\textquotesingle{}}\NormalTok{] }\OperatorTok{=}\NormalTok{ risk\_005}
+\NormalTok{seldonian\_results[}\StringTok{\textquotesingle{}risk\_0.01\textquotesingle{}}\NormalTok{] }\OperatorTok{=}\NormalTok{ risk\_001}
+
+\CommentTok{\# write the dataframe to a CSV file}
+\NormalTok{seldonian\_results.to\_csv(}\StringTok{"/home/dasienga24/Statistics{-}Senior{-}Honors{-}Thesis/Data Sets/COMPAS/compas\_seldonian\_results\_bw.csv"}\NormalTok{, index}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
 \backmatter
 
 \hypertarget{references}{%

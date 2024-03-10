@@ -1,1 +1,220 @@
 # Seldionian Classification on the COMPAS Data Set {#appendix-e}
+
+## Set up the Python Document
+
+```{r, eval = FALSE}
+# set up Python environment in R
+library(reticulate)
+use_python("/cm/shared/apps/amh-Rstudio/python-3.11.4/bin/python3", 
+           required = TRUE)
+```
+
+```{python, eval = FALSE}
+# import necessary libraries
+import numpy as np
+import os
+
+import pandas as pd
+import json
+
+from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import StandardScaler
+from sklearn.compose import ColumnTransformer
+
+from seldonian.utils.io_utils import save_json
+from seldonian.parse_tree.parse_tree import (ParseTree,
+    make_parse_trees_from_constraints)
+from seldonian.dataset import DataSetLoader
+from seldonian.utils.io_utils import (load_json,save_pickle)
+from seldonian.spec import SupervisedSpec
+from seldonian.models.models import (
+    BinaryLogisticRegressionModel as LogisticRegressionModel) 
+from seldonian.models import objectives
+
+import matplotlib.pyplot as plt
+```
+
+## Data Pre-Processing
+
+```{python, eval = FALSE}
+# point to the appropriate data file
+f_orig = "/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/COMPAS/compas_seldonian_bw.csv"
+
+# list the column names that were most important
+columns_orig = [
+    "race","sex","age",
+    "age_cat","marital_status","juv_offense",
+    "priors_count", "is_recid"]
+    
+#read in the data 
+df = pd.read_csv(f_orig, header=1, names=columns_orig)
+
+# split into inputs and outputs
+X = df.drop(columns=["is_recid"])
+y = df["is_recid"]
+
+# one hot encode categorical features, scale numerical features using standard scaler 
+ct = ColumnTransformer([('c',OneHotEncoder(),['race', 'sex', 'age_cat', 'marital_status']), ('n',StandardScaler(),['age','priors_count'])])
+    
+# apply transformation
+X_transformed = ct.fit_transform(X)
+    
+# get names after one-hot encoding
+output_columns = ct.get_feature_names_out(ct.feature_names_in_)
+    
+# make an output dataframe to save transformed X and y
+outdf = pd.DataFrame(X_transformed,columns=output_columns)
+
+# change names of columns 
+outdf.rename(columns={'c__race_African-American':'Black', 'c__race_Caucasian':'White', 'c__sex_Female':'Female', 'c__sex_Male':'Male', 'c__age_cat_25 - 45':'25_45', 'c__age_cat_Greater than 45':'Greater_than_45', 'c__age_cat_Less than 25':'Less_than_25', 'c__marital_status_Divorced':'Divorced', 'c__marital_status_Married':'Married', 'c__marital_status_Separated':'Separated', 'c__marital_status_Significant Other':'Significant_Other', 'c__marital_status_Single':'Single', 'c__marital_status_Unknown':'marital_status_Unknown', 'c__marital_status_Widowed':'Widowed', 'c__juv_offense_0':'juv_offense_0', 'c__juv_offense_1':'juv_offense_1', 'n__age':'age', 'n__priors_count':'priors_count' },
+inplace=True)
+    
+# add label column and `juv_offense` back into final dataframe
+outdf['juv_offense'] = df['juv_offense']
+outdf['is_recid'] = y
+
+# save final dataframe
+output_path_data="/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/COMPAS/compas_seldonian_numeric_clean_bw.csv"
+
+outdf.to_csv(output_path_data,index=False,header=False)
+
+# save metadata json file
+output_path_metadata="/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/COMPAS/metadata_compas_seldonian_bw.json"
+
+metadata_dict = {
+  "regime":"supervised_learning",
+  "sub_regime":"classification",
+  "all_col_names":list(outdf.columns),
+  "label_col_names":"is_recid",
+  "sensitive_col_names":["Black", "White"]
+}
+    
+with open(output_path_metadata,'w') as outfile:
+    json.dump(metadata_dict,outfile,indent=2)
+```
+
+## Create the Specification Object
+
+```{python, eval = FALSE}
+import autograd.numpy as np
+
+data_pth = output_path_data
+metadata_pth = output_path_metadata
+save_dir = "/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Application/"
+os.makedirs(save_dir,exist_ok=True)
+
+# create dataset from data and metadata file
+regime='supervised_learning'
+sub_regime='classification'
+
+loader = DataSetLoader(regime=regime)
+
+dataset = loader.load_supervised_dataset(
+  filename=data_pth,
+  metadata_filename=metadata_pth,
+  file_type='csv')
+  
+sensitive_col_names = dataset.meta.sensitive_col_names
+
+# use logistic regression model
+model = LogisticRegressionModel()
+    
+# set the primary objective to be log loss
+primary_objective = objectives.binary_logistic_loss
+
+from seldonian.spec import createSupervisedSpec
+
+# define behavioral constraints
+epsilon = 0.2
+constraint_name = "equalized_odds"
+if constraint_name == "equalized_odds":
+  constraint_strs = [f'abs((FNR | [Black]) - (FNR | [White])) + abs((FPR | [Black]) - (FPR | [White])) <= {epsilon}'] 
+deltas = [0.05]
+
+# create spec file
+save_dir = "/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Application/equalized_odds_0.2"
+
+createSupervisedSpec(
+            dataset=dataset,
+            metadata_pth=metadata_pth,
+            constraint_strs=constraint_strs,
+            deltas=deltas,
+            save_dir=save_dir,
+            save=True,
+            verbose=False)
+```
+
+## Run the Seldonian Engine
+
+```{python, eval = FALSE}
+from seldonian.seldonian_algorithm import SeldonianAlgorithm
+from seldonian.utils.io_utils import load_pickle
+
+# load the spec file -- can be replicated for the different epsilon values
+specfile = '/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Application/equalized_odds_0.2/spec.pkl'
+spec = load_pickle(specfile)
+SA_02 = SeldonianAlgorithm(spec)
+passed_safety, solution = SA_02.run(write_cs_logfile=True)
+if passed_safety:
+  print("Passed safety test!")
+else:
+  print("Failed safety test")
+print()
+print("Primary objective (log loss) evaluated on safety dataset:")
+print(SA_02.evaluate_primary_objective(branch='safety_test',theta=solution))
+```
+
+## Obtain the Predictive Values
+
+We used the logistic sigmoid function to obtain the predictive values for each observation.
+
+```{python, eval = FALSE}
+# get the solution -- can be repeated for the different epsilon values
+SA_02.cs_result["candidate_solution"]
+
+# store the coefficients
+coefficients = SA_02.cs_result["candidate_solution"]
+
+# get the intercept
+intercept = coefficients[0]
+
+# separate the predictor variables from the sensitive variable and the response variable
+X_outdf = outdf.drop(columns = ['is_recid', 'Black', 'White'])
+X_sens = outdf[['Black', 'White']]
+y_outdf = outdf['is_recid']
+
+# compute the predictive values
+linear_combination = np.dot(X_outdf, coefficients[1:]) + intercept
+pred_probs_02 = 1 / (1 + np.exp(-linear_combination))
+```
+
+```{python, eval = FALSE}
+# store the results 
+seldonian_results = pd.DataFrame({'is_recid': y_outdf, 'pred_0.2': pred_probs_02, 
+'pred_0.1': pred_probs_01, 'pred_0.05': pred_probs_005, 'pred_0.01': pred_probs_001})
+seldonian_results = pd.concat([X_outdf, X_sens, seldonian_results], axis = 1)
+```
+
+Finally, let's obtain binary risk predictions using a 0.5 threshold. 
+
+```{python, eval = FALSE}
+# define threshold
+threshold = 0.5
+
+# create risk columns
+risk_02 = np.where(pred_probs_02 >= threshold, 1, 0)
+risk_01 = np.where(pred_probs_01 >= threshold, 1, 0)
+risk_005 = np.where(pred_probs_005 >= threshold, 1, 0)
+risk_001 = np.where(pred_probs_001 >= threshold, 1, 0)
+
+# add risk columns to dataframe
+seldonian_results['risk_0.2'] = risk_02
+seldonian_results['risk_0.1'] = risk_01
+seldonian_results['risk_0.05'] = risk_005
+seldonian_results['risk_0.01'] = risk_001
+
+# write the dataframe to a CSV file
+seldonian_results.to_csv("/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/COMPAS/compas_seldonian_results_bw.csv", index=False)
+```
+
