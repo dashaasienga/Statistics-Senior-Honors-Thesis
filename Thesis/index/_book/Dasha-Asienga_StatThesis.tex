@@ -1114,7 +1114,59 @@ P\{abs[(FPR | \text{Black} - FPR | \text{White}) + (FNR | \text{White} - FNR | \
 \hypertarget{evaluating-performance-and-fairness}{%
 \subsection{Evaluating Performance and Fairness}\label{evaluating-performance-and-fairness}}
 
-A solution was obtained using all four values of \(\epsilon\), although as \(\epsilon\) got smaller, the logistic loss increased and the overall accuracy decreased\ldots{}
+A solution that passed the safety test was obtained using all four values of \(\epsilon\), although as \(\epsilon\) got smaller, the logistic loss increased, and the overall accuracy decreased. The accuracy was 68.2\%, 65.59\%, 64.7\%, and 64.4\% respectively for \(\epsilon = 0.2, 0.1, 0.05, 0.01\). Additionally, the models got progressively worse in correctly classifying observations into the positive class, with the final model classifying every observation in the negative class. Each model had higher overall FNR and lower overall FPR than both the COMPAS tool and the logistic regression model. Tables \ref{ch3table5}, \ref{ch3table6}, \ref{ch3table7}, and \ref{ch3table8} breaks up the FPR and FNR for Black and White defendants in each of these four cases. When \(\epsilon = 0.2, 0.1, 0.05, \text{and } 0.01\), note that \(d(\theta) = 0.22, 0.06, 0.007, \text{and } 0\).
+\begin{table}
+
+\caption{\label{tab:ch3table5}Seldonian Error Rates for $\epsilon$ = 0.2}
+\centering
+\begin{tabular}[t]{llrr}
+\toprule
+Risk & Recidivism & Black & White\\
+\midrule
+High & Did Not Reoffend & 8.88 & 2.24\\
+Low & Reoffended & 73.82 & 88.82\\
+\bottomrule
+\end{tabular}
+\end{table}
+\begin{table}
+
+\caption{\label{tab:ch3table6}Seldonian Error Rates for $\epsilon$ = 0.1}
+\centering
+\begin{tabular}[t]{llrr}
+\toprule
+Risk & Recidivism & Black & White\\
+\midrule
+High & Did Not Reoffend & 1.87 & 0.3\\
+Low & Reoffended & 93.13 & 97.4\\
+\bottomrule
+\end{tabular}
+\end{table}
+\begin{table}
+
+\caption{\label{tab:ch3table7}Seldonian Error Rates for $\epsilon$ = 0.05}
+\centering
+\begin{tabular}[t]{llrr}
+\toprule
+Risk & Recidivism & Black & White\\
+\midrule
+High & Did Not Reoffend & 0.29 & 0.39\\
+Low & Reoffended & 98.73 & 98.17\\
+\bottomrule
+\end{tabular}
+\end{table}
+\begin{table}
+
+\caption{\label{tab:ch3table8}Seldonian Error Rates for $\epsilon$ = 0.01}
+\centering
+\begin{tabular}[t]{llrr}
+\toprule
+Risk & Recidivism & Black & White\\
+\midrule
+Low & Reoffended & 100 & 100\\
+\bottomrule
+\end{tabular}
+\end{table}
+DISCUSS results :)
 
 \hypertarget{chap-4}{%
 \chapter{Chapter 4 (RENAME \& EDIT)}\label{chap-4}}
@@ -1427,7 +1479,7 @@ Recall from Chapter \ref{intro} that (Castelnovo et al., 2022):
 \FunctionTok{grid.arrange}\NormalTok{(g1,g2, }\AttributeTok{nrow=}\DecValTok{1}\NormalTok{, }\AttributeTok{ncol=}\DecValTok{2}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
-\begin{center}\includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/unnamed-chunk-54-1} \end{center}
+\begin{center}\includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/unnamed-chunk-53-1} \end{center}
 
 \hypertarget{appendix-b}{%
 \chapter{Quasi-Seldonian Linear Regression Python Code}\label{appendix-b}}

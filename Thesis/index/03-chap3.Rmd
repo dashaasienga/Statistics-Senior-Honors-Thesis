@@ -512,7 +512,7 @@ plot(roccurve1)
 
 Despite the improved accuracy, examining the direction of these error rates and performing a demographic analysis by race to assess the model’s ‘fairness’ along racial lines reveals the same discrepancies observed in the COMPAS tool results. 
 
-Table \@ref(ch3table3) displays the overall false positive and false negative rates. As expected, the model performs better in classifying defendants who do not reoffend than those who do since that is the majority class. When evaluated on the test set, 91% of defendants who did not reoffend are correctly classified as low-risk. Thus, only 9% of participants who do not reoffend are incorrectly classified as high-risk. This is a lower FPR than COMPAS. However, only 29% of defendants who reoffended are correctly classified as high-risk. Thus, 71% of defendants who reoffended are incorrectly classified as low-risk. This is a higher FNR than COMPAS.
+Table \@ref(tab:ch3table3) displays the overall false positive and false negative rates. As expected, the model performs better in classifying defendants who do not reoffend than those who do since that is the majority class. When evaluated on the test set, 91% of defendants who did not reoffend are correctly classified as low-risk. Thus, only 9% of participants who do not reoffend are incorrectly classified as high-risk. This is a lower FPR than COMPAS. However, only 29% of defendants who reoffended are correctly classified as high-risk. Thus, 71% of defendants who reoffended are incorrectly classified as low-risk. This is a higher FNR than COMPAS.
 
 ```{r ch3table3, warning = FALSE, message = FALSE, echo = FALSE}
 test2 <- test2 %>%
@@ -537,7 +537,7 @@ test2 %>%
         caption = "COMPAS Logistic Regression Error Rates")
 ```
 
-Table \@ref(ch3table4) further breaks these results down, focusing on Black and White defendants. While the overall FPR for the model is 8.95%, notice that the FPR for Black defendants is 13.93%, compared to only 5.09% for White defendants. Similar to the COMPAS tool, Black defendants who do not reoffend are incorrectly misclassified as high risk at twice the rate that White defendants are. On the flip side, while the overall FNR for the model is 70.98%, notice that the FNR for Black defendants is 60.82%, compared to 86.17% for White defendants. Similar to the COMPAS tool, the logistic regression makes the opposite mistake in predicting recidivism for Black v White defendants, with White defendants being more likely to be incorrectly classified as low risk than their Black counterparts.
+Table \@ref(tab:ch3table4) further breaks these results down, focusing on Black and White defendants. While the overall FPR for the model is 8.95%, notice that the FPR for Black defendants is 13.93%, compared to only 5.09% for White defendants. Similar to the COMPAS tool, Black defendants who do not reoffend are incorrectly misclassified as high risk at twice the rate that White defendants are. On the flip side, while the overall FNR for the model is 70.98%, notice that the FNR for Black defendants is 60.82%, compared to 86.17% for White defendants. Similar to the COMPAS tool, the logistic regression makes the opposite mistake in predicting recidivism for Black v White defendants, with White defendants being more likely to be incorrectly classified as low risk than their Black counterparts.
 
 ```{r ch3table4, warning = FALSE, message = FALSE, echo = FALSE}
 test2 %>%
@@ -610,20 +610,152 @@ P(g(\theta) \leq 0) \geq 1 - \delta.
 P\{abs[(FPR | \text{Black} - FPR | \text{White}) + (FNR | \text{White} - FNR | \text{Black})]  - \epsilon \leq 0 \} \geq 1 - \delta \textit{; } \delta = 0.05.
 \end{equation}
 
-$\delta$ will be set to 0.05 to attain 95% confidence that separation (equalized odds) is satisfied. The data will be partitioned into a training set that will be passed into the candidate selection mechanism to compute $\theta_c$. The remaining partition will be used in the safety test to ensure probabilistic satisfaction of the constraint. $\epsilon$ will be set to four values: $0.2, 0.1, 0.05, \textit{and } 0.01$. The code to obtain a solution is available as part of the `seldonian-engine` Python library and is displayed in Appendix \@ref(appendix-e). 
+$\delta$ will be set to 0.05 to attain 95% confidence that separation (equalized odds) as defined in Chapter \@ref(classfairdef) is satisfied, that is, $d(\theta) \leq \epsilon$. The data will be partitioned into a training set that will be passed into the candidate selection mechanism to compute $\theta_c$. The remaining partition will be used in the safety test to ensure probabilistic satisfaction of the constraint. $\epsilon$ will be set to four values: $0.2, 0.1, 0.05, \textit{and } 0.01$. The code to obtain a solution is available as part of the `seldonian-engine` Python library and is displayed in Appendix \@ref(appendix-e), along with the data pre-processing. 
 
 ### Evaluating Performance and Fairness
 
+```{r, echo = FALSE}
+# read in the data
+seldonian_results <- read.csv("/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/COMPAS/compas_seldonian_results_bw.csv")
+```
 
 
+A solution that passed the safety test was obtained using all four values of $\epsilon$, although as $\epsilon$ got smaller, the logistic loss increased, and the overall accuracy decreased. The accuracy was 68.2%, 65.59%, 64.7%, and 64.4% respectively for $\epsilon = 0.2, 0.1, 0.05, 0.01$. Additionally, the models got progressively worse in correctly classifying observations into the positive class, with the final model classifying every observation in the negative class. Each model had higher overall FNR and lower overall FPR than both the COMPAS tool and the logistic regression model. Tables \@ref(tab:ch3table5), \@ref(tab:ch3table6), \@ref(tab:ch3table7), and \@ref(tab:ch3table8) break up the FPR and FNR for Black and White defendants in each of these four cases. When $\epsilon = 0.2, 0.1, 0.05, \text{and } 0.01$, note that $d(\theta) = 0.22, 0.06, 0.007, \text{and } 0$ respectively.
+
+```{r, echo = FALSE}
+seldonian_results <- seldonian_results %>%
+  mutate(race = ifelse(Black == 1, 'Black', 'White'),
+         pred_risk_0.2 = ifelse(risk_0.2 == 0, 'Low', 'High'),
+         pred_risk_0.1 = ifelse(risk_0.1 == 0, 'Low', 'High'),
+         pred_risk_0.05 = ifelse(risk_0.05 == 0, 'Low', 'High'),
+         pred_risk_0.01 = ifelse(risk_0.01 == 0, 'Low', 'High')) 
+```
 
 
+```{r ch3table5, warning = FALSE, message = FALSE, echo = FALSE}
+seldonian_results %>%
+  dplyr::select(race, pred_risk_0.2, is_recid) %>%
+  rename("Risk" = pred_risk_0.2,
+         "Race" = race) %>%
+  group_by(Race, is_recid) %>%
+  mutate(Total = n()) %>%
+  group_by(Risk, Race, Total) %>%
+  summarise("Reoffended" = count(is_recid == 1),
+            "Did Not Reoffend" = count(is_recid == 0)) %>%
+  pivot_longer(cols = c("Reoffended", "Did Not Reoffend"),
+               names_to = "Recidivism") %>%
+  pivot_wider(
+    id_cols = c("Risk", "Recidivism", "Total"),
+    names_from = "Race",
+    values_from = value
+  ) %>%
+  mutate(Black = round(100 * Black / Total, 2),
+         White = round(100 * White / Total, 2)) %>%
+  dplyr::select(-Total) %>%
+  group_by(Risk, Recidivism) %>%
+  summarize(Black = max(Black, na.rm = TRUE),
+            White = max(White, na.rm = TRUE)) %>%
+  filter((Risk == "High" & Recidivism == "Did Not Reoffend") |
+           (Risk == "Low" & Recidivism == "Reoffended")
+  ) %>%
+  kable(digits = 2,
+        booktabs = TRUE,
+        caption = "Seldonian Error Rates for $\\epsilon$ = 0.2")
+```
+
+```{r ch3table6, warning = FALSE, message = FALSE, echo = FALSE}
+seldonian_results %>%
+  dplyr::select(race, pred_risk_0.1, is_recid) %>%
+  rename("Risk" = pred_risk_0.1,
+         "Race" = race) %>%
+  group_by(Race, is_recid) %>%
+  mutate(Total = n()) %>%
+  group_by(Risk, Race, Total) %>%
+  summarise("Reoffended" = count(is_recid == 1),
+            "Did Not Reoffend" = count(is_recid == 0)) %>%
+  pivot_longer(cols = c("Reoffended", "Did Not Reoffend"),
+               names_to = "Recidivism") %>%
+  pivot_wider(
+    id_cols = c("Risk", "Recidivism", "Total"),
+    names_from = "Race",
+    values_from = value
+  ) %>%
+  mutate(Black = round(100 * Black / Total, 2),
+         White = round(100 * White / Total, 2)) %>%
+  dplyr::select(-Total) %>%
+  group_by(Risk, Recidivism) %>%
+  summarize(Black = max(Black, na.rm = TRUE),
+            White = max(White, na.rm = TRUE)) %>%
+  filter((Risk == "High" & Recidivism == "Did Not Reoffend") |
+           (Risk == "Low" & Recidivism == "Reoffended")
+  ) %>%
+  kable(digits = 2,
+        booktabs = TRUE,
+        caption = "Seldonian Error Rates for $\\epsilon$ = 0.1")
+```
 
 
+```{r ch3table7, warning = FALSE, message = FALSE, echo = FALSE}
+seldonian_results %>%
+  dplyr::select(race, pred_risk_0.05, is_recid) %>%
+  rename("Risk" = pred_risk_0.05,
+         "Race" = race) %>%
+  group_by(Race, is_recid) %>%
+  mutate(Total = n()) %>%
+  group_by(Risk, Race, Total) %>%
+  summarise("Reoffended" = count(is_recid == 1),
+            "Did Not Reoffend" = count(is_recid == 0)) %>%
+  pivot_longer(cols = c("Reoffended", "Did Not Reoffend"),
+               names_to = "Recidivism") %>%
+  pivot_wider(
+    id_cols = c("Risk", "Recidivism", "Total"),
+    names_from = "Race",
+    values_from = value
+  ) %>%
+  mutate(Black = round(100 * Black / Total, 2),
+         White = round(100 * White / Total, 2)) %>%
+  dplyr::select(-Total) %>%
+  group_by(Risk, Recidivism) %>%
+  summarize(Black = max(Black, na.rm = TRUE),
+            White = max(White, na.rm = TRUE)) %>%
+  filter((Risk == "High" & Recidivism == "Did Not Reoffend") |
+           (Risk == "Low" & Recidivism == "Reoffended")
+  ) %>%
+  kable(digits = 2,
+        booktabs = TRUE,
+        caption = "Seldonian Error Rates for $\\epsilon$ = 0.05")
+```
+
+```{r ch3table8, warning = FALSE, message = FALSE, echo = FALSE}
+seldonian_results %>%
+  dplyr::select(race, pred_risk_0.01, is_recid) %>%
+  rename("Risk" = pred_risk_0.01,
+         "Race" = race) %>%
+  group_by(Race, is_recid) %>%
+  mutate(Total = n()) %>%
+  group_by(Risk, Race, Total) %>%
+  summarise("Reoffended" = count(is_recid == 1),
+            "Did Not Reoffend" = count(is_recid == 0)) %>%
+  pivot_longer(cols = c("Reoffended", "Did Not Reoffend"),
+               names_to = "Recidivism") %>%
+  pivot_wider(
+    id_cols = c("Risk", "Recidivism", "Total"),
+    names_from = "Race",
+    values_from = value
+  ) %>%
+  mutate(Black = round(100 * Black / Total, 2),
+         White = round(100 * White / Total, 2)) %>%
+  dplyr::select(-Total) %>%
+  group_by(Risk, Recidivism) %>%
+  summarize(Black = max(Black, na.rm = TRUE),
+            White = max(White, na.rm = TRUE)) %>%
+  filter((Risk == "High" & Recidivism == "Did Not Reoffend") |
+           (Risk == "Low" & Recidivism == "Reoffended")
+  ) %>%
+  kable(digits = 2,
+        booktabs = TRUE,
+        caption = "Seldonian Error Rates for $\\epsilon$ = 0.01")
+```
 
 
-
-
-
-
-
+DISCUSS results :) 
