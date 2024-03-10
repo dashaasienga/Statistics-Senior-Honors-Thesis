@@ -1,0 +1,37 @@
+# Logistic Regression on COMPAS Data {#appendix-d}
+
+```{r, eval = FALSE, warning = FALSE, message = FALSE}
+# set seed
+set.seed(123)
+
+# drop missing observations
+compas <- tidyr::drop_na(compas) 
+
+# train and test split
+n <- nrow(compas)
+train_index <- sample(1:n, 0.70 * n) 
+test_index <- setdiff(1:n, train_index)
+train <- compas[train_index, ]
+test <- compas[test_index, ]
+
+# fit the logistic regression model on identified predictors
+glm2 <- glm(is_recid ~ sex + age + age_cat + marital_status +
+              juv_offense + priors_count,
+            data = train,
+            family = binomial(logit))
+
+# obtain the binary predictions on train set
+glm2augment <- glm2 %>% 
+  broom::augment(type.predict = "response")
+glm2augment <- mutate(glm2augment, binprediction = round(.fitted, 0)) 
+
+# obtain the binary predictions on test set 
+preds <- predict(glm2, newdata=test, type="response")
+test2 <- test %>% 
+  mutate(preds = preds,
+         prediction = round(preds, 0)) 
+
+# obtain the ROC curve
+roccurve1 <- with(test, roc(is_recid ~ preds))
+```
+
