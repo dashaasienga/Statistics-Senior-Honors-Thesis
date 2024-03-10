@@ -962,34 +962,33 @@ A breakdown by race, the protected attribute, will allow for further analysis of
 The COMPAS tool is a race-blind model; race was not included as a variable. Yet,
 Section \ref{comptoolanalysis} revealed that the resulting predictions exhibit significant racial discrepancies. This section analyzes the relationship between race and the predictive variables to examine how much information regarding a defendant's race is incorporated into the model via other variables.
 
-\hypertarget{continuous-variables}{%
-\subsubsection{Continuous Variables}\label{continuous-variables}}
+There are more male than female defendants for all races, and most defendants are single. However, African-American defendants tend to be, on average, the youngest compared to all the other races. Asian defendants, followed by Caucasian defendants, tend to be the oldest. Nevertheless, there is considerable overlap among all the races, and Figure \ref{fig:ch3fig10} visualizes the relationships. In looking at the age categories by race, more African-American defendants are less than 25 than those who are greater than 45. The converse is true for Caucasians, with more defendants that are greater than 45 in comparison to those less than 25. These distributional differences illustrate that there is some relationship between age and race in this data set, particularly for Black versus White defendants.
 
-For all the races, there are more male defendants than female defendants. However, African-American defendants tend to be, on average, the youngest compared to all the other races. Asian defendants, followed by Caucasian defendants, tend to be the oldest. Nevertheless, there is considerable overlap among all the races, and the relationships is visualized in Figure \ldots.
+Additionally, African-American defendants have the most prior offenses, on average, followed by their Native-American counterparts. When compared with Caucasian defendants, African Americans have almost twice as many prior offenses, suggesting a strong proxy relationship between race and prior offenses. Asian defendants have the least prior offenses. This is an important result that illustrates how a system that predisposes certain races to prison can perpetuate that discriminatory trend by using those same variables to predict the risk of committing another crime. The boxplot in Figure \ref{fig:ch3fig10} helps to visualize this relationship more clearly.
+\begin{figure}
 
-(add figure and edit in Grammarly)
+{\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/ch3fig10-1} 
 
-\hypertarget{categorical-variables}{%
-\subsubsection{Categorical Variables}\label{categorical-variables}}
+}
 
-\hypertarget{results}{%
-\subsubsection{Results}\label{results}}
+\caption{COMPAS Tool Proxy Variables for Race}\label{fig:ch3fig10}
+\end{figure}
+This section illustrates that the demographic variable, race (\(A\)), has proxy relationships with some predictor variables (\(X\)). Even a group-blind classifier will not be entirely blind to race because of the correlations present and the information it gains about race from the proxy variables.
 
-\hypertarget{response-variable-1}{%
-\subsubsection{Response Variable?}\label{response-variable-1}}
+Most defendants do not recommit another crime, even when broken down by race. Because the class imbalance is in the same direction, a `fair' model should not misclassify defendants in different directions based on race. However, the nature of the relationship between race and the predictor variables results in discriminatory and unfair outcomes, as elucidated in Section \ref{comptoolanalysis}.
 
-add race analysis
+Before employing the Seldonian framework on this data set, Section \ref{logref} fits a logistic regression to assess how similarly the COMPAS tool performs to a standard ML procedure.
 
-\hypertarget{logistic-regression}{%
-\section{Logistic Regression}\label{logistic-regression}}
+\hypertarget{logreg}{%
+\section{Logistic Regression}\label{logreg}}
 
 mention standard ML process discussed in Chapter 2 (go into some theoretical discussion of logistic regression, describe the methods and model, then results)
 
 \hypertarget{seldonian-classification}{%
 \section{Seldonian Classification}\label{seldonian-classification}}
 
-\hypertarget{results-1}{%
-\section{Results}\label{results-1}}
+\hypertarget{results}{%
+\section{Results}\label{results}}
 
 \hypertarget{chap-4}{%
 \chapter{Chapter 4 (RENAME \& EDIT)}\label{chap-4}}
