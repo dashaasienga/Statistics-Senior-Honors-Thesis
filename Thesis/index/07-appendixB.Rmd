@@ -1,4 +1,4 @@
-# QSLR Python Code {#appendix-b}
+# Quasi-Seldonian Linear Regression Python Code {#appendix-b}
 
 The `reticulate` package is useful for setting up the correct Python environment within RStudio.
 

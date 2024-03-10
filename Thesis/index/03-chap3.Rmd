@@ -409,6 +409,12 @@ There are more male than female defendants for all races, and most defendants ar
 
 Additionally, African-American defendants have the most prior offenses, on average, followed by their Native-American counterparts. When compared with Caucasian defendants, African Americans have almost twice as many prior offenses, suggesting a strong proxy relationship between race and prior offenses. Asian defendants have the least prior offenses. This is an important result that illustrates how a system that predisposes certain races to prison can perpetuate that discriminatory trend by using those same variables to predict the risk of committing another crime. The boxplot in Figure \@ref(fig:ch3fig10) helps to visualize this relationship more clearly.
 
+This section illustrates that the demographic variable, race ($A$), has proxy relationships with some predictor variables ($X$). Even a group-blind classifier will not be entirely blind to race because of the correlations present and the information it gains about race from the proxy variables.
+
+Most defendants do not recommit another crime, even when broken down by race. Because the class imbalance is in the same direction, a 'fair' model should not misclassify defendants in different directions based on race. However, the nature of the relationship between race and the predictor variables results in discriminatory and unfair outcomes, as elucidated in Section \@ref(comptoolanalysis). 
+
+Before employing the Seldonian framework on this data set, Section \@ref(logreg) fits a logistic regression to assess how similarly the COMPAS tool performs to a standard ML procedure. 
+
 ```{r ch3fig10, fig.align='center', fig.cap="COMPAS Tool Proxy Variables for Race", warning = FALSE, message = FALSE, fig.width = 6, fig.height = 8, echo = FALSE}
 g18 <- ggplot(data = compas_final, 
        mapping = aes(x = as.factor(race), y = age)) +
@@ -443,11 +449,6 @@ g20 <- ggplot(data = compas_final,
 grid.arrange(g18, g19, g20, nrow = 3)
 ```
 
-This section illustrates that the demographic variable, race ($A$), has proxy relationships with some predictor variables ($X$). Even a group-blind classifier will not be entirely blind to race because of the correlations present and the information it gains about race from the proxy variables.
-
-Most defendants do not recommit another crime, even when broken down by race. Because the class imbalance is in the same direction, a 'fair' model should not misclassify defendants in different directions based on race. However, the nature of the relationship between race and the predictor variables results in discriminatory and unfair outcomes, as elucidated in Section \@ref(comptoolanalysis). 
-
-Before employing the Seldonian framework on this data set, Section \@ref(logreg) fits a logistic regression to assess how similarly the COMPAS tool performs to a standard ML procedure. 
 
 
 ## Logistic Regression {#logreg}
