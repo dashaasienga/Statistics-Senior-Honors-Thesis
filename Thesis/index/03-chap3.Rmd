@@ -14,6 +14,7 @@ library(MASS)
 library(gridExtra)
 library(reshape2)
 library(kableExtra)
+library(pROC)
 ```
 
 Chapter \@ref(chap-2) introduced the Seldonian framework, which offers probabilistic guarantees for satisfying defined behavioral constraints. Although impractical, the toy linear regression example demonstrated how Seldonian algorithms may be employed in a setting with a continuous real-valued response variable.
@@ -40,7 +41,7 @@ compasdata <- compasdata %>%
 clean_compasdata <- compasdata[-which(duplicated(compasdata$id)), ]
 ```
 
-The COMPAS data set, obtained from the ProPublica Data Store [@compasdata], records information on defendants from Broward County, Florida, that were evaluated for the risk of recidivism by the Correctional Offender Management Profiling for Alternative Sanctions (COMPAS) tool in 2013 and 2014. A database hosts this data, and a SQL query, displayed in Appendix \@ref(appendix-c), retrieved 12160 observations. There are 29 variables, 6 of which were identified to be useful for this predictive analysis: age, age category, sex, marital status, whether the defendant had a history of juvenile offenses or not, and the total number of prior offenses committed by the defendant. The response variable records whether or not a defendant had recommitted a crime within two years. Finally, the protected attribute, race, has six levels: African-American, Caucasian, Hispanic, Asian, Native American, and Other. After cleaning the data to address anomalies, improve the data quality, and remove duplicate observations, the data set size was reduced to 9387 observations. Section \@ref(descriptivestats) examines these variables in more detail and their relationships with each other.
+The COMPAS data set, obtained from the ProPublica Data Store [@compasdata], records information on defendants from Broward County, Florida, that were evaluated for the risk of recidivism by the Correctional Offender Management Profiling for Alternative Sanctions (COMPAS) tool in 2013 and 2014. A database hosts this data, and a SQL query, displayed in Appendix \@ref(appendix-c), retrieved 12160 observations. There are 29 variables, 6 of which were later identified to be useful for this predictive analysis: age, age category, sex, marital status, whether the defendant had a history of juvenile offenses or not, and the total number of prior offenses committed by the defendant. The response variable records whether or not a defendant had recommitted a crime within two years. Finally, the protected attribute, race, has six levels: African-American, Caucasian, Hispanic, Asian, Native American, and Other. After cleaning the data to address anomalies, improve the data quality, and remove duplicate observations, the data set size was reduced to 9387 observations. Section \@ref(descriptivestats) examines these variables in more detail and their relationships with each other.
 
 ## Descriptive Statistics {#descriptivestats}
 
@@ -263,7 +264,7 @@ ggplot(data = mycorplot, aes(x = Var1, y = Var2, fill = value)) +
 
 With a thorough understanding of the variables, Section \@ref(fairnessanalysis) analyzes the data set and the COMPAS tool decile scores with a focus on fairness and an aim to examine the fairness concerns discussed in Chapters \@ref(intro) and \@ref(chap-2).
 
-## Fairness Analysis {#fairnessanalysis}
+## Fairness and Demographic Analysis {#fairnessanalysis}
 
 Chapter \@ref(algbias) introduced algorithmic bias as a situation when an algorithm’s decisions are skewed towards a particular group of people, either positively or negatively. With race as the protected attribute, this section aims to examine the COMPAS tool results, the underlying proxy relationships between the variables and the sensitive attribute, race, and create a table similar to the one in Figure \@ref(fig:compas1), which highlights the discrepancy in false positive and false negative rates of the COMPAS tool for Black and White defendants. 
 
@@ -451,13 +452,138 @@ Before employing the Seldonian framework on this data set, Section \@ref(logreg)
 
 ## Logistic Regression {#logreg}
 
-mention standard ML process discussed in Chapter 2 (go into some theoretical discussion of logistic regression, describe the methods and model, then results)
+Logistic regression is a statistical generalized linear model (GLM) specifically designed to predict dichotomous/ binary outcomes. In this case, logistic regression was used to model the probability of a defendant re-committing a crime within two years in Broward County, Florida, using the COMPAS data set. Using a cutoff of 0.5, the resulting probabilities were divided into two bins: lower risk ($p < 0.5$) and higher risk ($p >= 0.5$). 
 
-talk about logit loss
+In particular, logistic regression follows the standard ML procedure described in Chapter \@ref(standardml). The objective function is to maximize the likelihood, that is, the product of the probabilities of observing the given outcomes given the parameters of the logistic regression model. Maximizing the likelihood is equivalent to minimizing the log loss, or cross-entropy loss, which measures the difference between the actual binary prediction and the predicted probabilities. It is denoted in Equation \@ref(ch3eq1) in a setting with $m$ observations. Given that logistic regression is one of the most widely used classification algorithms, this analysis will provide insights into how state-of-the-art traditional algorithms that do not consider fairness guarantees may perform on this data set.
 
-## Seldonian Classification
+\begin{equation}
+\label{ch3eq1}
+- \frac{1}{m} \sum_{i=1}^{m} [y_i \text{ } log(p_i) \text{ } + \text{ } 1-y_i \text{ } log(1 - p_i)]
+\end{equation}
 
-## Results
+### Fitting the Logistic Regression Model
+
+Recall that if every observation were classified in the majority class, an accuracy of 66% would be expected. This is a benchmark for the race-blind logistic regression model implemented in this section. The model will be trained on 70% of the data and evaluated on the remaining 30%. Only the six predictors (`sex,` `age,` `age category,` `marital status,` `juvenile offense,` and `prior offenses`) will be fit to predict recidivism, the code for which is displayed in Appendix \@ref(appendix-d).
+
+The accuracy was 70.2% on the training set, which is ~3% higher than the COMPAS tool's predictions and suggests that ~30% of defendants are misclassified. Overall accuracy was consistent at 70.1% when evaluated on the testing set, indicating that the model did not over-fit on the training set and had good generalization performance. However, the ROC curve on Figure \@ref(fig:ch3fig12) indicates concerns about the model's sensitivity $(1 - FNR)$ and specificity $(1 - FPR)$. The diagonal line shows how the model would perform with random predictions. Curves that budge closer to the top left are preferred because those types of curves maximize the area under the curve (AUC), and the sensitivity and specificity of the model are closer to 100%. However, the AUC of this model is 68.8%. 
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+# set seed
+set.seed(123)
+
+# drop missing observations
+compas <- tidyr::drop_na(compas) 
+
+# train and test split
+n <- nrow(compas)
+train_index <- sample(1:n, 0.70 * n) 
+test_index <- setdiff(1:n, train_index)
+train <- compas[train_index, ]
+test <- compas[test_index, ]
+
+# fit the logistic regression model on identified predictors
+glm2 <- glm(is_recid ~ sex + age + age_cat + marital_status +
+              juv_offense + priors_count,
+            data = train,
+            family = binomial(logit))
+
+# obtain the binary predictions on train set
+glm2augment <- glm2 %>% 
+  broom::augment(type.predict = "response")
+glm2augment <- mutate(glm2augment, binprediction = round(.fitted, 0)) 
+
+# obtain the binary predictions on test set 
+preds <- predict(glm2, newdata=test, type="response")
+test2 <- test %>% 
+  mutate(preds = preds,
+         prediction = round(preds, 0)) 
+
+# obtain the ROC curve
+roccurve1 <- with(test, roc(is_recid ~ preds))
+```
+
+
+```{r ch3fig12, fig.align='center', fig.cap="COMPAS Logistic Regression ROC Curve", warning = FALSE, message = FALSE, fig.width = 3, fig.height = 3, echo = FALSE}
+plot(roccurve1)
+```
+
+### Evaluating the Equality of Odds  
+
+Despite the improved accuracy, examining the direction of these error rates and performing a demographic analysis by race to assess the model’s ‘fairness’ along racial lines reveals the same discrepancies observed in the COMPAS tool results. 
+
+Table \@ref(ch3table3) displays the overall false positive and false negative rates. As expected, the model performs better in classifying defendants who do not reoffend than those who do since that is the majority class. When evaluated on the test set, 91% of defendants who did not reoffend are correctly classified as low-risk. Thus, only 9% of participants who do not reoffend are incorrectly classified as high-risk. This is a lower FPR than COMPAS. However, only 29% of defendants who reoffended are correctly classified as high-risk. Thus, 71% of defendants who reoffended are incorrectly classified as low-risk. This is a higher FNR than COMPAS.
+
+```{r ch3table3, warning = FALSE, message = FALSE, echo = FALSE}
+test2 <- test2 %>%
+  mutate(pred_risk = ifelse(prediction == 0, 'Low', 'High'))
+
+test2 %>%
+  dplyr::select(pred_risk, is_recid) %>%
+  rename("Risk" = pred_risk) %>%
+  group_by(is_recid) %>%
+  mutate(Total = n()) %>%
+  group_by(Risk, Total) %>%
+  summarise("Reoffended" = count(is_recid == 1),
+            "Did Not Reoffend" = count(is_recid == 0)) %>%
+  mutate(Reoffended = round(100 * Reoffended / Total, 2),
+         `Did Not Reoffend` = round(100 * `Did Not Reoffend` / Total, 2)) %>%
+  dplyr::select(-Total) %>%
+  group_by(Risk) %>%
+  summarize(Reoffended = max(Reoffended, na.rm = TRUE),
+            `Did Not Reoffend` = max(`Did Not Reoffend`, na.rm = TRUE)) %>%
+  kable(digits = 2,
+        booktabs = TRUE,
+        caption = "COMPAS Logistic Regression Error Rates")
+```
+
+Table \@ref(ch3table4) further breaks these results down, focusing on Black and White defendants. While the overall FPR for the model is 8.95%, notice that the FPR for Black defendants is 13.93%, compared to only 5.09% for White defendants. Similar to the COMPAS tool, Black defendants who do not reoffend are incorrectly misclassified as high risk at twice the rate that White defendants are. On the flip side, while the overall FNR for the model is 70.98%, notice that the FNR for Black defendants is 60.82%, compared to 86.17% for White defendants. Similar to the COMPAS tool, the logistic regression makes the opposite mistake in predicting recidivism for Black v White defendants, with White defendants being more likely to be incorrectly classified as low risk than their Black counterparts.
+
+```{r ch3table4, warning = FALSE, message = FALSE, echo = FALSE}
+test2 %>%
+  filter(race %in% c("African-American", "Caucasian")) %>%
+  dplyr::select(race, pred_risk, is_recid) %>%
+  rename("Risk" = pred_risk,
+         "Race" = race) %>%
+  group_by(Race, is_recid) %>%
+  mutate(Total = n()) %>%
+  group_by(Risk, Race, Total) %>%
+  summarise("Reoffended" = count(is_recid == 1),
+            "Did Not Reoffend" = count(is_recid == 0)) %>%
+  pivot_longer(cols = c("Reoffended", "Did Not Reoffend"),
+               names_to = "Recidivism") %>%
+  pivot_wider(
+    id_cols = c("Risk", "Recidivism", "Total"),
+    names_from = "Race",
+    values_from = value
+  ) %>%
+  rename("Black" = `African-American`,
+         "White" = `Caucasian`) %>%
+  mutate(Black = round(100 * Black / Total, 2),
+         White = round(100 * White / Total, 2)) %>%
+  dplyr::select(-Total) %>%
+  group_by(Risk, Recidivism) %>%
+  summarize(Black = max(Black, na.rm = TRUE),
+            White = max(White, na.rm = TRUE)) %>%
+  filter((Risk == "High" & Recidivism == "Did Not Reoffend") |
+           (Risk == "Low" & Recidivism == "Reoffended")
+  ) %>%
+  kable(digits = 2,
+        caption = "COMPAS Logistic Regression Error Rates by Race",
+        booktabs = TRUE)
+```
+
+
+These results serves to highlight the real danger with using standard ML procedures, even when the sensitive variable itself is not included. These models have potential to perpetuate, and even introduce, harmful and discriminatory practices as observed in this Chapter. Although the details of Northepointe's COMPAS algorithm are kept secret, it's clear that traditional algorithms like logistic regression lead to comparable outcomes. In fact, a probability cutoff of $p = 0.34$, the probability fo being in the positive class in this data set, on the logistic regression yielded that same accuracy ($66.7%$) as the COMPAS tool. Additionally, comparing the COMPAS decile scores to the logistic regression (LR) results reveals that the median decile score is 8 in the high-risk LR prediction and 3 in the low-risk LR prediction, further highlighting the similarity of these results. The next section uses the logistic regression model as a starting point, but places fairness constraints to enforce equality of odds for Black and White defendants.
+
+## Seldonian Classification {#seldapp}
+
+describe what it is and how it may differ. standardize notation
+
+### Formulating the Seldonian Problem
+
+### Evaluating Performance and Fairness
+
+
 
 
 

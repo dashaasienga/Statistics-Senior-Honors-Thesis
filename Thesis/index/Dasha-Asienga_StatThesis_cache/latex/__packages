@@ -24,3 +24,4 @@ kableExtra
 GGally
 MASS
 reshape2
+pROC

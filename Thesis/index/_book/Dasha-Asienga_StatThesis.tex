@@ -825,7 +825,7 @@ To offer a path forward in addressing this issue, this chapter aims to apply the
 \hypertarget{the-compas-data-set}{%
 \section{The COMPAS Data Set}\label{the-compas-data-set}}
 
-The COMPAS data set, obtained from the ProPublica Data Store (Broward County Clerk's Office, 2024), records information on defendants from Broward County, Florida, that were evaluated for the risk of recidivism by the Correctional Offender Management Profiling for Alternative Sanctions (COMPAS) tool in 2013 and 2014. A database hosts this data, and a SQL query, displayed in Appendix \ref{appendix-c}, retrieved 12160 observations. There are 29 variables, 6 of which were identified to be useful for this predictive analysis: age, age category, sex, marital status, whether the defendant had a history of juvenile offenses or not, and the total number of prior offenses committed by the defendant. The response variable records whether or not a defendant had recommitted a crime within two years. Finally, the protected attribute, race, has six levels: African-American, Caucasian, Hispanic, Asian, Native American, and Other. After cleaning the data to address anomalies, improve the data quality, and remove duplicate observations, the data set size was reduced to 9387 observations. Section \ref{descriptivestats} examines these variables in more detail and their relationships with each other.
+The COMPAS data set, obtained from the ProPublica Data Store (Broward County Clerk's Office, 2024), records information on defendants from Broward County, Florida, that were evaluated for the risk of recidivism by the Correctional Offender Management Profiling for Alternative Sanctions (COMPAS) tool in 2013 and 2014. A database hosts this data, and a SQL query, displayed in Appendix \ref{appendix-c}, retrieved 12160 observations. There are 29 variables, 6 of which were later identified to be useful for this predictive analysis: age, age category, sex, marital status, whether the defendant had a history of juvenile offenses or not, and the total number of prior offenses committed by the defendant. The response variable records whether or not a defendant had recommitted a crime within two years. Finally, the protected attribute, race, has six levels: African-American, Caucasian, Hispanic, Asian, Native American, and Other. After cleaning the data to address anomalies, improve the data quality, and remove duplicate observations, the data set size was reduced to 9387 observations. Section \ref{descriptivestats} examines these variables in more detail and their relationships with each other.
 
 \hypertarget{descriptivestats}{%
 \section{Descriptive Statistics}\label{descriptivestats}}
@@ -929,7 +929,7 @@ As detailed in Section \ref{bivariateanalysis}, some predictive variables have a
 With a thorough understanding of the variables, Section \ref{fairnessanalysis} analyzes the data set and the COMPAS tool decile scores with a focus on fairness and an aim to examine the fairness concerns discussed in Chapters \ref{intro} and \ref{chap-2}.
 
 \hypertarget{fairnessanalysis}{%
-\section{Fairness Analysis}\label{fairnessanalysis}}
+\section{Fairness and Demographic Analysis}\label{fairnessanalysis}}
 
 Chapter \ref{algbias} introduced algorithmic bias as a situation when an algorithm's decisions are skewed towards a particular group of people, either positively or negatively. With race as the protected attribute, this section aims to examine the COMPAS tool results, the underlying proxy relationships between the variables and the sensitive attribute, race, and create a table similar to the one in Figure \ref{fig:compas1}, which highlights the discrepancy in false positive and false negative rates of the COMPAS tool for Black and White defendants.
 
@@ -1024,15 +1024,73 @@ Before employing the Seldonian framework on this data set, Section \ref{logreg} 
 \hypertarget{logreg}{%
 \section{Logistic Regression}\label{logreg}}
 
-mention standard ML process discussed in Chapter 2 (go into some theoretical discussion of logistic regression, describe the methods and model, then results)
+Logistic regression is a statistical generalized linear model (GLM) specifically designed to predict dichotomous/ binary outcomes. In this case, logistic regression was used to model the probability of a defendant re-committing a crime within two years in Broward County, Florida, using the COMPAS data set. Using a cutoff of 0.5, the resulting probabilities were divided into two bins: lower risk (\(p < 0.5\)) and higher risk (\(p >= 0.5\)).
 
-talk about logit loss
+In particular, logistic regression follows the standard ML procedure described in Chapter \ref{standardml}. The objective function is to maximize the likelihood, that is, the product of the probabilities of observing the given outcomes given the parameters of the logistic regression model. Maximizing the likelihood is equivalent to minimizing the log loss, or cross-entropy loss, which measures the difference between the actual binary prediction and the predicted probabilities. It is denoted in Equation \ref{ch3eq1} in a setting with \(m\) observations. Given that logistic regression is one of the most widely used classification algorithms, this analysis will provide insights into how state-of-the-art traditional algorithms that do not consider fairness guarantees may perform on this data set.
+\begin{equation}
+\label{ch3eq1}
+- \frac{1}{m} \sum_{i=1}^{m} [y_i \text{ } log(p_i) \text{ } + \text{ } 1-y_i \text{ } log(1 - p_i)]
+\end{equation}
+\hypertarget{fitting-the-logistic-regression-model}{%
+\subsection{Fitting the Logistic Regression Model}\label{fitting-the-logistic-regression-model}}
 
-\hypertarget{seldonian-classification}{%
-\section{Seldonian Classification}\label{seldonian-classification}}
+Recall that if every observation were classified in the majority class, an accuracy of 66\% would be expected. This is a benchmark for the race-blind logistic regression model implemented in this section. The model will be trained on 70\% of the data and evaluated on the remaining 30\%. Only the six predictors (\texttt{sex,} \texttt{age,} \texttt{age\ category,} \texttt{marital\ status,} \texttt{juvenile\ offense,} and \texttt{prior\ offenses}) will be fit to predict recidivism, the code for which is displayed in Appendix \ref{appendix-d}.
 
-\hypertarget{results}{%
-\section{Results}\label{results}}
+The accuracy was 70.2\% on the training set, which is \textasciitilde3\% higher than the COMPAS tool's predictions and suggests that \textasciitilde30\% of defendants are misclassified. Overall accuracy was consistent at 70.1\% when evaluated on the testing set, indicating that the model did not over-fit on the training set and had good generalization performance. However, the ROC curve on Figure \ref{fig:ch3fig12} indicates concerns about the model's sensitivity \((1 - FNR)\) and specificity \((1 - FPR)\). The diagonal line shows how the model would perform with random predictions. Curves that budge closer to the top left are preferred because those types of curves maximize the area under the curve (AUC), and the sensitivity and specificity of the model are closer to 100\%. However, the AUC of this model is 68.8\%.
+\begin{figure}
+
+{\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/ch3fig12-1} 
+
+}
+
+\caption{COMPAS Logistic Regression ROC Curve}\label{fig:ch3fig12}
+\end{figure}
+\hypertarget{evaluating-the-equality-of-odds}{%
+\subsection{Evaluating the Equality of Odds}\label{evaluating-the-equality-of-odds}}
+
+Despite the improved accuracy, examining the direction of these error rates and performing a demographic analysis by race to assess the model's `fairness' along racial lines reveals the same discrepancies observed in the COMPAS tool results.
+
+Table \ref{ch3table3} displays the overall false positive and false negative rates. As expected, the model performs better in classifying defendants who do not reoffend than those who do since that is the majority class. When evaluated on the test set, 91\% of defendants who did not reoffend are correctly classified as low-risk. Thus, only 9\% of participants who do not reoffend are incorrectly classified as high-risk. This is a lower FPR than COMPAS. However, only 29\% of defendants who reoffended are correctly classified as high-risk. Thus, 71\% of defendants who reoffended are incorrectly classified as low-risk. This is a higher FNR than COMPAS.
+\begin{table}
+
+\caption{\label{tab:ch3table3}COMPAS Logistic Regression Error Rates}
+\centering
+\begin{tabular}[t]{lrr}
+\toprule
+Risk & Reoffended & Did Not Reoffend\\
+\midrule
+High & 29 & 8.95\\
+Low & 71 & 91.05\\
+\bottomrule
+\end{tabular}
+\end{table}
+Table \ref{ch3table4} further breaks these results down, focusing on Black and White defendants. While the overall FPR for the model is 8.95\%, notice that the FPR for Black defendants is 13.93\%, compared to only 5.09\% for White defendants. Similar to the COMPAS tool, Black defendants who do not reoffend are incorrectly misclassified as high risk at twice the rate that White defendants are. On the flip side, while the overall FNR for the model is 70.98\%, notice that the FNR for Black defendants is 60.82\%, compared to 86.17\% for White defendants. Similar to the COMPAS tool, the logistic regression makes the opposite mistake in predicting recidivism for Black v White defendants, with White defendants being more likely to be incorrectly classified as low risk than their Black counterparts.
+\begin{table}
+
+\caption{\label{tab:ch3table4}COMPAS Logistic Regression Error Rates by Race}
+\centering
+\begin{tabular}[t]{llrr}
+\toprule
+Risk & Recidivism & Black & White\\
+\midrule
+High & Did Not Reoffend & 13.9 & 5.09\\
+Low & Reoffended & 60.8 & 86.17\\
+\bottomrule
+\end{tabular}
+\end{table}
+These results serves to highlight the real danger with using standard ML procedures, even when the sensitive variable itself is not included. These models have potential to perpetuate, and even introduce, harmful and discriminatory practices as observed in this Chapter. Although the details of Northepointe's COMPAS algorithm are kept secret, it's clear that traditional algorithms like logistic regression lead to comparable outcomes. In fact, a probability cutoff of \(p = 0.34\), the probability fo being in the positive class in this data set, on the logistic regression yielded that same accuracy (\(66.7%
+\)) as the COMPAS tool. Additionally, comparing the COMPAS decile scores to the logistic regression (LR) results reveals that the median decile score is 8 in the high-risk LR prediction and 3 in the low-risk LR prediction, further highlighting the similarity of these results. The next section uses the logistic regression model as a starting point, but places fairness constraints to enforce equality of odds for Black and White defendants.
+
+\hypertarget{seldapp}{%
+\section{Seldonian Classification}\label{seldapp}}
+
+describe what it is and how it may differ. standardize notation
+
+\hypertarget{formulating-the-seldonian-problem}{%
+\subsection{Formulating the Seldonian Problem}\label{formulating-the-seldonian-problem}}
+
+\hypertarget{evaluating-performance-and-fairness}{%
+\subsection{Evaluating Performance and Fairness}\label{evaluating-performance-and-fairness}}
 
 \hypertarget{chap-4}{%
 \chapter{Chapter 4 (RENAME \& EDIT)}\label{chap-4}}
@@ -1345,7 +1403,7 @@ Recall from Chapter \ref{intro} that (Castelnovo et al., 2022):
 \FunctionTok{grid.arrange}\NormalTok{(g1,g2, }\AttributeTok{nrow=}\DecValTok{1}\NormalTok{, }\AttributeTok{ncol=}\DecValTok{2}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
-\begin{center}\includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/unnamed-chunk-50-1} \end{center}
+\begin{center}\includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/unnamed-chunk-51-1} \end{center}
 
 \hypertarget{appendix-b}{%
 \chapter{QSLR Python Code}\label{appendix-b}}
@@ -2129,6 +2187,44 @@ This function is used to estimate what the output of \texttt{ttestUpperBound} wo
 \NormalTok{and prison\_agg.last = people.last}
 
 \NormalTok{where type\_of\_assessment = \textquotesingle{}Risk of Recidivism\textquotesingle{}}
+\end{Highlighting}
+\end{Shaded}
+\hypertarget{appendix-d}{%
+\chapter{Logistic Regression on COMPAS Data}\label{appendix-d}}
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# set seed}
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{123}\NormalTok{)}
+
+\CommentTok{\# drop missing observations}
+\NormalTok{compas }\OtherTok{\textless{}{-}}\NormalTok{ tidyr}\SpecialCharTok{::}\FunctionTok{drop\_na}\NormalTok{(compas) }
+
+\CommentTok{\# train and test split}
+\NormalTok{n }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(compas)}
+\NormalTok{train\_index }\OtherTok{\textless{}{-}} \FunctionTok{sample}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\NormalTok{n, }\FloatTok{0.70} \SpecialCharTok{*}\NormalTok{ n) }
+\NormalTok{test\_index }\OtherTok{\textless{}{-}} \FunctionTok{setdiff}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\NormalTok{n, train\_index)}
+\NormalTok{train }\OtherTok{\textless{}{-}}\NormalTok{ compas[train\_index, ]}
+\NormalTok{test }\OtherTok{\textless{}{-}}\NormalTok{ compas[test\_index, ]}
+
+\CommentTok{\# fit the logistic regression model on identified predictors}
+\NormalTok{glm2 }\OtherTok{\textless{}{-}} \FunctionTok{glm}\NormalTok{(is\_recid }\SpecialCharTok{\textasciitilde{}}\NormalTok{ sex }\SpecialCharTok{+}\NormalTok{ age }\SpecialCharTok{+}\NormalTok{ age\_cat }\SpecialCharTok{+}\NormalTok{ marital\_status }\SpecialCharTok{+}
+\NormalTok{              juv\_offense }\SpecialCharTok{+}\NormalTok{ priors\_count,}
+            \AttributeTok{data =}\NormalTok{ train,}
+            \AttributeTok{family =} \FunctionTok{binomial}\NormalTok{(logit))}
+
+\CommentTok{\# obtain the binary predictions on train set}
+\NormalTok{glm2augment }\OtherTok{\textless{}{-}}\NormalTok{ glm2 }\SpecialCharTok{\%\textgreater{}\%} 
+\NormalTok{  broom}\SpecialCharTok{::}\FunctionTok{augment}\NormalTok{(}\AttributeTok{type.predict =} \StringTok{"response"}\NormalTok{)}
+\NormalTok{glm2augment }\OtherTok{\textless{}{-}} \FunctionTok{mutate}\NormalTok{(glm2augment, }\AttributeTok{binprediction =} \FunctionTok{round}\NormalTok{(.fitted, }\DecValTok{0}\NormalTok{)) }
+
+\CommentTok{\# obtain the binary predictions on test set }
+\NormalTok{preds }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(glm2, }\AttributeTok{newdata=}\NormalTok{test, }\AttributeTok{type=}\StringTok{"response"}\NormalTok{)}
+\NormalTok{test2 }\OtherTok{\textless{}{-}}\NormalTok{ test }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{preds =}\NormalTok{ preds,}
+         \AttributeTok{prediction =} \FunctionTok{round}\NormalTok{(preds, }\DecValTok{0}\NormalTok{)) }
+
+\CommentTok{\# obtain the ROC curve}
+\NormalTok{roccurve1 }\OtherTok{\textless{}{-}} \FunctionTok{with}\NormalTok{(test, }\FunctionTok{roc}\NormalTok{(is\_recid }\SpecialCharTok{\textasciitilde{}}\NormalTok{ preds))}
 \end{Highlighting}
 \end{Shaded}
 \backmatter
