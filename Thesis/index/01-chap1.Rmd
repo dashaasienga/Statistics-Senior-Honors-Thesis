@@ -66,7 +66,7 @@ This is akin to the classification setting where it may be desirable to have the
 
 $$ E[l(Y, f(X)) | A = a] \leq c_a.$$
 
-### Group Fairness in Classification Settings 
+### Group Fairness in Classification Settings {#classfairdef}
 
 Group notions of fairness in classification, at the core, refer to treating different groups equally. They aim to remedy or prevent disparate impact, which is a setting where there is unintended disproportionate adverse impact on a particular group [@chouldechova2017fair]. There are three broad notions of observational group fairness: independence, separation, and sufficiency [@castelnovo2022clarification]. 
 
