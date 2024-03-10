@@ -1,4 +1,4 @@
-# Logistic Regression on COMPAS Data {#appendix-d}
+# Logistic Regression on the COMPAS Data Set {#appendix-d}
 
 ```{r, eval = FALSE, warning = FALSE, message = FALSE}
 # set seed
