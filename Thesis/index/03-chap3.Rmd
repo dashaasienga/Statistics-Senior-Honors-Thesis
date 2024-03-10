@@ -464,7 +464,7 @@ In particular, logistic regression follows the standard ML procedure described i
 
 ### Fitting the Logistic Regression Model
 
-Recall that if every observation were classified in the majority class, an accuracy of 66% would be expected. This is a benchmark for the race-blind logistic regression model implemented in this section. The model will be trained on 70% of the data and evaluated on the remaining 30%. Only the six predictors (`sex,` `age,` `age category,` `marital status,` `juvenile offense,` and `prior offenses`) will be fit to predict recidivism, the code for which is displayed in Appendix \@ref(appendix-d).
+Recall that if every observation were classified in the majority class, an accuracy of 66% would be expected. This is a benchmark for the race-blind logistic regression model implemented in this section. The model will be trained on 70% of the data and evaluated on the remaining 30%. Only the six predictors (sex, age, age category, marital status, juvenile offense, and prior offenses) will be fit to predict recidivism, the code for which is displayed in Appendix \@ref(appendix-d).
 
 The accuracy was 70.2% on the training set, which is ~3% higher than the COMPAS tool's predictions and suggests that ~30% of defendants are misclassified. Overall accuracy was consistent at 70.1% when evaluated on the testing set, indicating that the model did not over-fit on the training set and had good generalization performance. However, the ROC curve on Figure \@ref(fig:ch3fig12) indicates concerns about the model's sensitivity $(1 - FNR)$ and specificity $(1 - FPR)$. The diagonal line shows how the model would perform with random predictions. Curves that budge closer to the top left are preferred because those types of curves maximize the area under the curve (AUC), and the sensitivity and specificity of the model are closer to 100%. However, the AUC of this model is 68.8%. 
 
@@ -578,11 +578,43 @@ These results serves to highlight the real danger with using standard ML procedu
 
 ## Seldonian Classification {#seldapp}
 
-describe what it is and how it may differ. standardize notation
+While the linear regression setting in Chapter \@ref(chap-2) provides an accessible example of how undesirable behavior can occur and how Seldonian algorithms can mitigate it, the fairness constraint set was impractical in real-world settings. This section aims to conclude the chapter by illustrating how Seldonian algorithms can mitigate undesirable outcomes made by classifiers in practicality. Consistent with the notation, $\Theta$ would be a set of classifiers and $f$ a classifier performance measure, such as the function described in Equation \@ref(ch3eq1). For this application, the Seldonian algorithm will use the logistic loss as its primary objective function. The goal is to use the Seldonian framework to create a model that makes predictions about recidivism that are fair with respect to race, which will be simplified to just two levels: Black and White. Further research can extend this work to include more races.
 
 ### Formulating the Seldonian Problem
 
+Without fairness constraints, the standard ML problem is finding a solution $\theta$ that minimizes logistic loss. However, such a solution, as illustrated in Section \@ref(logreg) when fitting a logistic regression, results in unequal error rates between Black and White defendants when using the COMPAS data set. Defining the discrimination statistic $d(\theta)$ to measure the difference in error rates as in Equation \@ref(ch3eq2), $d(\theta_{LR}) = 0.34$ (or $34.18$%). Similarly, for the COMPAS tool, $d(\theta_{COMPAS}) = 0.45$ (or $44.7$%) using this data set. This illustrates that the logistic regression performed slightly better than the COMPAS tool, both in overall accuracy and error rate disparities. However, there is still a significant discrepancy between the error rates for both races.  
+
+\begin{equation}
+\label{ch3eq2}
+d(\theta) = abs[(FPR | \text{Black} - FPR | \text{White}) + (FNR | \text{White} - FNR | \text{Black})]
+\end{equation}
+
+\noindent To minimize $d(\theta)$, $g(\theta)$ will be defined as: 
+
+\begin{equation}
+\label{ch3eq3}
+g(\theta) = abs[(FPR | \text{Black} - FPR | \text{White}) + (FNR | \text{White} - FNR | \text{Black})] - \epsilon.
+\end{equation}
+
+\noindent Recall that a Seldonian algorithm ensures that:
+
+\begin{equation}
+\label{ch3eq4}
+P(g(\theta) \leq 0) \geq 1 - \delta.
+\end{equation}
+
+\noindent The problem can now be fully formulated as a Seldonian machine learning problem. That is, using gradient descent, an optimization algorithm for finding a local minimum of a differentiable function, the Seldonian objective is to minimize logistic loss subject to the constraint: 
+
+\begin{equation}
+\label{ch3eq3}
+P\{abs[(FPR | \text{Black} - FPR | \text{White}) + (FNR | \text{White} - FNR | \text{Black})]  - \epsilon \leq 0 \} \geq 1 - \delta \textit{; } \delta = 0.05.
+\end{equation}
+
+$\delta$ will be set to 0.05 to attain 95% confidence that separation (equalized odds) is satisfied. The data will be partitioned into a training set that will be passed into the candidate selection mechanism to compute $\theta_c$. The remaining partition will be used in the safety test to ensure probabilistic satisfaction of the constraint. $\epsilon$ will be set to four values: $0.2, 0.1, 0.05, \textit{and } 0.01$. The code to obtain a solution is available as part of the `seldonian-engine` Python library and is displayed in Appendix \@ref(appendix-e). 
+
 ### Evaluating Performance and Fairness
+
+
 
 
 
