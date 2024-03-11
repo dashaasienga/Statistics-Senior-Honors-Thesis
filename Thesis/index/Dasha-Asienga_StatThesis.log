@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.4.7)  10 MAR 2024 18:04
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.4.7)  11 MAR 2024 00:21
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1038,7 +1038,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 961--976
  []
 
 [47 <./Dasha-Asienga_StatThesis_files/figure-latex/ch3fig9-1.pdf>] [48]
-Overfull \hbox (37.65727pt too wide) in paragraph at lines 984--992
+Overfull \hbox (37.65727pt too wide) in paragraph at lines 986--994
  [][] 
  []
 
@@ -1048,7 +1048,7 @@ File: Dasha-Asienga_StatThesis_files/figure-latex/ch3fig11-1.pdf Graphic file (
 type pdf)
 <use Dasha-Asienga_StatThesis_files/figure-latex/ch3fig11-1.pdf>
 Package pdftex.def Info: Dasha-Asienga_StatThesis_files/figure-latex/ch3fig11-1
-.pdf  used on input line 996.
+.pdf  used on input line 997.
 (pdftex.def)             Requested size: 423.58147pt x 207.77573pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
@@ -1060,7 +1060,7 @@ File: Dasha-Asienga_StatThesis_files/figure-latex/ch3fig10-1.pdf Graphic file (
 type pdf)
 <use Dasha-Asienga_StatThesis_files/figure-latex/ch3fig10-1.pdf>
 Package pdftex.def Info: Dasha-Asienga_StatThesis_files/figure-latex/ch3fig10-1
-.pdf  used on input line 1018.
+.pdf  used on input line 1019.
 (pdftex.def)             Requested size: 427.59645pt x 566.11362pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
@@ -1075,19 +1075,16 @@ File: Dasha-Asienga_StatThesis_files/figure-latex/ch3fig12-1.pdf Graphic file (
 type pdf)
 <use Dasha-Asienga_StatThesis_files/figure-latex/ch3fig12-1.pdf>
 Package pdftex.def Info: Dasha-Asienga_StatThesis_files/figure-latex/ch3fig12-1
-.pdf  used on input line 1042.
+.pdf  used on input line 1043.
 (pdftex.def)             Requested size: 176.65956pt x 179.67079pt.
+[54 <./Dasha-Asienga_StatThesis_files/figure-latex/ch3fig12-1.pdf>]
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
-LaTeX Warning: Reference `ch3table3' on page 54 undefined on input line 1053.
-
-
-LaTeX Warning: Reference `ch3table4' on page 54 undefined on input line 1067.
-
-[54 <./Dasha-Asienga_StatThesis_files/figure-latex/ch3fig12-1.pdf>] [55]
-Underfull \vbox (badness 3657) has occurred while \output is active []
+[55]
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
 [56]
-Overfull \hbox (29.80731pt too wide) detected at line 1111
+Overfull \hbox (29.80731pt too wide) detected at line 1112
 [][][]\OML/lmm/m/it/12 P\OMS/lmsy/m/n/12 f\OML/lmm/m/it/12 abs\OT1/lmr/m/n/12 [
 (\OML/lmm/m/it/12 FPR\OMS/lmsy/m/n/12 j[] ^^@ \OML/lmm/m/it/12 FPR\OMS/lmsy/m/n
 /12 j[]\OT1/lmr/m/n/12 ) + (\OML/lmm/m/it/12 FNR\OMS/lmsy/m/n/12 j[] ^^@ \OML/l
@@ -1101,39 +1098,31 @@ T1/lmr/m/n/12 1 \OMS/lmsy/m/n/12 ^^@ \OML/lmm/m/it/12 ^^N[]^^N \OT1/lmr/m/n/12
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 [57]
+Underfull \hbox (badness 10000) in paragraph at lines 1118--1171
 
-LaTeX Warning: Reference `ch3table5' on page 58 undefined on input line 1117.
+ []
 
-
-LaTeX Warning: Reference `ch3table6' on page 58 undefined on input line 1117.
-
-
-LaTeX Warning: Reference `ch3table7' on page 58 undefined on input line 1117.
-
-
-LaTeX Warning: Reference `ch3table8' on page 58 undefined on input line 1117.
-
-[58] [59] [60
-
-]
+[58] [59] [60]
 Chapter 4.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[61] [62]
+[61
+
+] [62]
 LaTeX Font Info:    Font shape `T1/lmtt/bx/n' in size <12> not available
-(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 1201.
+(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 1206.
 LaTeX Font Info:    Trying to load font information for TS1+lmtt on input line 
-1228.
+1233.
 (/opt/amh/texlive/2023/texmf-dist/tex/latex/lm/ts1lmtt.fd
 File: ts1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 ) [63] [64]
 
-LaTeX Warning: Reference `tab:ch4table1' on page 65 undefined on input line 129
-5.
+LaTeX Warning: Reference `tab:ch4table1' on page 65 undefined on input line 130
+0.
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1299--1300
+Underfull \hbox (badness 10000) in paragraph at lines 1304--1305
 
  []
 
@@ -1143,7 +1132,7 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 [65] [66] [67] [68]
 Appendix A.
 
-Underfull \hbox (badness 1810) in paragraph at lines 1365--1365
+Underfull \hbox (badness 1810) in paragraph at lines 1370--1370
 |[]\T1/lmr/bx/n/17.28 (+20) Sufficiency v Sep-a-ra-tion Fair-ness
  []
 
@@ -1153,7 +1142,7 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 [69
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 1391--1392
+Underfull \hbox (badness 10000) in paragraph at lines 1396--1397
 
  []
 
@@ -1161,16 +1150,16 @@ Underfull \hbox (badness 10000) in paragraph at lines 1391--1392
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 [70] [71]
-<Dasha-Asienga_StatThesis_files/figure-latex/unnamed-chunk-53-1.pdf, id=1250, 4
+<Dasha-Asienga_StatThesis_files/figure-latex/unnamed-chunk-53-1.pdf, id=1257, 4
 63.7325pt x 315.1775pt>
 File: Dasha-Asienga_StatThesis_files/figure-latex/unnamed-chunk-53-1.pdf Graphi
 c file (type pdf)
 <use Dasha-Asienga_StatThesis_files/figure-latex/unnamed-chunk-53-1.pdf>
 Package pdftex.def Info: Dasha-Asienga_StatThesis_files/figure-latex/unnamed-ch
-unk-53-1.pdf  used on input line 1482.
+unk-53-1.pdf  used on input line 1487.
 (pdftex.def)             Requested size: 463.73135pt x 315.17673pt.
 
-Overfull \hbox (30.11136pt too wide) in paragraph at lines 1482--1482
+Overfull \hbox (30.11136pt too wide) in paragraph at lines 1487--1487
  [] 
  []
 
@@ -1180,7 +1169,7 @@ Overfull \hbox (30.11136pt too wide) in paragraph at lines 1482--1482
 ]
 Appendix B.
 [75] [76] [77] [78] [79] [80]
-Overfull \hbox (32.1639pt too wide) detected at line 1695
+Overfull \hbox (32.1639pt too wide) detected at line 1700
 \OML/lmm/m/it/12 ^^R[] \OMS/lmsy/m/n/12 2 \OML/lmm/m/it/12 arg [] []
  []
 
@@ -1191,7 +1180,7 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 Underfull \vbox (badness 2285) has occurred while \output is active []
 
 [85]
-Underfull \hbox (badness 5985) in paragraph at lines 1916--1918
+Underfull \hbox (badness 5985) in paragraph at lines 1921--1923
 []\T1/lmtt/m/n/12 seldonian_solutions_found\T1/lmr/m/n/12 (+20) : stores whethe
 r a so-lu-tion was found
  []
@@ -1201,11 +1190,11 @@ r a so-lu-tion was found
 ]
 Appendix C.
 [93]
-Underfull \vbox (badness 10000) detected at line 2267
+Underfull \vbox (badness 10000) detected at line 2272
  []
 
 
-Underfull \vbox (badness 10000) detected at line 2267
+Underfull \vbox (badness 10000) detected at line 2272
  []
 
 [94] [95] [96
@@ -1215,7 +1204,7 @@ Appendix D.
 [97] [98]
 Appendix E.
 
-Underfull \hbox (badness 7186) in paragraph at lines 2307--2307
+Underfull \hbox (badness 7186) in paragraph at lines 2312--2312
 |[]\T1/lmr/bx/n/17.28 (+20) Seldionian Clas-si-fi-ca-tion on the
  []
 
@@ -1228,19 +1217,19 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
 ]
-Underfull \hbox (badness 1776) in paragraph at lines 2590--2592
+Underfull \hbox (badness 1776) in paragraph at lines 2595--2597
  \T1/lmr/m/n/12 (+20) task force on ar-ti-fi-cial in-tel-li-gence hear-ing: ``E
 q-ui-table al-go-rithms: Ex-
  []
 
 
-Underfull \hbox (badness 1472) in paragraph at lines 2590--2592
+Underfull \hbox (badness 1472) in paragraph at lines 2595--2597
  \T1/lmr/m/n/12 (+20) am-in-ing ways to re-duce AI bias in fi-nan-cial ser-vice
 s.'' Re-trieved from
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 2590--2592
+Underfull \hbox (badness 10000) in paragraph at lines 2595--2597
  [][]$\T1/lmtt/m/n/12 https : / / www . congress . gov / 116 / meeting / house 
 / 110499 / witnesses / HHRG -[]
  []
@@ -1264,13 +1253,13 @@ d.
 ### semi simple group (level 1) entered at line 260 (\begingroup)
 ### bottom level 
 Here is how much of TeX's memory you used:
- 18241 strings out of 476017
- 302707 string characters out of 5765823
+ 18233 strings out of 476017
+ 302619 string characters out of 5765823
  1867666 words of memory out of 5000000
- 37721 multiletter control sequences out of 15000+600000
- 606306 words of font info for 216 fonts, out of 8000000 for 9000
+ 37715 multiletter control sequences out of 15000+600000
+ 606219 words of font info for 215 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,12n,76p,2959b,905s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,12n,76p,2959b,899s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </opt/amh/texlive/2023/texmf-dist/fonts/type1/public/lm/lmbx12.
 pfb></opt/amh/texlive/2023/texmf-dist/fonts/type1/public/lm/lmbx8.pfb></opt/amh
 /texlive/2023/texmf-dist/fonts/type1/public/lm/lmcsc10.pfb></opt/amh/texlive/20
@@ -1290,10 +1279,10 @@ pe1/public/lm/lmtt12.pfb></opt/amh/texlive/2023/texmf-dist/fonts/type1/public/l
 m/lmtti10.pfb></opt/amh/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/sym
 bols/msam10.pfb></opt/amh/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/s
 ymbols/msbm10.pfb>
-Output written on Dasha-Asienga_StatThesis.pdf (121 pages, 2009815 bytes).
+Output written on Dasha-Asienga_StatThesis.pdf (121 pages, 2011037 bytes).
 PDF statistics:
- 1638 PDF objects out of 1728 (max. 8388607)
- 1262 compressed objects within 13 object streams
+ 1645 PDF objects out of 1728 (max. 8388607)
+ 1269 compressed objects within 13 object streams
  344 named destinations out of 1000 (max. 500000)
  49726 words of extra memory for PDF output out of 51595 (max. 10000000)
 
