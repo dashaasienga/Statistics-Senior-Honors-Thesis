@@ -59,13 +59,15 @@ The defendants' ages range from 18 to 96, with a median of 32 years and a mean o
 g1 <- ggplot(data = clean_compasdata, mapping = aes(x = age)) +
   geom_histogram(fill = "lightblue", color = "black") +
   theme_minimal() +
-  labs(title = "Age")
+  labs(title = "Age",
+       y = "Number of Defendants")
 
 g2 <- ggplot(data = clean_compasdata, mapping = aes(x = priors_count)) +
   geom_histogram(fill = "lightblue", color = "black") +
   theme_minimal() +
   labs(x = "priors",
-       title = "Prior Offenses")
+       title = "Prior Offenses",
+       y = "Number of Defendants")
 
 grid.arrange(g1, g2, nrow = 1)
 ```
@@ -79,7 +81,8 @@ Sex has two levels: male and female. There are 7457 males and 1930 females in th
 g3 <- ggplot(data = clean_compasdata, mapping = aes(x = sex)) +
   geom_bar(fill = "lightblue", color = "black") +
   theme_minimal() +
-  labs(title = "Sex")
+  labs(title = "Sex",
+       y = "Number of Defendants")
 
 order <- c("Less than 25", "25 - 45", "Greater than 45")
 
@@ -88,14 +91,16 @@ g4 <- ggplot(data = clean_compasdata, mapping = aes(x = age_cat)) +
   theme_minimal() +
   scale_x_discrete(limits = order) +
   labs(x = "Age Category",
-       title = "Age Categories")
+       title = "Age Categories",
+       y = "Number of Defendants")
 
 g5 <- ggplot(data = clean_compasdata, mapping = aes(x = marital_status)) +
   geom_bar(fill = "lightblue", color = "black") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 25, vjust = 1.2, hjust=1)) +
   labs(x = "Marital Status",
-       title = "Marital Status") 
+       title = "Marital Status",
+       y = "Number of Defendants") 
 
 clean_compasdata <- clean_compasdata %>%
   mutate(juv_offense_count = juv_fel_count + juv_misd_count + juv_other_count,
@@ -107,7 +112,8 @@ g6 <- clean_compasdata %>%
   geom_bar(fill = "lightblue", color = "black") +
   theme_minimal() +
   labs(x = "Committed a Juvenile Offense",
-       title = "Juvenile Offense Record")
+       title = "Juvenile Offense Record",
+       y = "Number of Defendants")
 
 grid.arrange(g3, g4, g6, g5, ncol = 2, nrow = 2)
 
@@ -125,7 +131,8 @@ ggplot(mapping = aes(x = is_recid)) +
   geom_bar(fill = "lightblue", color = "black") +
   theme_minimal() +
   labs(title = "Recidivism",
-       x = "Recommitted a Crime Within 2 Years")
+       x = "Recommitted a Crime Within 2 Years",
+       y = "Number of Defendants")
 ```
 
 #### Demographic Variable
@@ -137,7 +144,8 @@ ggplot(data = clean_compasdata, mapping = aes(x = race)) +
   geom_bar(fill = "lightblue", color = "black") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 25, vjust = 1.2, hjust=1)) +
-  labs(title = "Race")
+  labs(title = "Race",
+       y = "Number of Defendants")
 ```
 
 ### Bivariate Analysis {#bivariateanalysis}
@@ -180,7 +188,8 @@ g9 <- ggplot(data = clean_compasdata, mapping = aes(x = sex, fill = sex)) +
   geom_bar() +
   theme_minimal() +
   facet_wrap(~is_recid) +
-  labs(title = "Recidivism by Sex") 
+  labs(title = "Recidivism by Sex",
+       y = "Number of Defendants") 
 
 order <- c("Less than 25", "25 - 45", "Greater than 45")
 
@@ -191,7 +200,8 @@ g10 <- ggplot(data = clean_compasdata,
   facet_wrap(~is_recid) +
   labs(title = "Recidivism by Age Categories",
        x = "Age Category",
-       fill = "Age Category") +
+       fill = "Age Category",
+       y = "Number of Defendants") +
   theme(axis.text.x = element_text(angle = 25, vjust = 1.2, hjust=1)) +
   scale_x_discrete(limits = order) 
 
@@ -202,7 +212,8 @@ g11 <- ggplot(data = clean_compasdata,
   facet_wrap(~is_recid) +
   labs(title = "Recidivism by Marital Status",
        x = "Marital Status",
-       fill = "Marital Status") +
+       fill = "Marital Status",
+       y = "Number of Defendants") +
   theme(axis.text.x = element_text(angle = 25, vjust = 1.2, hjust=1))
 
 g12 <- clean_compasdata %>%
@@ -213,7 +224,8 @@ g12 <- clean_compasdata %>%
   facet_wrap(~is_recid) +
   labs(title = "Recidivism by Juvenile Offense",
        x = "Juvenile Offense",
-       fill = "Juvenile Offense") 
+       fill = "Juvenile Offense",
+       y = "Number of Defendants") 
 
 grid.arrange(g10, g12, nrow = 2)
 ```
@@ -281,13 +293,15 @@ g14 <- ggplot(data = clean_compasdata, mapping = aes(x = score_text)) +
   theme_minimal() +
   scale_x_discrete(limits = order) +
   labs(x = "COMPAS Risk Prediction",
-       title = "COMPAS Risk Predictions in the Data Set")
+       title = "COMPAS Risk Predictions in the Data Set",
+       y = "Number of Defendants")
 
 g15 <- ggplot(data = clean_compasdata, mapping = aes(x = as.factor(decile_score))) +
   geom_bar() +
   theme_minimal() +
   labs(x = "COMPAS Decile Score",
-       title = "Decile Scores in the COMPAS Data Set")
+       title = "Decile Scores in the COMPAS Data Set",
+       y = "Number of Defendants")
 
 grid.arrange(g14, g15)
 ```
@@ -305,7 +319,8 @@ clean_compasdata %>%
   facet_wrap(~is_recid) +
   labs(title = "Recidivism by COMPAS Risk Score",
        x = "COMPAS Risk Score",
-       fill = "COMPAS Risk Score") +
+       fill = "COMPAS Risk Score",
+       y = "Number of Defendants") +
   theme(axis.text.x = element_text(angle = 25, vjust = 1.2, hjust=1)) +
   scale_x_discrete(limits = order) 
 ```
@@ -397,7 +412,8 @@ ggplot(mapping = aes(x = as.factor(decile_score))) +
   theme_minimal() +
   facet_wrap(~race, ncol = 2) + labs(
     title = "Decile Scores by Race",
-    x = "Decile Scores")
+    x = "Decile Scores",
+    y = "Number of Defendants")
 ```
 
 
@@ -434,7 +450,8 @@ g19 <- compas_final %>%
   facet_wrap(~race) +
   labs(title = "Age Categories by Race",
        x = "Age Category",
-       fill = "Age Category") +
+       fill = "Age Category",
+       y = "Number of Defendants") +
   theme(axis.text.x = element_text(angle = 25, vjust = 1.2, hjust=1)) +
   scale_x_discrete(limits = order) 
 
