@@ -144,5 +144,6 @@ Finally, it is essential to account for the fact that the Seldonian algorithms w
 
 ## Simulation Results {#sim-results}
 
+TO DO: Update notation and make sure everything is consistent once data generation mechanism is finalized (target: by Wednesday noon). 
 
 
