@@ -13,25 +13,9 @@ library(GGally)
 library(MASS)
 ```
 
-```{r, echo = FALSE}
-library(reticulate)
-use_python("/cm/shared/apps/amh-Rstudio/python-3.11.4/bin/python3", required = TRUE)
-```
+Chapter \@ref(chap-2) introduced the Seldonian framework, which offers probabilistic guarantees for satisfying defined behavioral constraints. However, the toy linear regression example demonstrated some of the limitations of Seldonian algorithms, particularly in scenarios with limited sample sizes where convergence may pose a challenge. In practice, sample sizes vary. Furthermore, Chapter \@ref(chap-3) applied the Seldonian framework to a classification setting using the COMPAS data set. The goal was to produce recidivism predictions that elicit fairer outcomes along racial lines, with a specific focus on Black and White defendants. However, the application illustrated that while the behavioral constraint was satisfied in all four cases, there was a tradeoff in the model's accuracy. In other words, a non-informative model can be perfectly Seldonian, but what value does a theoretically fair non-informative model add?
 
-```{r, echo = FALSE}
-seldonian <- import("seldonian")
-```
-
-```{python, echo = FALSE}
-import seldonian
-```
-
-
-Chapter \@ref(chap-2) introduced the Seldonian framework, which offers probabilistic guarantees for satisfying defined behavioral constraints. However, the toy linear regression example demonstrated some of the limitations of Seldonian algorithms, particularly in scenarios with limited sample sizes where convergence may pose a challenge. In practice, sample sizes vary. 
-
-Furthermore, many machine learning applications deal with classification problems. Applications range from risk assessment tools like COMPAS, discussed in Chapter \@ref(intro), to credit scoring and employment prediction algorithms, naming a few. However, the deployment of such algorithms raises significant ethical concerns as discussed in Chapters \@ref(intro) and \@ref(chap-2), primarily with regard to fairness and the potential reinforcement of discriminatory practices. Given the historical and social biases inherent in the data used to train these algorithms, there is a pressing need to assess their fairness and mitigate any potential harm they may cause to disadvantaged groups.
-
-To address this concern, this chapter aims to investigate the efficacy and applicability of Seldonian algorithms in practical classification settings. By conducting a simulation study, the aim is to evaluate whether Seldonian approaches can effectively produce fairer outcomes and mitigate discriminatory tendencies, drawing on some of the statistical definitions of fairness from Chapter \@ref(fairnessdefinitions). Specifically, the objective is to assess the feasibility of leveraging Seldonian algorithms to enhance the fairness and equity of predictive models across various classification tasks.
+To address this concern and further study these tradeoffs, this chapter investigates the efficacy and applicability of Seldonian algorithms in practical classification settings with better predictive performance than COMPAS. By conducting a simulation study, the aim is to evaluate whether Seldonian approaches can effectively produce fairer outcomes and mitigate discriminatory tendencies, drawing on the fairness notion of separation (or equality of odds) defined in Chapter \@ref(fairnessdefinitions) and set up in Chapter \@ref(seldapp). Specifically, the objective is to assess the feasibility of leveraging Seldonian algorithms to enhance the fairness and equity of predictive models across various practical classification tasks.
 
 ## Simulation Design {#sim-design}
 
@@ -39,7 +23,7 @@ Before conducting the simulation study and analyzing the results, this section p
 
 ### Aims
 
-The aim of this simulation study is to present a proof of concept for the use of the Seldonian framework in classification problems. Seldonian algorithms $\textit{can}$ fail, especially with insufficient data, as elucidated in Chapter \@ref(toy). Solutions returned are also probabilistic. With these limitations in mind, this simulation study aims to compare the predictive performance of Seldonian algorithms with that of the standard ML approach in practical classification settings. 
+This simulation study presents a proof of concept for using the Seldonian framework in classification problems with robust predictive performance. Seldonian algorithms $\textit{can}$ fail, especially with insufficient data, as elucidated in Chapter \@ref(toy). On the flip side, as elucidated in Chapter \@ref(seldapp), Seldonian algorithms can succeed in their objective for fairer outcomes but fail to produce a useful model. Solutions returned are also probabilistic and may not always satisfy the constraint despite passing the safety test. With these limitations in mind, this simulation study aims to theoretically assess the predictive performance of Seldonian algorithms, compared to that of the standard ML approach, in practical classification settings. 
 
 ### Data-Generation Mechanism WIP {#data-gen} 
 
@@ -97,6 +81,9 @@ data <- data.frame(X, A, Y)
 head(data)
 ```
 
+TO DO: 
+
+- Look at conditional distribution of Y|A?
 
 \noindent *Option 2: Resample from the COMPAS data set* 
 
@@ -126,46 +113,32 @@ The target of this simulation study is prediction, that is, to evaluate Seldonia
 
 ### Methods
 
-As described in Chapter \@ref(chap-2), the Seldonian framework was designed to place probabilistic fairness constraints on traditional algorithms. Solutions produced by Seldonian algorithms will be compared to those produced through the standard ML framework, specifically by logistic regression, to assess the predictive performance and feasibility of the Seldonian framework.
+Because the Seldonian framework was designed to place probabilistic fairness constraints on traditional algorithms, solutions produced by Seldonian algorithms will be compared to those produced through the standard ML framework, specifically by logistic regression, to assess the predictive performance and feasibility of the Seldonian framework.
 
-Drawing from the fairness definitions described in Chapter \@ref(fairnessdefinitions) with a particular focus on practical situations, it may be less important that a model satisfies independence. That is, that the model, on average, has the same likelihood of a positive prediction for all demographic groups. Instead, it may be more realistic to expect that the model be equally wrong or equally correct in its predictions of $Y$ for each demographic group. For this reason, two fairness constraints ($n=2$) will be set on the Seldonian algorithms to satisfy separation, otherwise known as equality of the error rates or equality of odds, as defined in Equations \@ref(ch4eq3) and \@ref(ch4eq4). 
-
-1) *Predictive Equality*: equality of false positive rates (FPR)/ Type I error rates across groups:
-
-\begin{equation}
-\label{ch4eq3}
-g_1(\theta): P (\hat{Y} = 1 | A = a, Y = 0) = P (\hat{Y} = 1 | A = b, Y = 0).
-\end{equation}
-
-2) *Equality of Opportunity*: equality of false negative rates (FNR)/ Type II error rates across groups:
-
-\begin{equation}
-\label{ch4eq4}
-g_2(\theta): P (\hat{Y} = 0 | A = a, Y = 1) = P (\hat{Y} = 0 | A = b, Y = 1).
-\end{equation}
-
-
-Simulated data sets will be generated independently before being fed into both algorithms. The relevant performance measures, as detailed in Section \@ref(performancemeasures), will be recorded for each trial. One thousand trials will be run for each sample setting described in Section \@ref(data-gen), that is, each combination of sample size and $Y$ prevalence. The code will be run in Python using the Rstudio software interface and the Amherst College High-Performance Computing System. The `seldonian` package is readily available for installation in Python -- it is equipped with functions that allow for the implementation of Seldonian algorithms. Other Python packages, such as `pandas`, `numpy`, and `sklearn`, will be helpful in conducting the rest of the simulation study. 
+Simulated data sets will be generated independently before being fed into both algorithms. The relevant performance measures, as detailed in Section \@ref(performancemeasures), will be recorded for each trial. One thousand trials will be run for each sample setting described in Section \@ref(data-gen), that is, each combination of sample size and $Y$ prevalence [may change once data gen is finalized]. The code will be run in Python using the Rstudio software interface and the Amherst College High-Performance Computing System. The `seldonian` package is readily available for installation in Python -- it is equipped with functions that allow for the implementation of Seldonian algorithms. Other Python packages, such as `pandas`, `numpy`, and `sklearn`, will be helpful in conducting the rest of the simulation study. 
 
 
 ### Performance Measures {#performancemeasures}
 
-Compared to the logistic regression models, the predictive performance of the Seldonian models will be assessed along three dimensions: the accuracy of the solutions, the satisfaction or violation of the behavioral constraints set, and the probability of a Seldonian solution.
+Compared to the logistic regression models, the predictive performance of the Seldonian models will be assessed along three dimensions: the accuracy of the solutions, the satisfaction or violation of the behavioral constraints set, and the probability of a Seldonian solution across all trials within a specific setting.
 
-For each simulation trial, the overall accuracy of both the Seldonian model and the logistic regression model will be recorded and eventually averaged over the specific sample setting, that is, for a data set with a specific sample size and specific $Y$ prevalence for each demographic group $a \in A$. Both the mean and the standard error will be reported in tabular format and visualized graphically to compare the models' predictive performances and, potentially, evaluate the trade-offs that may occur by employing the Seldonian framework and enforcing behavioral constraints.
+For each simulation trial, the overall accuracy of both the Seldonian model and the logistic regression model will be recorded and eventually averaged over the specific sample setting, that is, for a data set with a specific sample size and specific $Y$ prevalence for each demographic group $a \in A$ [may change once data gen is finalized]. Both the mean and the standard error will be reported in tabular format and visualized graphically to compare the models' predictive performances and, potentially, evaluate the trade-offs that may occur by employing the Seldonian framework and enforcing behavioral constraints.
 
-The satisfaction or violation of the behavioral constraint will be assessed in two ways. First, for each sample setting as described above, a count of the times both frameworks satisfied the behavioral constraint, by some margin, will be reported in tabular format. Additionally, the FPR and FNR discrimination statistics, as defined in Equations \@ref(ch4eq1) and \@ref(ch4eq2), respectively, will be recorded for each simulation trial. The mean and standard error will be reported and visualized for each sample setting to compare the magnitude and direction of the models' unfairness with regard to the separation fairness definition.
+Drawing from the fairness definitions described in Chapter \@ref(fairnessdefinitions) with a particular focus on the COMPAS example in Chapter \@ref(chap-3), it may be less important that a model satisfies independence. That is, that the model, on average, has the same likelihood of a positive prediction for all demographic groups. Instead, it may be more realistic to expect that the model be equally wrong or equally correct in its predictions of $Y$ for each demographic group. For this reason, one fairness constraint ($n=1$) will be set on the Seldonian algorithms to satisfy separation, otherwise known as equality of the error rates or equality of odds, as defined in Equation \@ref(ch4eq1) within some margin $\epsilon$ and with $1 - \delta$ % confidence. Similar to Chapter \@ref(seldapp), $\epsilon$ will be set to four levels: $0.2, 0.1, 0.05, \text{and } 0.01$. $\delta$ will be set to $0.05$ to guarantee 95% confidence. 
+
+*Equality of Odds*: equality of false positive rates (FPR)/ Type I error rates and false negative rates (FNR)/ Type II error rates across groups:
 
 \begin{equation}
 \label{ch4eq1}
-d_1(\theta) = P (\hat{Y} = 1 | A = a, Y = 0) - P (\hat{Y} = 1 | A = b, Y = 0).
+g(\theta): abs[(FPR | \text{A = a} - FPR | \text{A = b}) + (FNR | \text{A = a} - FNR | \text{A = b})] - \epsilon.
 \end{equation}
+
+The satisfaction or violation of the behavioral constraint will be assessed in two ways. First, for each sample setting as described above, a count of the times both frameworks satisfied the behavioral constraint, by some margin $\epsilon$, will be reported in tabular format. Additionally, the discrimination statistics as defined in Equation \@ref(ch4eq2) will be recorded for each simulation trial. The mean and standard error will be reported and visualized for each sample setting to compare the magnitude and direction of the models' unfairness with regard to the separation fairness definition.
 
 \begin{equation}
 \label{ch4eq2}
-d_2(\theta) = P (\hat{Y} = 0 | A = a, Y = 1) - P (\hat{Y} = 0 | A = b, Y = 1).
+d(\theta) = abs[(FPR | \text{A = a} - FPR | \text{A = b}) + (FNR | \text{A = a} - FNR | \text{A = b})]
 \end{equation}
-
 
 Finally, it is essential to account for the fact that the Seldonian algorithms will not always return a solution. Recording the probability of a solution being returned in each sample setting will be crucial for evaluating the practical feasibility of this framework. Additionally, for fair statistical comparisons, the first and second performance measures will be compared only with Seldonian solutions that converge. However, the performance of the logistic regression models in trials where no solutions were found using the Seldonian framework will be analyzed to elucidate learnings about the nature of those trials. 
 
