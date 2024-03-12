@@ -1,4 +1,4 @@
-# Chapter 4 (RENAME & EDIT) {#chap-4}
+# Seldonian Algorithms for Classification: A Simulation Study {#chap-4}
 
 ```{r, include = FALSE}
 library(mosaic)
