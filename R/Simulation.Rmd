@@ -314,7 +314,7 @@ This data set has 99.76% accuracy, although the distribution of race is affected
 
 Let's introduce some balance across racial lines.
 
-$\\$
+## Generating the Parent Data Set
 
 First, let's subset these 4 groups.
 
@@ -420,3 +420,150 @@ $\\$
 The accuracy is a little bit too good. For the final mechanism, we will follow this framework, but weaken the strengths of the correlations. 
 
 # Data Generation Mechanism #4 (class balance, but with some error)
+
+## Generating the Parent Data Set
+
+```{r}
+# define a linear combination of predictors as desired
+linear_combination = - 0.34 - 16 * compas_sim_balanced$age + ifelse(compas_sim_balanced$prior_offense == 1, 600, 0)
+
+# pass through an inverse-logit function
+probs = exp(linear_combination) / (1 + exp(linear_combination))  
+
+# generate 5000 Bernoulli RVs for y
+is_recid_sim = rbinom(5000, 1, probs) 
+
+# join to original data frame
+compas_sim_balanced_4 <- cbind(compas_sim_balanced, is_recid_sim)
+```
+
+$\\$
+
+There are 2739 defendants who did not recidivate in this data set. 
+
+```{r}
+count(compas_sim_balanced_4$is_recid_sim == 0)
+```
+
+$\\$
+
+There are 2261 defendants who recidivated in this data set. 
+
+```{r}
+count(compas_sim_balanced_2$is_recid_sim == 1)
+```
+
+$\\$
+
+Next, let's induce balance into this data set. First, let's subset these 4 groups.
+
+```{r}
+compas_b_y <- compas_sim_balanced_4 %>%
+  filter(race == "African-American" & is_recid_sim == 1)
+
+compas_b_n <- compas_sim_balanced_4 %>%
+  filter(race == "African-American" & is_recid_sim == 0)
+
+compas_w_y <- compas_sim_balanced_4 %>%
+  filter(race == "Caucasian" & is_recid_sim == 1)
+
+compas_w_n <- compas_sim_balanced_4 %>%
+  filter(race == "Caucasian" & is_recid_sim == 0)
+```
+
+$\\$
+
+Next, let's randomly sample 1250 observations with replacement from each of the 4 groups in the new data set.
+
+```{r}
+compas_b_y_balanced <- compas_b_y[sample(nrow(compas_b_y), 1250, replace = TRUE),]
+compas_b_n_balanced <- compas_b_n[sample(nrow(compas_b_n), 1250, replace = TRUE),]
+compas_w_y_balanced <- compas_w_y[sample(nrow(compas_w_y), 1250, replace = TRUE),]
+compas_w_n_balanced <- compas_w_n[sample(nrow(compas_w_n), 1250, replace = TRUE),]
+```
+
+$\\$
+
+Finally, let's union all these together into a single data set.
+
+```{r}
+compas_sim_balanced_4 <- rbind(compas_b_y_balanced, 
+                               compas_b_n_balanced, 
+                               compas_w_y_balanced, 
+                               compas_w_n_balanced)
+```
+
+$\\$
+
+Let's also shuffle the data set row orderings to aid the machine learning algorithms later.
+
+```{r}
+compas_sim_balanced_4 <- compas_sim_balanced_4[sample(nrow(compas_sim_balanced_4), 
+                                                      5000, 
+                                                      replace = FALSE),]
+```
+
+
+$\\$
+
+The data set is now ready. 
+
+## Examining Distributions of the Recidivism in the Parent Data Set
+
+The bar plot below confirms the balanced nature of this new data set. 
+
+```{r, warning = FALSE, message = FALSE, fig.width = 4.5, fig.height = 3, fig.align = 'center'}
+compas_sim_balanced_4 %>%
+  ggplot(mapping = aes(x = as.factor(is_recid_sim))) +
+  geom_bar() +
+  theme_minimal() +
+  labs(x = "Recidivism",
+       title = "Simulated Recidivism Prevalence")
+```
+$\\$
+
+The balance is also preserved by race. 
+
+```{r, warning = FALSE, message = FALSE, fig.width = 4.5, fig.height = 3, fig.align = 'center'}
+compas_sim_balanced_4 %>%
+  ggplot(mapping = aes(x = race, fill = as.factor(is_recid_sim))) +
+  geom_bar() +
+  theme_minimal() +
+  labs(x = "Race",
+       title = "Simulated Recidivism Prevalence by Race",
+       fill = "Recidivism")
+```
+## Assessing Baseline Predictive Performance of the Parent Data Set 
+
+We want to make sure that our data set also has good, but not perfect, predictive performance. We'll fit a logistic regression and assess baseline accuracy. 
+
+```{r, warning = FALSE, message = FALSE}
+glm4 <- glm(is_recid_sim ~ age + prior_offense,
+            data = compas_sim_balanced_4,
+            family = binomial(logit))
+
+msummary(glm4)
+```
+
+```{r}
+glm4augment <- glm4 %>% 
+  broom::augment(type.predict = "response")
+glm4augment <- mutate(glm4augment, binprediction = round(.fitted, 0)) 
+with(glm4augment, table(is_recid_sim, binprediction))
+```
+
+$\\$
+
+Hmm, maybe we need to introduce an error term. 
+
+```{r}
+mean(linear_combination)
+```
+
+```{r}
+sd(linear_combination)
+```
+
+$\\$
+
+Maybe it's okay to not have class balance? Think about this some more (goal of finalizing it today).
