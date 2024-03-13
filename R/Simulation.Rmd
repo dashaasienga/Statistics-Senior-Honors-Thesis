@@ -1,0 +1,109 @@
+---
+title: "Thesis Simulation Document for Chapter 4"
+author: "Dasha Asienga"
+date: "`r Sys.Date()`"
+output: 
+  pdf_document:
+    toc: TRUE
+
+---
+
+```{r setup, include=FALSE}
+library(mosaic)
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(RColorBrewer)
+library(knitr)
+library(kableExtra)
+library(ggplot2)
+library(GGally)
+library(MASS)
+library(reshape2)
+library(pROC)
+```
+
+$\\$
+
+This file is intended to contain all the code and information to set up the simulation study and supplement Chapter 4.
+
+# Data Generation Mechanism
+
+We're interested in creating a data set that has 50-50 class balance, even across the demographic group, and also has better predictive performance than the COMPAS tool. For this set-up, we will only use 2 variables from the COMPAS data set: 1 continuous variable and 1 categorical variable.
+
+## Reading in the Data
+
+First, let's read in the data. 
+
+```{r}
+compas_path <- "/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/COMPAS/compas_seldonian_bw.csv"
+compas_sim <- read.csv(compas_path)
+```
+
+## Data Subsetting
+
+Next, let's plot the distributions of the continuous variables to choose which one we'll proceed with.
+
+```{r, warning = FALSE, message = FALSE, fig.width = 4.5, fig.height = 3, fig.align = 'center'}
+compas_sim %>%
+  ggplot(mapping = aes(x = age)) +
+  geom_histogram() +
+  theme_minimal() +
+  labs(title = "Age")
+```
+
+```{r, warning = FALSE, message = FALSE, fig.width = 4.5, fig.height = 3, fig.align = 'center'}
+compas_sim %>%
+  ggplot(mapping = aes(x = priors_count)) +
+  geom_histogram() +
+  theme_minimal() +
+  labs(title = "Priors Count",
+       x = "priors count")
+```
+
+$\\$
+
+Because age has more variation, we'll use it as our continuous variable. We'll convert `priors_count` into a categorical variable.
+
+```{r}
+compas_sim <- compas_sim %>%
+  mutate(prior_offense = ifelse(priors_count > 0, 1, 0)) %>%
+  dplyr::select(c(race, prior_offense, age, is_recid))
+```
+
+$\\$
+
+`age` seems to be a useful predictor for recidivism.
+
+```{r}
+favstats(age ~ is_recid, data = compas_sim)
+```
+
+$\\$
+
+Whether a defendant has committed a prior offense or not appears to be a useful predictor for recidivism as well. 
+
+```{r, warning = FALSE, message = FALSE, fig.width = 4.5, fig.height = 3, fig.align = 'center'}
+compas_sim %>%
+  ggplot(mapping = aes(x = as.factor(prior_offense), fill = as.factor(is_recid))) +
+  geom_bar() +
+  theme_minimal() +
+  labs(title = "Committed a Prior Offense",
+       fill = "Recidivism",
+       x = "prior offense")
+```
+
+$\\$
+
+We'll proceed with these 2 variables -- `age` and `prior_offense` for the simulation study. A glimpse of the data is shown below.
+
+```{r}
+compas_sim <- compas_sim %>%
+  mutate(prior_offense = as.factor(prior_offense),
+         is_recid = as.factor(is_recid))
+
+glimpse(compas_sim)
+head(compas_sim)
+```
+
+## Generating the Parent Simulation Data Set
