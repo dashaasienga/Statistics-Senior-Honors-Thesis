@@ -191,3 +191,27 @@ compas_sim_balanced %>%
 ```
 
 ## Assessing Baseline Predictive Performance of the Parent Data Set 
+
+We want to make sure that our data set also has good predictive performance. We'll fit a logistic regression and assess baseline accuracy. 
+
+```{r}
+glm1 <- glm(is_recid ~ age + prior_offense,
+            data = compas_sim_balanced,
+            family = binomial(logit))
+
+msummary(glm1)
+```
+
+
+```{r}
+glm1augment <- glm1 %>% 
+  broom::augment(type.predict = "response")
+glm1augment <- mutate(glm1augment, binprediction = round(.fitted, 0)) 
+with(glm1augment, table(is_recid, binprediction))
+```
+
+```{r}
+(1334 + 1713)/5000
+```
+
+This model has 61% accuracy. 
