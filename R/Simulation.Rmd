@@ -107,3 +107,63 @@ head(compas_sim)
 ```
 
 ## Generating the Parent Simulation Data Set
+
+We want a setting with 50-50 class balance for each combination of race and recidivism status. To achieve that, we'll perform sample observations with replacement. Let's create a data set with 1250 observations in each of these 4 groups, hence, 5000 observations total.
+
+$\\$
+
+First, let's subset these 4 groups.
+
+```{r}
+compas_b_y <- compas_sim %>%
+  filter(race == "African-American" & is_recid == 1)
+
+compas_b_n <- compas_sim %>%
+  filter(race == "African-American" & is_recid == 0)
+
+compas_w_y <- compas_sim %>%
+  filter(race == "Caucasian" & is_recid == 1)
+
+compas_w_n <- compas_sim %>%
+  filter(race == "Caucasian" & is_recid == 0)
+```
+
+$\\$
+
+Next, let's randomly sample 1250 observations from each of these groups.
+
+```{r}
+compas_b_y_balanced <- compas_b_y[sample(nrow(compas_b_y), 1250, replace = TRUE),]
+compas_b_n_balanced <- compas_b_n[sample(nrow(compas_b_n), 1250, replace = TRUE),]
+compas_w_y_balanced <- compas_w_y[sample(nrow(compas_w_y), 1250, replace = TRUE),]
+compas_w_n_balanced <- compas_w_n[sample(nrow(compas_w_n), 1250, replace = TRUE),]
+```
+
+$\\$
+
+Finally, let's union all these together into a single data set.
+
+```{r}
+compas_sim_balanced <- rbind(compas_b_y_balanced, 
+                             compas_b_n_balanced, 
+                             compas_w_y_balanced, 
+                             compas_w_n_balanced)
+```
+
+$\\$
+
+Let's also shuffle the data set row orderings to aid the machine learning algorithms later.
+
+```{r}
+compas_sim_balanced <- compas_sim_balanced[sample(nrow(compas_sim_balanced), 
+                                                  5000, 
+                                                  replace = FALSE),]
+```
+
+$\\$
+
+The parent data set is now ready. 
+
+## Examine Distributions of the Parent Data Set
+
+## Assess Baseline Predictive Performance of the Parent Data Set 
