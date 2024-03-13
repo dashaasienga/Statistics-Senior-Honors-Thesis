@@ -126,8 +126,6 @@ For each simulation trial, the overall accuracy of both the Seldonian model and 
 
 Drawing from the fairness definitions described in Chapter \@ref(fairnessdefinitions) with a particular focus on the COMPAS example in Chapter \@ref(chap-3), it may be less important that a model satisfies independence. That is, that the model, on average, has the same likelihood of a positive prediction for all demographic groups. Instead, it may be more realistic to expect that the model be equally wrong or equally correct in its predictions of $Y$ for each demographic group. For this reason, one fairness constraint ($n=1$) will be set on the Seldonian algorithms to satisfy separation, otherwise known as equality of the error rates or equality of odds, as defined in Equation \@ref(ch4eq1) within some margin $\epsilon$ and with $1 - \delta$ % confidence. Similar to Chapter \@ref(seldapp), $\epsilon$ will be set to four levels: $0.2, 0.1, 0.05, \text{and } 0.01$. $\delta$ will be set to $0.05$ to guarantee 95% confidence. 
 
-*Equality of Odds*: equality of false positive rates (FPR)/ Type I error rates and false negative rates (FNR)/ Type II error rates across groups:
-
 \begin{equation}
 \label{ch4eq1}
 g(\theta): abs[(FPR | \text{A = a} - FPR | \text{A = b}) + (FNR | \text{A = a} - FNR | \text{A = b})] - \epsilon.
