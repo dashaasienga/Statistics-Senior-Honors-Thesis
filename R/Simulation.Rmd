@@ -164,6 +164,30 @@ $\\$
 
 The parent data set is now ready. 
 
-## Examine Distributions of the Parent Data Set
+## Examining Distributions of the Recidivism in the Parent Data Set
 
-## Assess Baseline Predictive Performance of the Parent Data Set 
+The bar plot below shows that we've achieve perfect class balance.
+
+```{r, warning = FALSE, message = FALSE, fig.width = 4.5, fig.height = 3, fig.align = 'center'}
+compas_sim_balanced %>%
+  ggplot(mapping = aes(x = is_recid)) +
+  geom_bar() +
+  theme_minimal() +
+  labs(x = "Recidivism",
+       title = "Recidivism Prevalence")
+```
+
+$\\$
+
+The bar plot below reveals that the balance is preserved by race as well. 
+
+```{r, warning = FALSE, message = FALSE, fig.width = 4.5, fig.height = 3, fig.align = 'center'}
+compas_sim_balanced %>%
+  ggplot(mapping = aes(x = is_recid, fill = race)) +
+  geom_bar() +
+  theme_minimal() +
+  labs(x = "Recidivism",
+       title = "Recidivism Prevalence by Race")
+```
+
+## Assessing Baseline Predictive Performance of the Parent Data Set 
