@@ -736,7 +736,7 @@ compas_sim_balanced_5 <- compas_sim_balanced_5 %>%
 
 $\\$
 
-Barely discrepancy is observed. 
+The discrimination statistic is ~0.06.
 
 ```{r, warning = FALSE, message = FALSE}
 compas_sim_balanced_5 %>%
@@ -896,7 +896,7 @@ compas_sim_balanced_6 <- compas_sim_balanced_6 %>%
 
 $\\$
 
-Some discrepancy is preserved, and in the same direction as previous analyses, although not of the same magnitude. The discrimination statistic is ~0.09.
+Some discrepancy is preserved, and in the same direction as previous analyses, although not of the same magnitude. The discrimination statistic is ~0.07.
 
 ```{r, warning = FALSE, message = FALSE}
 compas_sim_balanced_6 %>%
