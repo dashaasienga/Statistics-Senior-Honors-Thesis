@@ -439,7 +439,7 @@ compas_sim_balanced_4 <- cbind(compas_sim_balanced, is_recid_sim)
 
 $\\$
 
-There are 2739 defendants who did not recidivate in this data set. 
+There are 2733 defendants who did not recidivate in this data set. 
 
 ```{r}
 count(compas_sim_balanced_4$is_recid_sim == 0)
@@ -447,10 +447,10 @@ count(compas_sim_balanced_4$is_recid_sim == 0)
 
 $\\$
 
-There are 2261 defendants who recidivated in this data set. 
+There are 2267 defendants who recidivated in this data set. 
 
 ```{r}
-count(compas_sim_balanced_2$is_recid_sim == 1)
+count(compas_sim_balanced_4$is_recid_sim == 1)
 ```
 
 $\\$
@@ -566,4 +566,279 @@ sd(linear_combination)
 
 $\\$
 
-Maybe it's okay to not have class balance? Think about this some more (goal of finalizing it today).
+Maybe it's okay to not have class balance? Think about this some more.
+
+# Data Generation Mechanism #5 (class balance, but with some error)
+
+## Generating the Parent Data Set
+
+```{r}
+set.seed(93)
+# define a linear combination of predictors as desired
+error <- rnorm(n = 5000, mean = 150, sd = 120)
+linear_combination = - 0.34 - 16 * compas_sim_balanced$age + ifelse(compas_sim_balanced$prior_offense == 1, 600, 0) + error
+
+# pass through an inverse-logit function
+probs = exp(linear_combination) / (1 + exp(linear_combination))  
+
+# generate 5000 Bernoulli RVs for y
+is_recid_sim = rbinom(5000, 1, probs) 
+
+# join to original data frame
+compas_sim_balanced_5 <- cbind(compas_sim_balanced, is_recid_sim)
+```
+
+$\\$
+
+There are 2204 defendants who did not recidivate in this data set. 
+
+```{r}
+count(compas_sim_balanced_5$is_recid_sim == 0)
+```
+
+$\\$
+
+There are 2796 defendants who recidivated in this data set. 
+
+```{r}
+count(compas_sim_balanced_5$is_recid_sim == 1)
+```
+
+$\\$
+
+Next, let's induce balance into this data set. First, let's subset these 4 groups.
+
+```{r}
+compas_b_y <- compas_sim_balanced_5 %>%
+  filter(race == "African-American" & is_recid_sim == 1)
+
+compas_b_n <- compas_sim_balanced_5 %>%
+  filter(race == "African-American" & is_recid_sim == 0)
+
+compas_w_y <- compas_sim_balanced_5 %>%
+  filter(race == "Caucasian" & is_recid_sim == 1)
+
+compas_w_n <- compas_sim_balanced_5 %>%
+  filter(race == "Caucasian" & is_recid_sim == 0)
+```
+
+$\\$
+
+Next, let's randomly sample 1250 observations with replacement from each of the 4 groups in the new data set.
+
+```{r}
+set.seed(93)
+compas_b_y_balanced <- compas_b_y[sample(nrow(compas_b_y), 1250, replace = TRUE),]
+compas_b_n_balanced <- compas_b_n[sample(nrow(compas_b_n), 1250, replace = TRUE),]
+compas_w_y_balanced <- compas_w_y[sample(nrow(compas_w_y), 1250, replace = TRUE),]
+compas_w_n_balanced <- compas_w_n[sample(nrow(compas_w_n), 1250, replace = TRUE),]
+```
+
+$\\$
+
+Finally, let's union all these together into a single data set.
+
+```{r}
+compas_sim_balanced_5 <- rbind(compas_b_y_balanced, 
+                               compas_b_n_balanced, 
+                               compas_w_y_balanced, 
+                               compas_w_n_balanced)
+```
+
+$\\$
+
+Let's also shuffle the data set row orderings to aid the machine learning algorithms later.
+
+```{r}
+set.seed(93)
+compas_sim_balanced_5 <- compas_sim_balanced_5[sample(nrow(compas_sim_balanced_4), 
+                                                      5000, 
+                                                      replace = FALSE),]
+```
+
+
+$\\$
+
+The data set is now ready. 
+
+## Assessing Baseline Predictive Performance of the Parent Data Set 
+
+We want to make sure that our data set also has good, but not perfect, predictive performance. We'll fit a logistic regression and assess baseline accuracy. 
+
+```{r, warning = FALSE, message = FALSE}
+glm5 <- glm(is_recid_sim ~ age + prior_offense,
+            data = compas_sim_balanced_5,
+            family = binomial(logit))
+
+msummary(glm5)
+```
+
+```{r}
+glm5augment <- glm5 %>% 
+  broom::augment(type.predict = "response")
+glm5augment <- mutate(glm5augment, binprediction = round(.fitted, 0)) 
+with(glm5augment, table(is_recid_sim, binprediction))
+```
+
+This model has 93.54% accuracy.
+
+# Data Generation Mechanism #6 (class balance, but with more error)
+
+## Generating the Parent Data Set
+
+```{r}
+set.seed(93)
+# define a linear combination of predictors as desired
+error <- rnorm(n = 5000, mean = 50, sd = 75)
+error2 <- rnorm(n = 5000, mean = 50, sd = 75)
+linear_combination = - 0.34 - 16 * compas_sim_balanced$age + ifelse(compas_sim_balanced$prior_offense == 1, 600, 0) + error + error2
+
+# pass through an inverse-logit function
+probs = exp(linear_combination) / (1 + exp(linear_combination))  
+
+# generate 5000 Bernoulli RVs for y
+is_recid_sim = rbinom(5000, 1, probs) 
+
+# join to original data frame
+compas_sim_balanced_6 <- cbind(compas_sim_balanced, is_recid_sim)
+```
+
+$\\$
+
+There are 2380 defendants who did not recidivate in this data set. 
+
+```{r}
+count(compas_sim_balanced_6$is_recid_sim == 0)
+```
+
+$\\$
+
+There are 2620 defendants who recidivated in this data set. 
+
+```{r}
+count(compas_sim_balanced_6$is_recid_sim == 1)
+```
+
+$\\$
+
+Next, let's induce balance into this data set. First, let's subset these 4 groups.
+
+```{r}
+compas_b_y <- compas_sim_balanced_6 %>%
+  filter(race == "African-American" & is_recid_sim == 1)
+
+compas_b_n <- compas_sim_balanced_6 %>%
+  filter(race == "African-American" & is_recid_sim == 0)
+
+compas_w_y <- compas_sim_balanced_6 %>%
+  filter(race == "Caucasian" & is_recid_sim == 1)
+
+compas_w_n <- compas_sim_balanced_6 %>%
+  filter(race == "Caucasian" & is_recid_sim == 0)
+```
+
+$\\$
+
+Next, let's randomly sample 1250 observations with replacement from each of the 4 groups in the new data set.
+
+```{r}
+set.seed(93)
+compas_b_y_balanced <- compas_b_y[sample(nrow(compas_b_y), 1250, replace = TRUE),]
+compas_b_n_balanced <- compas_b_n[sample(nrow(compas_b_n), 1250, replace = TRUE),]
+compas_w_y_balanced <- compas_w_y[sample(nrow(compas_w_y), 1250, replace = TRUE),]
+compas_w_n_balanced <- compas_w_n[sample(nrow(compas_w_n), 1250, replace = TRUE),]
+```
+
+$\\$
+
+Finally, let's union all these together into a single data set.
+
+```{r}
+compas_sim_balanced_6 <- rbind(compas_b_y_balanced, 
+                               compas_b_n_balanced, 
+                               compas_w_y_balanced, 
+                               compas_w_n_balanced)
+```
+
+$\\$
+
+Let's also shuffle the data set row orderings to aid the machine learning algorithms later.
+
+```{r}
+set.seed(93)
+compas_sim_balanced_6 <- compas_sim_balanced_6[sample(nrow(compas_sim_balanced_6), 
+                                                      5000, 
+                                                      replace = FALSE),]
+```
+
+
+$\\$
+
+The data set is now ready. 
+
+## Assessing Baseline Predictive Performance of the Parent Data Set 
+
+We want to make sure that our data set also has good, but not perfect, predictive performance. We'll fit a logistic regression and assess baseline accuracy. 
+
+```{r, warning = FALSE, message = FALSE}
+glm6 <- glm(is_recid_sim ~ age + prior_offense,
+            data = compas_sim_balanced_6,
+            family = binomial(logit))
+
+msummary(glm6)
+```
+
+```{r}
+glm6augment <- glm6 %>% 
+  broom::augment(type.predict = "response")
+glm6augment <- mutate(glm6augment, binprediction = round(.fitted, 0)) 
+with(glm6augment, table(is_recid_sim, binprediction))
+```
+
+This data set has 93.12% accuracy.
+
+```{r}
+preds <- predict(glm6, newdata=compas_sim_balanced_6, type="response")
+
+compas_sim_balanced_6 <- compas_sim_balanced_6 %>% 
+  mutate(preds = preds,
+         prediction = round(preds, 0),
+         pred_risk = ifelse(prediction == 0, 'Low', 'High')) 
+```
+
+$\\$
+
+Some discrepancy is preserved, and in the same direction as previous analyses, although not of the same magnitude. The discrimination statistic is ~0.09.
+
+```{r}
+compas_sim_balanced_6 %>%
+  dplyr::select(race, pred_risk, is_recid) %>%
+  rename("Risk" = pred_risk,
+         "Race" = race) %>%
+  group_by(Race, is_recid) %>%
+  mutate(Total = n()) %>%
+  group_by(Risk, Race, Total) %>%
+  summarise("Reoffended" = count(is_recid == 1),
+            "Did Not Reoffend" = count(is_recid == 0)) %>%
+  pivot_longer(cols = c("Reoffended", "Did Not Reoffend"),
+               names_to = "Recidivism") %>%
+  pivot_wider(
+    id_cols = c("Risk", "Recidivism", "Total"),
+    names_from = "Race",
+    values_from = value
+  ) %>%
+  rename("Black" = `African-American`,
+         "White" = `Caucasian`) %>%
+  mutate(Black = round(100 * Black / Total, 2),
+         White = round(100 * White / Total, 2)) %>%
+  dplyr::select(-Total) %>%
+  group_by(Risk, Recidivism) %>%
+  summarize(Black = max(Black, na.rm = TRUE),
+            White = max(White, na.rm = TRUE)) %>%
+  filter((Risk == "High" & Recidivism == "Did Not Reoffend") |
+           (Risk == "Low" & Recidivism == "Reoffended")
+  ) %>%
+  kable(booktabs = TRUE)
+```
+
+
