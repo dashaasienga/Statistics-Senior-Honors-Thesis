@@ -810,7 +810,7 @@ $\\$
 
 Some discrepancy is preserved, and in the same direction as previous analyses, although not of the same magnitude. The discrimination statistic is ~0.09.
 
-```{r}
+```{r, warning = FALSE, message = FALSE}
 compas_sim_balanced_6 %>%
   dplyr::select(race, pred_risk, is_recid) %>%
   rename("Risk" = pred_risk,
