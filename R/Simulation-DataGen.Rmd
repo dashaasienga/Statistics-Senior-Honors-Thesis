@@ -1,5 +1,5 @@
 ---
-title: "Thesis Simulation Document for Chapter 4"
+title: "Thesis Simulation Data Generation Document for Chapter 4"
 author: "Dasha Asienga"
 date: "`r Sys.Date()`"
 output: 
@@ -25,13 +25,13 @@ library(pROC)
 
 $\\$
 
-This file is intended to contain all the code and information to set up the simulation study and supplement Chapter 4.
+This file is intended to try out and test different data generation mechanisms.
 
-# Data Generation Mechanism #1 (class balance)
+$\\$
 
 We're interested in creating a data set that has 50-50 class balance, even across the demographic group, and also has better predictive performance than the COMPAS tool. For this set-up, we will only use 2 variables from the COMPAS data set: 1 continuous variable and 1 categorical variable.
 
-## Reading in the Data
+# Reading in the Data
 
 First, let's read in the data. 
 
@@ -40,7 +40,7 @@ compas_path <- "/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/COMPA
 compas_sim <- read.csv(compas_path)
 ```
 
-## Data Subsetting
+# Data Subsetting
 
 Next, let's plot the distributions of the continuous variables to choose which one we'll proceed with.
 
@@ -95,7 +95,7 @@ compas_sim %>%
 
 $\\$
 
-We'll proceed with these 2 variables -- `age` and `prior_offense` for the simulation study. A glimpse of the data is shown below.
+We'll proceed with these 2 variables -- `age` and `prior_offense` -- for the simulation study. A glimpse of the data is shown below.
 
 ```{r}
 compas_sim <- compas_sim %>%
@@ -105,6 +105,8 @@ compas_sim <- compas_sim %>%
 glimpse(compas_sim)
 head(compas_sim)
 ```
+
+# Data Generation Mechanism #1 (class balance)
 
 ## Generating the Parent Simulation Data Set 
 
@@ -133,6 +135,7 @@ $\\$
 Next, let's randomly sample 1250 observations from each of these groups.
 
 ```{r}
+set.seed(93)
 compas_b_y_balanced <- compas_b_y[sample(nrow(compas_b_y), 1250, replace = TRUE),]
 compas_b_n_balanced <- compas_b_n[sample(nrow(compas_b_n), 1250, replace = TRUE),]
 compas_w_y_balanced <- compas_w_y[sample(nrow(compas_w_y), 1250, replace = TRUE),]
@@ -152,9 +155,10 @@ compas_sim_balanced <- rbind(compas_b_y_balanced,
 
 $\\$
 
-Let's also shuffle the data set row orderings to aid the machine learning algorithms later.
+Let's also shuffle the data set row orderings to aid the machine learning algorithms later. Some algorithms face convergence problems, especially in Python, when the classes are ordered.
 
 ```{r}
+set.seed(123)
 compas_sim_balanced <- compas_sim_balanced[sample(nrow(compas_sim_balanced), 
                                                   5000, 
                                                   replace = FALSE),]
@@ -211,10 +215,52 @@ with(glm1augment, table(is_recid, binprediction))
 ```
 
 ```{r}
-(1334 + 1713)/5000
+(1331 + 1673)/5000
 ```
 
-This model has 61% accuracy. 
+This model has 60.08% accuracy -- this is 10% higher than a random model would achieve. Our previous data was only 4% higher in accuracy than what a blind model would achieve, so in some sense, this is better and provides more room for the Seldonian results to vary.
+
+$\\$
+
+Discrepancy across race is also preserved, signifying that there is room to demonstrate the Seldonian algorithm's ability to satisfy fairness constraints.
+
+```{r, warning = FALSE, message = FALSE}
+preds <- predict(glm1, newdata = compas_sim_balanced, type="response")
+
+compas_sim_balanced <- compas_sim_balanced %>% 
+  mutate(preds = preds,
+         prediction = round(preds, 0),
+         pred_risk = ifelse(prediction == 0, 'Low', 'High')) 
+
+compas_sim_balanced %>%
+  dplyr::select(race, pred_risk, is_recid) %>%
+  rename("Risk" = pred_risk,
+         "Race" = race) %>%
+  group_by(Race, is_recid) %>%
+  mutate(Total = n()) %>%
+  group_by(Risk, Race, Total) %>%
+  summarise("Reoffended" = count(is_recid == 1),
+            "Did Not Reoffend" = count(is_recid == 0)) %>%
+  pivot_longer(cols = c("Reoffended", "Did Not Reoffend"),
+               names_to = "Recidivism") %>%
+  pivot_wider(
+    id_cols = c("Risk", "Recidivism", "Total"),
+    names_from = "Race",
+    values_from = value
+  ) %>%
+  rename("Black" = `African-American`,
+         "White" = `Caucasian`) %>%
+  mutate(Black = round(100 * Black / Total, 2),
+         White = round(100 * White / Total, 2)) %>%
+  dplyr::select(-Total) %>%
+  group_by(Risk, Recidivism) %>%
+  summarize(Black = max(Black, na.rm = TRUE),
+            White = max(White, na.rm = TRUE)) %>%
+  filter((Risk == "High" & Recidivism == "Did Not Reoffend") |
+           (Risk == "Low" & Recidivism == "Reoffended")
+  ) %>%
+  kable(booktabs = TRUE)
+```
 
 # Data Generation Mechanism #2 (better predictive performance)
 
@@ -225,6 +271,7 @@ $\\$
 ## Generating the Parent Simulation Data Set 
 
 ```{r}
+set.seed(123)
 # define a linear combination of predictors as desired
 linear_combination = - 15 - 24 * compas_sim_balanced$age + ifelse(compas_sim_balanced$prior_offense == 1, 1000, -10)
 
@@ -240,19 +287,13 @@ compas_sim_balanced_2 <- cbind(compas_sim_balanced, is_recid_sim)
 
 $\\$
 
-There are 2487 defendants who did not recidivate in this data set. 
+There are `r count(compas_sim_balanced_2$is_recid_sim == 0)` defendants who did not recidivate in this data set. 
 
-```{r}
-count(compas_sim_balanced_2$is_recid_sim == 0)
-```
 
 $\\$
 
-There are 2513 defendants who recidivated in this data set. 
+There are `r count(compas_sim_balanced_2$is_recid_sim == 1)` defendants who recidivated in this data set. 
 
-```{r}
-count(compas_sim_balanced_2$is_recid_sim == 1)
-```
 
 $\\$
 
@@ -305,10 +346,10 @@ with(glm2augment, table(is_recid_sim, binprediction))
 ```
 
 ```{r}
-(2475 + 2513)/ 5000
+(2458 + 2529)/ 5000
 ```
 
-This data set has 99.76% accuracy, although the distribution of race is affected. There is barely any error, so this may not be too useful for our fairness definition. 
+This data set has 99.74% accuracy, although the distribution of race is affected. There is barely any error, so this may not be too useful for our fairness definition. 
 
 # Data Generation Mechanism #3 (class balance and better predictive performance)
 
@@ -337,6 +378,7 @@ $\\$
 Next, let's randomly sample 1250 observations with replacement from each of the 4 groups in the new data set.
 
 ```{r}
+set.seed(123)
 compas_b_y_balanced <- compas_b_y[sample(nrow(compas_b_y), 1250, replace = TRUE),]
 compas_b_n_balanced <- compas_b_n[sample(nrow(compas_b_n), 1250, replace = TRUE),]
 compas_w_y_balanced <- compas_w_y[sample(nrow(compas_w_y), 1250, replace = TRUE),]
@@ -359,6 +401,7 @@ $\\$
 Let's also shuffle the data set row orderings to aid the machine learning algorithms later.
 
 ```{r}
+set.seed(123)
 compas_sim_balanced_3 <- compas_sim_balanced_3[sample(nrow(compas_sim_balanced_3), 
                                                       5000, 
                                                       replace = FALSE),]
@@ -417,13 +460,19 @@ with(glm3augment, table(is_recid_sim, binprediction))
 
 $\\$
 
+```{r}
+(2478 + 2500)/5000
+```
+
+
 The accuracy is a little bit too good. For the final mechanism, we will follow this framework, but weaken the strengths of the correlations. 
 
-# Data Generation Mechanism #4 (class balance, but with some error)
+# Data Generation Mechanism #4 (adjusting coefficients of Method #2)
 
 ## Generating the Parent Data Set
 
 ```{r}
+set.seed(123)
 # define a linear combination of predictors as desired
 linear_combination = - 0.34 - 16 * compas_sim_balanced$age + ifelse(compas_sim_balanced$prior_offense == 1, 600, 0)
 
@@ -439,19 +488,14 @@ compas_sim_balanced_4 <- cbind(compas_sim_balanced, is_recid_sim)
 
 $\\$
 
-There are 2733 defendants who did not recidivate in this data set. 
+There are `r count(compas_sim_balanced_4$is_recid_sim == 0)` defendants who did not recidivate in this data set. 
 
-```{r}
-count(compas_sim_balanced_4$is_recid_sim == 0)
-```
 
 $\\$
 
-There are 2267 defendants who recidivated in this data set. 
+There are `r count(compas_sim_balanced_4$is_recid_sim == 1)` defendants who recidivated in this data set. 
 
-```{r}
-count(compas_sim_balanced_4$is_recid_sim == 1)
-```
+
 
 $\\$
 
@@ -476,6 +520,7 @@ $\\$
 Next, let's randomly sample 1250 observations with replacement from each of the 4 groups in the new data set.
 
 ```{r}
+set.seed(123)
 compas_b_y_balanced <- compas_b_y[sample(nrow(compas_b_y), 1250, replace = TRUE),]
 compas_b_n_balanced <- compas_b_n[sample(nrow(compas_b_n), 1250, replace = TRUE),]
 compas_w_y_balanced <- compas_w_y[sample(nrow(compas_w_y), 1250, replace = TRUE),]
@@ -498,6 +543,7 @@ $\\$
 Let's also shuffle the data set row orderings to aid the machine learning algorithms later.
 
 ```{r}
+set.seed(123)
 compas_sim_balanced_4 <- compas_sim_balanced_4[sample(nrow(compas_sim_balanced_4), 
                                                       5000, 
                                                       replace = FALSE),]
@@ -575,7 +621,7 @@ Maybe it's okay to not have class balance? Think about this some more.
 ```{r}
 set.seed(93)
 # define a linear combination of predictors as desired
-error <- rnorm(n = 5000, mean = 150, sd = 120)
+error <- rnorm(n = 5000, mean = 100, sd = 100)
 linear_combination = - 0.34 - 16 * compas_sim_balanced$age + ifelse(compas_sim_balanced$prior_offense == 1, 600, 0) + error
 
 # pass through an inverse-logit function
@@ -590,19 +636,12 @@ compas_sim_balanced_5 <- cbind(compas_sim_balanced, is_recid_sim)
 
 $\\$
 
-There are 2204 defendants who did not recidivate in this data set. 
+There are `r count(compas_sim_balanced_5$is_recid_sim == 0)` defendants who did not recidivate in this data set. 
 
-```{r}
-count(compas_sim_balanced_5$is_recid_sim == 0)
-```
 
 $\\$
 
-There are 2796 defendants who recidivated in this data set. 
-
-```{r}
-count(compas_sim_balanced_5$is_recid_sim == 1)
-```
+There are `r count(compas_sim_balanced_5$is_recid_sim == 1)` defendants who recidivated in this data set. 
 
 $\\$
 
@@ -651,7 +690,7 @@ Let's also shuffle the data set row orderings to aid the machine learning algori
 
 ```{r}
 set.seed(93)
-compas_sim_balanced_5 <- compas_sim_balanced_5[sample(nrow(compas_sim_balanced_4), 
+compas_sim_balanced_5 <- compas_sim_balanced_5[sample(nrow(compas_sim_balanced_5), 
                                                       5000, 
                                                       replace = FALSE),]
 ```
@@ -680,7 +719,58 @@ glm5augment <- mutate(glm5augment, binprediction = round(.fitted, 0))
 with(glm5augment, table(is_recid_sim, binprediction))
 ```
 
-This model has 93.54% accuracy.
+```{r}
+(2324 + 2370)/ 5000
+```
+
+This model has 93.88% accuracy.
+
+```{r}
+preds <- predict(glm5, newdata = compas_sim_balanced_5, type="response")
+
+compas_sim_balanced_5 <- compas_sim_balanced_5 %>% 
+  mutate(preds = preds,
+         prediction = round(preds, 0),
+         pred_risk = ifelse(prediction == 0, 'Low', 'High')) 
+```
+
+$\\$
+
+Barely discrepancy is observed. 
+
+```{r, warning = FALSE, message = FALSE}
+compas_sim_balanced_5 %>%
+  dplyr::select(race, pred_risk, is_recid) %>%
+  rename("Risk" = pred_risk,
+         "Race" = race) %>%
+  group_by(Race, is_recid) %>%
+  mutate(Total = n()) %>%
+  group_by(Risk, Race, Total) %>%
+  summarise("Reoffended" = count(is_recid == 1),
+            "Did Not Reoffend" = count(is_recid == 0)) %>%
+  pivot_longer(cols = c("Reoffended", "Did Not Reoffend"),
+               names_to = "Recidivism") %>%
+  pivot_wider(
+    id_cols = c("Risk", "Recidivism", "Total"),
+    names_from = "Race",
+    values_from = value
+  ) %>%
+  rename("Black" = `African-American`,
+         "White" = `Caucasian`) %>%
+  mutate(Black = round(100 * Black / Total, 2),
+         White = round(100 * White / Total, 2)) %>%
+  dplyr::select(-Total) %>%
+  group_by(Risk, Recidivism) %>%
+  summarize(Black = max(Black, na.rm = TRUE),
+            White = max(White, na.rm = TRUE)) %>%
+  filter((Risk == "High" & Recidivism == "Did Not Reoffend") |
+           (Risk == "Low" & Recidivism == "Reoffended")
+  ) %>%
+  kable(booktabs = TRUE)
+```
+
+
+
 
 # Data Generation Mechanism #6 (class balance, but with more error)
 
@@ -705,19 +795,13 @@ compas_sim_balanced_6 <- cbind(compas_sim_balanced, is_recid_sim)
 
 $\\$
 
-There are 2380 defendants who did not recidivate in this data set. 
+There are `r count(compas_sim_balanced_6$is_recid_sim == 0)` defendants who did not recidivate in this data set. 
 
-```{r}
-count(compas_sim_balanced_6$is_recid_sim == 0)
-```
 
 $\\$
 
-There are 2620 defendants who recidivated in this data set. 
+There are `r count(compas_sim_balanced_6$is_recid_sim == 1)` defendants who recidivated in this data set. 
 
-```{r}
-count(compas_sim_balanced_6$is_recid_sim == 1)
-```
 
 $\\$
 
@@ -795,7 +879,11 @@ glm6augment <- mutate(glm6augment, binprediction = round(.fitted, 0))
 with(glm6augment, table(is_recid_sim, binprediction))
 ```
 
-This data set has 93.12% accuracy.
+```{r}
+(2309 + 2373)/5000
+```
+
+This data set has 93.64% accuracy.
 
 ```{r}
 preds <- predict(glm6, newdata=compas_sim_balanced_6, type="response")
