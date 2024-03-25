@@ -25,9 +25,11 @@ library(pROC)
 
 $\\$
 
-This file is intended to run the Seldonian framework on the parent simulation data set as a single run, before scaling it into multiple trials. 
+This file is intended to run the simulation process on the parent simulation data set as a single run, before scaling it into multiple trials. 
 
-# Reading in the Data
+# Logistic Regression
+
+## Reading in the Data
 
 First, let's read in the parent simulation data set.
 
@@ -36,13 +38,10 @@ compas_sim_path <- "/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/C
 compas_sim_parent <- read.csv(compas_sim_path)
 ```
 
-# Logistic Regression
+## Fitting the Logistic Regression
 
-First, we'll want to run the logistic regression as our baseline model and obtain the 3 key performance measures: convergence, accuracy, and discrimination.
+We'll want to run the logistic regression as our baseline model and obtain the 3 key performance measures: convergence, accuracy, and discrimination.
 
-$\\$
-
-Fit the logistic regression model.
 
 ```{r}
 lr <- glm(is_recid ~ age + prior_offense,
@@ -121,6 +120,332 @@ lr_disc_stat
 
 $\\$
 
-The results from the logistic regression are now easily saveable and retrievable, which will be useful when we scale the process. 
+The results from the logistic regression are now easily savable and retrievable, which will be useful when we scale the process. 
 
 # Seldonian Framework 
+
+We also want to be able to easily retrieve the 3 key performance measures from the Seldonian algorithms we run before we scale the process, that is, convergence, accuracy, and discrimination.
+
+## Reading in the Data
+
+First, let's read in the data.
+
+```{r, include = FALSE}
+# set up Python environment
+library(reticulate)
+use_python("/cm/shared/apps/amh-Rstudio/python-3.11.4/bin/python3", 
+           required = TRUE)
+```
+
+```{python, include = FALSE}
+# import necessary libraries
+import numpy as np
+import os
+
+import pandas as pd
+import json
+
+from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import StandardScaler
+from sklearn.compose import ColumnTransformer
+
+from seldonian.utils.io_utils import save_json
+from seldonian.parse_tree.parse_tree import (ParseTree,
+    make_parse_trees_from_constraints)
+from seldonian.dataset import DataSetLoader
+from seldonian.utils.io_utils import (load_json,save_pickle)
+from seldonian.spec import SupervisedSpec
+from seldonian.models.models import (
+    BinaryLogisticRegressionModel as LogisticRegressionModel) 
+from seldonian.models import objectives
+
+import matplotlib.pyplot as plt
+```
+
+```{python}
+# point to the data file
+f_orig = "/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/COMPAS/compas_sim.csv"
+
+columns_orig = ["race","prior_offense","age", "is_recid"]
+
+df = pd.read_csv(f_orig, header=0, names=columns_orig)
+```
+
+
+## Pre-Processing the Data
+
+Let's also preprocess the data to prepare it for Seldonian modeling. 
+
+```{python}
+# select inputs to be transformed 
+X = df.drop(columns=["is_recid"])
+y = df["is_recid"]
+
+# one hot encode race, scale age using standard scaler 
+ct = ColumnTransformer([('c',OneHotEncoder(),['race']), ('n',StandardScaler(),['age'])])
+    
+# apply transformation
+X_transformed = ct.fit_transform(X)
+    
+# get names after one-hot encoding
+output_columns = ct.get_feature_names_out(ct.feature_names_in_)
+    
+# make an output dataframe to save transformed X and y
+outdf = pd.DataFrame(X_transformed,columns=output_columns)
+
+# change names of columns 
+outdf.rename(columns={'c__race_African-American':'Black', 'c__race_Caucasian':'White', 'n__age':'age'}, inplace=True)
+```
+
+```{python}
+# re-index in order to concatenate columns
+prior_offense = df["prior_offense"]
+y.index = range(0, len(y))
+prior_offense.index = range(0, len(prior_offense))
+```
+
+```{python}
+# add label column and `prior_offense` into final dataframe
+outdf['prior_offense'] = prior_offense
+outdf['is_recid'] = y
+```
+
+$\\$
+
+The data set is now clean and ready. Let's save it along with the JSON metadata file.
+
+```{python}
+# save final dataframe
+output_path_data="/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/COMPAS/Simulation Single Run/compas_seldonian_sim.csv"
+
+outdf.to_csv(output_path_data,index=False,header=False)
+```
+
+
+```{python}
+# save metadata json file
+output_path_metadata="/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/COMPAS/Simulation Single Run/compas_seldonian_sim.json"
+
+metadata_dict = {
+  "regime":"supervised_learning",
+  "sub_regime":"classification",
+  "all_col_names":list(outdf.columns),
+  "label_col_names":"is_recid",
+  "sensitive_col_names":["Black", "White"]
+}
+    
+with open(output_path_metadata,'w') as outfile:
+    json.dump(metadata_dict,outfile,indent=2)
+```
+
+
+## Fitting a Seldonian Algorithm
+
+Varying $\epsilon = 0.2, 0.1, 0.05, \& \text{ }0.01$, let's fit a Seldonian algorithm such that
+
+$$abs((FNR | [Black]) - (FNR | [White])) + abs((FPR | [Black]) - (FPR | [White])) <= \epsilon.$$
+We will take $\delta = 0.05$ to ensure 95% confidence.
+
+$\\$
+
+First, let's read in the data set and specify the regime.
+
+```{python}
+import autograd.numpy as np
+
+data_pth = output_path_data
+metadata_pth = output_path_metadata
+save_dir = "/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Simulation/Single Run/"
+os.makedirs(save_dir,exist_ok=True)
+
+# create dataset from data and metadata file
+regime='supervised_learning'
+sub_regime='classification'
+
+loader = DataSetLoader(regime=regime)
+
+dataset = loader.load_supervised_dataset(
+  filename=data_pth,
+  metadata_filename=metadata_pth,
+  file_type='csv')
+  
+sensitive_col_names = dataset.meta.sensitive_col_names
+
+# use logistic regression model
+model = LogisticRegressionModel()
+    
+# set the primary objective to be log loss
+primary_objective = objectives.binary_logistic_loss
+```
+
+$\\$
+
+Next, let's create and save the specification files for each of the four levels of $\epsilon$.
+
+```{python}
+from seldonian.spec import createSupervisedSpec
+
+# define behavioral constraints (epsilon = 0.2)
+epsilon = 0.2
+constraint_name = "equalized_odds"
+if constraint_name == "equalized_odds":
+  constraint_strs = [f'abs((FNR | [Black]) - (FNR | [White])) + abs((FPR | [Black]) - (FPR | [White])) <= {epsilon}'] 
+deltas = [0.05]
+
+# create spec file
+save_dir = "/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Simulation/Single Run/equalized_odds_0.2"
+
+os.makedirs(save_dir) #create folder
+
+createSupervisedSpec(
+            dataset=dataset,
+            metadata_pth=metadata_pth,
+            constraint_strs=constraint_strs,
+            deltas=deltas,
+            save_dir=save_dir,
+            save=True,
+            verbose=False)
+            
+#---------------------------------------------#
+
+# define behavioral constraints (epsilon = 0.1)
+epsilon = 0.1
+constraint_name = "equalized_odds"
+if constraint_name == "equalized_odds":
+  constraint_strs = [f'abs((FNR | [Black]) - (FNR | [White])) + abs((FPR | [Black]) - (FPR | [White])) <= {epsilon}'] 
+deltas = [0.05]
+
+# create spec file
+save_dir = "/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Simulation/Single Run/equalized_odds_0.1"
+
+os.makedirs(save_dir) #create folder
+
+createSupervisedSpec(
+            dataset=dataset,
+            metadata_pth=metadata_pth,
+            constraint_strs=constraint_strs,
+            deltas=deltas,
+            save_dir=save_dir,
+            save=True,
+            verbose=False)
+            
+#-----------------------------------------------#
+            
+# define behavioral constraints (epsilon = 0.05)
+epsilon = 0.05
+constraint_name = "equalized_odds"
+if constraint_name == "equalized_odds":
+  constraint_strs = [f'abs((FNR | [Black]) - (FNR | [White])) + abs((FPR | [Black]) - (FPR | [White])) <= {epsilon}'] 
+deltas = [0.05]
+
+# create spec file
+save_dir = "/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Simulation/Single Run/equalized_odds_0.05"
+
+os.makedirs(save_dir) #create folder
+
+createSupervisedSpec(
+            dataset=dataset,
+            metadata_pth=metadata_pth,
+            constraint_strs=constraint_strs,
+            deltas=deltas,
+            save_dir=save_dir,
+            save=True,
+            verbose=False)
+            
+#----------------------------------------------#
+
+# define behavioral constraints (epsilon = 0.01)
+epsilon = 0.01
+constraint_name = "equalized_odds"
+if constraint_name == "equalized_odds":
+  constraint_strs = [f'abs((FNR | [Black]) - (FNR | [White])) + abs((FPR | [Black]) - (FPR | [White])) <= {epsilon}'] 
+deltas = [0.05]
+
+# create spec file
+save_dir = "/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Simulation/Single Run/equalized_odds_0.01"
+
+os.makedirs(save_dir) #create folder
+
+createSupervisedSpec(
+            dataset=dataset,
+            metadata_pth=metadata_pth,
+            constraint_strs=constraint_strs,
+            deltas=deltas,
+            save_dir=save_dir,
+            save=True,
+            verbose=False)
+```
+
+$\\$
+
+Finally, let's run the Seldonian engine for each of the four specification files. 
+
+```{python}
+from seldonian.seldonian_algorithm import SeldonianAlgorithm
+from seldonian.utils.io_utils import load_pickle
+
+# load the spec file (epsilon = 0.2)
+specfile = '/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Simulation/Single Run/equalized_odds_0.2/spec.pkl'
+spec = load_pickle(specfile)
+SA_02 = SeldonianAlgorithm(spec)
+
+#-----------------------------------#
+
+# load the spec file (epsilon = 0.1)
+specfile = '/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Simulation/Single Run/equalized_odds_0.1/spec.pkl'
+spec = load_pickle(specfile)
+SA_01 = SeldonianAlgorithm(spec)
+
+#-----------------------------------#
+
+# load the spec file (epsilon = 0.05)
+specfile = '/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Simulation/Single Run/equalized_odds_0.05/spec.pkl'
+spec = load_pickle(specfile)
+SA_005 = SeldonianAlgorithm(spec)
+
+#-----------------------------------#
+
+# load the spec file (epsilon = 0.01)
+specfile = '/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Simulation/Single Run/equalized_odds_0.01/spec.pkl'
+spec = load_pickle(specfile)
+SA_001 = SeldonianAlgorithm(spec)
+```
+
+
+## Convergence 
+
+### epsilon = 0.2
+
+```{python}
+passed_safety_02, solution_02 = SA_02.run(write_cs_logfile=True)
+passed_safety_02
+```
+
+
+### epsilon = 0.1
+
+```{python}
+passed_safety_01, solution_01 = SA_01.run(write_cs_logfile=True)
+passed_safety_01
+```
+
+### epsilon = 0.05
+
+```{python}
+passed_safety_005, solution_005 = SA_005.run(write_cs_logfile=True)
+passed_safety_005
+```
+
+### epsilon = 0.01
+
+```{python}
+passed_safety_001, solution_001 = SA_001.run(write_cs_logfile=True)
+passed_safety_001
+```
+
+## Accuracy
+
+## Discrimination
+
+
