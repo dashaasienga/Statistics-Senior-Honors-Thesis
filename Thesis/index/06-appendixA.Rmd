@@ -41,7 +41,7 @@ $$PPV = \frac{s_ep}{s_ep + (1-s_p)(1-p)}.$$
 
 $$NPV = \frac{s_p(1-p)}{(1-s_e)p + s_p(1-p)}.$$
 
-\noindent The code chunk below fixes arbitrary sensitivity (1 - FNR) and specificity (1 - FPR) values to illustrate through the proceeding plots that as prevalence varies, then PPV/ NPV varies and cannot be equal as long as sensitivity and specificity are held constant, hence a conflict. 
+\noindent The R code chunk below fixes arbitrary sensitivity (1 - FNR) and specificity (1 - FPR) values to illustrate through the proceeding plots that as prevalence varies, then PPV/ NPV varies and cannot be equal as long as sensitivity and specificity are held constant, hence a conflict. 
 
 ```{r, warning=FALSE, message=FALSE}
 library(dplyr)

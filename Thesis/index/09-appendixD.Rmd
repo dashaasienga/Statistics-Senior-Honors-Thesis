@@ -1,5 +1,7 @@
 # Logistic Regression on the COMPAS Data Set {#appendix-d}
 
+\noindent The R code chunk below fits a logistic regression model on the COMPAS data set. 
+
 ```{r, eval = FALSE, warning = FALSE, message = FALSE}
 # set seed
 set.seed(123)

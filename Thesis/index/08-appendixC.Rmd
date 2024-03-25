@@ -1,8 +1,12 @@
 # SQL Script to Retrieve COMPAS Data {#appendix-c}
 
+\noindent The following SQL script was used to retrieve the COMPAS data set used in Chapters \@ref(chap-3) and \@ref(chap-4) from the public COMPAS database available through the ProPublica Data Store and accessible through GitHub. The database contains seven tables, although the `summary` table is empty. The SQLite code below returns 12160 rows of defendants from Broward County, Florida, who were assessed using the COMPAS tool for risk of recidivating. There are 29 variables of interest returned, though many more could be selected if interested.
+Further data wrangling and data analysis are conducted in R, and significant findings are communicated in Chapters \@ref(chap-3) and \@ref(chap-4).
+
 ```{eval = FALSE}
 select 
 
+# select variables of interest 
 people.id,
 compas.compas_person_id,
 people.name,
@@ -35,12 +39,14 @@ round(prison_agg.days_in_prison) as days_in_prison
 
 from compas
 
+# join the 'people' table
 inner join people
 on compas.person_id = people.id
 and compas.first = people.first
 and compas.last = people.last
 and compas.decile_score = people.decile_score
 
+# join jail history for each defendant
 left join  (
 
 select 
@@ -52,7 +58,11 @@ jailhistory.out_custody,
 jailhistory.in_custody,
 sum(
   distinct(
-    julianday(jailhistory.out_custody) - julianday(jailhistory.in_custody)
+    julianday(
+      jailhistory.out_custody
+      ) - julianday(
+        jailhistory.in_custody
+        )
     )
   ) as days_in_jail
 
@@ -71,6 +81,7 @@ on jail_agg.person_id = people.id
 and jail_agg.first = people.first
 and jail_agg.last = people.last
 
+# join prison history for each defendant
 left join  (
 
 select 
@@ -82,7 +93,11 @@ prisonhistory.out_custody,
 prisonhistory.in_custody,
 sum(
   distinct(
-    julianday(prisonhistory.out_custody) - julianday(prisonhistory.in_custody)
+    julianday(
+      prisonhistory.out_custody
+      ) - julianday(
+        prisonhistory.in_custody
+        )
     )
   ) as days_in_prison
 
@@ -101,6 +116,7 @@ on prison_agg.person_id = people.id
 and prison_agg.first = people.first
 and prison_agg.last = people.last
 
+# filter only for risk of recidivism
 where type_of_assessment = 'Risk of Recidivism'
 ```
 

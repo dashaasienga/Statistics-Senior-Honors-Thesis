@@ -1,4 +1,4 @@
-# Quasi-Seldonian Linear Regression Python Code {#appendix-b}
+# Quasi-Seldonian Linear Regression Theoretical and Python Implementation {#appendix-b}
 
 The `reticulate` package is useful for setting up the correct Python environment within RStudio.
 
@@ -10,7 +10,7 @@ use_python("/cm/shared/apps/amh-Rstudio/python-3.11.4/bin/python3",
 #conda_list()
 ```
 
-\noindent Python packages not already pre-installed need to be imported into the `reticulate` package first before being imported into the Python environment, as illustrated using `sklearn` below.
+\noindent Python packages not already pre-installed need to be imported into the `reticulate` package first before being imported into the Python environment, as illustrated using the  `sklearn` package below.
 
 ```{r, eval = FALSE}
 sklearn <- import("sklearn")
@@ -37,7 +37,7 @@ from scipy.optimize import minimize
 np.set_printoptions(precision=5, suppress=True)
 ```
 
-\noindent The `tinv` function returns the inverse of `Student's t` CDF using the degrees of freedom in `nu` for the corresponding probabilities in `p`.
+\noindent The `tinv` function returns the inverse of `Student's t` CDF using the `nu` degrees of freedom for the corresponding probabilities `p`.
 
 ```{python, eval = FALSE}
 def tinv(p, nu):
@@ -59,7 +59,8 @@ def stddev(v):
 ```{python, eval = FALSE}
 def ttestUpperBound(v, delta):
     n  = v.size
-    res = v.mean() + stddev(v) / math.sqrt(n) * tinv(1.0 - delta, n - 1)
+    res = v.mean() + stddev(v) / math.sqrt(n) * tinv(1.0 - delta, 
+    n - 1)
     return res
 ```
 
@@ -71,7 +72,8 @@ This function is used to estimate what the output of `ttestUpperBound` would be 
 ```{python, eval = FALSE}
 def predictTTestUpperBound(v, delta, k):
     
-    res = v.mean() + 2.0 * stddev(v) / math.sqrt(k) * tinv(1.0 - delta, k - 1)
+    res = v.mean() + 2.0 * stddev(v) / math.sqrt(k) * tinv(1.0 - delta, 
+    k - 1)
     return res
 ```
 
@@ -90,14 +92,15 @@ def main():
     (result, found) = QSA(X, Y, gHats, deltas) 
     
     if found:
-        print("A solution was found: [%.10f, %.10f]" % (result[0], result[1]))
+        print("A solution was found: [%.10f, %.10f]" % (result[0], 
+        result[1]))
         print("fHat of solution (computed over all data, D):", 
         fHat(result, X, Y))
     else:
         print("No solution found")
 ```
 
-\noindent The `generateData` function samples data as described in the problem description.
+\noindent The `generateData` function samples data as desired for the specific problem.
 
 ```{python, eval = FALSE}
 def generateData(numPoints):
@@ -116,7 +119,7 @@ def predict(theta, x):
     return theta[0] + theta[1] * x
 ```
 
-\noindent The `fHat` function specifies the primary objective: to minimize the sample mean squared error. since the attempt is to maximize $\hat{f}$, however, the negative sample mean squared error is returned, so that maximizing $\hat{f}$ corresponds to minimizing the mean squared error.
+\noindent The `fHat` function specifies the primary objective: to minimize the sample mean squared error. Because the attempt is to maximize $\hat{f}$, however, the negative sample mean squared error is returned, so that maximizing $\hat{f}$ corresponds to minimizing the mean squared error.
 
 ```{python, eval = FALSE}
 def fHat(theta, X, Y):
@@ -172,8 +175,8 @@ def QSA(X, Y, gHats, deltas):
     candidateData_X, safetyData_X, candidateData_Y, safetyData_Y = 
     train_test_split(X, Y, test_size=1-candidateData_len, shuffle=False)
   
-    candidateSolution = getCandidateSolution(candidateData_X, candidateData_Y, 
-    gHats, deltas, safetyData_X.size)
+    candidateSolution = getCandidateSolution(candidateData_X, 
+    candidateData_Y, gHats, deltas, safetyData_X.size)
 
     passedSafety      = safetyTest(candidateSolution, safetyData_X, 
     safetyData_Y, gHats, deltas)
@@ -184,7 +187,8 @@ def QSA(X, Y, gHats, deltas):
 \noindent The `safetyTest` function uses the previously defined functions to implement the safety test. 
 
 ```{python, eval = FALSE}
-def safetyTest(candidateSolution, safetyData_X, safetyData_Y, gHats, deltas):
+def safetyTest(candidateSolution, safetyData_X, safetyData_Y, gHats, 
+deltas):
 
     for i in range(len(gHats)):  
         g         = gHats[i]  
@@ -207,7 +211,7 @@ $$
 \theta_c \in arg \: \underset{\theta \in \mathbb{R}^2}{max} 
     \begin{cases} 
       \hat{f}(\theta, D_1)  \text{    if} \:\: \hat{\mu}(\hat{g_i}(\theta_c, D_1)) + 2 \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_1))}{\sqrt{|D_2|}} t_{1-\delta_i, |D_2|-1} \leq 0 \forall i \in \{1,2,...,n\}\\
-      -100,000 - \sum_{i=1}^n max(0, \hat{\mu}(\hat{g_i}(\theta_c, D_1)) + 2 \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_1))}{\sqrt{|D_2|}} t_{1-\delta_i, |D_2|-1})) \text{  otherwise}
+      -100,000 - \sum_{i=1}^n max(0, \hat{\mu}(\hat{g_i}(\theta_c, D_1)) + 2 \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_1))}{\sqrt{|D_2|}} t_{1-\delta_i, |D_2|-1})) \text{  otherwise.}
     \end{cases}
 $$
 
@@ -216,8 +220,8 @@ $$
 
 
 ```{python, eval = FALSE}
-def candidateObjective(thetaToEvaluate, candidateData_X, candidateData_Y, gHats, 
-deltas, safetyDataSize): 
+def candidateObjective(thetaToEvaluate, candidateData_X, candidateData_Y, 
+gHats, deltas, safetyDataSize): 
 
     result = fHat(thetaToEvaluate, candidateData_X, candidateData_Y)
 
@@ -227,9 +231,11 @@ deltas, safetyDataSize):
         g         = gHats[i]       
         delta     = deltas[i]      
 
-        g_samples = g(thetaToEvaluate, candidateData_X, candidateData_Y)
+        g_samples = g(thetaToEvaluate, candidateData_X, 
+        candidateData_Y)
 
-        upperBound = predictTTestUpperBound(g_samples, delta, safetyDataSize)
+        upperBound = predictTTestUpperBound(g_samples, delta, 
+        safetyDataSize)
 
         if upperBound > 0.0:
 
@@ -244,17 +250,21 @@ deltas, safetyDataSize):
 ```
 
 ```{python, eval = FALSE}
-def getCandidateSolution(candidateData_X, candidateData_Y, gHats, deltas, 
-safetyDataSize):
+def getCandidateSolution(candidateData_X, candidateData_Y, gHats, 
+deltas, safetyDataSize):
   
     minimizer_method = 'Powell'
     minimizer_options={'disp': False}
 
     initialSolution = leastSq(candidateData_X, candidateData_Y)
 
-    res = minimize(candidateObjective, x0=initialSolution, 
-    method=minimizer_method, options=minimizer_options, 
-    args=(candidateData_X, candidateData_Y, gHats, deltas, safetyDataSize))
+    res = minimize(
+      candidateObjective, 
+      x0=initialSolution, 
+      method=minimizer_method, options=minimizer_options, 
+      args=(candidateData_X, candidateData_Y, gHats, deltas, 
+      safetyDataSize)
+    )
 
     return res.x
 ```
@@ -306,12 +316,13 @@ def run_experiments(worker_id, nWorkers, ms, numM, numTrials, mTest):
     outputFile = bin_path + 'results%d.npz' % experiment_number
     
     
-    # Generate the data used to evaluate the primary objective and failure rates
+    # Generate the data used to evaluate the primary objective 
+    # and failure rates
     np.random.seed( (experiment_number+1) * 9999 )
     (testX, testY) = generateData(mTest) 
     
     
-    for trial in range(numTrials): #numTrials trials for each value of m 
+    for trial in range(numTrials):#numTrials trials for each value of m 
         for (mIndex, m) in enumerate(ms): 
           
             # Generate the training data, D
@@ -320,13 +331,16 @@ def run_experiments(worker_id, nWorkers, ms, numM, numTrials, mTest):
             (trainX, trainY)  = generateData(m)
             
             # Run the Quasi-Seldonian algorithm
-            (result, passedSafetyTest) = QSA(trainX, trainY, gHats, deltas)
+            (result, passedSafetyTest) = QSA(trainX, trainY, gHats, 
+            deltas)
             
             if passedSafetyTest:
                 seldonian_solutions_found[trial, mIndex] = 1                        
                 trueMSE = -fHat(result, testX, testY)                               
-                seldonian_failures_g1[trial, mIndex] = 1 if trueMSE > 2.0  else 0   
-                seldonian_failures_g2[trial, mIndex] = 1 if trueMSE < 1.25 else 0   
+                seldonian_failures_g1[trial, mIndex] = 1 
+                if trueMSE > 2.0  else 0   
+                seldonian_failures_g2[trial, mIndex] = 1 
+                if trueMSE < 1.25 else 0   
                 seldonian_fs[trial, mIndex] = -trueMSE                              
                 
             else:
@@ -395,11 +409,11 @@ import matplotlib.pyplot as plt
 ```{python, eval = FALSE}
 #specify path names
 bin_path = 
-'/home/dasienga24/Statistics-Senior-Honors-Thesis/Thesis/index/experiment_results/'
-'chapter_2/'
+'/home/dasienga24/Statistics-Senior-Honors-Thesis/Thesis/index/'
+'experiment_results/chapter_2/'
 csv_path = 
-'/home/dasienga24/Statistics-Senior-Honors-Thesis/Thesis/index/experiment_results/'
-'chapter_2/csv/'
+'/home/dasienga24/Statistics-Senior-Honors-Thesis/Thesis/index/'
+'experiment_results/chapter_2/csv/
 ```
 
 ```{python, eval = FALSE}
@@ -471,8 +485,9 @@ LS_failures_g1, LS_failures_g2):
         LS_failures_g2             = 
         np.vstack([LS_failures_g2,            new_LS_failures_g2])
 
-        return [ms, seldonian_solutions_found, seldonian_fs, seldonian_failures_g1,
-      seldonian_failures_g2, LS_solutions_found, LS_fs, LS_failures_g1, LS_failures_g2]
+        return [ms, seldonian_solutions_found, seldonian_fs, 
+        seldonian_failures_g1, seldonian_failures_g2, LS_solutions_found, 
+        LS_fs, LS_failures_g1, LS_failures_g2]
 
 ```
 
@@ -553,7 +568,7 @@ def gather_results():
     saveToCSV(ms,  
     -1*seldonian_fs,           
     -1*LS_fs,           
-    csv_path+'fs.csv') # here, negative to return MSE rather than negative MSE
+    csv_path+'fs.csv') # return MSE rather than negative MSE
     
     saveToCSV(ms,  
     seldonian_solutions_found,  
@@ -582,10 +597,12 @@ img_path =
 'experiment_results/chapter_2/images/'
 ```
 
-\noindent: Finally, the results are plotted as shown below.
+\noindent Finally, the results can be plotted as shown below and in Figures \@ref(fig:fig4), \@ref(fig:fig5), \@ref(fig:fig6), and \@ref(fig:fig7).
 
 ```{python, eval = FALSE}
-def loadAndPlotResults(fileName, ylabel, output_file, is_yAxis_prob, legend_loc):
+def loadAndPlotResults(fileName, ylabel, output_file, is_yAxis_prob, 
+legend_loc):
+  
     file_ms, file_QSA, file_QSA_stderror, file_LS, 
     file_LS_stderror = np.loadtxt(fileName, delimiter=',', unpack=True)
 
@@ -604,10 +621,11 @@ def loadAndPlotResults(fileName, ylabel, output_file, is_yAxis_prob, legend_loc)
         plt.plot([1, 100000], [1.25, 1.25], ':k');
         plt.plot([1, 100000], [2.1,  2.1],  ':k');		
 
-    plt.plot(     file_ms,     file_QSA, 'b-', linewidth=3, label='QSA')
-    plt.errorbar( file_ms,     file_QSA, yerr=file_QSA_stderror, fmt='.k');
-    plt.plot(     file_ms,     file_LS,  'r-', linewidth=3, label='LS')
-    plt.errorbar( file_ms,     file_LS,  yerr=file_LS_stderror, fmt='.k');
+    plt.plot(     file_ms, file_QSA, 'b-', linewidth=3, label='QSA')
+    plt.errorbar( file_ms, file_QSA, yerr=file_QSA_stderror, fmt='.k');
+    plt.plot(     file_ms, file_LS,  'r-', linewidth=3, label='LS')
+    plt.errorbar( file_ms, file_LS,  yerr=file_LS_stderror, fmt='.k');
+    
     plt.legend(loc=legend_loc, fontsize=12)
     plt.tight_layout()
 
