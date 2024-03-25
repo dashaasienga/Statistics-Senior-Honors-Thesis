@@ -166,6 +166,14 @@ compas_sim_balanced <- compas_sim_balanced[sample(nrow(compas_sim_balanced),
 
 $\\$
 
+Let's write the parent data set into a CSV file. 
+
+```{r}
+write.csv(compas_sim_balanced, file = "/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/COMPAS/compas_sim.csv")
+```
+
+$\\$
+
 The parent data set is now ready. 
 
 ## Examining Distributions of the Recidivism in the Parent Data Set
