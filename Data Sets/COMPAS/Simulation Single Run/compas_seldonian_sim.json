@@ -1,0 +1,16 @@
+{
+  "regime": "supervised_learning",
+  "sub_regime": "classification",
+  "all_col_names": [
+    "Black",
+    "White",
+    "age",
+    "prior_offense",
+    "is_recid"
+  ],
+  "label_col_names": "is_recid",
+  "sensitive_col_names": [
+    "Black",
+    "White"
+  ]
+}
