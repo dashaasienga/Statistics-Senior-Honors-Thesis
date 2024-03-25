@@ -2,10 +2,12 @@
 title: "Thesis Simulation Single Run for Chapter 4"
 author: "Dasha Asienga"
 date: "`r Sys.Date()`"
-output: 
+output:
   pdf_document:
-    toc: TRUE
-
+    toc: yes
+  html_document:
+    toc: yes
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE}
@@ -15,7 +17,6 @@ library(tidyverse)
 library(ggplot2)
 library(RColorBrewer)
 library(knitr)
-library(kableExtra)
 library(ggplot2)
 library(GGally)
 library(MASS)
@@ -296,7 +297,7 @@ deltas = [0.05]
 # create spec file
 save_dir = "/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Simulation/Single Run/equalized_odds_0.2"
 
-os.makedirs(save_dir) #create folder
+os.makedirs(save_dir, exist_ok=True) #create folder
 
 createSupervisedSpec(
             dataset=dataset,
@@ -319,7 +320,7 @@ deltas = [0.05]
 # create spec file
 save_dir = "/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Simulation/Single Run/equalized_odds_0.1"
 
-os.makedirs(save_dir) #create folder
+os.makedirs(save_dir, exist_ok=True) #create folder
 
 createSupervisedSpec(
             dataset=dataset,
@@ -342,7 +343,7 @@ deltas = [0.05]
 # create spec file
 save_dir = "/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Simulation/Single Run/equalized_odds_0.05"
 
-os.makedirs(save_dir) #create folder
+os.makedirs(save_dir, exist_ok=True) #create folder
 
 createSupervisedSpec(
             dataset=dataset,
@@ -365,7 +366,7 @@ deltas = [0.05]
 # create spec file
 save_dir = "/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Simulation/Single Run/equalized_odds_0.01"
 
-os.makedirs(save_dir) #create folder
+os.makedirs(save_dir, exist_ok=True) #create folder
 
 createSupervisedSpec(
             dataset=dataset,
