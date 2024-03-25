@@ -1395,7 +1395,7 @@ Recall from Chapter \ref{intro} that (Castelnovo et al., 2022):
 
 \[NPV = \frac{s_p(1-p)}{(1-s_e)p + s_p(1-p)}.\]
 
-\noindent The code chunk below fixes arbitrary sensitivity (1 - FNR) and specificity (1 - FPR) values to illustrate through the proceeding plots that as prevalence varies, then PPV/ NPV varies and cannot be equal as long as sensitivity and specificity are held constant, hence a conflict.
+\noindent The R code chunk below fixes arbitrary sensitivity (1 - FNR) and specificity (1 - FPR) values to illustrate through the proceeding plots that as prevalence varies, then PPV/ NPV varies and cannot be equal as long as sensitivity and specificity are held constant, hence a conflict.
 \begin{Shaded}
 \begin{Highlighting}[]
 \FunctionTok{library}\NormalTok{(dplyr)}
@@ -1479,7 +1479,7 @@ Recall from Chapter \ref{intro} that (Castelnovo et al., 2022):
 \begin{center}\includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/unnamed-chunk-50-1} \end{center}
 
 \hypertarget{appendix-b}{%
-\chapter{Quasi-Seldonian Linear Regression Python Code}\label{appendix-b}}
+\chapter{Quasi-Seldonian Linear Regression Theoretical and Python Implementation}\label{appendix-b}}
 
 The \texttt{reticulate} package is useful for setting up the correct Python environment within RStudio.
 \begin{Shaded}
@@ -1491,7 +1491,7 @@ The \texttt{reticulate} package is useful for setting up the correct Python envi
 \CommentTok{\#conda\_list()}
 \end{Highlighting}
 \end{Shaded}
-\noindent Python packages not already pre-installed need to be imported into the \texttt{reticulate} package first before being imported into the Python environment, as illustrated using \texttt{sklearn} below.
+\noindent Python packages not already pre-installed need to be imported into the \texttt{reticulate} package first before being imported into the Python environment, as illustrated using the \texttt{sklearn} package below.
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{sklearn }\OtherTok{\textless{}{-}} \FunctionTok{import}\NormalTok{(}\StringTok{"sklearn"}\NormalTok{)}
@@ -1520,7 +1520,7 @@ The \texttt{reticulate} package is useful for setting up the correct Python envi
 \NormalTok{np.set\_printoptions(precision}\OperatorTok{=}\DecValTok{5}\NormalTok{, suppress}\OperatorTok{=}\VariableTok{True}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
-\noindent The \texttt{tinv} function returns the inverse of \texttt{Student\textquotesingle{}s\ t} CDF using the degrees of freedom in \texttt{nu} for the corresponding probabilities in \texttt{p}.
+\noindent The \texttt{tinv} function returns the inverse of \texttt{Student\textquotesingle{}s\ t} CDF using the \texttt{nu} degrees of freedom for the corresponding probabilities \texttt{p}.
 \begin{Shaded}
 \begin{Highlighting}[]
 \KeywordTok{def}\NormalTok{ tinv(p, nu):}
@@ -1541,7 +1541,8 @@ The \texttt{reticulate} package is useful for setting up the correct Python envi
 \begin{Highlighting}[]
 \KeywordTok{def}\NormalTok{ ttestUpperBound(v, delta):}
 \NormalTok{    n  }\OperatorTok{=}\NormalTok{ v.size}
-\NormalTok{    res }\OperatorTok{=}\NormalTok{ v.mean() }\OperatorTok{+}\NormalTok{ stddev(v) }\OperatorTok{/}\NormalTok{ math.sqrt(n) }\OperatorTok{*}\NormalTok{ tinv(}\FloatTok{1.0} \OperatorTok{{-}}\NormalTok{ delta, n }\OperatorTok{{-}} \DecValTok{1}\NormalTok{)}
+\NormalTok{    res }\OperatorTok{=}\NormalTok{ v.mean() }\OperatorTok{+}\NormalTok{ stddev(v) }\OperatorTok{/}\NormalTok{ math.sqrt(n) }\OperatorTok{*}\NormalTok{ tinv(}\FloatTok{1.0} \OperatorTok{{-}}\NormalTok{ delta, }
+\NormalTok{    n }\OperatorTok{{-}} \DecValTok{1}\NormalTok{)}
     \ControlFlowTok{return}\NormalTok{ res}
 \end{Highlighting}
 \end{Shaded}
@@ -1552,7 +1553,8 @@ This function is used to estimate what the output of \texttt{ttestUpperBound} wo
 \begin{Highlighting}[]
 \KeywordTok{def}\NormalTok{ predictTTestUpperBound(v, delta, k):}
     
-\NormalTok{    res }\OperatorTok{=}\NormalTok{ v.mean() }\OperatorTok{+} \FloatTok{2.0} \OperatorTok{*}\NormalTok{ stddev(v) }\OperatorTok{/}\NormalTok{ math.sqrt(k) }\OperatorTok{*}\NormalTok{ tinv(}\FloatTok{1.0} \OperatorTok{{-}}\NormalTok{ delta, k }\OperatorTok{{-}} \DecValTok{1}\NormalTok{)}
+\NormalTok{    res }\OperatorTok{=}\NormalTok{ v.mean() }\OperatorTok{+} \FloatTok{2.0} \OperatorTok{*}\NormalTok{ stddev(v) }\OperatorTok{/}\NormalTok{ math.sqrt(k) }\OperatorTok{*}\NormalTok{ tinv(}\FloatTok{1.0} \OperatorTok{{-}}\NormalTok{ delta, }
+\NormalTok{    k }\OperatorTok{{-}} \DecValTok{1}\NormalTok{)}
     \ControlFlowTok{return}\NormalTok{ res}
 \end{Highlighting}
 \end{Shaded}
@@ -1571,14 +1573,15 @@ This function is used to estimate what the output of \texttt{ttestUpperBound} wo
 \NormalTok{    (result, found) }\OperatorTok{=}\NormalTok{ QSA(X, Y, gHats, deltas) }
     
     \ControlFlowTok{if}\NormalTok{ found:}
-        \BuiltInTok{print}\NormalTok{(}\StringTok{"A solution was found: [}\SpecialCharTok{\%.10f}\StringTok{, }\SpecialCharTok{\%.10f}\StringTok{]"} \OperatorTok{\%}\NormalTok{ (result[}\DecValTok{0}\NormalTok{], result[}\DecValTok{1}\NormalTok{]))}
+        \BuiltInTok{print}\NormalTok{(}\StringTok{"A solution was found: [}\SpecialCharTok{\%.10f}\StringTok{, }\SpecialCharTok{\%.10f}\StringTok{]"} \OperatorTok{\%}\NormalTok{ (result[}\DecValTok{0}\NormalTok{], }
+\NormalTok{        result[}\DecValTok{1}\NormalTok{]))}
         \BuiltInTok{print}\NormalTok{(}\StringTok{"fHat of solution (computed over all data, D):"}\NormalTok{, }
 \NormalTok{        fHat(result, X, Y))}
     \ControlFlowTok{else}\NormalTok{:}
         \BuiltInTok{print}\NormalTok{(}\StringTok{"No solution found"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
-\noindent The \texttt{generateData} function samples data as described in the problem description.
+\noindent The \texttt{generateData} function samples data as desired for the specific problem.
 \begin{Shaded}
 \begin{Highlighting}[]
 \KeywordTok{def}\NormalTok{ generateData(numPoints):}
@@ -1596,7 +1599,7 @@ This function is used to estimate what the output of \texttt{ttestUpperBound} wo
     \ControlFlowTok{return}\NormalTok{ theta[}\DecValTok{0}\NormalTok{] }\OperatorTok{+}\NormalTok{ theta[}\DecValTok{1}\NormalTok{] }\OperatorTok{*}\NormalTok{ x}
 \end{Highlighting}
 \end{Shaded}
-\noindent The \texttt{fHat} function specifies the primary objective: to minimize the sample mean squared error. since the attempt is to maximize \(\hat{f}\), however, the negative sample mean squared error is returned, so that maximizing \(\hat{f}\) corresponds to minimizing the mean squared error.
+\noindent The \texttt{fHat} function specifies the primary objective: to minimize the sample mean squared error. Because the attempt is to maximize \(\hat{f}\), however, the negative sample mean squared error is returned, so that maximizing \(\hat{f}\) corresponds to minimizing the mean squared error.
 \begin{Shaded}
 \begin{Highlighting}[]
 \KeywordTok{def}\NormalTok{ fHat(theta, X, Y):}
@@ -1652,8 +1655,8 @@ This function is used to estimate what the output of \texttt{ttestUpperBound} wo
 \NormalTok{    candidateData\_X, safetyData\_X, candidateData\_Y, safetyData\_Y }\OperatorTok{=} 
 \NormalTok{    train\_test\_split(X, Y, test\_size}\OperatorTok{=}\DecValTok{1}\OperatorTok{{-}}\NormalTok{candidateData\_len, shuffle}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
   
-\NormalTok{    candidateSolution }\OperatorTok{=}\NormalTok{ getCandidateSolution(candidateData\_X, candidateData\_Y, }
-\NormalTok{    gHats, deltas, safetyData\_X.size)}
+\NormalTok{    candidateSolution }\OperatorTok{=}\NormalTok{ getCandidateSolution(candidateData\_X, }
+\NormalTok{    candidateData\_Y, gHats, deltas, safetyData\_X.size)}
 
 \NormalTok{    passedSafety      }\OperatorTok{=}\NormalTok{ safetyTest(candidateSolution, safetyData\_X, }
 \NormalTok{    safetyData\_Y, gHats, deltas)}
@@ -1664,7 +1667,8 @@ This function is used to estimate what the output of \texttt{ttestUpperBound} wo
 \noindent The \texttt{safetyTest} function uses the previously defined functions to implement the safety test.
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{def}\NormalTok{ safetyTest(candidateSolution, safetyData\_X, safetyData\_Y, gHats, deltas):}
+\KeywordTok{def}\NormalTok{ safetyTest(candidateSolution, safetyData\_X, safetyData\_Y, gHats, }
+\NormalTok{deltas):}
 
     \ControlFlowTok{for}\NormalTok{ i }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(}\BuiltInTok{len}\NormalTok{(gHats)):  }
 \NormalTok{        g         }\OperatorTok{=}\NormalTok{ gHats[i]  }
@@ -1687,15 +1691,15 @@ This function is used to estimate what the output of \texttt{ttestUpperBound} wo
 \theta_c \in arg \: \underset{\theta \in \mathbb{R}^2}{max} 
     \begin{cases} 
       \hat{f}(\theta, D_1)  \text{    if} \:\: \hat{\mu}(\hat{g_i}(\theta_c, D_1)) + 2 \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_1))}{\sqrt{|D_2|}} t_{1-\delta_i, |D_2|-1} \leq 0 \forall i \in \{1,2,...,n\}\\
-      -100,000 - \sum_{i=1}^n max(0, \hat{\mu}(\hat{g_i}(\theta_c, D_1)) + 2 \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_1))}{\sqrt{|D_2|}} t_{1-\delta_i, |D_2|-1})) \text{  otherwise}
+      -100,000 - \sum_{i=1}^n max(0, \hat{\mu}(\hat{g_i}(\theta_c, D_1)) + 2 \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_1))}{\sqrt{|D_2|}} t_{1-\delta_i, |D_2|-1})) \text{  otherwise.}
     \end{cases}
 \]
 
 \noindent In this case, solutions that are predicted not to pass the safety test will not be selected by the optimization algorithm because a large negative performance is assigned to them. This barrier functions encourages Powell to tend towards solutions that will pass the safety test.
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{def}\NormalTok{ candidateObjective(thetaToEvaluate, candidateData\_X, candidateData\_Y, gHats, }
-\NormalTok{deltas, safetyDataSize): }
+\KeywordTok{def}\NormalTok{ candidateObjective(thetaToEvaluate, candidateData\_X, candidateData\_Y, }
+\NormalTok{gHats, deltas, safetyDataSize): }
 
 \NormalTok{    result }\OperatorTok{=}\NormalTok{ fHat(thetaToEvaluate, candidateData\_X, candidateData\_Y)}
 
@@ -1705,9 +1709,11 @@ This function is used to estimate what the output of \texttt{ttestUpperBound} wo
 \NormalTok{        g         }\OperatorTok{=}\NormalTok{ gHats[i]       }
 \NormalTok{        delta     }\OperatorTok{=}\NormalTok{ deltas[i]      }
 
-\NormalTok{        g\_samples }\OperatorTok{=}\NormalTok{ g(thetaToEvaluate, candidateData\_X, candidateData\_Y)}
+\NormalTok{        g\_samples }\OperatorTok{=}\NormalTok{ g(thetaToEvaluate, candidateData\_X, }
+\NormalTok{        candidateData\_Y)}
 
-\NormalTok{        upperBound }\OperatorTok{=}\NormalTok{ predictTTestUpperBound(g\_samples, delta, safetyDataSize)}
+\NormalTok{        upperBound }\OperatorTok{=}\NormalTok{ predictTTestUpperBound(g\_samples, delta, }
+\NormalTok{        safetyDataSize)}
 
         \ControlFlowTok{if}\NormalTok{ upperBound }\OperatorTok{\textgreater{}} \FloatTok{0.0}\NormalTok{:}
 
@@ -1723,17 +1729,21 @@ This function is used to estimate what the output of \texttt{ttestUpperBound} wo
 \end{Shaded}
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{def}\NormalTok{ getCandidateSolution(candidateData\_X, candidateData\_Y, gHats, deltas, }
-\NormalTok{safetyDataSize):}
+\KeywordTok{def}\NormalTok{ getCandidateSolution(candidateData\_X, candidateData\_Y, gHats, }
+\NormalTok{deltas, safetyDataSize):}
   
 \NormalTok{    minimizer\_method }\OperatorTok{=} \StringTok{\textquotesingle{}Powell\textquotesingle{}}
 \NormalTok{    minimizer\_options}\OperatorTok{=}\NormalTok{\{}\StringTok{\textquotesingle{}disp\textquotesingle{}}\NormalTok{: }\VariableTok{False}\NormalTok{\}}
 
 \NormalTok{    initialSolution }\OperatorTok{=}\NormalTok{ leastSq(candidateData\_X, candidateData\_Y)}
 
-\NormalTok{    res }\OperatorTok{=}\NormalTok{ minimize(candidateObjective, x0}\OperatorTok{=}\NormalTok{initialSolution, }
-\NormalTok{    method}\OperatorTok{=}\NormalTok{minimizer\_method, options}\OperatorTok{=}\NormalTok{minimizer\_options, }
-\NormalTok{    args}\OperatorTok{=}\NormalTok{(candidateData\_X, candidateData\_Y, gHats, deltas, safetyDataSize))}
+\NormalTok{    res }\OperatorTok{=}\NormalTok{ minimize(}
+\NormalTok{      candidateObjective, }
+\NormalTok{      x0}\OperatorTok{=}\NormalTok{initialSolution, }
+\NormalTok{      method}\OperatorTok{=}\NormalTok{minimizer\_method, options}\OperatorTok{=}\NormalTok{minimizer\_options, }
+\NormalTok{      args}\OperatorTok{=}\NormalTok{(candidateData\_X, candidateData\_Y, gHats, deltas, }
+\NormalTok{      safetyDataSize)}
+\NormalTok{    )}
 
     \ControlFlowTok{return}\NormalTok{ res.x}
 \end{Highlighting}
@@ -1787,12 +1797,13 @@ This function is used to estimate what the output of \texttt{ttestUpperBound} wo
 \NormalTok{    outputFile }\OperatorTok{=}\NormalTok{ bin\_path }\OperatorTok{+} \StringTok{\textquotesingle{}results}\SpecialCharTok{\%d}\StringTok{.npz\textquotesingle{}} \OperatorTok{\%}\NormalTok{ experiment\_number}
     
     
-    \CommentTok{\# Generate the data used to evaluate the primary objective and failure rates}
+    \CommentTok{\# Generate the data used to evaluate the primary objective }
+    \CommentTok{\# and failure rates}
 \NormalTok{    np.random.seed( (experiment\_number}\OperatorTok{+}\DecValTok{1}\NormalTok{) }\OperatorTok{*} \DecValTok{9999}\NormalTok{ )}
 \NormalTok{    (testX, testY) }\OperatorTok{=}\NormalTok{ generateData(mTest) }
     
     
-    \ControlFlowTok{for}\NormalTok{ trial }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(numTrials): }\CommentTok{\#numTrials trials for each value of m }
+    \ControlFlowTok{for}\NormalTok{ trial }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(numTrials):}\CommentTok{\#numTrials trials for each value of m }
         \ControlFlowTok{for}\NormalTok{ (mIndex, m) }\KeywordTok{in} \BuiltInTok{enumerate}\NormalTok{(ms): }
           
             \CommentTok{\# Generate the training data, D}
@@ -1801,13 +1812,16 @@ This function is used to estimate what the output of \texttt{ttestUpperBound} wo
 \NormalTok{            (trainX, trainY)  }\OperatorTok{=}\NormalTok{ generateData(m)}
             
             \CommentTok{\# Run the Quasi{-}Seldonian algorithm}
-\NormalTok{            (result, passedSafetyTest) }\OperatorTok{=}\NormalTok{ QSA(trainX, trainY, gHats, deltas)}
+\NormalTok{            (result, passedSafetyTest) }\OperatorTok{=}\NormalTok{ QSA(trainX, trainY, gHats, }
+\NormalTok{            deltas)}
             
             \ControlFlowTok{if}\NormalTok{ passedSafetyTest:}
 \NormalTok{                seldonian\_solutions\_found[trial, mIndex] }\OperatorTok{=} \DecValTok{1}                        
 \NormalTok{                trueMSE }\OperatorTok{=} \OperatorTok{{-}}\NormalTok{fHat(result, testX, testY)                               }
-\NormalTok{                seldonian\_failures\_g1[trial, mIndex] }\OperatorTok{=} \DecValTok{1} \ControlFlowTok{if}\NormalTok{ trueMSE }\OperatorTok{\textgreater{}} \FloatTok{2.0}  \ControlFlowTok{else} \DecValTok{0}   
-\NormalTok{                seldonian\_failures\_g2[trial, mIndex] }\OperatorTok{=} \DecValTok{1} \ControlFlowTok{if}\NormalTok{ trueMSE }\OperatorTok{\textless{}} \FloatTok{1.25} \ControlFlowTok{else} \DecValTok{0}   
+\NormalTok{                seldonian\_failures\_g1[trial, mIndex] }\OperatorTok{=} \DecValTok{1} 
+                \ControlFlowTok{if}\NormalTok{ trueMSE }\OperatorTok{\textgreater{}} \FloatTok{2.0}  \ControlFlowTok{else} \DecValTok{0}   
+\NormalTok{                seldonian\_failures\_g2[trial, mIndex] }\OperatorTok{=} \DecValTok{1} 
+                \ControlFlowTok{if}\NormalTok{ trueMSE }\OperatorTok{\textless{}} \FloatTok{1.25} \ControlFlowTok{else} \DecValTok{0}   
 \NormalTok{                seldonian\_fs[trial, mIndex] }\OperatorTok{=} \OperatorTok{{-}}\NormalTok{trueMSE                              }
                 
             \ControlFlowTok{else}\NormalTok{:}
@@ -1878,11 +1892,11 @@ This function is used to estimate what the output of \texttt{ttestUpperBound} wo
 \begin{Highlighting}[]
 \CommentTok{\#specify path names}
 \NormalTok{bin\_path }\OperatorTok{=} 
-\CommentTok{\textquotesingle{}/home/dasienga24/Statistics{-}Senior{-}Honors{-}Thesis/Thesis/index/experiment\_results/\textquotesingle{}}
-\CommentTok{\textquotesingle{}chapter\_2/\textquotesingle{}}
-\NormalTok{csv\_path }\OperatorTok{=} 
-\CommentTok{\textquotesingle{}/home/dasienga24/Statistics{-}Senior{-}Honors{-}Thesis/Thesis/index/experiment\_results/\textquotesingle{}}
-\CommentTok{\textquotesingle{}chapter\_2/csv/\textquotesingle{}}
+\CommentTok{\textquotesingle{}/home/dasienga24/Statistics{-}Senior{-}Honors{-}Thesis/Thesis/index/}
+\ErrorTok{\textquotesingle{}experiment\_results/chapter\_2/\textquotesingle{}}
+\ErrorTok{csv\_path = }
+\CommentTok{\textquotesingle{}/home/dasienga24/Statistics{-}Senior{-}Honors{-}Thesis/Thesis/index/}
+\ErrorTok{\textquotesingle{}experiment\_results/chapter\_2/csv/}
 \end{Highlighting}
 \end{Shaded}
 \begin{Shaded}
@@ -1966,8 +1980,9 @@ This function is used to estimate what the output of \texttt{ttestUpperBound} wo
 \NormalTok{        LS\_failures\_g2             }\OperatorTok{=} 
 \NormalTok{        np.vstack([LS\_failures\_g2,            new\_LS\_failures\_g2])}
 
-        \ControlFlowTok{return}\NormalTok{ [ms, seldonian\_solutions\_found, seldonian\_fs, seldonian\_failures\_g1,}
-\NormalTok{      seldonian\_failures\_g2, LS\_solutions\_found, LS\_fs, LS\_failures\_g1, LS\_failures\_g2]}
+        \ControlFlowTok{return}\NormalTok{ [ms, seldonian\_solutions\_found, seldonian\_fs, }
+\NormalTok{        seldonian\_failures\_g1, seldonian\_failures\_g2, LS\_solutions\_found, }
+\NormalTok{        LS\_fs, LS\_failures\_g1, LS\_failures\_g2]}
 \end{Highlighting}
 \end{Shaded}
 \begin{Shaded}
@@ -2053,7 +2068,7 @@ This function is used to estimate what the output of \texttt{ttestUpperBound} wo
 \NormalTok{    saveToCSV(ms,  }
     \OperatorTok{{-}}\DecValTok{1}\OperatorTok{*}\NormalTok{seldonian\_fs,           }
     \OperatorTok{{-}}\DecValTok{1}\OperatorTok{*}\NormalTok{LS\_fs,           }
-\NormalTok{    csv\_path}\OperatorTok{+}\StringTok{\textquotesingle{}fs.csv\textquotesingle{}}\NormalTok{) }\CommentTok{\# here, negative to return MSE rather than negative MSE}
+\NormalTok{    csv\_path}\OperatorTok{+}\StringTok{\textquotesingle{}fs.csv\textquotesingle{}}\NormalTok{) }\CommentTok{\# return MSE rather than negative MSE}
     
 \NormalTok{    saveToCSV(ms,  }
 \NormalTok{    seldonian\_solutions\_found,  }
@@ -2081,10 +2096,12 @@ This function is used to estimate what the output of \texttt{ttestUpperBound} wo
 \CommentTok{\textquotesingle{}experiment\_results/chapter\_2/images/\textquotesingle{}}
 \end{Highlighting}
 \end{Shaded}
-\noindent: Finally, the results are plotted as shown below.
+\noindent Finally, the results can be plotted as shown below and in Figures \ref{fig:fig4}, \ref{fig:fig5}, \ref{fig:fig6}, and \ref{fig:fig7}.
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{def}\NormalTok{ loadAndPlotResults(fileName, ylabel, output\_file, is\_yAxis\_prob, legend\_loc):}
+\KeywordTok{def}\NormalTok{ loadAndPlotResults(fileName, ylabel, output\_file, is\_yAxis\_prob, }
+\NormalTok{legend\_loc):}
+  
 \NormalTok{    file\_ms, file\_QSA, file\_QSA\_stderror, file\_LS, }
 \NormalTok{    file\_LS\_stderror }\OperatorTok{=}\NormalTok{ np.loadtxt(fileName, delimiter}\OperatorTok{=}\StringTok{\textquotesingle{},\textquotesingle{}}\NormalTok{, unpack}\OperatorTok{=}\VariableTok{True}\NormalTok{)}
 
@@ -2103,10 +2120,11 @@ This function is used to estimate what the output of \texttt{ttestUpperBound} wo
 \NormalTok{        plt.plot([}\DecValTok{1}\NormalTok{, }\DecValTok{100000}\NormalTok{], [}\FloatTok{1.25}\NormalTok{, }\FloatTok{1.25}\NormalTok{], }\StringTok{\textquotesingle{}:k\textquotesingle{}}\NormalTok{)}\OperatorTok{;}
 \NormalTok{        plt.plot([}\DecValTok{1}\NormalTok{, }\DecValTok{100000}\NormalTok{], [}\FloatTok{2.1}\NormalTok{,  }\FloatTok{2.1}\NormalTok{],  }\StringTok{\textquotesingle{}:k\textquotesingle{}}\NormalTok{)}\OperatorTok{;}      
 
-\NormalTok{    plt.plot(     file\_ms,     file\_QSA, }\StringTok{\textquotesingle{}b{-}\textquotesingle{}}\NormalTok{, linewidth}\OperatorTok{=}\DecValTok{3}\NormalTok{, label}\OperatorTok{=}\StringTok{\textquotesingle{}QSA\textquotesingle{}}\NormalTok{)}
-\NormalTok{    plt.errorbar( file\_ms,     file\_QSA, yerr}\OperatorTok{=}\NormalTok{file\_QSA\_stderror, fmt}\OperatorTok{=}\StringTok{\textquotesingle{}.k\textquotesingle{}}\NormalTok{)}\OperatorTok{;}
-\NormalTok{    plt.plot(     file\_ms,     file\_LS,  }\StringTok{\textquotesingle{}r{-}\textquotesingle{}}\NormalTok{, linewidth}\OperatorTok{=}\DecValTok{3}\NormalTok{, label}\OperatorTok{=}\StringTok{\textquotesingle{}LS\textquotesingle{}}\NormalTok{)}
-\NormalTok{    plt.errorbar( file\_ms,     file\_LS,  yerr}\OperatorTok{=}\NormalTok{file\_LS\_stderror, fmt}\OperatorTok{=}\StringTok{\textquotesingle{}.k\textquotesingle{}}\NormalTok{)}\OperatorTok{;}
+\NormalTok{    plt.plot(     file\_ms, file\_QSA, }\StringTok{\textquotesingle{}b{-}\textquotesingle{}}\NormalTok{, linewidth}\OperatorTok{=}\DecValTok{3}\NormalTok{, label}\OperatorTok{=}\StringTok{\textquotesingle{}QSA\textquotesingle{}}\NormalTok{)}
+\NormalTok{    plt.errorbar( file\_ms, file\_QSA, yerr}\OperatorTok{=}\NormalTok{file\_QSA\_stderror, fmt}\OperatorTok{=}\StringTok{\textquotesingle{}.k\textquotesingle{}}\NormalTok{)}\OperatorTok{;}
+\NormalTok{    plt.plot(     file\_ms, file\_LS,  }\StringTok{\textquotesingle{}r{-}\textquotesingle{}}\NormalTok{, linewidth}\OperatorTok{=}\DecValTok{3}\NormalTok{, label}\OperatorTok{=}\StringTok{\textquotesingle{}LS\textquotesingle{}}\NormalTok{)}
+\NormalTok{    plt.errorbar( file\_ms, file\_LS,  yerr}\OperatorTok{=}\NormalTok{file\_LS\_stderror, fmt}\OperatorTok{=}\StringTok{\textquotesingle{}.k\textquotesingle{}}\NormalTok{)}\OperatorTok{;}
+    
 \NormalTok{    plt.legend(loc}\OperatorTok{=}\NormalTok{legend\_loc, fontsize}\OperatorTok{=}\DecValTok{12}\NormalTok{)}
 \NormalTok{    plt.tight\_layout()}
 
