@@ -223,10 +223,10 @@ with(glm1augment, table(is_recid, binprediction))
 ```
 
 ```{r}
-(1331 + 1673)/5000
+(1339 + 1699)/5000
 ```
 
-This model has 60.08% accuracy -- this is 10% higher than a random model would achieve. Our previous data was only 4% higher in accuracy than what a blind model would achieve, so in some sense, this is better and provides more room for the Seldonian results to vary.
+This model has 60.76% accuracy -- this is 10% higher than a random model would achieve. Our previous data was only 4% higher in accuracy than what a blind model would achieve, so in some sense, this is better and provides more room for the Seldonian results to vary.
 
 $\\$
 
@@ -269,6 +269,8 @@ compas_sim_balanced %>%
   ) %>%
   kable(booktabs = TRUE)
 ```
+
+
 
 # Data Generation Mechanism #2 (better predictive performance)
 
