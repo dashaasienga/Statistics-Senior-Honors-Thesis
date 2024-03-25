@@ -929,4 +929,105 @@ compas_sim_balanced_6 %>%
   kable(booktabs = TRUE)
 ```
 
+# Data Generation Mechanism #7 (playing around with the coefficients to induce more error)
+
+## Generating the Parent Data Set & Assessing Performance
+
+```{r, eval = FALSE}
+set.seed(93)
+
+# positive number from 0 to 25, incluing decimals 0.1 apart
+coeff_age = 1
+  
+coeff_po = 0.5
+coeff_po_not = 0
+
+while(TRUE) {
+  # define a linear combination of predictors as desired
+  linear_combination = - 0.34 - coeff_age * compas_sim_balanced$age + ifelse(compas_sim_balanced$prior_offense == 1, coeff_po, coeff_po_not) 
+  
+  # pass through an inverse-logit function
+  probs = exp(linear_combination) / (1 + exp(linear_combination))  
+  
+  # generate 5000 Bernoulli RVs for y
+  is_recid_sim = rbinom(5000, 1, probs) 
+  
+  if (coeff_po > 1000) {
+    coeff_age <- coeff_age + 1
+    coeff_po <- 0
+    print(paste0("Coeff Age: ", coeff_age))
+    next
+  }
+  
+  if (count(is_recid_sim == 1) < 500 | count(is_recid_sim == 0) < 500) {
+    coeff_po <- coeff_po + 5
+    print(coeff_po)
+    next
+  }
+  
+  print("Data set produced")
+  
+  # join to original data frame
+  compas_sim_balanced_7 <- cbind(compas_sim_balanced, is_recid_sim)
+  
+  # induce balance
+  compas_b_y <- compas_sim_balanced_7 %>%
+    filter(race == "African-American" & is_recid_sim == 1)
+  
+  compas_b_n <- compas_sim_balanced_7 %>%
+    filter(race == "African-American" & is_recid_sim == 0)
+  
+  compas_w_y <- compas_sim_balanced_7 %>%
+    filter(race == "Caucasian" & is_recid_sim == 1)
+  
+  compas_w_n <- compas_sim_balanced_7 %>%
+    filter(race == "Caucasian" & is_recid_sim == 0)
+  
+  compas_b_y_balanced <- compas_b_y[sample(nrow(compas_b_y), 1250, replace = TRUE),]
+  compas_b_n_balanced <- compas_b_n[sample(nrow(compas_b_n), 1250, replace = TRUE),]
+  compas_w_y_balanced <- compas_w_y[sample(nrow(compas_w_y), 1250, replace = TRUE),]
+  compas_w_n_balanced <- compas_w_n[sample(nrow(compas_w_n), 1250, replace = TRUE),]
+  
+  compas_sim_balanced_7 <- rbind(compas_b_y_balanced, 
+                                 compas_b_n_balanced, 
+                                 compas_w_y_balanced, 
+                                 compas_w_n_balanced)
+  
+  compas_sim_balanced_7 <- compas_sim_balanced_7[sample(nrow(compas_sim_balanced_7), 
+                                                        5000, 
+                                                        replace = FALSE),]
+  
+  # fit GLM
+  glm7 <- glm(is_recid_sim ~ age + prior_offense,
+              data = compas_sim_balanced_7,
+              family = binomial(logit))
+  
+  print("GLM converged")
+  
+  glm7augment <- glm7 %>% 
+    broom::augment(type.predict = "response")
+  glm7augment <- mutate(glm7augment, binprediction = round(.fitted, 0)) 
+  conf_matrix <- with(glm7augment, table(is_recid_sim, binprediction))
+  conf_matrix[3] + conf_matrix[2]
+  
+  if (conf_matrix[3] + conf_matrix[2] >= 1000) {
+    break
+  } else {
+    coeff_po <- coeff_po + 5
+  }
+  
+  print(paste0("Coeff Age: ", coeff_age))
+  print(coeff_po)
+}
+
+coeff_age
+coeff_po
+conf_matrix
+# I want: conf_matrix[3] + conf_matrix[2] >= 1000
+```
+
+```{r}
+(1540 + 1005)/5000
+```
+
 
