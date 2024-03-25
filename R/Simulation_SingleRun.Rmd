@@ -1,0 +1,40 @@
+---
+title: "Thesis Simulation Single Run for Chapter 4"
+author: "Dasha Asienga"
+date: "`r Sys.Date()`"
+output: 
+  pdf_document:
+    toc: TRUE
+
+---
+
+```{r setup, include=FALSE}
+library(mosaic)
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(RColorBrewer)
+library(knitr)
+library(kableExtra)
+library(ggplot2)
+library(GGally)
+library(MASS)
+library(reshape2)
+library(pROC)
+```
+
+$\\$
+
+This file is intended to run the Seldonian framework on the parent simulation data set as a single run, before scaling it into multiple trials. 
+
+# Reading in the Data
+
+First, let's read in the parent simulation data set.
+
+```{r}
+compas_sim_path <- "/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/COMPAS/compas_sim.csv"
+compas_sim_parent <- read.csv(compas_sim_path)
+```
+
+
+
