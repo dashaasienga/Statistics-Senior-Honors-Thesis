@@ -21,7 +21,7 @@ Chapter \@ref(chap-2) introduced the Seldonian framework, which offers probabili
 
 However, machine learning algorithms deal with classification problems in many practical applications. Applications range from risk assessment tools like COMPAS, discussed in Chapter \@ref(intro), to credit scoring and employment prediction algorithms, to name a few. However, deploying such algorithms raises significant ethical concerns, as discussed in Chapters \@ref(intro) and \@ref(chap-2), primarily regarding fairness and the potential reinforcement of discriminatory practices. Given the historical and social biases inherent in the data used to train these algorithms, there is a pressing need to assess their fairness and mitigate any potential harm they may cause disadvantaged groups.
 
-To offer a path forward in addressing this issue, this chapter aims to apply the Seldonian framework to the COMPAS data set and assess its predictive outcomes compared to those from the COMPAS tool and those from logistic regression, a standard ML procedure. Specifically, the objective is to assess whether Seldonian approaches can produce fairer outcomes, particularly COMPAS outcomes, drawing on some of the statistical definitions of fairness defined in Chapter \@ref(fairnessdefinitions). This chapter will present a framework that can be emulated in other classification problems where fairness is a concern. 
+To offer a path forward in addressing this issue, this chapter aims to apply the Seldonian framework to the COMPAS data set and assess its predictive outcomes compared to the COMPAS tool and logistic regression, a standard ML procedure. Specifically, the objective is to assess whether Seldonian approaches can produce fairer outcomes within the COMPAS setting,  drawing on some of the statistical definitions of fairness defined in Chapter \@ref(fairnessdefinitions). This chapter will present a framework that can be emulated in other classification problems where fairness is a concern. 
 
 
 ## The COMPAS Data Set
@@ -41,19 +41,11 @@ compasdata <- compasdata %>%
 clean_compasdata <- compasdata[-which(duplicated(compasdata$id)), ]
 ```
 
-The COMPAS data set, obtained from the ProPublica Data Store [@compasdata], records information on defendants from Broward County, Florida, that were evaluated for the risk of recidivism by the Correctional Offender Management Profiling for Alternative Sanctions (COMPAS) tool in 2013 and 2014. A database hosts this data, and a SQL query, displayed in Appendix \@ref(appendix-c), retrieved 12160 observations. There are 29 variables, 6 of which were later identified to be useful for this predictive analysis: age, age category, sex, marital status, whether the defendant had a history of juvenile offenses or not, and the total number of prior offenses committed by the defendant. The response variable records whether or not a defendant had recommitted a crime within two years. Finally, the protected attribute, race, has six levels: African-American, Caucasian, Hispanic, Asian, Native American, and Other. After cleaning the data to address anomalies, improve the data quality, and remove duplicate observations, the data set size was reduced to 9387 observations. Section \@ref(descriptivestats) examines these variables in more detail and their relationships with each other.
+The COMPAS data set, obtained from the ProPublica Data Store [@compasdata], records information on defendants from Broward County, Florida, that were evaluated for the risk of recidivism by the Correctional Offender Management Profiling for Alternative Sanctions (COMPAS) tool in 2013 and 2014. A SQL query of the COMPAS database retrieved 12,160 observations (Appendix \@ref(appendix-c)). Of 29 variables returned, 6 were identified to be useful for predictive analysis: age, age category, sex, marital status, whether the defendant had a history of juvenile offenses or not, and the total number of prior offenses committed by the defendant. The response variable records whether or not a defendant had recommitted a crime within two years. Finally, the protected attribute, race, has six levels: African-American, Caucasian, Hispanic, Asian, Native American, and Other. After cleaning the data to address anomalies, improve the data quality, and remove duplicate observations, the data set size was reduced to 9387 observations. Section \@ref(descriptivestats) examines these variables in more detail and their relationships with each other.
 
 ## Descriptive Statistics {#descriptivestats}
 
-This section presents a holistic exploratory analysis of the COMPAS data set. 
-
-### Univariate Analysis {#univariateanalysis}
-
-The six predictive variables are age, age category, sex, marital status, whether the defendant had a history of juvenile offenses, and the total number of prior offenses committed by the defendant. Only two variables are continuous: the number of prior offenses and the defendant's age. The remaining variables are categorical.
-
-#### Continuous Predictors
-
-The defendants' ages range from 18 to 96, with a median of 32 years and a mean of 34.75 years. There is a right skew, as illustrated in Figure \@ref(fig:ch3fig1), and the middle 50% of the defendants are between the ages of 25 and 42. Similarly, the variable recording the number of prior offenses has a significant right skew with a median of 1 offense and a mean of 3.02 offenses. The middle 50% of the defendants have committed between 0 and 4 offenses, and the defendant with the most prior offenses has committed 38 crimes. Figure \@ref(fig:ch3fig1) visualizes this distribution.
+This section presents a holistic exploratory analysis of the COMPAS data set. The defendants' ages range from 18 to 96, with a median of 32 years and a mean of 34.75 years. There is a right skew, as illustrated in Figure \@ref(fig:ch3fig1), and the middle 50% of the defendants are between the ages of 25 and 42. Similarly, the variable recording the number of prior offenses has a significant right skew with a median of 1 offense and a mean of 3.02 offenses. The middle 50% of the defendants have committed between 0 and 4 offenses, and the defendant with the most prior offenses has committed 38 crimes. Figure \@ref(fig:ch3fig1) visualizes this distribution.
 
 ```{r ch3fig1, fig.align='center', fig.cap="Distribution of the COMPAS Continuous Variables", warning = FALSE, message = FALSE, fig.width = 6, fig.height = 3, echo = FALSE}
 g1 <- ggplot(data = clean_compasdata, mapping = aes(x = age)) +
@@ -135,11 +127,11 @@ ggplot(mapping = aes(x = is_recid)) +
        y = "Number of Defendants")
 ```
 
-#### Demographic Variable
+#### Protected Attribute
 
-Finally, the demographic variable in this analysis is race. Most of the defendants are African-American (4674) and Caucasian (3250), with only 818 Hispanic, 48 Asian, and 27 Native American defendants. The remaining 570 defendants identify as 'Other'. Figure \@ref(fig:ch3fig4) visualizes this.
+Finally, the protected attribute in this analysis is race. Most of the defendants are African-American (4674) and Caucasian (3250), with only 818 Hispanic, 48 Asian, and 27 Native American defendants. The remaining 570 defendants identify as 'Other'. Figure \@ref(fig:ch3fig4) visualizes this.
 
-```{r ch3fig4, fig.align='center', fig.cap="Distribution of the COMPAS Demographic Variable: Race", warning = FALSE, message = FALSE, fig.width = 4.5, fig.height = 2.5, echo = FALSE}
+```{r ch3fig4, fig.align='center', fig.cap="Distribution of the COMPAS Protected Attribute: Race", warning = FALSE, message = FALSE, fig.width = 4.5, fig.height = 2.5, echo = FALSE}
 ggplot(data = clean_compasdata, mapping = aes(x = race)) +
   geom_bar(fill = "lightblue", color = "black") +
   theme_minimal() +
@@ -148,9 +140,9 @@ ggplot(data = clean_compasdata, mapping = aes(x = race)) +
        y = "Number of Defendants")
 ```
 
-### Bivariate Analysis {#bivariateanalysis}
+### Associations Between the Predictors and Response {#bivariateanalysis}
 
-With a thorough understanding of the variables from Section \@ref(univariateanalysis), this section examines the relationship between the predictive variables and the response variable, recidivism.
+With a thorough understanding of the variables, this section examines the relationship between the predictive variables and the response variable, recidivism.
 
 #### Continuous Predictors
 
@@ -461,13 +453,15 @@ grid.arrange(g18, g19, g20, nrow = 3)
 
 Additionally, African-American defendants have the most prior offenses, on average, followed by their Native-American counterparts. When compared with Caucasian defendants, African Americans have almost twice as many prior offenses, suggesting a strong proxy relationship between race and prior offenses. Asian defendants have the least prior offenses. This is an important result that illustrates how a system that predisposes certain races to prison can perpetuate that discriminatory trend by using those same variables to predict the risk of committing another crime. The boxplot in Figure \@ref(fig:ch3fig10) helps to visualize this relationship more clearly.
 
-This section illustrates that the demographic variable, race ($A$), has proxy relationships with some predictor variables ($X$). Even a group-blind classifier will not be entirely blind to race because of the correlations present and the information it gains about race from the proxy variables.
+This section illustrates that the protected attribute, race ($A$), has proxy relationships with some predictor variables ($X$). Even a group-blind classifier will not be entirely blind to race because of the correlations present and the information it gains about race from the proxy variables.
 
 ```{r ch3fig13, fig.align='center', fig.cap="Recidivism Prevalence by Race", warning = FALSE, message = FALSE, fig.width = 6, fig.height = 2.5, echo = FALSE}
 compas_final %>%
   dplyr::select(c(race, is_recid)) %>%
   group_by(race, is_recid) %>%
   summarise(num_defendants = n()) %>%
+  mutate(race = factor(race, levels = c("African-American", "Caucasian", "Hispanic",
+                                        "Other", "Native American", "Asian"))) %>%
   ggplot(mapping = aes(x = race, y = num_defendants, fill = as.factor(is_recid))) +
   geom_bar(stat = "identity") +
   theme_minimal() +
@@ -543,9 +537,9 @@ plot(roccurve1)
 
 Despite the improved accuracy, examining the direction of these error rates and performing a demographic analysis by race to assess the model’s ‘fairness’ along racial lines reveals the same discrepancies observed in the COMPAS tool results. 
 
-Table \@ref(tab:ch3table3) displays the overall false positive and false negative rates. As expected, the model performs better in classifying defendants who do not reoffend than those who do since that is the majority class. When evaluated on the test set, 91% of defendants who did not reoffend are correctly classified as low-risk. Thus, only 9% of participants who do not reoffend are incorrectly classified as high-risk. This is a lower FPR than COMPAS. However, only 29% of defendants who reoffended are correctly classified as high-risk. Thus, 71% of defendants who reoffended are incorrectly classified as low-risk. This is a higher FNR than COMPAS.
+Table \@ref(tab:ch3table3) displays the overall false positive and false negative rates. As expected, the model performs better in classifying defendants who do not reoffend than those who do since that is the majority class. When evaluated on the test set, 91.05% of defendants who did not reoffend are correctly classified as low-risk. Thus, only 8.95% of participants who do not reoffend are incorrectly classified as high-risk. This is a lower FPR than COMPAS. However, only 29% of defendants who reoffended are correctly classified as high-risk. Thus, 71% of defendants who reoffended are incorrectly classified as low-risk. This is a higher FNR than COMPAS.
 
-Table \@ref(tab:ch3table4) further breaks these results down, focusing on Black and White defendants. While the overall FPR for the model is 8.95%, notice that the FPR for Black defendants is 13.93%, compared to only 5.09% for White defendants. Similar to the COMPAS tool, Black defendants who do not reoffend are incorrectly misclassified as high risk at twice the rate that White defendants are. On the flip side, while the overall FNR for the model is 70.98%, notice that the FNR for Black defendants is 60.82%, compared to 86.17% for White defendants. Similar to the COMPAS tool, the logistic regression makes the opposite mistake in predicting recidivism for Black v White defendants, with White defendants being more likely to be incorrectly classified as low risk than their Black counterparts.
+Table \@ref(tab:ch3table4) further breaks these results down, focusing on Black and White defendants. While the overall FPR for the model is 8.95%, notice that the FPR for Black defendants is 13.93%, compared to only 5.09% for White defendants. Similar to the COMPAS tool, Black defendants who do not reoffend are incorrectly misclassified as high risk at twice the rate that White defendants are. On the flip side, while the overall FNR for the model is 71%, notice that the FNR for Black defendants is 60.82%, compared to 86.17% for White defendants. Similar to the COMPAS tool, the logistic regression makes the opposite mistake in predicting recidivism for Black v White defendants, with White defendants being more likely to be incorrectly classified as low risk than their Black counterparts.
 
 These results serve to highlight the real danger with using standard ML procedures, even when the sensitive variable itself is not included. These models have potential to perpetuate, and even introduce, harmful and discriminatory practices as observed in this Chapter. Although the details of Northepointe's COMPAS algorithm are kept secret, it's clear that traditional algorithms like logistic regression lead to comparable outcomes. In fact, a probability cutoff of $p = 0.34$, the probability of being in the positive class in this data set, on the logistic regression yielded the same accuracy ($66.7$%) as the COMPAS tool. Additionally, comparing the COMPAS decile scores to the logistic regression (LR) results reveals that the median decile score is 8 in the high-risk LR prediction and 3 in the low-risk LR prediction, further highlighting the similarity of these results. The next section uses the logistic regression model as a starting point, but places fairness constraints to enforce equality of odds for Black and White defendants.
 
@@ -617,7 +611,7 @@ This section aims to conclude the chapter by illustrating how Seldonian algorith
 
 ### Formulating the Seldonian Problem
 
-Without fairness constraints, the standard ML problem is finding a solution $\theta$ that minimizes logistic loss. However, such a solution, as illustrated in Section \@ref(logreg) when fitting a logistic regression model, results in unequal error rates between Black and White defendants when using the COMPAS data set. Defining the discrimination statistic $d(\theta)$ to measure the difference in error rates as in Equation \@ref(ch3eq2), $d(\theta_{LR}) = 0.34$ (or $34.18$%). Similarly, for the COMPAS tool, $d(\theta_{COMPAS}) = 0.45$ (or $44.7$%) using this data set. This illustrates that the logistic regression performed slightly better than the COMPAS tool, both in overall accuracy and error rate disparities. However, there is still a significant discrepancy between the error rates for both races.  
+Without fairness constraints, the standard ML problem is finding a solution $\theta$ that minimizes logistic loss. However, such a solution, as illustrated in Section \@ref(logreg) when fitting a logistic regression model, results in unequal error rates between Black and White defendants when using the COMPAS data set. Defining the discrimination statistic $d(\theta)$ to measure the difference in error rates as in Equation \@ref(ch3eq2), then  $d(\theta_{LR}) = 0.34$ (or $34.18$%). Similarly, for the COMPAS tool, $d(\theta_{COMPAS}) = 0.45$ (or $44.7$%) using this data set. This illustrates that the logistic regression performed slightly better than the COMPAS tool, both in overall accuracy and error rate disparities. However, there is still a significant discrepancy between the error rates for both races.  
 
 \begin{equation}
 \label{ch3eq2}
@@ -797,5 +791,5 @@ $\\$
 
 In conclusion, the Seldonian algorithms successfully met the fairness constraints defined, with the FPR and FNR gaining more parity along racial lines for Black and White defendants as $\epsilon$ became more conservative. However, there was a tradeoff with model informativeness and performance in enforcing greater fairness. The FNR got larger as the FPR got smaller until, ultimately, the model was non-informative despite perfectly satisfying the constraints (100% FNR and 0% FPR for both races). Accuracy also dropped as the value of $\epsilon$ decreased, although the original data set could have been more informative. Notably, considering all races, the lowest achievable accuracy would only be 4% lower than the highest accuracy attained by the logistic regression model. 
 
-Looking ahead, there are several avenues for future research. One direction involves extending this study to data sets with less class imbalance and higher overall predictive performance. By doing so, the tradeoffs inherent in incorporating fairness constraints into the traditional objective function in a practical setting can be better elucidated. Chapter \@ref(chap-4) contributes to this understanding by conducting a simulation study to explore the theoretical and practical implications of the Seldonian framework in the classification setting.
+Looking ahead, there are several avenues for future research. One direction involves extending this study to data sets with less class imbalance or higher overall predictive performance. By doing so, the tradeoffs inherent in incorporating fairness constraints into the traditional objective function in a practical setting can be better elucidated. Chapter \@ref(chap-4) contributes to this understanding by conducting a simulation study to explore the theoretical and practical implications of the Seldonian framework in the classification setting.
 

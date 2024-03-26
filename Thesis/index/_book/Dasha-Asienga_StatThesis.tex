@@ -289,22 +289,22 @@ Use this space to thank those who have helped you in the thesis process (profess
 \hypertarget{intro}{%
 \chapter{An Introduction to Fairness in Machine Learning}\label{intro}}
 
-The public and private sector are increasingly turning to data-driven methods to automate and to guide simple and complex decision-making. However, this trend raises an important question of bias. There is a lot of misinterpretation when it comes to the collection of data in many application areas, and there is a major concern for data-driven methods to further introduce and perpetuate discriminatory practices, or to otherwise be unfair because of the social and historical processes that operate to the disadvantage of certain groups.
+In the current landscape, both the public and private sectors are increasingly relying on data-driven methods to automate, streamline, and guide simple and complex decision-making. However, this trend raises an important question of bias. There is a lot of misinterpretation when it comes to the collection of data in many application areas, and there is a major concern for data-driven methods to introduce and perpetuate discriminatory practices inadvertently or to otherwise be unfair because of the social and historical processes that operate to the disadvantage of certain groups.
 
-For example, within healthcare, using mortality or readmission rates to measure hospital performance penalizes hospitals serving poor or non-White populations as those inherently have higher mortality and readmission rates due to confounding societal factors. Outside healthcare, credit-scoring algorithms predict outcomes based on income, which disadvantages low-income groups further perpetuating economic immobility. Policing algorithms result in increased scrutiny of Black neighborhoods because of the bias against Black people that is already present in the U.S. policing system, and hiring algorithms, which predict employment decisions, are affected by historical race and gender biases.
+For example, within healthcare, using mortality or readmission rates to measure hospital performance penalizes hospitals serving poor or non-White populations as those inherently have higher mortality and readmission rates due to confounding societal factors. Outside healthcare, credit-scoring algorithms predict outcomes based on income, which disadvantages low-income groups, further perpetuating economic immobility. Policing algorithms result in increased scrutiny of Black neighborhoods because of the bias against Black people that is already present in the U.S. policing system, and hiring algorithms, which predict employment decisions, are affected by historical race and gender biases.
 
-Yet, these algorithms are often regarded as ground truth and free of human limitations because they are based on mathematics, statistics, and computer science -- otherwise regarded as objective disciplines. In theory, this should lead to greater fairness. However, left unregulated, these mathematical models privilege majority groups and discriminate against minority groups because they often learn from inherently biased data. If the data used to train models contains bias, then the resulting algorithms will learn the bias and reflect it into their predictions. In many cases, this can be detrimental.
+Yet, these algorithms are often regarded as ground truth and free of human limitations because they are based on mathematics, statistics, and computer science -- otherwise regarded as objective disciplines. In theory, this should lead to greater fairness. However, left unregulated, these mathematical models privilege majority groups and discriminate against minority groups because they often learn from inherently biased data. If the data used to train models contains bias, the resulting algorithms will learn and reflect it into their predictions. In many cases, this can be detrimental.
 
-While there are widely-accepted, though sometimes disputed, societal notions of fairness, one key question emerges: are there any established statistical notions of fairness and bias? Is it possible to mathematically and statistically define algorithmic bias and unfairness, thereby paving a way for addressing the challenges they pose? And if so, are there ways to leverage statistical tools to resolve such bias and unfairness? This thesis paper aims to explore and answer precisely these questions.
+While there are widely-accepted, though sometimes disputed, societal notions of fairness, a fundamental question arises: are there any established statistical notions of fairness and bias? Is it possible to mathematically and statistically define algorithmic bias and unfairness, thereby opening avenues to address the challenges they pose? And if so, are there ways to leverage statistical tools to resolve such bias and unfairness? This thesis paper is dedicated to exploring and answering precisely these questions.
 
 \hypertarget{algbias}{%
 \section{Algorithmic Bias}\label{algbias}}
 
-There are multiple different types and sources of bias in the realm of statistics. In particular, algorithmic bias arises when an algorithm's decisions are skewed towards a particular group of people, either positively or negatively (Mehrabi, Morstatter, Saxena, Lerman, \& Galstyan, 2021). The danger with biased algorithmic outcomes is that they generate a feedback loop. Take, for example, a hiring algorithm that discriminates against female applicants for a specific job. In the long run, this algorithm can perpetuate, and even amplify, existing gender biases by further widening the gender-based class imbalance.
+There are multiple different types and sources of bias in statistics. In particular, algorithmic bias arises when an algorithm's decisions are skewed towards a particular group of people, either positively or negatively (Mehrabi, Morstatter, Saxena, Lerman, \& Galstyan, 2021). The danger with biased algorithmic outcomes is that they generate a feedback loop. Take, for example, a hiring algorithm that discriminates against female applicants for a specific job. In the long run, this algorithm can perpetuate and even amplify existing gender biases by further widening the gender-based class imbalance.
 
-One such key example of algorithmic bias often cited in literature is regarding the broad use of the COMPAS -- or the Correctional Offender Management Profiling for Alternative Sanctions -- tool to predict a defendant's risk of recidivism (committing another crime) within two years. COMPAS is more likely to have higher false positive rates for African-American offenders than Caucasian offenders (Mehrabi et al., 2021). Across the country, scores of similar assessments are given to judges, which injects bias into courts (Angwin, Larson, Mattu, \& Kirchner, 2016).
+One such key example of algorithmic bias often cited in the literature regards the broad use of the COMPAS -- or the Correctional Offender Management Profiling for Alternative Sanctions -- tool to predict a defendant's risk of recidivism (committing another crime) within two years. COMPAS is more likely to have higher false positive rates for African-American offenders than Caucasian offenders (Mehrabi et al., 2021). Across the country, scores of similar assessments are given to judges, which injects bias into courts (Angwin, Larson, Mattu, \& Kirchner, 2016).
 
-COMPAS is based on data from people arrested in Broward County, Florida in 2013 and 2014 (Angwin et al., 2016). The response variable, recidivism, was encoded based on who was charged with new crimes over the next two years. Analyses on the predictive efficacy of the COMPAS algorithm found that the algorithm was 61\% accurate for a full range of crimes, including misdemeanors, and only 20\% of people forecasted to commit violent crimes actually went on to do so. While the overall accuracy rate for the full range of crimes is better than a coin flip, there exists room for enhancing the predictive performance, especially for a decision as critical as whether or not to grant a defendant bail or parole.
+COMPAS is based on data from people arrested in Broward County, Florida, in 2013 and 2014 (Angwin et al., 2016). The response variable, recidivism, was encoded based on who was charged with new crimes over the next two years. Analyses on the predictive efficacy of the COMPAS algorithm found that the algorithm was 61\% accurate for a full range of crimes, including misdemeanors, and only 20\% of people forecasted to commit violent crimes actually went on to do so. While the overall accuracy rate for the full range of crimes is better than a coin flip, there exists room for enhancing the predictive performance, especially for a decision as critical as whether or not to grant a defendant bail or parole.
 
 The COMPAS algorithm is a color-blind model -- race was not included directly as a predictor during its development. However, a statistical analysis showed that even when the effects of race, age, and gender are controlled for through their inclusion as variables in a logistic regression model, Black defendants were still 77\% more likely to be predicted at higher risk of committing a future violent crime and 45\% more likely to be predicted of committing a future crime of any kind as compared to white defendants (Larson, Mattu, Kirchner, \& Angwin, 2016). The table in Figure \ref{fig:compas1} highlights the performance discrepancy across race.
 \begin{figure}
@@ -315,25 +315,25 @@ The COMPAS algorithm is a color-blind model -- race was not included directly as
 
 \caption[COMPAS Prediction Fails Differently for Black v White Defendants]{Prediction Fails Differently for Black v White Defendants (Angwin et al., 2016)}\label{fig:compas1}
 \end{figure}
-Although the tool has 61\% accuracy, Black defendants are almost twice as likely to be labeled as higher risk without re-offending than White defendants as observed in Figure \ref{fig:compas1}. It makes the opposite mistake among White defendants. The reason for this is that classification models are trained to minimize average error, which fits majority populations (Chouldechova \& Roth, 2018).
+Although the tool has 61\% accuracy, Black defendants are almost twice as likely to be labeled as higher risk without re-offending than White defendants, as observed in Figure \ref{fig:compas1}. It makes the opposite mistake among White defendants. This is because classification models are trained to minimize average error, which fits majority populations (Chouldechova \& Roth, 2018).
 
-In truth, however, various societal factors contribute to distinct environmental and social realities for Black and White individuals. These factors, including an offender's personal and familial background, as well as their residential environment, are incorporated into the COMPAS tool to forecast recidivism. Consequently, it appears justifiable to adjust the calibration of the relationship between an offender's social context and their propensity for recidivism differently for Black and White offenders, acknowledging these inherent disparities. A group-blind classifier algorithm that fails to do so could unfairly disadvantage one group over the other -- COMPAS is just one such algorithm. For example, in the education sector, different factors lead to different SAT performance between students from majority versus minority populations. It would, thus, also seem fair that the relationship between SAT and college admissions be calibrated differently for each demographic group.
+In truth, however, various societal factors contribute to distinct environmental and social realities for Black and White individuals. These factors, including an offender's personal and familial background and their residential environment, are incorporated into the COMPAS tool to forecast recidivism. Consequently, it appears justifiable to adjust the calibration of the relationship between an offender's social context and their propensity for recidivism differently for Black and White offenders, acknowledging these inherent disparities. A group-blind classifier algorithm that fails to do so could unfairly disadvantage one group over the other -- COMPAS is just one such algorithm. For example, in the education sector, different factors lead to different SAT performances between students from majority versus minority populations. It would, thus, also seem fair that the relationship between SAT and college admissions be calibrated differently for each demographic group. However, making distinctions based on race is generally not acceptable in society.
 
 Therefore, the question becomes, can we modify these algorithms to be group-blind but also fair? In order to do so, fairness constraints that reduce, or even correct for, algorithmic bias during the modeling process must be set. However, one must first define fairness mathematically, statistically, and quantifiably.
 
 \hypertarget{fairnessdefinitions}{%
 \section{Statistical Definitions of Fairness}\label{fairnessdefinitions}}
 
-Statistical notions of fairness can be defined at a group level or an individual level. \emph{Group notions} fix a few demographic groups and assess the parity of some statistical measures across all the groups (Chouldechova \& Roth, 2018). Note that group measures, on their own, do not guarantee fairness to individuals or structured subgroups within protected demographic groups, but rather, give guarantees to ``average'' numbers of protected groups. These notions are the focus of this thesis paper.
+Understanding statistical notions of fairness at both group and individual levels is crucial. \emph{Group notions} focus on a few demographic groups and assess the parity of statistical measures across all these groups (Chouldechova \& Roth, 2018). It is important to note that while providing guarantees to `average' numbers of protected groups, group measures do not necessarily ensure fairness to individuals or structured subgroups within protected demographic groups. These notions are the focus of this paper.
 
-\emph{Individual notions}, on the other hand, are assessed on specific pairs of individuals rather than averaged across groups (Chouldechova \& Roth, 2018). In other words, similar individuals should be treated similarly along some defined similarity or inverse distance metrics. Counter-factual fairness, for example, relies on the intuition that a decision is fair towards an individual if it's the same in both the real world and a counter-factual world where the individual belongs to a different demographic group (Mehrabi et al., 2021). This can be impractical, relies on strong assumptions about the data, and approaches the realm of causality (Chouldechova \& Roth, 2018). Moreover, there is a gap in literature with regard to individual notions of fairness.
+\emph{Individual notions}, on the other hand, are assessed on specific pairs of individuals rather than averaged across groups (Chouldechova \& Roth, 2018). The principle is that similar individuals should be treated similarly along some defined similarity or inverse distance metrics. Counter-factual fairness, for example, relies on the intuition that a decision is fair towards an individual if it's the same in both the real world and a counter-factual world where the individual belongs to a different demographic group (Mehrabi et al., 2021). This can be impractical, relies on strong assumptions about the data, and approaches the realm of causality, further complicating its application (Chouldechova \& Roth, 2018). This highlights the challenges and limitations of individual notions, for which a gap in literature exists.
 
-Ultimately, group notions and individual notions are not in conflict per se. Instead, they are on the same spectrum of how much dependence is allowed between predictions and the sensitive attribute (Castelnovo et al., 2022). Subgroup fairness is an alternative notion that intends to obtain the best properties of both, for example, by picking a group fairness constraint and assessing whether it holds over a large collection of subgroups (Mehrabi et al., 2021). Group and individual fairness notions can be defined in both classification settings and regression settings, although most of the literature focuses on fairness within classification.
+Ultimately, group notions and individual notions are not in conflict per se. Instead, they exist on the same spectrum of how much dependence is allowed between predictions and the sensitive attribute (Castelnovo et al., 2022). Subgroup fairness is an alternative notion that intends to combine the best properties of both, for example, by picking a group fairness constraint and assessing whether it holds over a large collection of subgroups (Mehrabi et al., 2021). Group and individual fairness notions can be defined in both classification settings and regression settings, although the majority of the literature focuses on fairness within classification.
 
 \hypertarget{group-fairness-in-regression-settings}{%
 \subsection{Group Fairness in Regression Settings}\label{group-fairness-in-regression-settings}}
 
-Fair regression is the quantitative notion of fairness of real-valued targets (Agarwal, Dudík, \& Wu, 2019). Consider a general prediction setting where the training set consists of \(X\), a feature vector with all the predictor variables, \(A\), the levels of the protected attribute/ demographic group, and \(Y\), the real-valued continuous response variable. \(F\) is a set of possible prediction models, and the goal is to find \(f \in F\) that is a good predictive model of \(Y\) given \(X\) and some fairness constraints. The accuracy of a prediction \(f(X)\) = \(\hat{Y}\) on \(Y\) is measured by the mean squared error (MSE) as the loss function \(l(Y, f(X))\). The goal is to minimize \(l(Y, f(X))\), hence, maximizing accuracy.
+Fair regression is the quantitative notion of fairness of real-valued targets (Agarwal, Dudík, \& Wu, 2019). Consider a general prediction setting where the training set consists of \(X\), a feature vector with all the predictor variables, \(A\), the levels of the protected attribute/ demographic group, and \(Y\), the real-valued continuous response variable. \(F\) is a set of possible prediction models, and the goal is to find \(f \in F\) that is a good predictive model of \(Y\) given \(X\) and some fairness constraints. The accuracy of a prediction \(f(X)\) = \(\hat{Y}\) on \(Y\) is measured by the mean squared error (MSE) as the loss function \(l(Y, f(X))\). The goal is to minimize \(l(Y, f(X))\), hence maximizing accuracy.
 
 \emph{Statistical parity} refers to minimizing the expected loss function (MSE) such that the probability that each predicted \(f(X)\) = \(\hat{Y}\) is above a certain threshold \(z\) for each sensitive attribute is the same as the probability over the entire data set, given some margin \(\epsilon_a\) that is dependent on the protected attribute (Agarwal et al., 2019):
 \begin{equation}
@@ -342,7 +342,7 @@ Fair regression is the quantitative notion of fairness of real-valued targets (A
 \end{equation}
 \[ |P[f(X) \geq z | A = a] - P[f(X) \geq z]| \leq \epsilon_a.\]
 
-This is akin to the classification setting where it may be desirable to have the probability of being in the positive class be above some certain threshold for each group as well as across the entire data set. A similar notion, known as \emph{bounded loss}, requires that the MSE for each group be below some pre-specified level \(c_a\) that is dependent on the protected attribute (Agarwal et al., 2019):
+This is akin to the classification setting, where it may be desirable to have the probability of being in the positive class above some certain threshold for each group as well as across the entire data set. A similar notion, known as \emph{bounded loss}, requires that the MSE for each group be below some pre-specified level \(c_a\) that is dependent on the protected attribute (Agarwal et al., 2019):
 \begin{equation}
 \label{ch1eq2}
 \text{min}_{f \in F} \text{ } E[l(Y, f(X))] \text{ such that } \forall a \in A: 
@@ -352,7 +352,7 @@ This is akin to the classification setting where it may be desirable to have the
 \hypertarget{classfairdef}{%
 \subsection{Group Fairness in Classification Settings}\label{classfairdef}}
 
-Group notions of fairness in classification, at the core, refer to treating different groups equally. They aim to remedy or prevent disparate impact, which is a setting where there is unintended disproportionate adverse impact on a particular group (Chouldechova, 2017). There are three broad notions of observational group fairness: independence, separation, and sufficiency (Castelnovo et al., 2022).
+At the core, group notions of fairness in classification refer to treating different groups equally. They aim to remedy or prevent disparate impact, a setting where there is unintended disproportionate adverse impact on a particular group (Chouldechova, 2017). There are three broad notions of observational group fairness: independence, separation, and sufficiency (Castelnovo et al., 2022).
 
 \hypertarget{independence}{%
 \subsubsection{Independence}\label{independence}}
@@ -533,7 +533,7 @@ Unfortunately, the distribution of the outcome of interest often differs for dif
 \hypertarget{on-fairness-conflicts}{%
 \subsection{On Fairness Conflicts}\label{on-fairness-conflicts}}
 
-As observed, disparate impact can result from the use of a prediction tool that is perceived to be free from predictive bias. Just because an algorithm satisfies a particular definition of fairness doesn't infer that the algorithm is \emph{fair} in every sense of that word. Balancing overall error rates alone is not enough as it does not produce models that are free from bias or that guarantee fairness at finer levels of granularity. This highlights the need for human value and domain expertise in defining fairness within the context of a particular problem before the fairness constraints can be set. Chapter \ref{chap-2} introduces a framework for setting these constraints.
+As observed, disparate impact can result from using a prediction tool that is perceived as free from predictive bias. Just because an algorithm satisfies a particular definition of fairness does not infer that the algorithm is \emph{fair} in every sense of that word. Balancing overall error rates alone is insufficient as it does not produce models that are free from bias or that guarantee fairness at finer levels of granularity. This highlights the need for human value and domain expertise in defining fairness within the context of a particular problem before the fairness constraints can be set. Chapter \ref{chap-2} introduces a framework for setting these constraints.
 
 \hypertarget{chap-2}{%
 \chapter{Seldonian Algorithms}\label{chap-2}}
@@ -820,27 +820,17 @@ Chapter \ref{chap-2} introduced the Seldonian framework, which offers probabilis
 
 However, machine learning algorithms deal with classification problems in many practical applications. Applications range from risk assessment tools like COMPAS, discussed in Chapter \ref{intro}, to credit scoring and employment prediction algorithms, to name a few. However, deploying such algorithms raises significant ethical concerns, as discussed in Chapters \ref{intro} and \ref{chap-2}, primarily regarding fairness and the potential reinforcement of discriminatory practices. Given the historical and social biases inherent in the data used to train these algorithms, there is a pressing need to assess their fairness and mitigate any potential harm they may cause disadvantaged groups.
 
-To offer a path forward in addressing this issue, this chapter aims to apply the Seldonian framework to the COMPAS data set and assess its predictive outcomes compared to those from the COMPAS tool and those from logistic regression, a standard ML procedure. Specifically, the objective is to assess whether Seldonian approaches can produce fairer outcomes, particularly COMPAS outcomes, drawing on some of the statistical definitions of fairness defined in Chapter \ref{fairnessdefinitions}. This chapter will present a framework that can be emulated in other classification problems where fairness is a concern.
+To offer a path forward in addressing this issue, this chapter aims to apply the Seldonian framework to the COMPAS data set and assess its predictive outcomes compared to the COMPAS tool and logistic regression, a standard ML procedure. Specifically, the objective is to assess whether Seldonian approaches can produce fairer outcomes within the COMPAS setting, drawing on some of the statistical definitions of fairness defined in Chapter \ref{fairnessdefinitions}. This chapter will present a framework that can be emulated in other classification problems where fairness is a concern.
 
 \hypertarget{the-compas-data-set}{%
 \section{The COMPAS Data Set}\label{the-compas-data-set}}
 
-The COMPAS data set, obtained from the ProPublica Data Store (Broward County Clerk's Office, 2024), records information on defendants from Broward County, Florida, that were evaluated for the risk of recidivism by the Correctional Offender Management Profiling for Alternative Sanctions (COMPAS) tool in 2013 and 2014. A database hosts this data, and a SQL query, displayed in Appendix \ref{appendix-c}, retrieved 12160 observations. There are 29 variables, 6 of which were later identified to be useful for this predictive analysis: age, age category, sex, marital status, whether the defendant had a history of juvenile offenses or not, and the total number of prior offenses committed by the defendant. The response variable records whether or not a defendant had recommitted a crime within two years. Finally, the protected attribute, race, has six levels: African-American, Caucasian, Hispanic, Asian, Native American, and Other. After cleaning the data to address anomalies, improve the data quality, and remove duplicate observations, the data set size was reduced to 9387 observations. Section \ref{descriptivestats} examines these variables in more detail and their relationships with each other.
+The COMPAS data set, obtained from the ProPublica Data Store (Broward County Clerk's Office, 2024), records information on defendants from Broward County, Florida, that were evaluated for the risk of recidivism by the Correctional Offender Management Profiling for Alternative Sanctions (COMPAS) tool in 2013 and 2014. A SQL query of the COMPAS database retrieved 12,160 observations (Appendix \ref{appendix-c}). Of 29 variables returned, 6 were identified to be useful for predictive analysis: age, age category, sex, marital status, whether the defendant had a history of juvenile offenses or not, and the total number of prior offenses committed by the defendant. The response variable records whether or not a defendant had recommitted a crime within two years. Finally, the protected attribute, race, has six levels: African-American, Caucasian, Hispanic, Asian, Native American, and Other. After cleaning the data to address anomalies, improve the data quality, and remove duplicate observations, the data set size was reduced to 9387 observations. Section \ref{descriptivestats} examines these variables in more detail and their relationships with each other.
 
 \hypertarget{descriptivestats}{%
 \section{Descriptive Statistics}\label{descriptivestats}}
 
-This section presents a holistic exploratory analysis of the COMPAS data set.
-
-\hypertarget{univariateanalysis}{%
-\subsection{Univariate Analysis}\label{univariateanalysis}}
-
-The six predictive variables are age, age category, sex, marital status, whether the defendant had a history of juvenile offenses, and the total number of prior offenses committed by the defendant. Only two variables are continuous: the number of prior offenses and the defendant's age. The remaining variables are categorical.
-
-\hypertarget{continuous-predictors}{%
-\subsubsection{Continuous Predictors}\label{continuous-predictors}}
-
-The defendants' ages range from 18 to 96, with a median of 32 years and a mean of 34.75 years. There is a right skew, as illustrated in Figure \ref{fig:ch3fig1}, and the middle 50\% of the defendants are between the ages of 25 and 42. Similarly, the variable recording the number of prior offenses has a significant right skew with a median of 1 offense and a mean of 3.02 offenses. The middle 50\% of the defendants have committed between 0 and 4 offenses, and the defendant with the most prior offenses has committed 38 crimes. Figure \ref{fig:ch3fig1} visualizes this distribution.
+This section presents a holistic exploratory analysis of the COMPAS data set. The defendants' ages range from 18 to 96, with a median of 32 years and a mean of 34.75 years. There is a right skew, as illustrated in Figure \ref{fig:ch3fig1}, and the middle 50\% of the defendants are between the ages of 25 and 42. Similarly, the variable recording the number of prior offenses has a significant right skew with a median of 1 offense and a mean of 3.02 offenses. The middle 50\% of the defendants have committed between 0 and 4 offenses, and the defendant with the most prior offenses has committed 38 crimes. Figure \ref{fig:ch3fig1} visualizes this distribution.
 \begin{figure}
 
 {\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/ch3fig1-1} 
@@ -873,25 +863,25 @@ The response variable records whether or not a defendant recommitted any crime w
 
 \caption{Distribution of the COMPAS Response Variable: Recidivism}\label{fig:ch3fig3}
 \end{figure}
-\hypertarget{demographic-variable}{%
-\subsubsection{Demographic Variable}\label{demographic-variable}}
+\hypertarget{protected-attribute}{%
+\subsubsection{Protected Attribute}\label{protected-attribute}}
 
-Finally, the demographic variable in this analysis is race. Most of the defendants are African-American (4674) and Caucasian (3250), with only 818 Hispanic, 48 Asian, and 27 Native American defendants. The remaining 570 defendants identify as `Other'. Figure \ref{fig:ch3fig4} visualizes this.
+Finally, the protected attribute in this analysis is race. Most of the defendants are African-American (4674) and Caucasian (3250), with only 818 Hispanic, 48 Asian, and 27 Native American defendants. The remaining 570 defendants identify as `Other'. Figure \ref{fig:ch3fig4} visualizes this.
 \begin{figure}
 
 {\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/ch3fig4-1} 
 
 }
 
-\caption{Distribution of the COMPAS Demographic Variable: Race}\label{fig:ch3fig4}
+\caption{Distribution of the COMPAS Protected Attribute: Race}\label{fig:ch3fig4}
 \end{figure}
 \hypertarget{bivariateanalysis}{%
-\subsection{Bivariate Analysis}\label{bivariateanalysis}}
+\subsection{Associations Between the Predictors and Response}\label{bivariateanalysis}}
 
-With a thorough understanding of the variables from Section \ref{univariateanalysis}, this section examines the relationship between the predictive variables and the response variable, recidivism.
+With a thorough understanding of the variables, this section examines the relationship between the predictive variables and the response variable, recidivism.
 
-\hypertarget{continuous-predictors-1}{%
-\subsubsection{Continuous Predictors}\label{continuous-predictors-1}}
+\hypertarget{continuous-predictors}{%
+\subsubsection{Continuous Predictors}\label{continuous-predictors}}
 
 There is some difference in the mean and median ages for defendants who recommit crimes within two years versus those who do not. Those who recidivate have a mean and median age of 32 and 29, respectively, compared to 36 and 33 for those who do not. Defendants who recidivate tend to be younger than those who do not, as illustrated by the boxplot in Figure \ref{fig:ch3fig5}. There is also some distributional difference in non-juvenile prior offenses for defendants who recidivate versus those who do not, as is indicated by different means and medians. Those who recommit a crime within two years tend to have more prior offenses, with a mean of 4.7 and median of 3, compared to a mean of 2.2 and a median of 1 offense for defendants who do not. Figure \ref{fig:ch3fig5} visualizes this distributional difference.
 \begin{figure}
@@ -1016,7 +1006,7 @@ There are more male than female defendants for all races, and most defendants ar
 \end{figure}
 Additionally, African-American defendants have the most prior offenses, on average, followed by their Native-American counterparts. When compared with Caucasian defendants, African Americans have almost twice as many prior offenses, suggesting a strong proxy relationship between race and prior offenses. Asian defendants have the least prior offenses. This is an important result that illustrates how a system that predisposes certain races to prison can perpetuate that discriminatory trend by using those same variables to predict the risk of committing another crime. The boxplot in Figure \ref{fig:ch3fig10} helps to visualize this relationship more clearly.
 
-This section illustrates that the demographic variable, race (\(A\)), has proxy relationships with some predictor variables (\(X\)). Even a group-blind classifier will not be entirely blind to race because of the correlations present and the information it gains about race from the proxy variables.
+This section illustrates that the protected attribute, race (\(A\)), has proxy relationships with some predictor variables (\(X\)). Even a group-blind classifier will not be entirely blind to race because of the correlations present and the information it gains about race from the proxy variables.
 \begin{figure}
 
 {\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/ch3fig13-1} 
@@ -1058,9 +1048,9 @@ The accuracy was 70.2\% on the training set, which is \textasciitilde3\% higher 
 
 Despite the improved accuracy, examining the direction of these error rates and performing a demographic analysis by race to assess the model's `fairness' along racial lines reveals the same discrepancies observed in the COMPAS tool results.
 
-Table \ref{tab:ch3table3} displays the overall false positive and false negative rates. As expected, the model performs better in classifying defendants who do not reoffend than those who do since that is the majority class. When evaluated on the test set, 91\% of defendants who did not reoffend are correctly classified as low-risk. Thus, only 9\% of participants who do not reoffend are incorrectly classified as high-risk. This is a lower FPR than COMPAS. However, only 29\% of defendants who reoffended are correctly classified as high-risk. Thus, 71\% of defendants who reoffended are incorrectly classified as low-risk. This is a higher FNR than COMPAS.
+Table \ref{tab:ch3table3} displays the overall false positive and false negative rates. As expected, the model performs better in classifying defendants who do not reoffend than those who do since that is the majority class. When evaluated on the test set, 91.05\% of defendants who did not reoffend are correctly classified as low-risk. Thus, only 8.95\% of participants who do not reoffend are incorrectly classified as high-risk. This is a lower FPR than COMPAS. However, only 29\% of defendants who reoffended are correctly classified as high-risk. Thus, 71\% of defendants who reoffended are incorrectly classified as low-risk. This is a higher FNR than COMPAS.
 
-Table \ref{tab:ch3table4} further breaks these results down, focusing on Black and White defendants. While the overall FPR for the model is 8.95\%, notice that the FPR for Black defendants is 13.93\%, compared to only 5.09\% for White defendants. Similar to the COMPAS tool, Black defendants who do not reoffend are incorrectly misclassified as high risk at twice the rate that White defendants are. On the flip side, while the overall FNR for the model is 70.98\%, notice that the FNR for Black defendants is 60.82\%, compared to 86.17\% for White defendants. Similar to the COMPAS tool, the logistic regression makes the opposite mistake in predicting recidivism for Black v White defendants, with White defendants being more likely to be incorrectly classified as low risk than their Black counterparts.
+Table \ref{tab:ch3table4} further breaks these results down, focusing on Black and White defendants. While the overall FPR for the model is 8.95\%, notice that the FPR for Black defendants is 13.93\%, compared to only 5.09\% for White defendants. Similar to the COMPAS tool, Black defendants who do not reoffend are incorrectly misclassified as high risk at twice the rate that White defendants are. On the flip side, while the overall FNR for the model is 71\%, notice that the FNR for Black defendants is 60.82\%, compared to 86.17\% for White defendants. Similar to the COMPAS tool, the logistic regression makes the opposite mistake in predicting recidivism for Black v White defendants, with White defendants being more likely to be incorrectly classified as low risk than their Black counterparts.
 
 These results serve to highlight the real danger with using standard ML procedures, even when the sensitive variable itself is not included. These models have potential to perpetuate, and even introduce, harmful and discriminatory practices as observed in this Chapter. Although the details of Northepointe's COMPAS algorithm are kept secret, it's clear that traditional algorithms like logistic regression lead to comparable outcomes. In fact, a probability cutoff of \(p = 0.34\), the probability of being in the positive class in this data set, on the logistic regression yielded the same accuracy (\(66.7\)\%) as the COMPAS tool. Additionally, comparing the COMPAS decile scores to the logistic regression (LR) results reveals that the median decile score is 8 in the high-risk LR prediction and 3 in the low-risk LR prediction, further highlighting the similarity of these results. The next section uses the logistic regression model as a starting point, but places fairness constraints to enforce equality of odds for Black and White defendants.
 \begin{table}
@@ -1097,7 +1087,7 @@ This section aims to conclude the chapter by illustrating how Seldonian algorith
 \hypertarget{formulating-the-seldonian-problem}{%
 \subsection{Formulating the Seldonian Problem}\label{formulating-the-seldonian-problem}}
 
-Without fairness constraints, the standard ML problem is finding a solution \(\theta\) that minimizes logistic loss. However, such a solution, as illustrated in Section \ref{logreg} when fitting a logistic regression model, results in unequal error rates between Black and White defendants when using the COMPAS data set. Defining the discrimination statistic \(d(\theta)\) to measure the difference in error rates as in Equation \ref{ch3eq2}, \(d(\theta_{LR}) = 0.34\) (or \(34.18\)\%). Similarly, for the COMPAS tool, \(d(\theta_{COMPAS}) = 0.45\) (or \(44.7\)\%) using this data set. This illustrates that the logistic regression performed slightly better than the COMPAS tool, both in overall accuracy and error rate disparities. However, there is still a significant discrepancy between the error rates for both races.
+Without fairness constraints, the standard ML problem is finding a solution \(\theta\) that minimizes logistic loss. However, such a solution, as illustrated in Section \ref{logreg} when fitting a logistic regression model, results in unequal error rates between Black and White defendants when using the COMPAS data set. Defining the discrimination statistic \(d(\theta)\) to measure the difference in error rates as in Equation \ref{ch3eq2}, then \(d(\theta_{LR}) = 0.34\) (or \(34.18\)\%). Similarly, for the COMPAS tool, \(d(\theta_{COMPAS}) = 0.45\) (or \(44.7\)\%) using this data set. This illustrates that the logistic regression performed slightly better than the COMPAS tool, both in overall accuracy and error rate disparities. However, there is still a significant discrepancy between the error rates for both races.
 \begin{equation}
 \label{ch3eq2}
 d(\theta) = abs[(FPR | \text{Black} - FPR | \text{White}) + (FNR | \text{White} - FNR | \text{Black})]
@@ -1178,7 +1168,7 @@ Low & Reoffended & 100 & 100\\
 
 In conclusion, the Seldonian algorithms successfully met the fairness constraints defined, with the FPR and FNR gaining more parity along racial lines for Black and White defendants as \(\epsilon\) became more conservative. However, there was a tradeoff with model informativeness and performance in enforcing greater fairness. The FNR got larger as the FPR got smaller until, ultimately, the model was non-informative despite perfectly satisfying the constraints (100\% FNR and 0\% FPR for both races). Accuracy also dropped as the value of \(\epsilon\) decreased, although the original data set could have been more informative. Notably, considering all races, the lowest achievable accuracy would only be 4\% lower than the highest accuracy attained by the logistic regression model.
 
-Looking ahead, there are several avenues for future research. One direction involves extending this study to data sets with less class imbalance and higher overall predictive performance. By doing so, the tradeoffs inherent in incorporating fairness constraints into the traditional objective function in a practical setting can be better elucidated. Chapter \ref{chap-4} contributes to this understanding by conducting a simulation study to explore the theoretical and practical implications of the Seldonian framework in the classification setting.
+Looking ahead, there are several avenues for future research. One direction involves extending this study to data sets with less class imbalance or higher overall predictive performance. By doing so, the tradeoffs inherent in incorporating fairness constraints into the traditional objective function in a practical setting can be better elucidated. Chapter \ref{chap-4} contributes to this understanding by conducting a simulation study to explore the theoretical and practical implications of the Seldonian framework in the classification setting.
 
 \hypertarget{chap-4}{%
 \chapter{Seldonian Algorithms for Classification: A Simulation Study}\label{chap-4}}
@@ -1892,11 +1882,11 @@ This function is used to estimate what the output of \texttt{ttestUpperBound} wo
 \begin{Highlighting}[]
 \CommentTok{\#specify path names}
 \NormalTok{bin\_path }\OperatorTok{=} 
-\CommentTok{\textquotesingle{}/home/dasienga24/Statistics{-}Senior{-}Honors{-}Thesis/Thesis/index/}
-\ErrorTok{\textquotesingle{}experiment\_results/chapter\_2/\textquotesingle{}}
-\ErrorTok{csv\_path = }
-\CommentTok{\textquotesingle{}/home/dasienga24/Statistics{-}Senior{-}Honors{-}Thesis/Thesis/index/}
-\ErrorTok{\textquotesingle{}experiment\_results/chapter\_2/csv/}
+\CommentTok{\textquotesingle{}/home/dasienga24/Statistics{-}Senior{-}Honors{-}Thesis/Thesis/index/\textquotesingle{}}
+\CommentTok{\textquotesingle{}experiment\_results/chapter\_2/\textquotesingle{}}
+\NormalTok{csv\_path }\OperatorTok{=} 
+\CommentTok{\textquotesingle{}/home/dasienga24/Statistics{-}Senior{-}Honors{-}Thesis/Thesis/index/\textquotesingle{}}
+\CommentTok{\textquotesingle{}experiment\_results/chapter\_2/csv/}
 \end{Highlighting}
 \end{Shaded}
 \begin{Shaded}
@@ -2175,10 +2165,14 @@ This function is used to estimate what the output of \texttt{ttestUpperBound} wo
 \end{Shaded}
 \hypertarget{appendix-c}{%
 \chapter{SQL Script to Retrieve COMPAS Data}\label{appendix-c}}
+
+\noindent The following SQL script was used to retrieve the COMPAS data set used in Chapters \ref{chap-3} and \ref{chap-4} from the public COMPAS database available through the ProPublica Data Store and accessible through GitHub. The database contains seven tables, although the \texttt{summary} table is empty. The SQLite code below returns 12160 rows of defendants from Broward County, Florida, who were assessed using the COMPAS tool for risk of recidivating. There are 29 variables of interest returned, though many more could be selected if interested.
+Further data wrangling and data analysis are conducted in R, and significant findings are communicated in Chapters \ref{chap-3} and \ref{chap-4}.
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{select }
 
+\NormalTok{\# select variables of interest }
 \NormalTok{people.id,}
 \NormalTok{compas.compas\_person\_id,}
 \NormalTok{people.name,}
@@ -2211,12 +2205,14 @@ This function is used to estimate what the output of \texttt{ttestUpperBound} wo
 
 \NormalTok{from compas}
 
+\NormalTok{\# join the \textquotesingle{}people\textquotesingle{} table}
 \NormalTok{inner join people}
 \NormalTok{on compas.person\_id = people.id}
 \NormalTok{and compas.first = people.first}
 \NormalTok{and compas.last = people.last}
 \NormalTok{and compas.decile\_score = people.decile\_score}
 
+\NormalTok{\# join jail history for each defendant}
 \NormalTok{left join  (}
 
 \NormalTok{select }
@@ -2228,7 +2224,11 @@ This function is used to estimate what the output of \texttt{ttestUpperBound} wo
 \NormalTok{jailhistory.in\_custody,}
 \NormalTok{sum(}
 \NormalTok{  distinct(}
-\NormalTok{    julianday(jailhistory.out\_custody) {-} julianday(jailhistory.in\_custody)}
+\NormalTok{    julianday(}
+\NormalTok{      jailhistory.out\_custody}
+\NormalTok{      ) {-} julianday(}
+\NormalTok{        jailhistory.in\_custody}
+\NormalTok{        )}
 \NormalTok{    )}
 \NormalTok{  ) as days\_in\_jail}
 
@@ -2247,6 +2247,7 @@ This function is used to estimate what the output of \texttt{ttestUpperBound} wo
 \NormalTok{and jail\_agg.first = people.first}
 \NormalTok{and jail\_agg.last = people.last}
 
+\NormalTok{\# join prison history for each defendant}
 \NormalTok{left join  (}
 
 \NormalTok{select }
@@ -2258,7 +2259,11 @@ This function is used to estimate what the output of \texttt{ttestUpperBound} wo
 \NormalTok{prisonhistory.in\_custody,}
 \NormalTok{sum(}
 \NormalTok{  distinct(}
-\NormalTok{    julianday(prisonhistory.out\_custody) {-} julianday(prisonhistory.in\_custody)}
+\NormalTok{    julianday(}
+\NormalTok{      prisonhistory.out\_custody}
+\NormalTok{      ) {-} julianday(}
+\NormalTok{        prisonhistory.in\_custody}
+\NormalTok{        )}
 \NormalTok{    )}
 \NormalTok{  ) as days\_in\_prison}
 
@@ -2277,11 +2282,14 @@ This function is used to estimate what the output of \texttt{ttestUpperBound} wo
 \NormalTok{and prison\_agg.first = people.first}
 \NormalTok{and prison\_agg.last = people.last}
 
+\NormalTok{\# filter only for risk of recidivism}
 \NormalTok{where type\_of\_assessment = \textquotesingle{}Risk of Recidivism\textquotesingle{}}
 \end{Highlighting}
 \end{Shaded}
 \hypertarget{appendix-d}{%
 \chapter{Logistic Regression on the COMPAS Data Set}\label{appendix-d}}
+
+\noindent The R code chunk below fits a logistic regression model on the COMPAS data set.
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{\# set seed}
@@ -2319,10 +2327,11 @@ This function is used to estimate what the output of \texttt{ttestUpperBound} wo
 \end{Highlighting}
 \end{Shaded}
 \hypertarget{appendix-e}{%
-\chapter{Seldionian Classification on the COMPAS Data Set}\label{appendix-e}}
+\chapter{Seldonian Classification on the COMPAS Data Set}\label{appendix-e}}
 
-\hypertarget{set-up-the-python-document}{%
-\section{Set up the Python Document}\label{set-up-the-python-document}}
+\noindent This appendix section walks through how a Seldonian algorithm was fit on the COMPAS data set in Chapter \ref{chap-3} --- the algorithm aimed to produce less disparate outcomes in error rates between Black and White defendants.
+
+\noindent First, the Python environment can be set up in R using the \texttt{reticulate} package. The necessary Python libraries can then be imported as shown.
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{\# set up Python environment in R}
@@ -2358,14 +2367,14 @@ This function is used to estimate what the output of \texttt{ttestUpperBound} wo
 \ImportTok{import}\NormalTok{ matplotlib.pyplot }\ImportTok{as}\NormalTok{ plt}
 \end{Highlighting}
 \end{Shaded}
-\hypertarget{data-pre-processing}{%
-\section{Data Pre-Processing}\label{data-pre-processing}}
+\noindent Next, the data set needs to be formatted as appropriate for the Seldonian framework.
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{\# point to the appropriate data file}
-\NormalTok{f\_orig }\OperatorTok{=} \StringTok{"/home/dasienga24/Statistics{-}Senior{-}Honors{-}Thesis/Data Sets/COMPAS/compas\_seldonian\_bw.csv"}
+\NormalTok{f\_orig }\OperatorTok{=} \StringTok{\textquotesingle{}/home/dasienga24/Statistics{-}Senior{-}Honors{-}Thesis/Data Sets/\textquotesingle{}}
+\CommentTok{\textquotesingle{}COMPAS/compas\_seldonian\_bw.csv\textquotesingle{}}
 
-\CommentTok{\# list the column names that were most important}
+\CommentTok{\# list the column names for modeling}
 \NormalTok{columns\_orig }\OperatorTok{=}\NormalTok{ [}
     \StringTok{"race"}\NormalTok{,}\StringTok{"sex"}\NormalTok{,}\StringTok{"age"}\NormalTok{,}
     \StringTok{"age\_cat"}\NormalTok{,}\StringTok{"marital\_status"}\NormalTok{,}\StringTok{"juv\_offense"}\NormalTok{,}
@@ -2378,8 +2387,11 @@ This function is used to estimate what the output of \texttt{ttestUpperBound} wo
 \NormalTok{X }\OperatorTok{=}\NormalTok{ df.drop(columns}\OperatorTok{=}\NormalTok{[}\StringTok{"is\_recid"}\NormalTok{])}
 \NormalTok{y }\OperatorTok{=}\NormalTok{ df[}\StringTok{"is\_recid"}\NormalTok{]}
 
-\CommentTok{\# one hot encode categorical features, scale numerical features using standard scaler }
-\NormalTok{ct }\OperatorTok{=}\NormalTok{ ColumnTransformer([(}\StringTok{\textquotesingle{}c\textquotesingle{}}\NormalTok{,OneHotEncoder(),[}\StringTok{\textquotesingle{}race\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}sex\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}age\_cat\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}marital\_status\textquotesingle{}}\NormalTok{]), (}\StringTok{\textquotesingle{}n\textquotesingle{}}\NormalTok{,StandardScaler(),[}\StringTok{\textquotesingle{}age\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}priors\_count\textquotesingle{}}\NormalTok{])])}
+\CommentTok{\# one hot encode categorical features,}
+\CommentTok{\# scale numerical features using standard scaler }
+\NormalTok{ct }\OperatorTok{=}\NormalTok{ ColumnTransformer([(}\StringTok{\textquotesingle{}c\textquotesingle{}}\NormalTok{,OneHotEncoder(),}
+\NormalTok{[}\StringTok{\textquotesingle{}race\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}sex\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}age\_cat\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}marital\_status\textquotesingle{}}\NormalTok{]), }
+\NormalTok{(}\StringTok{\textquotesingle{}n\textquotesingle{}}\NormalTok{,StandardScaler(),[}\StringTok{\textquotesingle{}age\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}priors\_count\textquotesingle{}}\NormalTok{])])}
     
 \CommentTok{\# apply transformation}
 \NormalTok{X\_transformed }\OperatorTok{=}\NormalTok{ ct.fit\_transform(X)}
@@ -2391,45 +2403,60 @@ This function is used to estimate what the output of \texttt{ttestUpperBound} wo
 \NormalTok{outdf }\OperatorTok{=}\NormalTok{ pd.DataFrame(X\_transformed,columns}\OperatorTok{=}\NormalTok{output\_columns)}
 
 \CommentTok{\# change names of columns }
-\NormalTok{outdf.rename(columns}\OperatorTok{=}\NormalTok{\{}\StringTok{\textquotesingle{}c\_\_race\_African{-}American\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}Black\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}c\_\_race\_Caucasian\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}White\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}c\_\_sex\_Female\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}Female\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}c\_\_sex\_Male\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}Male\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}c\_\_age\_cat\_25 {-} 45\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}25\_45\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}c\_\_age\_cat\_Greater than 45\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}Greater\_than\_45\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}c\_\_age\_cat\_Less than 25\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}Less\_than\_25\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}c\_\_marital\_status\_Divorced\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}Divorced\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}c\_\_marital\_status\_Married\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}Married\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}c\_\_marital\_status\_Separated\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}Separated\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}c\_\_marital\_status\_Significant Other\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}Significant\_Other\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}c\_\_marital\_status\_Single\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}Single\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}c\_\_marital\_status\_Unknown\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}marital\_status\_Unknown\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}c\_\_marital\_status\_Widowed\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}Widowed\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}c\_\_juv\_offense\_0\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}juv\_offense\_0\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}c\_\_juv\_offense\_1\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}juv\_offense\_1\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}n\_\_age\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}age\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}n\_\_priors\_count\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}priors\_count\textquotesingle{}}\NormalTok{ \},}
+\NormalTok{outdf.rename(columns}\OperatorTok{=}\NormalTok{\{}\StringTok{\textquotesingle{}c\_\_race\_African{-}American\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}Black\textquotesingle{}}\NormalTok{, }
+\StringTok{\textquotesingle{}c\_\_race\_Caucasian\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}White\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}c\_\_sex\_Female\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}Female\textquotesingle{}}\NormalTok{, }
+\StringTok{\textquotesingle{}c\_\_sex\_Male\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}Male\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}c\_\_age\_cat\_25 {-} 45\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}25\_45\textquotesingle{}}\NormalTok{, }
+\StringTok{\textquotesingle{}c\_\_age\_cat\_Greater than 45\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}Greater\_than\_45\textquotesingle{}}\NormalTok{, }
+\StringTok{\textquotesingle{}c\_\_age\_cat\_Less than 25\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}Less\_than\_25\textquotesingle{}}\NormalTok{, }
+\StringTok{\textquotesingle{}c\_\_marital\_status\_Divorced\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}Divorced\textquotesingle{}}\NormalTok{,}
+\StringTok{\textquotesingle{}c\_\_marital\_status\_Married\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}Married\textquotesingle{}}\NormalTok{, }
+\StringTok{\textquotesingle{}c\_\_marital\_status\_Separated\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}Separated\textquotesingle{}}\NormalTok{, }
+\StringTok{\textquotesingle{}c\_\_marital\_status\_Significant Other\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}Significant\_Other\textquotesingle{}}\NormalTok{, }
+\StringTok{\textquotesingle{}c\_\_marital\_status\_Single\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}Single\textquotesingle{}}\NormalTok{, }
+\StringTok{\textquotesingle{}c\_\_marital\_status\_Unknown\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}marital\_status\_Unknown\textquotesingle{}}\NormalTok{,}
+\StringTok{\textquotesingle{}c\_\_marital\_status\_Widowed\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}Widowed\textquotesingle{}}\NormalTok{, }
+\StringTok{\textquotesingle{}c\_\_juv\_offense\_0\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}juv\_offense\_0\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}c\_\_juv\_offense\_1\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}juv\_offense\_1\textquotesingle{}}\NormalTok{, }
+\StringTok{\textquotesingle{}n\_\_age\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}age\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}n\_\_priors\_count\textquotesingle{}}\NormalTok{:}\StringTok{\textquotesingle{}priors\_count\textquotesingle{}}\NormalTok{ \},}
 \NormalTok{inplace}\OperatorTok{=}\VariableTok{True}\NormalTok{)}
     
 \CommentTok{\# add label column and \textasciigrave{}juv\_offense\textasciigrave{} back into final dataframe}
 \NormalTok{outdf[}\StringTok{\textquotesingle{}juv\_offense\textquotesingle{}}\NormalTok{] }\OperatorTok{=}\NormalTok{ df[}\StringTok{\textquotesingle{}juv\_offense\textquotesingle{}}\NormalTok{]}
 \NormalTok{outdf[}\StringTok{\textquotesingle{}is\_recid\textquotesingle{}}\NormalTok{] }\OperatorTok{=}\NormalTok{ y}
 
-\CommentTok{\# save final dataframe}
-\NormalTok{output\_path\_data}\OperatorTok{=}\StringTok{"/home/dasienga24/Statistics{-}Senior{-}Honors{-}Thesis/Data Sets/COMPAS/compas\_seldonian\_numeric\_clean\_bw.csv"}
+\CommentTok{\# save final data frame}
+\NormalTok{output\_path\_data}\OperatorTok{=}\StringTok{"/home/dasienga24/Statistics{-}Senior{-}Honors{-}Thesis/\textquotesingle{}}
+\ErrorTok{\textquotesingle{}Data Sets/COMPAS/compas\_seldonian\_numeric\_clean\_bw.csv"}
 
-\NormalTok{outdf.to\_csv(output\_path\_data,index}\OperatorTok{=}\VariableTok{False}\NormalTok{,header}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
+\ErrorTok{outdf.to\_csv}\NormalTok{(output\_path\_data,index}\OperatorTok{=}\VariableTok{False}\NormalTok{,header}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
 
 \CommentTok{\# save metadata json file}
-\NormalTok{output\_path\_metadata}\OperatorTok{=}\StringTok{"/home/dasienga24/Statistics{-}Senior{-}Honors{-}Thesis/Data Sets/COMPAS/metadata\_compas\_seldonian\_bw.json"}
+\NormalTok{output\_path\_metadata}\OperatorTok{=}\StringTok{"/home/dasienga24/Statistics{-}Senior{-}Honors{-}Thesis/\textquotesingle{}}
+\ErrorTok{\textquotesingle{}Data Sets/COMPAS/metadata\_compas\_seldonian\_bw.json"}
 
-\NormalTok{metadata\_dict }\OperatorTok{=}\NormalTok{ \{}
-  \StringTok{"regime"}\NormalTok{:}\StringTok{"supervised\_learning"}\NormalTok{,}
-  \StringTok{"sub\_regime"}\NormalTok{:}\StringTok{"classification"}\NormalTok{,}
-  \StringTok{"all\_col\_names"}\NormalTok{:}\BuiltInTok{list}\NormalTok{(outdf.columns),}
-  \StringTok{"label\_col\_names"}\NormalTok{:}\StringTok{"is\_recid"}\NormalTok{,}
-  \StringTok{"sensitive\_col\_names"}\NormalTok{:[}\StringTok{"Black"}\NormalTok{, }\StringTok{"White"}\NormalTok{]}
+\ErrorTok{metadata\_dict = \{}
+  \CommentTok{"regime"}\NormalTok{:}\StringTok{"supervised\_learning"}\NormalTok{,}
+  \CommentTok{"sub\_regime"}\NormalTok{:}\StringTok{"classification"}\NormalTok{,}
+  \CommentTok{"all\_col\_names"}\NormalTok{:}\BuiltInTok{list}\NormalTok{(outdf.columns),}
+  \CommentTok{"label\_col\_names"}\NormalTok{:}\StringTok{"is\_recid"}\NormalTok{,}
+  \CommentTok{"sensitive\_col\_names"}\NormalTok{:[}\StringTok{"Black"}\NormalTok{, }\StringTok{"White"}\NormalTok{]}
 \NormalTok{\}}
     
 \ControlFlowTok{with} \BuiltInTok{open}\NormalTok{(output\_path\_metadata,}\StringTok{\textquotesingle{}w\textquotesingle{}}\NormalTok{) }\ImportTok{as}\NormalTok{ outfile:}
 \NormalTok{    json.dump(metadata\_dict,outfile,indent}\OperatorTok{=}\DecValTok{2}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
-\hypertarget{create-the-specification-object}{%
-\section{Create the Specification Object}\label{create-the-specification-object}}
+\noindent Next, a specificatio object is needed.
 \begin{Shaded}
 \begin{Highlighting}[]
 \ImportTok{import}\NormalTok{ autograd.numpy }\ImportTok{as}\NormalTok{ np}
 
 \NormalTok{data\_pth }\OperatorTok{=}\NormalTok{ output\_path\_data}
 \NormalTok{metadata\_pth }\OperatorTok{=}\NormalTok{ output\_path\_metadata}
-\NormalTok{save\_dir }\OperatorTok{=} \StringTok{"/home/dasienga24/Statistics{-}Senior{-}Honors{-}Thesis/Python/COMPAS Application/"}
-\NormalTok{os.makedirs(save\_dir,exist\_ok}\OperatorTok{=}\VariableTok{True}\NormalTok{)}
+\NormalTok{save\_dir }\OperatorTok{=} \StringTok{"/home/dasienga24/Statistics{-}Senior{-}Honors{-}Thesis/\textquotesingle{}}
+\ErrorTok{\textquotesingle{}Python/COMPAS Application/"}
+\ErrorTok{os.makedirs}\NormalTok{(save\_dir,exist\_ok}\OperatorTok{=}\VariableTok{True}\NormalTok{)}
 
-\CommentTok{\# create dataset from data and metadata file}
+\CommentTok{\# create data set from data and metadata file}
 \NormalTok{regime}\OperatorTok{=}\StringTok{\textquotesingle{}supervised\_learning\textquotesingle{}}
 \NormalTok{sub\_regime}\OperatorTok{=}\StringTok{\textquotesingle{}classification\textquotesingle{}}
 
@@ -2442,7 +2469,7 @@ This function is used to estimate what the output of \texttt{ttestUpperBound} wo
   
 \NormalTok{sensitive\_col\_names }\OperatorTok{=}\NormalTok{ dataset.meta.sensitive\_col\_names}
 
-\CommentTok{\# use logistic regression model}
+\CommentTok{\# use logistic regression model as the starting point}
 \NormalTok{model }\OperatorTok{=}\NormalTok{ LogisticRegressionModel()}
     
 \CommentTok{\# set the primary objective to be log loss}
@@ -2454,13 +2481,15 @@ This function is used to estimate what the output of \texttt{ttestUpperBound} wo
 \NormalTok{epsilon }\OperatorTok{=} \FloatTok{0.2}
 \NormalTok{constraint\_name }\OperatorTok{=} \StringTok{"equalized\_odds"}
 \ControlFlowTok{if}\NormalTok{ constraint\_name }\OperatorTok{==} \StringTok{"equalized\_odds"}\NormalTok{:}
-\NormalTok{  constraint\_strs }\OperatorTok{=}\NormalTok{ [}\SpecialStringTok{f\textquotesingle{}abs((FNR | [Black]) {-} (FNR | [White])) + abs((FPR | [Black]) {-} (FPR | [White])) \textless{}= }\SpecialCharTok{\{}\NormalTok{epsilon}\SpecialCharTok{\}}\SpecialStringTok{\textquotesingle{}}\NormalTok{] }
+\NormalTok{  constraint\_strs }\OperatorTok{=}\NormalTok{ [}\SpecialStringTok{f\textquotesingle{}abs((FNR | [Black]) {-} (FNR | [White]))\textquotesingle{}} 
+  \StringTok{\textquotesingle{}+ abs((FPR | [Black]) {-} (FPR | [White])) \textless{}= }\SpecialCharTok{\{epsilon\}}\StringTok{\textquotesingle{}}\NormalTok{] }
 \NormalTok{deltas }\OperatorTok{=}\NormalTok{ [}\FloatTok{0.05}\NormalTok{]}
 
 \CommentTok{\# create spec file}
-\NormalTok{save\_dir }\OperatorTok{=} \StringTok{"/home/dasienga24/Statistics{-}Senior{-}Honors{-}Thesis/Python/COMPAS Application/equalized\_odds\_0.2"}
+\NormalTok{save\_dir }\OperatorTok{=} \StringTok{"/home/dasienga24/Statistics{-}Senior{-}Honors{-}Thesis/Python/\textquotesingle{}}
+\ErrorTok{\textquotesingle{}COMPAS Application/equalized\_odds\_0.2"}
 
-\NormalTok{createSupervisedSpec(}
+\ErrorTok{createSupervisedSpec}\NormalTok{(}
 \NormalTok{            dataset}\OperatorTok{=}\NormalTok{dataset,}
 \NormalTok{            metadata\_pth}\OperatorTok{=}\NormalTok{metadata\_pth,}
 \NormalTok{            constraint\_strs}\OperatorTok{=}\NormalTok{constraint\_strs,}
@@ -2470,15 +2499,15 @@ This function is used to estimate what the output of \texttt{ttestUpperBound} wo
 \NormalTok{            verbose}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
-\hypertarget{run-the-seldonian-engine}{%
-\section{Run the Seldonian Engine}\label{run-the-seldonian-engine}}
+\noindent With the specification object ready, a Seldonian algorithm can now be run.
 \begin{Shaded}
 \begin{Highlighting}[]
 \ImportTok{from}\NormalTok{ seldonian.seldonian\_algorithm }\ImportTok{import}\NormalTok{ SeldonianAlgorithm}
 \ImportTok{from}\NormalTok{ seldonian.utils.io\_utils }\ImportTok{import}\NormalTok{ load\_pickle}
 
 \CommentTok{\# load the spec file {-}{-} can be replicated for the different epsilon values}
-\NormalTok{specfile }\OperatorTok{=} \StringTok{\textquotesingle{}/home/dasienga24/Statistics{-}Senior{-}Honors{-}Thesis/Python/COMPAS Application/equalized\_odds\_0.2/spec.pkl\textquotesingle{}}
+\NormalTok{specfile }\OperatorTok{=} \StringTok{\textquotesingle{}/home/dasienga24/Statistics{-}Senior{-}Honors{-}Thesis/Python/\textquotesingle{}}
+\CommentTok{\textquotesingle{}COMPAS Application/equalized\_odds\_0.2/spec.pkl\textquotesingle{}}
 \NormalTok{spec }\OperatorTok{=}\NormalTok{ load\_pickle(specfile)}
 \NormalTok{SA\_02 }\OperatorTok{=}\NormalTok{ SeldonianAlgorithm(spec)}
 \NormalTok{passed\_safety, solution }\OperatorTok{=}\NormalTok{ SA\_02.run(write\_cs\_logfile}\OperatorTok{=}\VariableTok{True}\NormalTok{)}
@@ -2488,16 +2517,14 @@ This function is used to estimate what the output of \texttt{ttestUpperBound} wo
   \BuiltInTok{print}\NormalTok{(}\StringTok{"Failed safety test"}\NormalTok{)}
 \BuiltInTok{print}\NormalTok{()}
 \BuiltInTok{print}\NormalTok{(}\StringTok{"Primary objective (log loss) evaluated on safety dataset:"}\NormalTok{)}
-\BuiltInTok{print}\NormalTok{(SA\_02.evaluate\_primary\_objective(branch}\OperatorTok{=}\StringTok{\textquotesingle{}safety\_test\textquotesingle{}}\NormalTok{,theta}\OperatorTok{=}\NormalTok{solution))}
+\BuiltInTok{print}\NormalTok{(SA\_02.evaluate\_primary\_objective(branch}\OperatorTok{=}\StringTok{\textquotesingle{}safety\_test\textquotesingle{}}\NormalTok{,}
+\NormalTok{theta}\OperatorTok{=}\NormalTok{solution))}
 \end{Highlighting}
 \end{Shaded}
-\hypertarget{obtain-the-predictive-values}{%
-\section{Obtain the Predictive Values}\label{obtain-the-predictive-values}}
-
-We used the logistic sigmoid function to obtain the predictive values for each observation.
+\noindent Finally, we used the the inverse logistic function to obtain the predictive values for each observation from the solution return.
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{\# get the solution {-}{-} can be repeated for the different epsilon values}
+\CommentTok{\# get the solution {-}{-} can be replicated for the different epsilon values}
 \NormalTok{SA\_02.cs\_result[}\StringTok{"candidate\_solution"}\NormalTok{]}
 
 \CommentTok{\# store the coefficients}
@@ -2506,7 +2533,8 @@ We used the logistic sigmoid function to obtain the predictive values for each o
 \CommentTok{\# get the intercept}
 \NormalTok{intercept }\OperatorTok{=}\NormalTok{ coefficients[}\DecValTok{0}\NormalTok{]}
 
-\CommentTok{\# separate the predictor variables from the sensitive variable and the response variable}
+\CommentTok{\# separate the predictor variables from }
+\CommentTok{\# the sensitive variable and the response variable}
 \NormalTok{X\_outdf }\OperatorTok{=}\NormalTok{ outdf.drop(columns }\OperatorTok{=}\NormalTok{ [}\StringTok{\textquotesingle{}is\_recid\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}Black\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}White\textquotesingle{}}\NormalTok{])}
 \NormalTok{X\_sens }\OperatorTok{=}\NormalTok{ outdf[[}\StringTok{\textquotesingle{}Black\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}White\textquotesingle{}}\NormalTok{]]}
 \NormalTok{y\_outdf }\OperatorTok{=}\NormalTok{ outdf[}\StringTok{\textquotesingle{}is\_recid\textquotesingle{}}\NormalTok{]}
@@ -2519,12 +2547,17 @@ We used the logistic sigmoid function to obtain the predictive values for each o
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{\# store the results }
-\NormalTok{seldonian\_results }\OperatorTok{=}\NormalTok{ pd.DataFrame(\{}\StringTok{\textquotesingle{}is\_recid\textquotesingle{}}\NormalTok{: y\_outdf, }\StringTok{\textquotesingle{}pred\_0.2\textquotesingle{}}\NormalTok{: pred\_probs\_02, }
-\StringTok{\textquotesingle{}pred\_0.1\textquotesingle{}}\NormalTok{: pred\_probs\_01, }\StringTok{\textquotesingle{}pred\_0.05\textquotesingle{}}\NormalTok{: pred\_probs\_005, }\StringTok{\textquotesingle{}pred\_0.01\textquotesingle{}}\NormalTok{: pred\_probs\_001\})}
-\NormalTok{seldonian\_results }\OperatorTok{=}\NormalTok{ pd.concat([X\_outdf, X\_sens, seldonian\_results], axis }\OperatorTok{=} \DecValTok{1}\NormalTok{)}
+\NormalTok{seldonian\_results }\OperatorTok{=}\NormalTok{ pd.DataFrame(\{}
+  \StringTok{\textquotesingle{}is\_recid\textquotesingle{}}\NormalTok{: y\_outdf, }
+  \StringTok{\textquotesingle{}pred\_0.2\textquotesingle{}}\NormalTok{: pred\_probs\_02, }
+  \StringTok{\textquotesingle{}pred\_0.1\textquotesingle{}}\NormalTok{: pred\_probs\_01, }
+  \StringTok{\textquotesingle{}pred\_0.05\textquotesingle{}}\NormalTok{: pred\_probs\_005, }
+  \StringTok{\textquotesingle{}pred\_0.01\textquotesingle{}}\NormalTok{: pred\_probs\_001\})}
+\NormalTok{seldonian\_results }\OperatorTok{=}\NormalTok{ pd.concat([X\_outdf, X\_sens, seldonian\_results], }
+\NormalTok{axis }\OperatorTok{=} \DecValTok{1}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
-Finally, let's obtain binary risk predictions using a 0.5 threshold.
+\noindent Finally, the binary risk predictions can be obtained using a 0.5 probability threshold.
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{\# define threshold}
@@ -2536,14 +2569,15 @@ Finally, let's obtain binary risk predictions using a 0.5 threshold.
 \NormalTok{risk\_005 }\OperatorTok{=}\NormalTok{ np.where(pred\_probs\_005 }\OperatorTok{\textgreater{}=}\NormalTok{ threshold, }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{)}
 \NormalTok{risk\_001 }\OperatorTok{=}\NormalTok{ np.where(pred\_probs\_001 }\OperatorTok{\textgreater{}=}\NormalTok{ threshold, }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{)}
 
-\CommentTok{\# add risk columns to dataframe}
+\CommentTok{\# add risk columns to data frame}
 \NormalTok{seldonian\_results[}\StringTok{\textquotesingle{}risk\_0.2\textquotesingle{}}\NormalTok{] }\OperatorTok{=}\NormalTok{ risk\_02}
 \NormalTok{seldonian\_results[}\StringTok{\textquotesingle{}risk\_0.1\textquotesingle{}}\NormalTok{] }\OperatorTok{=}\NormalTok{ risk\_01}
 \NormalTok{seldonian\_results[}\StringTok{\textquotesingle{}risk\_0.05\textquotesingle{}}\NormalTok{] }\OperatorTok{=}\NormalTok{ risk\_005}
 \NormalTok{seldonian\_results[}\StringTok{\textquotesingle{}risk\_0.01\textquotesingle{}}\NormalTok{] }\OperatorTok{=}\NormalTok{ risk\_001}
 
-\CommentTok{\# write the dataframe to a CSV file}
-\NormalTok{seldonian\_results.to\_csv(}\StringTok{"/home/dasienga24/Statistics{-}Senior{-}Honors{-}Thesis/Data Sets/COMPAS/compas\_seldonian\_results\_bw.csv"}\NormalTok{, index}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
+\CommentTok{\# write the data frame to a CSV file}
+\NormalTok{seldonian\_results.to\_csv(}\StringTok{\textquotesingle{}/home/dasienga24/Statistics{-}Senior{-}Honors{-}Thesis/\textquotesingle{}}
+\StringTok{\textquotesingle{}Data Sets/COMPAS/compas\_seldonian\_results\_bw.csv\textquotesingle{}}\NormalTok{, index}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 \backmatter
