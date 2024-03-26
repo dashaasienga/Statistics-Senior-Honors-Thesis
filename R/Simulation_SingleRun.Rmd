@@ -416,6 +416,8 @@ SA_001 = SeldonianAlgorithm(spec)
 
 ## Convergence 
 
+Obtain and store convergence as an object.
+
 ### epsilon = 0.2
 
 ```{python}
@@ -447,6 +449,312 @@ passed_safety_001
 
 ## Accuracy
 
+Obtain and store accuracy as an object.
+
+```{python}
+# separate the predictor variables from the sensitive variable and the response variable
+X_outdf = outdf.drop(columns = ['is_recid', 'Black', 'White'])
+X_sens = outdf[['Black', 'White']]
+y_outdf = outdf['is_recid']
+
+#----------------------------------#
+# get the solution & store coefficients (epsilon = 0.2)
+coefficients = SA_02.cs_result["candidate_solution"]
+
+# get the intercept
+intercept = coefficients[0]
+
+# compute the predictive values
+linear_combination = np.dot(X_outdf, coefficients[1:]) + intercept
+pred_probs_02 = 1 / (1 + np.exp(-linear_combination))
+
+#----------------------------------#
+# get the solution & store coefficients (epsilon = 0.1)
+coefficients = SA_01.cs_result["candidate_solution"]
+
+# get the intercept
+intercept = coefficients[0]
+
+# compute the predictive values
+linear_combination = np.dot(X_outdf, coefficients[1:]) + intercept
+pred_probs_01 = 1 / (1 + np.exp(-linear_combination))
+
+#----------------------------------#
+# get the solution & store coefficients (epsilon = 0.05)
+coefficients = SA_005.cs_result["candidate_solution"]
+
+# get the intercept
+intercept = coefficients[0]
+
+# compute the predictive values
+linear_combination = np.dot(X_outdf, coefficients[1:]) + intercept
+pred_probs_005 = 1 / (1 + np.exp(-linear_combination))
+
+#----------------------------------#
+# get the solution & store coefficients (epsilon = 0.01)
+coefficients = SA_001.cs_result["candidate_solution"]
+
+# get the intercept
+intercept = coefficients[0]
+
+# compute the predictive values
+linear_combination = np.dot(X_outdf, coefficients[1:]) + intercept
+pred_probs_001 = 1 / (1 + np.exp(-linear_combination))
+
+# store results
+seldonian_results = pd.DataFrame({'is_recid': y_outdf, 'pred_0.2': pred_probs_02, 'pred_0.1': pred_probs_01, 'pred_0.05': pred_probs_005, 'pred_0.01': pred_probs_001})
+seldonian_results = pd.concat([X_outdf, X_sens, seldonian_results], axis = 1)
+
+# define threshold
+threshold = 0.5
+
+# create risk columns
+risk_02 = np.where(pred_probs_02 >= threshold, 1, 0)
+risk_01 = np.where(pred_probs_01 >= threshold, 1, 0)
+risk_005 = np.where(pred_probs_005 >= threshold, 1, 0)
+risk_001 = np.where(pred_probs_001 >= threshold, 1, 0)
+
+# add risk columns to dataframe
+seldonian_results['risk_0.2'] = risk_02
+seldonian_results['risk_0.1'] = risk_01
+seldonian_results['risk_0.05'] = risk_005
+seldonian_results['risk_0.01'] = risk_001
+
+# write the dataframe to a CSV file
+seldonian_results.to_csv("/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/COMPAS/Simulation Single Run/compas_seldonian_results.csv", index=False)
+```
+
+```{r}
+# read in the data
+seldonian_results <- read.csv("/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/COMPAS/Simulation Single Run/compas_seldonian_results.csv")
+```
+
+### epsilon = 0.2
+
+```{r}
+sa_0.2_accuracy <- count(seldonian_results$risk_0.2 == seldonian_results$is_recid)/nrow(seldonian_results)
+sa_0.2_accuracy
+```
+
+### epsilon = 0.1
+
+```{r}
+sa_0.1_accuracy <- count(seldonian_results$risk_0.1 == seldonian_results$is_recid)/nrow(seldonian_results)
+sa_0.1_accuracy
+```
+
+### epsilon = 0.05
+
+```{r}
+sa_0.05_accuracy <- count(seldonian_results$risk_0.05 == seldonian_results$is_recid)/nrow(seldonian_results)
+sa_0.05_accuracy
+```
+
+### epsilon = 0.01
+
+```{r}
+sa_0.01_accuracy <- count(seldonian_results$risk_0.01 == seldonian_results$is_recid)/nrow(seldonian_results)
+sa_0.01_accuracy
+```
+
 ## Discrimination
 
+Obtain and store the discrimination statistic as an object.
 
+```{r}
+seldonian_results <- seldonian_results %>%
+  mutate(race = ifelse(Black == 1, 'Black', 'White'),
+         pred_risk_0.2 = ifelse(risk_0.2 == 0, 'Low', 'High'),
+         pred_risk_0.1 = ifelse(risk_0.1 == 0, 'Low', 'High'),
+         pred_risk_0.05 = ifelse(risk_0.05 == 0, 'Low', 'High'),
+         pred_risk_0.01 = ifelse(risk_0.01 == 0, 'Low', 'High')) 
+```
+
+
+### epsilon = 0.2
+
+```{r, warning = FALSE, message = FALSE}
+discrimination <- seldonian_results %>%
+  dplyr::select(race, pred_risk_0.2, is_recid) %>%
+  group_by(race, is_recid) %>%
+  mutate(total = n()) %>%
+  group_by(pred_risk_0.2, race, total) %>%
+  summarise("reoffended" = count(is_recid == 1),
+            "did_not_reoffend" = count(is_recid == 0)) %>%
+  pivot_longer(cols = c("reoffended", "did_not_reoffend"),
+               names_to = "recidivism") %>%
+  pivot_wider(
+    id_cols = c("pred_risk_0.2", "recidivism", "total"),
+    names_from = "race",
+    values_from = value
+  ) %>%
+  mutate(Black = round(100 * Black / total, 2),
+         White = round(100 * White / total, 2)) %>%
+  dplyr::select(-total) %>%
+  group_by(pred_risk_0.2, recidivism) %>%
+  summarize(Black = max(Black, na.rm = TRUE),
+            White = max(White, na.rm = TRUE)) %>%
+  filter((pred_risk_0.2 == "High" & recidivism == "did_not_reoffend") |
+           (pred_risk_0.2 == "Low" & recidivism == "reoffended")
+  )
+
+sa_0.2_disc_stat <- sum(abs(discrimination$White - discrimination$Black))/100
+sa_0.2_disc_stat
+```
+
+### epsilon = 0.1
+
+```{r, warning = FALSE, message = FALSE}
+discrimination <- seldonian_results %>%
+  dplyr::select(race, pred_risk_0.1, is_recid) %>%
+  group_by(race, is_recid) %>%
+  mutate(total = n()) %>%
+  group_by(pred_risk_0.1, race, total) %>%
+  summarise("reoffended" = count(is_recid == 1),
+            "did_not_reoffend" = count(is_recid == 0)) %>%
+  pivot_longer(cols = c("reoffended", "did_not_reoffend"),
+               names_to = "recidivism") %>%
+  pivot_wider(
+    id_cols = c("pred_risk_0.1", "recidivism", "total"),
+    names_from = "race",
+    values_from = value
+  ) %>%
+  mutate(Black = round(100 * Black / total, 2),
+         White = round(100 * White / total, 2)) %>%
+  dplyr::select(-total) %>%
+  group_by(pred_risk_0.1, recidivism) %>%
+  summarize(Black = max(Black, na.rm = TRUE),
+            White = max(White, na.rm = TRUE)) %>%
+  filter((pred_risk_0.1 == "High" & recidivism == "did_not_reoffend") |
+           (pred_risk_0.1 == "Low" & recidivism == "reoffended")
+  )
+
+sa_0.1_disc_stat <- sum(abs(discrimination$White - discrimination$Black))/100
+sa_0.1_disc_stat
+```
+
+### epsilon = 0.05
+
+```{r, warning = FALSE, message = FALSE}
+discrimination <- seldonian_results %>%
+  dplyr::select(race, pred_risk_0.05, is_recid) %>%
+  group_by(race, is_recid) %>%
+  mutate(total = n()) %>%
+  group_by(pred_risk_0.05, race, total) %>%
+  summarise("reoffended" = count(is_recid == 1),
+            "did_not_reoffend" = count(is_recid == 0)) %>%
+  pivot_longer(cols = c("reoffended", "did_not_reoffend"),
+               names_to = "recidivism") %>%
+  pivot_wider(
+    id_cols = c("pred_risk_0.05", "recidivism", "total"),
+    names_from = "race",
+    values_from = value
+  ) %>%
+  mutate(Black = round(100 * Black / total, 2),
+         White = round(100 * White / total, 2)) %>%
+  dplyr::select(-total) %>%
+  group_by(pred_risk_0.05, recidivism) %>%
+  summarize(Black = max(Black, na.rm = TRUE),
+            White = max(White, na.rm = TRUE)) %>%
+  filter((pred_risk_0.05 == "High" & recidivism == "did_not_reoffend") |
+           (pred_risk_0.05 == "Low" & recidivism == "reoffended")
+  )
+
+sa_0.05_disc_stat <- sum(abs(discrimination$White - discrimination$Black))/100
+sa_0.05_disc_stat
+```
+
+### epsilon = 0.01
+
+```{r, warning = FALSE, message = FALSE}
+discrimination <- seldonian_results %>%
+  dplyr::select(race, pred_risk_0.01, is_recid) %>%
+  group_by(race, is_recid) %>%
+  mutate(total = n()) %>%
+  group_by(pred_risk_0.01, race, total) %>%
+  summarise("reoffended" = count(is_recid == 1),
+            "did_not_reoffend" = count(is_recid == 0)) %>%
+  pivot_longer(cols = c("reoffended", "did_not_reoffend"),
+               names_to = "recidivism") %>%
+  pivot_wider(
+    id_cols = c("pred_risk_0.01", "recidivism", "total"),
+    names_from = "race",
+    values_from = value
+  ) %>%
+  mutate(Black = round(100 * Black / total, 2),
+         White = round(100 * White / total, 2)) %>%
+  dplyr::select(-total) %>%
+  group_by(pred_risk_0.01, recidivism) %>%
+  summarize(Black = max(Black, na.rm = TRUE),
+            White = max(White, na.rm = TRUE)) %>%
+  filter((pred_risk_0.01 == "High" & recidivism == "did_not_reoffend") |
+           (pred_risk_0.01 == "Low" & recidivism == "reoffended")
+  )
+
+sa_0.01_disc_stat <- sum(abs(discrimination$White - discrimination$Black))/100
+sa_0.01_disc_stat
+```
+
+# Results 
+
+Synthesize results for reporting.
+
+```{r}
+# create a vector of accuracies
+accuracy_vector <- c(lr_accuracy, sa_0.2_accuracy, sa_0.1_accuracy, sa_0.05_accuracy, sa_0.01_accuracy)
+
+# transpose the vector to create a data frame with 5 columns
+accuracy_df <- as.data.frame(t(accuracy_vector))
+
+# name the columns of the data frame
+colnames(accuracy_df) <- c("LR", "SA (0.2)", "SA (0.1)", "SA (0.05)", "SA (0.01)")
+
+accuracy_df %>%
+  kable(caption = "Model Accuracy")
+```
+
+```{r}
+# create a vector of discrimination
+disc_vector <- c(lr_disc_stat, sa_0.2_disc_stat, sa_0.1_disc_stat, sa_0.05_disc_stat, sa_0.01_disc_stat)
+
+# transpose the vector to create a data frame with 5 columns
+disc_df <- as.data.frame(t(disc_vector))
+
+# name the columns of the data frame
+colnames(disc_df) <- c("LR", "SA (0.2)", "SA (0.1)", "SA (0.05)", "SA (0.01)")
+
+disc_df %>%
+  kable(caption = "Model Discrimination")
+```
+```{r}
+plot_data <- accuracy_df %>%
+  union(disc_df) %>%
+  pivot_longer(cols = c("LR", "SA (0.2)", "SA (0.1)", "SA (0.05)", "SA (0.01)"), 
+               names_to = "model", values_to = "value") %>%
+  mutate(statistic = ifelse(row_number() <= 5, "accuracy", "discrimination"))
+```
+
+
+```{r, fig.width=6, fig.height=3}
+# define the desired order of the x-axis
+desired_order <- c("LR", "SA (0.2)", "SA (0.1)", "SA (0.05)", "SA (0.01)")
+
+# convert the 'model' variable to a factor with the desired order
+plot_data$model <- factor(plot_data$model, levels = desired_order)
+
+# plot
+ggplot(data = plot_data, mapping = aes(x = model, 
+                                       y = value, 
+                                       color = statistic, 
+                                       group = statistic)) +
+  geom_line() +
+  theme_minimal() +
+  labs(x = "Model",
+       y = "Performance",
+       color = "Performance Measure",
+       title = "Accuracy and Discrimination of Logistic v Seldonian Algorithms")
+```
+
+# Note
+
+Before scaling this process, I will need to separately handle and track instances where the Seldonian algorithm does not converge, in case such cases emerge.
