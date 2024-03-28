@@ -65,7 +65,7 @@ $\\$
 
 ## Accuracy 
 
-Conditional on convergence, obtain the accuracy as an object, which in this case is 60.76%.
+Conditional on convergence, obtain the accuracy as an object, which in this case is 77.96%.
 
 ```{r}
 lr_accuracy <- count(round(lr[["fitted.values"]]) == lr[["y"]])/nrow(compas_sim_parent)
@@ -77,7 +77,7 @@ $\\$
 
 ## Discrimination
 
-Conditional on convergence, obtain the discrimination statistic as an object, which in this case is 0.2784 or 27.84%.
+Conditional on convergence, obtain the discrimination statistic as an object, which in this case is 0.2464 or 24.64%.
 
 ```{r, warning = FALSE, message = FALSE}
 preds <- predict(lr, newdata = compas_sim_parent, type="response")
