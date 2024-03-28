@@ -837,7 +837,7 @@ Before proceeding with the analysis, it is crucial to consider that while the re
 This section presents a holistic exploratory analysis of the COMPAS data set. The defendants' ages range from 18 to 96, with a median of 32 years and a mean of 34.75 years. There is a right skew, with the middle 50\% of the defendants being between the ages of 25 and 42. Similarly, the variable recording the number of prior offenses has a significant right skew with a median of 1 offense and a mean of 3.02 offenses. The middle 50\% of the defendants have committed between 0 and 4 offenses, and the defendant with the most prior offenses has committed 38 crimes.
 
 Of the 9387 total observations of defendants from Broward County, Florida, in 2013 and 2014, 79.44\% were male and the remaining 20.56\% were female. 21.4\% are \textless{} 25 years old, 57.16\% are between 25 and 45 years old, and
-21.43\% are \textgreater{} 45 years old. The majority of defendants are single (76.72\%), with the next largest categories being married (12.12\%) and divorced (4.24\%). The other levels were significant other, separated, unknown, and widowed, respectively. Finally, 0\% of defendants had no record of juvenile offenses. The remaining 0\% ranged from having 1 offense to 21 offenses on record, with a median of 1, a mean of 1.96, and the middle 50\% recording 1 or 2 offenses.
+21.43\% are \textgreater{} 45 years old. The majority of defendants are single (76.72\%), with the next largest categories being married (12.12\%) and divorced (4.24\%). The other levels were significant other, separated, unknown, and widowed, respectively. Finally, 87.93\% of defendants had no record of juvenile offenses. The remaining 12.07\% ranged from having 1 offense to 21 offenses on record, with a median of 1, a mean of 1.96, and the middle 50\% recording 1 or 2 offenses.
 
 \hypertarget{response}{%
 \subsection{Response Variable}\label{response}}
@@ -894,7 +894,16 @@ Chapter \ref{algbias} introduced algorithmic bias as a situation when an algorit
 \hypertarget{comptoolanalysis}{%
 \subsection{COMPAS Tool Analysis}\label{comptoolanalysis}}
 
-Recall that COMPAS decile scores of 1 to 4 are mapped as `low' risk, 5 to 7 as `medium' risk, and 8 to 10 as `high' risk. The median decile score for the entire data set is four, and Figure \ref{fig:ch3fig8} illustrates that the COMPAS tool classifies more than half of the defendants as low risk. In particular, the tool classifies 5370 as low risk and 1677 as high risk, with the remaining 2340 as medium risk. These predictions align with expectations since most defendants did not recommit a crime within the two-year time window, as observed in Section \ref{response}.
+Recall that COMPAS decile scores of 1 to 4 are mapped as `low' risk, 5 to 7 as `medium' risk, and 8 to 10 as `high' risk. The median decile score for the entire data set is four, and Figure \ref{fig:ch3fig8} illustrates that the COMPAS tool classifies more than half of the defendants as low risk. In particular, the tool classifies 57.21\% as low risk and 17.87\% as high risk, with the remaining 24.93\% as medium risk. These predictions align with expectations since most defendants did not recommit a crime within the two-year time window, as observed in Section \ref{response}.
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{round}\NormalTok{(}\DecValTok{100}\SpecialCharTok{*}\FunctionTok{count}\NormalTok{(clean\_compasdata}\SpecialCharTok{$}\NormalTok{score\_text }\SpecialCharTok{==} \StringTok{"Medium"}\NormalTok{)}\SpecialCharTok{/}\FunctionTok{nrow}\NormalTok{(clean\_compasdata),}\DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+\begin{verbatim}
+   n_TRUE 
+     24.9
+\end{verbatim}
 \begin{figure}
 
 {\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/ch3fig8-1} 
@@ -934,19 +943,17 @@ Lower & 1570 & 4635\\
 
 While the confusion matrix in Table \ref{tab:ch3table1} relays information on what types of errors the COMPAS tool tends to make and raises questions about the implications of that, Table \ref{tab:ch3table2} breaks that down further by race for a more granular assessment. While the overall FPR is 25.3\%, it is much higher for Black defendants (37.71\%) and much lower for White defendants (16.34\%). Similarly, while the overall FNR is 49.25\%, it is much higher for White defendants (62.26\%) and much lower for Black defendants (39.01\%) (Table \ref{tab:ch3table2}). The tool is more than twice as likely to classify a Black defendant who did not reoffend as higher risk compared to a White defendant. It makes the opposite mistake, where it is 1.6 times more likely to classify a White defendant who reoffended as lower risk compared to a Black defendant. This discrepancy aligns with ProPublica's findings in Figure \ref{fig:compas1} and is alarming given that race was not included in the model.
 
-Including the other races reveals that Asian defendants who did not reoffend were the least likely to be labeled as higher risk -- Black defendants were the most likely. Conversely, the ``Other'' group who reoffended, followed by White defendants, were the most likely to be labeled as lower risk -- Native Americans were the least likely. However, it is essential to consider the few observations in both the Asian (n = 48) and Native American groups (n = 27), as detailed in Section \ref{protectedattribute}.
-
-The analysis in this section provides evidence for disparities with favorable COMPAS outcomes for White and Asian defendants and unfavorable outcomes for Black and Native American defendants. To visualize these results, Figure \ref{fig:ch3fig11} displays the distribution of the decile scores for the two most populous races in the data set. While there is a similar distribution of recidivism for all races with most defendants not recidivating, Black defendants' decile scores are distributed almost uniformly among the ten decile scores. In contrast, the White defendants' decile scores have a significant right skew, with most observations in lower decile scores. This further emphasizes the racial disparity in employing these risk scores in judicial decisions and the present algorithmic bias.
+Including the other races reveals that Asian defendants who did not reoffend were the least likely to be labeled as higher risk -- Black defendants were the most likely. Conversely, White defendants who reoffended were the most likely to be labeled as lower risk -- Native Americans were the least likely. However, it is essential to consider the few observations in both the Asian (n = 48) and Native American groups (n = 27), as detailed in Section \ref{protectedattribute}.
 \begin{table}
 
 \caption{\label{tab:ch3table2}The Percent of Defendants who were Incorrectly Labeled Higher/Lower Risk by the COMPAS Tool Stratified by Recidivism Status and Race among 9,387 Defandants in Broward County Florida, 2013-2014}
 \centering
-\begin{tabular}[t]{llrrrrrr}
+\begin{tabular}[t]{llrrrrr}
 \toprule
-Recidivism Status & Predicted Risk & Black & White & Hispanic & Asian & Native American & Other\\
+Recidivism Status & Predicted Risk & Black & White & Hispanic & Asian & Native American\\
 \midrule
-Did Not Reoffend & Higher & 37.7 & 16.3 & 14.3 & 7.89 & 21.1 & 9.77\\
-Reoffended & Lower & 39.0 & 62.3 & 68.3 & 50.00 & 25.0 & 74.29\\
+Did Not Reoffend & Higher & 37.7 & 16.3 & 14.3 & 7.89 & 21.1\\
+Reoffended & Lower & 39.0 & 62.3 & 68.3 & 50.00 & 25.0\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -958,6 +965,8 @@ Reoffended & Lower & 39.0 & 62.3 & 68.3 & 50.00 & 25.0 & 74.29\\
 
 \caption{Distribution of COMPAS Tool Decile Scores Stratified by Race among 9,387 Defandants in Broward County Florida, 2013-2014}\label{fig:ch3fig11}
 \end{figure}
+The analysis in this section provides evidence for disparities with favorable COMPAS outcomes for White and Asian defendants and unfavorable outcomes for Black and Native American defendants. To visualize these results, Figure \ref{fig:ch3fig11} displays the distribution of the decile scores for the two most populous races in the data set. While there is a similar distribution of recidivism for all races with most defendants not recidivating, Black defendants' decile scores are distributed almost uniformly among the ten decile scores. In contrast, the White defendants' decile scores have a significant right skew, with most observations in lower decile scores. This further emphasizes the racial disparity in employing these risk scores in judicial decisions and the present algorithmic bias.
+
 \hypertarget{proxy-relationships}{%
 \subsection{Proxy Relationships}\label{proxy-relationships}}
 
@@ -1431,7 +1440,7 @@ Recall from Chapter \ref{intro} that (Castelnovo et al., 2022):
 \FunctionTok{grid.arrange}\NormalTok{(g1,g2, }\AttributeTok{nrow=}\DecValTok{1}\NormalTok{, }\AttributeTok{ncol=}\DecValTok{2}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
-\begin{center}\includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/unnamed-chunk-51-1} \end{center}
+\begin{center}\includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/unnamed-chunk-52-1} \end{center}
 
 \hypertarget{appendix-b}{%
 \chapter{Quasi-Seldonian Linear Regression Theoretical and Python Implementation}\label{appendix-b}}
