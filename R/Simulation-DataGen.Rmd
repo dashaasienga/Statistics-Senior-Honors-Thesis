@@ -1277,6 +1277,9 @@ compas_sim_balanced_final %>%
 Let's write the parent data set into a CSV file. 
 
 ```{r}
+compas_sim_balanced_final <- compas_sim_balanced_final |>
+  dplyr::select(c(race, prior_offense, age, is_recid_sim)) |>
+  rename("is_recid" = is_recid_sim)
 write.csv(compas_sim_balanced_final, file = "/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/COMPAS/compas_sim.csv")
 ```
 
