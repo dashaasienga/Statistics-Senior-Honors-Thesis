@@ -17,7 +17,7 @@ train <- compas[train_index, ]
 test <- compas[test_index, ]
 
 # fit the logistic regression model on identified predictors
-glm2 <- glm(is_recid ~ sex + age + age_cat + marital_status +
+glm2 <- glm(is_recid ~ sex + age + marital_status +
               juv_offense + priors_count,
             data = train,
             family = binomial(logit))
