@@ -71,6 +71,10 @@ compas_sim <- compas_sim %>%
   dplyr::select(c(race, prior_offense, age, is_recid))
 ```
 
+```{r}
+count(compas_sim$prior_offense == 1)/7924
+```
+
 $\\$
 
 `age` seems to be a useful predictor for recidivism.
@@ -164,21 +168,15 @@ compas_sim_balanced <- compas_sim_balanced[sample(nrow(compas_sim_balanced),
                                                   replace = FALSE),]
 ```
 
-$\\$
-
-Let's write the parent data set into a CSV file. 
-
 ```{r}
-write.csv(compas_sim_balanced, file = "/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/COMPAS/compas_sim.csv")
+count(compas_sim_balanced$prior_offense == 1)/5000
 ```
 
-$\\$
-
-The parent data set is now ready. 
+The data set is ready.
 
 ## Examining Distributions of the Recidivism in the Parent Data Set
 
-The bar plot below shows that we've achieve perfect class balance.
+The bar plot below shows that we've achieved perfect class balance.
 
 ```{r, warning = FALSE, message = FALSE, fig.width = 4.5, fig.height = 3, fig.align = 'center'}
 compas_sim_balanced %>%
@@ -484,16 +482,16 @@ The accuracy is a little bit too good. For the final mechanism, we will follow t
 ```{r}
 set.seed(123)
 # define a linear combination of predictors as desired
-linear_combination = - 0.34 - 16 * compas_sim_balanced$age + ifelse(compas_sim_balanced$prior_offense == 1, 600, 0)
+linear_combination = - 0.34 - 2 * compas_sim$age + ifelse(compas_sim$prior_offense == 1, 70, 0)
 
 # pass through an inverse-logit function
 probs = exp(linear_combination) / (1 + exp(linear_combination))  
 
 # generate 5000 Bernoulli RVs for y
-is_recid_sim = rbinom(5000, 1, probs) 
+is_recid_sim = rbinom(nrow(compas_sim), 1, probs) 
 
 # join to original data frame
-compas_sim_balanced_4 <- cbind(compas_sim_balanced, is_recid_sim)
+compas_sim_balanced_4 <- cbind(compas_sim, is_recid_sim) 
 ```
 
 $\\$
@@ -504,7 +502,6 @@ There are `r count(compas_sim_balanced_4$is_recid_sim == 0)` defendants who did 
 $\\$
 
 There are `r count(compas_sim_balanced_4$is_recid_sim == 1)` defendants who recidivated in this data set. 
-
 
 
 $\\$
@@ -1008,16 +1005,16 @@ while(TRUE) {
                                                         replace = FALSE),]
   
   # fit GLM
-  glm7 <- glm(is_recid_sim ~ age + prior_offense,
+  glm_final <- glm(is_recid_sim ~ age + prior_offense,
               data = compas_sim_balanced_7,
               family = binomial(logit))
   
   print("GLM converged")
   
-  glm7augment <- glm7 %>% 
+  glm_finalaugment <- glm_final %>% 
     broom::augment(type.predict = "response")
-  glm7augment <- mutate(glm7augment, binprediction = round(.fitted, 0)) 
-  conf_matrix <- with(glm7augment, table(is_recid_sim, binprediction))
+  glm_finalaugment <- mutate(glm_finalaugment, binprediction = round(.fitted, 0)) 
+  conf_matrix <- with(glm_finalaugment, table(is_recid_sim, binprediction))
   conf_matrix[3] + conf_matrix[2]
   
   if (conf_matrix[3] + conf_matrix[2] >= 1000) {
@@ -1036,8 +1033,253 @@ conf_matrix
 # I want: conf_matrix[3] + conf_matrix[2] >= 1000
 ```
 
-```{r}
-(1540 + 1005)/5000
+
+```{r, eval = FALSE}
+set.seed(93)
+
+# positive number from 0 to 25, incluing decimals 0.1 apart
+coeff_age = 1
+  
+coeff_po = 0.5
+coeff_po_not = 0
+
+while(TRUE) {
+  # define a linear combination of predictors as desired
+  linear_combination = - 0.34 - coeff_age * compas_sim_balanced$age + ifelse(compas_sim_balanced$prior_offense == 1, coeff_po, coeff_po_not) 
+  
+  # pass through an inverse-logit function
+  probs = exp(linear_combination) / (1 + exp(linear_combination))  
+  
+  # generate 5000 Bernoulli RVs for y
+  is_recid_sim = rbinom(5000, 1, probs) 
+  
+  if (coeff_po > 1000) {
+    coeff_age <- coeff_age + 1
+    coeff_po <- 0
+    print(paste0("Coeff Age: ", coeff_age))
+    next
+  }
+  
+  if (count(is_recid_sim == 1) < 500 | count(is_recid_sim == 0) < 500) {
+    coeff_po <- coeff_po + 5
+    print(coeff_po)
+    next
+  }
+  
+  print("Data set produced")
+  
+  # join to original data frame
+  compas_sim_balanced_7 <- cbind(compas_sim_balanced, is_recid_sim)
+  
+  # induce balance
+  compas_b_y <- compas_sim_balanced_7 %>%
+    filter(race == "African-American" & is_recid_sim == 1)
+  
+  compas_b_n <- compas_sim_balanced_7 %>%
+    filter(race == "African-American" & is_recid_sim == 0)
+  
+  compas_w_y <- compas_sim_balanced_7 %>%
+    filter(race == "Caucasian" & is_recid_sim == 1)
+  
+  compas_w_n <- compas_sim_balanced_7 %>%
+    filter(race == "Caucasian" & is_recid_sim == 0)
+  
+  compas_b_y_balanced <- compas_b_y[sample(nrow(compas_b_y), 1250, replace = TRUE),]
+  compas_b_n_balanced <- compas_b_n[sample(nrow(compas_b_n), 1250, replace = TRUE),]
+  compas_w_y_balanced <- compas_w_y[sample(nrow(compas_w_y), 1250, replace = TRUE),]
+  compas_w_n_balanced <- compas_w_n[sample(nrow(compas_w_n), 1250, replace = TRUE),]
+  
+  compas_sim_balanced_7 <- rbind(compas_b_y_balanced, 
+                                 compas_b_n_balanced, 
+                                 compas_w_y_balanced, 
+                                 compas_w_n_balanced)
+  
+  compas_sim_balanced_7 <- compas_sim_balanced_7[sample(nrow(compas_sim_balanced_7), 
+                                                        5000, 
+                                                        replace = FALSE),]
+  
+  # fit GLM
+  glm_final <- glm(is_recid_sim ~ age + prior_offense,
+              data = compas_sim_balanced_7,
+              family = binomial(logit))
+  
+  print("GLM converged")
+  
+  glm_finalaugment <- glm_final %>% 
+    broom::augment(type.predict = "response")
+  glm_finalaugment <- mutate(glm_finalaugment, binprediction = round(.fitted, 0)) 
+  conf_matrix <- with(glm_finalaugment, table(is_recid_sim, binprediction))
+  conf_matrix[3] + conf_matrix[2]
+  
+  if (conf_matrix[3] + conf_matrix[2] >= 1000) {
+    break
+  } else {
+    coeff_po <- coeff_po + 5
+  }
+  
+  print(paste0("Coeff Age: ", coeff_age))
+  print(coeff_po)
+}
+
+coeff_age
+coeff_po
+conf_matrix
+# I want: conf_matrix[3] + conf_matrix[2] >= 1000
 ```
 
 
+# Final Data Generation Mechanism 
+
+## Generating the Parent Data Set & Assessing Baseline Performance
+
+```{r}
+set.seed(123)
+
+# define a linear combination of predictors as desired
+linear_combination = 5  - 0.2 * compas_sim$age + ifelse(compas_sim$prior_offense == 1, 0.5, 0)
+
+# pass through an inverse-logit function
+probs = exp(linear_combination) / (1 + exp(linear_combination))
+
+# generate 5000 Bernoulli RVs for y
+is_recid_sim = rbinom(nrow(compas_sim), 1, probs)
+
+# join to original data frame
+compas_sim_balanced_final <- cbind(compas_sim, is_recid_sim)
+
+# induce balance
+compas_b_y <- compas_sim_balanced_final %>%
+  filter(race == "African-American" & is_recid_sim == 1)
+
+compas_b_n <- compas_sim_balanced_final %>%
+  filter(race == "African-American" & is_recid_sim == 0)
+
+compas_w_y <- compas_sim_balanced_final %>%
+  filter(race == "Caucasian" & is_recid_sim == 1)
+
+compas_w_n <- compas_sim_balanced_final %>%
+  filter(race == "Caucasian" & is_recid_sim == 0)
+
+compas_b_y_balanced <-
+  compas_b_y[sample(nrow(compas_b_y), 1250, replace = TRUE), ]
+compas_b_n_balanced <-
+  compas_b_n[sample(nrow(compas_b_n), 1250, replace = TRUE), ]
+compas_w_y_balanced <-
+  compas_w_y[sample(nrow(compas_w_y), 1250, replace = TRUE), ]
+compas_w_n_balanced <-
+  compas_w_n[sample(nrow(compas_w_n), 1250, replace = TRUE), ]
+
+compas_sim_balanced_final <- rbind(
+  compas_b_y_balanced,
+  compas_b_n_balanced,
+  compas_w_y_balanced,
+  compas_w_n_balanced
+)
+
+compas_sim_balanced_final <-
+  compas_sim_balanced_final[sample(nrow(compas_sim_balanced_final),
+                               5000,
+                               replace = FALSE), ]
+
+# fit GLM
+glm_final <- glm(is_recid_sim ~ age + prior_offense,
+            data = compas_sim_balanced_final,
+            family = binomial(logit))
+
+glm_finalaugment <- glm_final %>%
+  broom::augment(type.predict = "response")
+glm_finalaugment <-
+  mutate(glm_finalaugment, binprediction = round(.fitted, 0))
+conf_matrix <-
+  with(glm_finalaugment, table(is_recid_sim, binprediction))
+conf_matrix[3] + conf_matrix[2]
+```
+This model has 78% accuracy --> so better predictive performance and class imbalance is achieved! There is more room for the Seldonian algorithm's accuracy to vary.
+
+```{r}
+(5000 - 1102)/5000
+```
+
+
+## Examining Distributions of the Recidivism in the Parent Data Set
+
+The bar plot below shows that we've achieved perfect class balance.
+
+
+```{r, warning = FALSE, message = FALSE, fig.width = 4.5, fig.height = 3, fig.align = 'center'}
+compas_sim_balanced_final %>%
+  ggplot(mapping = aes(x = as.factor(is_recid_sim))) +
+  geom_bar() +
+  theme_minimal() +
+  labs(x = "Recidivism",
+       title = "Recidivism Prevalence")
+```
+
+
+$\\$
+
+The bar plot below reveals that the balance is preserved by race as well. 
+
+```{r, warning = FALSE, message = FALSE, fig.width = 4.5, fig.height = 3, fig.align = 'center'}
+compas_sim_balanced_final %>%
+  ggplot(mapping = aes(x = as.factor(is_recid_sim), fill = race)) +
+  geom_bar() +
+  theme_minimal() +
+  labs(x = "Recidivism",
+       title = "Recidivism Prevalence by Race")
+```
+
+## Assessing Discrimination
+
+There is a discrimination statistic of 0.2, still preserved in the original directions.
+
+```{r, warning = FALSE, message = FALSE}
+preds <- predict(glm_final, newdata = compas_sim_balanced_final, type="response")
+
+compas_sim_balanced_final <- compas_sim_balanced_final %>% 
+  mutate(preds = preds,
+         prediction = round(preds, 0),
+         pred_risk = ifelse(prediction == 0, 'Low', 'High')) 
+
+compas_sim_balanced_final %>%
+  dplyr::select(race, pred_risk, is_recid) %>%
+  rename("Risk" = pred_risk,
+         "Race" = race) %>%
+  group_by(Race, is_recid) %>%
+  mutate(Total = n()) %>%
+  group_by(Risk, Race, Total) %>%
+  summarise("Reoffended" = count(is_recid == 1),
+            "Did Not Reoffend" = count(is_recid == 0)) %>%
+  pivot_longer(cols = c("Reoffended", "Did Not Reoffend"),
+               names_to = "Recidivism") %>%
+  pivot_wider(
+    id_cols = c("Risk", "Recidivism", "Total"),
+    names_from = "Race",
+    values_from = value
+  ) %>%
+  rename("Black" = `African-American`,
+         "White" = `Caucasian`) %>%
+  mutate(Black = round(100 * Black / Total, 2),
+         White = round(100 * White / Total, 2)) %>%
+  dplyr::select(-Total) %>%
+  group_by(Risk, Recidivism) %>%
+  summarize(Black = max(Black, na.rm = TRUE),
+            White = max(White, na.rm = TRUE)) %>%
+  filter((Risk == "High" & Recidivism == "Did Not Reoffend") |
+           (Risk == "Low" & Recidivism == "Reoffended")
+  ) %>%
+  kable(booktabs = TRUE)
+```
+
+
+## Save the Final Simulation Data Set
+
+Let's write the parent data set into a CSV file. 
+
+```{r}
+write.csv(compas_sim_balanced_final, file = "/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/COMPAS/compas_sim.csv")
+```
+
+$\\$
+
+The parent data set is now ready. 
