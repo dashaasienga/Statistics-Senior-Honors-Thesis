@@ -301,10 +301,6 @@ Chapter \@ref(algbias) introduced algorithmic bias as a situation when an algori
 
 Recall that COMPAS decile scores of 1 to 4 are mapped as 'low' risk, 5 to 7 as 'medium' risk, and 8 to 10 as 'high' risk. The median decile score for the entire data set is four, and Figure \@ref(fig:ch3fig8) illustrates that the COMPAS tool classifies more than half of the defendants as low risk. In particular, the tool classifies `r round(100*count(clean_compasdata$score_text == "Low")/nrow(clean_compasdata),2)`% as low risk and `r round(100*count(clean_compasdata$score_text == "High")/nrow(clean_compasdata),2)`% as high risk, with the remaining `r round(100*count(clean_compasdata$score_text == "Medium")/nrow(clean_compasdata),2)`% as medium risk. These predictions align with expectations since most defendants did not recommit a crime within the two-year time window, as observed in Section \@ref(response). 
 
-```{r}
-round(100*count(clean_compasdata$score_text == "Medium")/nrow(clean_compasdata),2)
-```
-
 
 ```{r ch3fig8, fig.align='center', fig.cap="Distribution of COMPAS Tool Decile Scores among 9,387 Defandants in Broward County Florida, 2013-2014", warning = FALSE, message = FALSE, fig.width = 6, fig.height = 3, echo = FALSE}
 

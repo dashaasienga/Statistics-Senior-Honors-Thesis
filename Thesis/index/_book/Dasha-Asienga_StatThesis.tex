@@ -895,15 +895,6 @@ Chapter \ref{algbias} introduced algorithmic bias as a situation when an algorit
 \subsection{COMPAS Tool Analysis}\label{comptoolanalysis}}
 
 Recall that COMPAS decile scores of 1 to 4 are mapped as `low' risk, 5 to 7 as `medium' risk, and 8 to 10 as `high' risk. The median decile score for the entire data set is four, and Figure \ref{fig:ch3fig8} illustrates that the COMPAS tool classifies more than half of the defendants as low risk. In particular, the tool classifies 57.21\% as low risk and 17.87\% as high risk, with the remaining 24.93\% as medium risk. These predictions align with expectations since most defendants did not recommit a crime within the two-year time window, as observed in Section \ref{response}.
-\begin{Shaded}
-\begin{Highlighting}[]
-\FunctionTok{round}\NormalTok{(}\DecValTok{100}\SpecialCharTok{*}\FunctionTok{count}\NormalTok{(clean\_compasdata}\SpecialCharTok{$}\NormalTok{score\_text }\SpecialCharTok{==} \StringTok{"Medium"}\NormalTok{)}\SpecialCharTok{/}\FunctionTok{nrow}\NormalTok{(clean\_compasdata),}\DecValTok{2}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-\begin{verbatim}
-   n_TRUE 
-     24.9
-\end{verbatim}
 \begin{figure}
 
 {\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/ch3fig8-1} 
@@ -1440,7 +1431,7 @@ Recall from Chapter \ref{intro} that (Castelnovo et al., 2022):
 \FunctionTok{grid.arrange}\NormalTok{(g1,g2, }\AttributeTok{nrow=}\DecValTok{1}\NormalTok{, }\AttributeTok{ncol=}\DecValTok{2}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
-\begin{center}\includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/unnamed-chunk-52-1} \end{center}
+\begin{center}\includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/unnamed-chunk-51-1} \end{center}
 
 \hypertarget{appendix-b}{%
 \chapter{Quasi-Seldonian Linear Regression Theoretical and Python Implementation}\label{appendix-b}}
