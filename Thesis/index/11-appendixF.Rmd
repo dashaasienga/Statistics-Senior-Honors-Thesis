@@ -14,7 +14,7 @@ linear_combination = 5  - 0.2 * compas_sim$age +
 # pass through an inverse-logit function
 probs = exp(linear_combination) / (1 + exp(linear_combination))
 
-# generate 5000 Bernoulli RVs for y
+# generate Bernoulli RVs for y
 is_recid_sim = rbinom(nrow(compas_sim), 1, probs)
 
 # join to original data frame

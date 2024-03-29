@@ -667,7 +667,7 @@ P(g(\theta) \leq 0) \geq 1 - \delta.
 \noindent The problem can now be fully formulated as a Seldonian machine learning problem. That is, using gradient descent, an optimization algorithm for finding a local minimum of a differentiable function, the Seldonian objective is to minimize logistic loss subject to the constraint: 
 
 \begin{equation}
-\label{ch3eq3}
+\label{ch3eq5}
 P\{abs[(FPR | \text{Black} - FPR | \text{White}) + (FNR | \text{White} - FNR | \text{Black})]  - \epsilon \leq 0 \} \geq 1 - \delta \textit{; } \delta = 0.05.
 \end{equation}
 

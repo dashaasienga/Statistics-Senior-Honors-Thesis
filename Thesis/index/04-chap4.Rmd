@@ -15,7 +15,7 @@ library(MASS)
 
 Chapter \@ref(chap-2) introduced the Seldonian framework, which offers probabilistic guarantees for satisfying defined behavioral constraints. However, the toy linear regression example demonstrated some of the limitations of Seldonian algorithms, particularly in scenarios with limited sample sizes where convergence may pose a challenge. In practice, sample sizes vary. Furthermore, Chapter \@ref(chap-3) applied the Seldonian framework to a classification setting using the COMPAS data set. The goal was to produce recidivism predictions that elicit fairer outcomes along racial lines, with a specific focus on Black and White defendants. However, the application illustrated that while the behavioral constraint was satisfied in all four cases, there was a tradeoff in the model's accuracy. In other words, a non-informative model can be perfectly Seldonian, but what value does a theoretically fair non-informative model add?
 
-To address this concern and further study these tradeoffs, this chapter investigates the efficacy and applicability of Seldonian algorithms in practical classification settings with better predictive performance than COMPAS. By conducting a simulation study, the aim is to evaluate whether Seldonian approaches can effectively produce fairer outcomes and mitigate discriminatory tendencies, drawing on the fairness notion of separation (or equality of odds) defined in Chapter \@ref(fairnessdefinitions) and set up in Chapter \@ref(seldapp). Specifically, the objective is to assess the feasibility of leveraging Seldonian algorithms to enhance the fairness and equity of predictive models across various practical classification tasks.
+To address this concern and further study these tradeoffs, this chapter investigates the efficacy and applicability of Seldonian algorithms in practical classification settings with class balance and better predictive performance than COMPAS. By conducting a simulation study, the aim is to evaluate whether Seldonian approaches can effectively produce fairer outcomes and mitigate discriminatory tendencies, drawing on the fairness notion of separation (or equality of odds) defined in Chapter \@ref(fairnessdefinitions) and set up in Chapter \@ref(seldapp). Specifically, the objective is to assess the feasibility of leveraging Seldonian algorithms to enhance the fairness and equity of predictive models across various practical classification tasks.
 
 ## Simulation Design {#sim-design}
 
@@ -25,113 +25,52 @@ Before conducting the simulation study and analyzing the results, this section p
 
 This simulation study presents a proof of concept for using the Seldonian framework in classification problems with robust predictive performance. Seldonian algorithms $\textit{can}$ fail, especially with insufficient data, as elucidated in Chapter \@ref(toy). On the flip side, as elucidated in Chapter \@ref(seldapp), Seldonian algorithms can succeed in their objective for fairer outcomes but fail to produce a useful model. Solutions returned are also probabilistic and may not always satisfy the constraint despite passing the safety test. With these limitations in mind, this simulation study aims to theoretically assess the predictive performance of Seldonian algorithms, compared to that of the standard ML approach, in practical classification settings. 
 
-### Data-Generation Mechanism WIP {#data-gen} 
-
-Given that this is a proof-of-concept simulation study, the data-generation mechanism will follow a realistic design. In real-world applications, it may be realistic to expect a setting with $p$ different quantitative and categorical variables such that $X = (X_1, X_2, \ldots, X_p)$ is the set of variables. Some, or all, of the $X_i$ variables have moderate to strong correlations with $A$, the protected attribute. The protected attribute, $A$, has varying levels, likely two or three, akin to Black v White or Male v Female. This correlation structure highlights the role that proxies play in group-blind classifiers, even when the protected attribute is not included in the model as a variable. Finally, the $X_i$'s, and $A$ by extension, have moderate to strong correlations with the binary target variable $Y$, further highlighting the varying prevalence of $Y$ for different demographic groups and the inherent bias that may already be present in the training data of classification algorithms. 
-
-\noindent *OPTION 1: Generate simulation data in R.*
-
-\noindent I've included the code just so you can look at it. It will not be visible in the final document, perhaps in the appendix instead. I can write up more specifics on it if we decide to go this route. With this approach, we can vary covariate correlations, sample size, and potentially the prevalence of Y for each level of A. 
-
-```{r, warning=FALSE, message=FALSE}
-# Set seed for reproducibility
-set.seed(123)
-
-# Number of observations
-n <- 200
-
-# Number of variables
-p <- 3
-
-# Generate covariance matrix for predictor variables 
-Sigma <- matrix(c(0.7,0.5, 0.7,0.5), nrow = p, ncol = p)
-diag(Sigma) <- 1
-Sigma 
-
-# Generate X variables with multivariate normal distribution
-X <- mvrnorm(n = n, mu = rep(0, p), Sigma = Sigma)
-
-# Generate protected attribute A with 2 levels
-# Assume A is dependent on X 
-# Let's say the first variable in X has a strong effect on A
-# We will simulate this by adding X[,1] + some noise
-A <- X[,1] + rnorm(n)
-
-# Convert Y to binary based on some threshold
-A <- as.numeric(A > mean(A))
-
-# Generate binary target variable Y
-# Assume Y is dependent on X and A
-# Let's say the first variable in X has a strong effect on Y, while A also has an effect
-# We will simulate this by adding X[,1] + A + some noise
-Y <- X[,1] + A + rnorm(n)
-
-# Convert Y to binary based on some threshold
-Y <- as.numeric(Y > mean(Y))
-
-# Check correlation between variables
-cor(X, A)
-cor(X, Y)
-cor(A, Y)
-
-# Create a data frame
-data <- data.frame(X, A, Y)
-
-# Print first few rows of the data frame
-head(data)
-```
-
-TO DO: 
-
-- Look at conditional distribution of Y|A?
-
-\noindent *Option 2: Resample from the COMPAS data set* 
-
-Because emulating such a structure can be complex and error-prone and because the aim is to have a realistic data-generation mechanism, rather than generating data from a parametric model, the simulated data sets will be generated by resampling with replacement from the COMPAS data set. 
+### Data-Generation Mechanism {#data-gen} 
 
 ```{r, echo = FALSE}
-#read in the data
-compasdata <- read.csv("/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/COMPAS/compas_data.csv")
+compas_sim_path <- "/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/COMPAS/compas_sim.csv"
+compas_sim_parent <- read.csv(compas_sim_path)
+
+lr <- glm(is_recid ~ age + prior_offense,
+            data = compas_sim_parent,
+            family = binomial(logit))
+
+lr_accuracy <- 100*count(round(lr[["fitted.values"]]) == lr[["y"]])/nrow(compas_sim_parent)
 ```
 
-The COMPAS data set has records of `r length(unique(compasdata$person_id))` people from Broward County, Florida. The data set contains information on each defendant such as their name, sex, age, race, marital status, juvenile felony count, juvenile misdeameanor count, and number of prior offenses. All of the variables are used in the COMPAS tool to calibrate a raw score, which is then used to assess a defendant's risk of recidivism, risk of violence, and  risk of failure to appear if granted bail or parole. This is achieved by converting the raw scores into decile scores that then determine whether the defendant's risk is high, medium, or low for the three different types of assessments. Table \@ref(tab:ch4table1) displays how the decile scores are mapped into the three risk levels.
+Given that this is a proof-of-concept simulation study, the data-generation mechanism will follow a realistic design. Two of the most informative variables from the COMPAS data set were selected for a simpler set-up: the defendant's age (continuous) and whether or not the defendant had committed any prior offenses (binary). The choice to use the COMPAS data set as a starting point was so that the complex relationships between the predictor variables ($X$) and the protected attribute ($A$) may be retained, especially given that the data was collected for a practical application and elucidates relationships that may be expected in the real world. There are only two levels of the protected attribute, race, that were retained for the study: Black and White. 
 
-\noindent [refer to analysis file]
+To achieve better predictive performance, a linear combination of age and prior offenses was chosen after searching through a range of plausible values: $5  - 0.2 \textit{Age} + 0.5 \textit{PriorOffense}$. Note that the coefficients should be interpreted in their logarithmic form as the log of odds. The linear combination resulted in a vector of values for each observation in the data set ($n = 9387$), which were then passed into an inverse logistic function to generate probability values. The resulting probability values were then used to randomly draw the binary response variable -- whether or not a defendant recommitted a crime within two years -- from a binomial distribution. Finally, class balance was induced on the data set by randomly sampling, with replacement, 1250 observations from each of the four intersections of race and recidivism status: Black and White defendants who recidivated and did not recidivate. Note that this scheme (Appendix \@ref(appendix-f)) assumes equal prevalence of the response variable, $Y$, for both levels of the protected attribute. 
 
-$\\$
+The parent simulation data set, thus, contains 5000 observations, achieves perfect class balance, and has a baseline logistic regression accuracy of `r lr_accuracy`%. This offers a realistic improvement from the accuracy of 70.2% obtained from the COMPAS logistic regression. However, because of the class balance, the lowest achievable accuracy is now 50% (a random/ coin-flip model) rather than 64.4%. This will allow more room for the Seldonian algorithm model accuracies to vary. 
 
-\noindent I'll hold off on completing this section until we finalize which data generation mechanism we will us based on the information we now have. To-Do's: 
-
-\noindent - [if resampling from COMPAS, define notation specifically using the COMPAS data set to be consistent with the rest of the thesis] 
-
-\noindent - [overall, need to finalize the rest of this section in a robust way, including what will vary (and what levels they'll have -- refer to Git issue/ adjust below) as well as which populations the results of this simulation study will extend to.]
-
+Two hundred total data sets of size $n = 500$, $n = 1000$, $n = 2500$, and $n = 5000$ will be sampled, with replacement, from this parent data set for the simulation study, with 50 data sets in each of the four partitions. 
 
 ### Target
 
-The target of this simulation study is prediction, that is, to evaluate Seldonian algorithms for predictive performance of classification outcomes. 
+The target of this simulation study is prediction, that is, to evaluate Seldonian algorithms for predictive performance in classification settings. 
 
 ### Methods
 
-Because the Seldonian framework was designed to place probabilistic fairness constraints on traditional algorithms, solutions produced by Seldonian algorithms will be compared to those produced through the standard ML framework, specifically by logistic regression, to assess the predictive performance and feasibility of the Seldonian framework.
+Because the Seldonian framework was designed to place probabilistic fairness constraints on traditional algorithms, solutions produced by Seldonian algorithms will be compared to those produced through the standard ML framework, specifically logistic regression, to assess the predictive performance and feasibility of the Seldonian framework.
 
-Simulated data sets will be generated independently before being fed into both algorithms. The relevant performance measures, as detailed in Section \@ref(performancemeasures), will be recorded for each trial. One thousand trials will be run for each sample setting described in Section \@ref(data-gen), that is, each combination of sample size and $Y$ prevalence [may change once data gen is finalized]. The code will be run in Python using the Rstudio software interface and the Amherst College High-Performance Computing System. The `seldonian` package is readily available for installation in Python -- it is equipped with functions that allow for the implementation of Seldonian algorithms. Other Python packages, such as `pandas`, `numpy`, and `sklearn`, will be helpful in conducting the rest of the simulation study. 
+Simulated data sets will be generated independently before being fed into both algorithms. The relevant performance measures, as detailed in Section \@ref(performancemeasures), will be recorded for each trial. Fifty trials will be run for each sample size as described in Section \@ref(data-gen). The code will be run in Python using the Rstudio software interface and the Amherst College High-Performance Computing System. The `seldonian` package is readily available for installation in Python and is equipped with functions that allow for the implementation of Seldonian algorithms. Other Python packages, such as `pandas`, `numpy`, and `sklearn`, will help conduct the rest of the simulation study. 
 
 
 ### Performance Measures {#performancemeasures}
 
-Compared to the logistic regression models, the predictive performance of the Seldonian models will be assessed along three dimensions: the accuracy of the solutions, the satisfaction or violation of the behavioral constraints set, and the probability of a Seldonian solution across all trials within a specific setting.
+Compared to the logistic regression models, the predictive performance of the Seldonian models will be assessed along three dimensions: the accuracy of the solutions, the satisfaction or violation of the behavioral constraints set, and the probability of a Seldonian solution across all trials within a specific setting (sample size).
 
-For each simulation trial, the overall accuracy of both the Seldonian model and the logistic regression model will be recorded and eventually averaged over the specific sample setting, that is, for a data set with a specific sample size and specific $Y$ prevalence for each demographic group $a \in A$ [may change once data gen is finalized]. Both the mean and the standard error will be reported in tabular format and visualized graphically to compare the models' predictive performances and, potentially, evaluate the trade-offs that may occur by employing the Seldonian framework and enforcing behavioral constraints.
+For each simulation trial, the overall accuracy of both the Seldonian model and the logistic regression model will be recorded and eventually averaged over the specific sample size. Both the mean and the standard error will be reported in tabular format and visualized graphically to compare the models' predictive performances and, potentially, evaluate the trade-offs that may occur by employing the Seldonian framework and enforcing behavioral constraints.
 
-Drawing from the fairness definitions described in Chapter \@ref(fairnessdefinitions) with a particular focus on the COMPAS example in Chapter \@ref(chap-3), it may be less important that a model satisfies independence. That is, that the model, on average, has the same likelihood of a positive prediction for all demographic groups. Instead, it may be more realistic to expect that the model be equally wrong or equally correct in its predictions of $Y$ for each demographic group. For this reason, one fairness constraint ($n=1$) will be set on the Seldonian algorithms to satisfy separation, otherwise known as equality of the error rates or equality of odds, as defined in Equation \@ref(ch4eq1) within some margin $\epsilon$ and with $1 - \delta$ % confidence. Similar to Chapter \@ref(seldapp), $\epsilon$ will be set to four levels: $0.2, 0.1, 0.05, \text{and } 0.01$. $\delta$ will be set to $0.05$ to guarantee 95% confidence. 
+Drawing from the fairness definitions described in Chapter \@ref(fairnessdefinitions) with a particular focus on the COMPAS example in Chapter \@ref(chap-3), it may be less important that a model satisfies independence. That is, that the model, on average, has the same likelihood of a positive prediction for all levels of the protected attribute. Instead, it may be more realistic to expect that the model be equally wrong or equally correct in its predictions of $Y$ for each protected attribute. For this reason, one fairness constraint will be set on the Seldonian algorithms to satisfy separation, otherwise known as equality of the error rates or equality of odds, as defined in Equation \@ref(ch4eq1) within some margin $\epsilon$ and with $1 - \delta$ % confidence. Similar to Chapter \@ref(seldapp), $\epsilon$ will be set to four levels: $0.2, 0.1, 0.05, \text{and } 0.01$. $\delta$ will be set to $0.05$ to guarantee 95% confidence. 
 
 \begin{equation}
 \label{ch4eq1}
 g(\theta): abs[(FPR | \text{A = a} - FPR | \text{A = b}) + (FNR | \text{A = a} - FNR | \text{A = b})] - \epsilon.
 \end{equation}
 
-The satisfaction or violation of the behavioral constraint will be assessed in two ways. First, for each sample setting as described above, a count of the times both frameworks satisfied the behavioral constraint, by some margin $\epsilon$, will be reported in tabular format. Additionally, the discrimination statistics as defined in Equation \@ref(ch4eq2) will be recorded for each simulation trial. The mean and standard error will be reported and visualized for each sample setting to compare the magnitude and direction of the models' unfairness with regard to the separation fairness definition.
+The satisfaction or violation of the behavioral constraint will be assessed in two ways. First, for each sample size as described above, a count of the times both frameworks satisfied the behavioral constraint, by some margin $\epsilon$, will be reported in tabular format. Additionally, the discrimination statistics as defined in Equation \@ref(ch4eq2) will be recorded for each simulation trial. The mean and standard error will be reported and visualized for each sample setting to compare the magnitude and direction of the models' unfairness with regard to the separation fairness definition.
 
 \begin{equation}
 \label{ch4eq2}
@@ -142,6 +81,5 @@ Finally, it is essential to account for the fact that the Seldonian algorithms w
 
 ## Simulation Results {#sim-results}
 
-TO DO: Update notation and make sure everything is consistent once data generation mechanism is finalized (target: by Wednesday noon). 
 
 

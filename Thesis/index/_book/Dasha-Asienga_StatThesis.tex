@@ -1067,7 +1067,7 @@ P(g(\theta) \leq 0) \geq 1 - \delta.
 \end{equation}
 \noindent The problem can now be fully formulated as a Seldonian machine learning problem. That is, using gradient descent, an optimization algorithm for finding a local minimum of a differentiable function, the Seldonian objective is to minimize logistic loss subject to the constraint:
 \begin{equation}
-\label{ch3eq3}
+\label{ch3eq5}
 P\{abs[(FPR | \text{Black} - FPR | \text{White}) + (FNR | \text{White} - FNR | \text{Black})]  - \epsilon \leq 0 \} \geq 1 - \delta \textit{; } \delta = 0.05.
 \end{equation}
 \(\delta\) will be set to 0.05 to attain 95\% confidence that separation (equalized odds) as defined in Chapter \ref{classfairdef} is satisfied, that is, \(d(\theta) \leq \epsilon\). The data will be partitioned into a training set that will be passed into the candidate selection mechanism to compute \(\theta_c\). The remaining partition will be used in the safety test to ensure probabilistic satisfaction of the constraint. \(\epsilon\) will be set to four values: \(0.2, 0.1, 0.05, \text{and } 0.01\). The code to obtain a solution is available as part of the \texttt{seldonian-engine} Python library and is displayed in Appendix \ref{appendix-e}, along with the data pre-processing.
@@ -1180,7 +1180,7 @@ Compared to the logistic regression models, the predictive performance of the Se
 
 For each simulation trial, the overall accuracy of both the Seldonian model and the logistic regression model will be recorded and eventually averaged over the specific sample size. Both the mean and the standard error will be reported in tabular format and visualized graphically to compare the models' predictive performances and, potentially, evaluate the trade-offs that may occur by employing the Seldonian framework and enforcing behavioral constraints.
 
-Drawing from the fairness definitions described in Chapter \ref{fairnessdefinitions} with a particular focus on the COMPAS example in Chapter \ref{chap-3}, it may be less important that a model satisfies independence. That is, that the model, on average, has the same likelihood of a positive prediction for all levels of the protected attribute. Instead, it may be more realistic to expect that the model be equally wrong or equally correct in its predictions of \(Y\) for each protected attribute. For this reason, one fairness constraint (\(n=1\)) will be set on the Seldonian algorithms to satisfy separation, otherwise known as equality of the error rates or equality of odds, as defined in Equation \ref{ch4eq1} within some margin \(\epsilon\) and with \(1 - \delta\) \% confidence. Similar to Chapter \ref{seldapp}, \(\epsilon\) will be set to four levels: \(0.2, 0.1, 0.05, \text{and } 0.01\). \(\delta\) will be set to \(0.05\) to guarantee 95\% confidence.
+Drawing from the fairness definitions described in Chapter \ref{fairnessdefinitions} with a particular focus on the COMPAS example in Chapter \ref{chap-3}, it may be less important that a model satisfies independence. That is, that the model, on average, has the same likelihood of a positive prediction for all levels of the protected attribute. Instead, it may be more realistic to expect that the model be equally wrong or equally correct in its predictions of \(Y\) for each protected attribute. For this reason, one fairness constraint will be set on the Seldonian algorithms to satisfy separation, otherwise known as equality of the error rates or equality of odds, as defined in Equation \ref{ch4eq1} within some margin \(\epsilon\) and with \(1 - \delta\) \% confidence. Similar to Chapter \ref{seldapp}, \(\epsilon\) will be set to four levels: \(0.2, 0.1, 0.05, \text{and } 0.01\). \(\delta\) will be set to \(0.05\) to guarantee 95\% confidence.
 \begin{equation}
 \label{ch4eq1}
 g(\theta): abs[(FPR | \text{A = a} - FPR | \text{A = b}) + (FNR | \text{A = a} - FNR | \text{A = b})] - \epsilon.
@@ -2444,7 +2444,7 @@ Further data wrangling and data analysis are conducted in R, and significant fin
 \CommentTok{\# pass through an inverse{-}logit function}
 \NormalTok{probs }\OtherTok{=} \FunctionTok{exp}\NormalTok{(linear\_combination) }\SpecialCharTok{/}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{+} \FunctionTok{exp}\NormalTok{(linear\_combination))}
 
-\CommentTok{\# generate 5000 Bernoulli RVs for y}
+\CommentTok{\# generate Bernoulli RVs for y}
 \NormalTok{is\_recid\_sim }\OtherTok{=} \FunctionTok{rbinom}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(compas\_sim), }\DecValTok{1}\NormalTok{, probs)}
 
 \CommentTok{\# join to original data frame}
