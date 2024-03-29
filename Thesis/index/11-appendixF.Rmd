@@ -1,0 +1,51 @@
+# Generating the Simulation Parent Data Set {#appendix-f}
+
+
+\noindent This appendix section displays the R code used to generate the parent simulation data set for Chapter \@ref(chap-4).
+
+
+```{r, eval = FALSE}
+set.seed(123)
+
+# define a linear combination of predictors as desired
+linear_combination = 5  - 0.2 * compas_sim$age + 
+  ifelse(compas_sim$prior_offense == 1, 0.5, 0)
+
+# pass through an inverse-logit function
+probs = exp(linear_combination) / (1 + exp(linear_combination))
+
+# generate 5000 Bernoulli RVs for y
+is_recid_sim = rbinom(nrow(compas_sim), 1, probs)
+
+# join to original data frame
+compas_sim_balanced_final <- cbind(compas_sim, is_recid_sim)
+
+# induce balance
+compas_b_y <- compas_sim_balanced_final %>%
+  filter(race == "African-American" & is_recid_sim == 1)
+
+compas_b_n <- compas_sim_balanced_final %>%
+  filter(race == "African-American" & is_recid_sim == 0)
+
+compas_w_y <- compas_sim_balanced_final %>%
+  filter(race == "Caucasian" & is_recid_sim == 1)
+
+compas_w_n <- compas_sim_balanced_final %>%
+  filter(race == "Caucasian" & is_recid_sim == 0)
+
+compas_b_y_balanced <-
+  compas_b_y[sample(nrow(compas_b_y), 1250, replace = TRUE), ]
+compas_b_n_balanced <-
+  compas_b_n[sample(nrow(compas_b_n), 1250, replace = TRUE), ]
+compas_w_y_balanced <-
+  compas_w_y[sample(nrow(compas_w_y), 1250, replace = TRUE), ]
+compas_w_n_balanced <-
+  compas_w_n[sample(nrow(compas_w_n), 1250, replace = TRUE), ]
+
+compas_sim_balanced_final <- rbind(
+  compas_b_y_balanced,
+  compas_b_n_balanced,
+  compas_w_y_balanced,
+  compas_w_n_balanced
+)
+```
