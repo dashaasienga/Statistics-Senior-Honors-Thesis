@@ -519,7 +519,34 @@ seldonian_results['risk_0.2'] = risk_02
 seldonian_results['risk_0.1'] = risk_01
 seldonian_results['risk_0.05'] = risk_005
 seldonian_results['risk_0.01'] = risk_001
+```
 
+### Testing Python Code
+
+```{python}
+sa_02_accuracy = (seldonian_results['risk_0.2'] == seldonian_results['is_recid']).sum() / len(seldonian_results)
+sa_02_accuracy
+```
+
+
+```{python}
+sa_01_accuracy = (seldonian_results['risk_0.1'] == seldonian_results['is_recid']).sum() / len(seldonian_results)
+sa_01_accuracy
+```
+
+
+```{python}
+sa_005_accuracy = (seldonian_results['risk_0.05'] == seldonian_results['is_recid']).sum() / len(seldonian_results)
+sa_005_accuracy
+```
+
+
+```{python}
+sa_001_accuracy = (seldonian_results['risk_0.01'] == seldonian_results['is_recid']).sum() / len(seldonian_results)
+sa_001_accuracy
+```
+
+```{python}
 # write the dataframe to a CSV file
 seldonian_results.to_csv("/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/COMPAS/Simulation Single Run/compas_seldonian_results.csv", index=False)
 ```
