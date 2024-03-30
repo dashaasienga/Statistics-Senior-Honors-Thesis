@@ -264,6 +264,86 @@ passed_safety_001, solution_001 = SA_001.run(write_cs_logfile=True)
 
 ## ACCURACY 
 
+# separate the predictor variables from the sensitive variable and the response variable
+X_outdf = outdf.drop(columns = ['is_recid', 'Black', 'White'])
+X_sens = outdf[['Black', 'White']]
+y_outdf = outdf['is_recid']
+
+
+#----------------------------------#
+# get the solution & store coefficients (epsilon = 0.2)
+coefficients = SA_02.cs_result["candidate_solution"]
+
+# get the intercept
+intercept = coefficients[0]
+
+# compute the predictive values
+linear_combination = np.dot(X_outdf, coefficients[1:]) + intercept
+pred_probs_02 = 1 / (1 + np.exp(-linear_combination))
+
+#----------------------------------#
+# get the solution & store coefficients (epsilon = 0.1)
+coefficients = SA_01.cs_result["candidate_solution"]
+
+# get the intercept
+intercept = coefficients[0]
+
+# compute the predictive values
+linear_combination = np.dot(X_outdf, coefficients[1:]) + intercept
+pred_probs_01 = 1 / (1 + np.exp(-linear_combination))
+
+#----------------------------------#
+# get the solution & store coefficients (epsilon = 0.05)
+coefficients = SA_005.cs_result["candidate_solution"]
+
+# get the intercept
+intercept = coefficients[0]
+
+# compute the predictive values
+linear_combination = np.dot(X_outdf, coefficients[1:]) + intercept
+pred_probs_005 = 1 / (1 + np.exp(-linear_combination))
+
+#----------------------------------#
+# get the solution & store coefficients (epsilon = 0.01)
+coefficients = SA_001.cs_result["candidate_solution"]
+
+# get the intercept
+intercept = coefficients[0]
+
+# compute the predictive values
+linear_combination = np.dot(X_outdf, coefficients[1:]) + intercept
+pred_probs_001 = 1 / (1 + np.exp(-linear_combination))
+
+#----------------------------------#
+# store results
+seldonian_results = pd.DataFrame({'is_recid': y_outdf, 'pred_0.2': pred_probs_02, 'pred_0.1': pred_probs_01, 'pred_0.05': pred_probs_005, 'pred_0.01': pred_probs_001})
+seldonian_results = pd.concat([X_outdf, X_sens, seldonian_results], axis = 1)
+
+# define threshold
+threshold = 0.5
+
+# create risk columns
+risk_02 = np.where(pred_probs_02 >= threshold, 1, 0)
+risk_01 = np.where(pred_probs_01 >= threshold, 1, 0)
+risk_005 = np.where(pred_probs_005 >= threshold, 1, 0)
+risk_001 = np.where(pred_probs_001 >= threshold, 1, 0)
+
+# add risk columns to dataframe
+seldonian_results['risk_0.2'] = risk_02
+seldonian_results['risk_0.1'] = risk_01
+seldonian_results['risk_0.05'] = risk_005
+seldonian_results['risk_0.01'] = risk_001
+
+#----------------------------------#
+# compute accuracy
+sa_02_accuracy = (seldonian_results['risk_0.2'] == seldonian_results['is_recid']).sum() / len(seldonian_results)
+
+sa_01_accuracy = (seldonian_results['risk_0.1'] == seldonian_results['is_recid']).sum() / len(seldonian_results)
+
+sa_005_accuracy = (seldonian_results['risk_0.05'] == seldonian_results['is_recid']).sum() / len(seldonian_results)
+
+sa_001_accuracy = (seldonian_results['risk_0.01'] == seldonian_results['is_recid']).sum() / len(seldonian_results)
+
 ## DISCRIMINATION
 
 ##---- SYNTHESIZING RESULTS ----#
