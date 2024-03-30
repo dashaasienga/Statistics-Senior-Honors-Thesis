@@ -425,8 +425,29 @@ data_dict = {
     'sa_001_disc_stat': [sa_001_disc_stat]
 }
 
-# create a results data frame
-df = pd.DataFrame(data_dict)
-
 
 ##---- SAVING RESULTS ----#
+
+# define the file path
+results_path =  "/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Simulation/SeldonianSimulation/results/seldonian_sim_results.csv" 
+
+# check if the results file exists
+if os.path.exists(results_path):
+  
+    # if the file exists, read in the data set 
+    results = pd.read_csv(results_path)
+    
+    # add the new values as the next available row
+    new_data = [size, dataset_id, passed_safety_02, passed_safety_01, passed_safety_005, passed_safety_001, 
+    sa_02_accuracy, sa_01_accuracy, sa_005_accuracy, sa_001_accuracy, sa_02_disc_stat, sa_01_disc_stat, sa_005_disc_stat, 
+    sa_001_disc_stat] 
+    results.loc[len(results)] = new_data
+    
+else:
+  
+    # if the file doesn't exist, create a new results data frame
+    results = pd.DataFrame(data_dict)
+   
+
+# save the results to CSV file
+results.to_csv(results_path, index=False)  
