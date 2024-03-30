@@ -346,6 +346,87 @@ sa_001_accuracy = (seldonian_results['risk_0.01'] == seldonian_results['is_recid
 
 ## DISCRIMINATION
 
+seldonian_results['race'] = np.where(seldonian_results['Black'] == 1, 'Black', 'White')
+seldonian_results['pred_risk_0.2'] = np.where(seldonian_results['risk_0.2'] == 0, 'Low', 'High')
+seldonian_results['pred_risk_0.1'] = np.where(seldonian_results['risk_0.1'] == 0, 'Low', 'High')
+seldonian_results['pred_risk_0.05'] = np.where(seldonian_results['risk_0.05'] == 0, 'Low', 'High')
+seldonian_results['pred_risk_0.01'] = np.where(seldonian_results['risk_0.01'] == 0, 'Low', 'High')
+
+def calculate_disc_stat(risk_column = "pred_risk_0.2"):
+  # select the required columns
+  discrimination = seldonian_results[['race', risk_column, 'is_recid']]
+
+  # group by 'race' and 'is_recid' and calculate total count
+  grouped_counts = seldonian_results.groupby(['race', 'is_recid']).size().reset_index(name='total')
+
+  # merge the total counts back to the dataframe
+  discrimination = pd.merge(discrimination, grouped_counts, on=['race', 'is_recid'], how='left')
+
+  # group by risk_column, 'race', and 'total' and aggregate
+  grouped_summary = discrimination.groupby([risk_column, 'race', 'total']).agg(
+      reoffended=('is_recid', lambda x: (x == 1).sum()),
+      did_not_reoffend=('is_recid', lambda x: (x == 0).sum())
+  ).reset_index()
+
+  # pivot the data frame longer
+  melted_df = pd.melt(grouped_summary, id_vars=[risk_column, 'race', 'total'], 
+                      value_vars=['reoffended', 'did_not_reoffend'], 
+                      var_name='recidivism')
+                    
+  # pivot the data frame wider
+  pivoted_df = melted_df.pivot(index=[risk_column, 'recidivism', 'total'], columns='race', values='value').reset_index()
+
+  # calculate percentages and round to two decimal places
+  pivoted_df['Black'] = round(100 * pivoted_df['Black'] / pivoted_df['total'], 2)
+  pivoted_df['White'] = round(100 * pivoted_df['White'] / pivoted_df['total'], 2)
+
+  # drop the 'total' column
+  pivoted_df.drop(columns='total', inplace=True)
+  
+  # group by risk_column and 'recidivism' and summarize
+  pivoted_df = pivoted_df.groupby([risk_column, 'recidivism']).agg(
+      Black=('Black', 'max'),
+      White=('White', 'max')
+  ).reset_index()
+
+  # filter the data frame
+  filtered_df = pivoted_df[(pivoted_df[risk_column] == "High") & (pivoted_df['recidivism'] == "did_not_reoffend") |
+                         (pivoted_df[risk_column] == "Low") & (pivoted_df['recidivism'] == "reoffended")]
+                         
+  # calculate the discrimination statistic
+  disc_stat = round(sum(abs(filtered_df['White'] - filtered_df['Black'])) / 100, 4)
+  return disc_stat
+
+
+sa_02_disc_stat = calculate_disc_stat(risk_column = "pred_risk_0.2")
+
+sa_01_disc_stat = calculate_disc_stat(risk_column = "pred_risk_0.1")
+
+sa_005_disc_stat = calculate_disc_stat(risk_column = "pred_risk_0.05")
+
+sa_001_disc_stat = calculate_disc_stat(risk_column = "pred_risk_0.01")
+
 ##---- SYNTHESIZING RESULTS ----#
+
+data_dict = {
+    'sample_size': [size],
+    'dataset_id': [dataset_id],
+    'passed_safety_02': [passed_safety_02],
+    'passed_safety_01': [passed_safety_01],
+    'passed_safety_005': [passed_safety_005],
+    'passed_safety_001': [passed_safety_001],
+    'sa_02_accuracy': [sa_02_accuracy],
+    'sa_01_accuracy': [sa_01_accuracy],
+    'sa_005_accuracy': [sa_005_accuracy],
+    'sa_001_accuracy': [sa_001_accuracy],
+    'sa_02_disc_stat': [sa_02_disc_stat],
+    'sa_01_disc_stat': [sa_01_disc_stat],
+    'sa_005_disc_stat': [sa_005_disc_stat],
+    'sa_001_disc_stat': [sa_001_disc_stat]
+}
+
+# create a results data frame
+df = pd.DataFrame(data_dict)
+
 
 ##---- SAVING RESULTS ----#
