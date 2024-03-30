@@ -253,4 +253,19 @@ SA_001 = SeldonianAlgorithm(spec)
 
 ##---- SAVING METRICS ----##
 
+## CONVERGENCE
+passed_safety_02, solution_02 = SA_02.run(write_cs_logfile=True)
 
+passed_safety_01, solution_01 = SA_01.run(write_cs_logfile=True)
+
+passed_safety_005, solution_005 = SA_005.run(write_cs_logfile=True)
+
+passed_safety_001, solution_001 = SA_001.run(write_cs_logfile=True)
+
+## ACCURACY 
+
+## DISCRIMINATION
+
+##---- SYNTHESIZING RESULTS ----#
+
+##---- SAVING RESULTS ----#
