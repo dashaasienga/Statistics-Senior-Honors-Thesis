@@ -25,7 +25,8 @@ from seldonian.models import objectives
 
 import sys
 
-## SET IMPORTANT VALUES
+
+----## SETTING IMPORTANT VALUES ##----
 
 # point to the data file
 #f_orig = sys.argv[1]
@@ -51,7 +52,8 @@ columns_orig = ["race","prior_offense","age", "is_recid"]
 # read in the simulation data set
 df = pd.read_csv(f_orig, header=0, names=columns_orig)
 
-## DATA PRE-PROCESSING
+
+----## DATA PRE-PROCESSING ##----
 
 # select inputs to be transformed 
 X = df.drop(columns=["is_recid"])
@@ -96,4 +98,123 @@ metadata_dict = {
 with open(output_path_metadata,'w') as outfile:
     json.dump(metadata_dict,outfile,indent=2)
     
+
+----## FITTING A SELDONIAN ALGORITHM ##----
+    
+import autograd.numpy as np
+
+# path to temporarily store the seldonian spec files 
+save_dir = "/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Simulation/SeldonianSimulation/"
+os.makedirs(save_dir,exist_ok=True)
+
+# load Seldonian dataset from data and metadata file
+regime='supervised_learning'
+sub_regime='classification'
+
+loader = DataSetLoader(regime=regime)
+
+dataset = loader.load_supervised_dataset(
+  filename=output_path_data,
+  metadata_filename=output_path_metadata,
+  file_type='csv')
+  
+sensitive_col_names = dataset.meta.sensitive_col_names
+
+# use logistic regression model as a starting point
+model = LogisticRegressionModel()
+    
+# set the primary objective to be log loss
+primary_objective = objectives.binary_logistic_loss
+
+from seldonian.spec import createSupervisedSpec
+
+# define behavioral constraints (epsilon = 0.2)
+epsilon = 0.2
+constraint_name = "equalized_odds"
+if constraint_name == "equalized_odds":
+  constraint_strs = [f'abs((FNR | [Black]) - (FNR | [White])) + abs((FPR | [Black]) - (FPR | [White])) <= {epsilon}'] 
+deltas = [0.05]
+
+# create spec file
+save_dir = "/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Simulation/SeldonianSimulation/temp_equalized_odds_0.2"
+
+os.makedirs(save_dir, exist_ok=True) #create folder
+
+createSupervisedSpec(
+            dataset=dataset,
+            metadata_pth=output_path_metadata,
+            constraint_strs=constraint_strs,
+            deltas=deltas,
+            save_dir=save_dir,
+            save=True,
+            verbose=False)
+            
+#---------------------------------------------#
+
+# define behavioral constraints (epsilon = 0.1)
+epsilon = 0.1
+constraint_name = "equalized_odds"
+if constraint_name == "equalized_odds":
+  constraint_strs = [f'abs((FNR | [Black]) - (FNR | [White])) + abs((FPR | [Black]) - (FPR | [White])) <= {epsilon}'] 
+deltas = [0.05]
+
+# create spec file
+save_dir = "/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Simulation/SeldonianSimulation/temp_equalized_odds_0.1"
+
+os.makedirs(save_dir, exist_ok=True) #create folder
+
+createSupervisedSpec(
+            dataset=dataset,
+            metadata_pth=output_path_metadata,
+            constraint_strs=constraint_strs,
+            deltas=deltas,
+            save_dir=save_dir,
+            save=True,
+            verbose=False)
+            
+#-----------------------------------------------#
+            
+# define behavioral constraints (epsilon = 0.05)
+epsilon = 0.05
+constraint_name = "equalized_odds"
+if constraint_name == "equalized_odds":
+  constraint_strs = [f'abs((FNR | [Black]) - (FNR | [White])) + abs((FPR | [Black]) - (FPR | [White])) <= {epsilon}'] 
+deltas = [0.05]
+
+# create spec file
+save_dir = "/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Simulation/SeldonianSimulation/temp_equalized_odds_0.05"
+
+os.makedirs(save_dir, exist_ok=True) #create folder
+
+createSupervisedSpec(
+            dataset=dataset,
+            metadata_pth=output_path_metadata,
+            constraint_strs=constraint_strs,
+            deltas=deltas,
+            save_dir=save_dir,
+            save=True,
+            verbose=False)
+            
+#----------------------------------------------#
+
+# define behavioral constraints (epsilon = 0.01)
+epsilon = 0.01
+constraint_name = "equalized_odds"
+if constraint_name == "equalized_odds":
+  constraint_strs = [f'abs((FNR | [Black]) - (FNR | [White])) + abs((FPR | [Black]) - (FPR | [White])) <= {epsilon}'] 
+deltas = [0.05]
+
+# create spec file
+save_dir = "/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Simulation/SeldonianSimulation/temp_equalized_odds_0.01"
+
+os.makedirs(save_dir, exist_ok=True) #create folder
+
+createSupervisedSpec(
+            dataset=dataset,
+            metadata_pth=output_path_metadata,
+            constraint_strs=constraint_strs,
+            deltas=deltas,
+            save_dir=save_dir,
+            save=True,
+            verbose=False)
 
