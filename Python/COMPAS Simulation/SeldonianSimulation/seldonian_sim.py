@@ -28,11 +28,11 @@ import sys
 
 ##---- SETTING IMPORTANT VALUES ----##
 
-# point to the data file
-#f_orig = sys.argv[1]
-
 # for testing
-f_orig = "/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/SimulationData/sim_500_1.csv"
+#f_orig = "/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/SimulationData/sim_500_1.csv"
+
+# point to the data file
+f_orig = sys.argv[1]
 
 # extract size and dataset_id from simulation file using regular expressions
 match = re.search(r'sim_(\d+)_(\d+).csv', f_orig)

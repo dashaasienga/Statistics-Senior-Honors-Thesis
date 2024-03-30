@@ -1,7 +1,7 @@
 #! /bin/sh
-#SBATCH --partition=cpu-test-q
-#SBATCH --output=css-%j.out
-#SBATCH --error=css-%j.err
+#SBATCH --partition=cpu-q
+#SBATCH --output=sim-%j.out
+#SBATCH --error=sim-%j.err
 
 module load python39 amh-python-extra-py39-gcc9
 
