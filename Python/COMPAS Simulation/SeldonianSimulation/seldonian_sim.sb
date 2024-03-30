@@ -1,0 +1,16 @@
+#! /bin/sh
+#SBATCH --partition=cpu-test-q
+#SBATCH --output=css-%j.out
+#SBATCH --error=css-%j.err
+
+module load python39 amh-python-extra-py39-gcc9
+
+folder="/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/SimulationData/"
+files=`ls "$folder"`
+
+# Hand the python script to Slurm to run, each task on its own cpu, and wait for them to complete:
+for file in $files; do 
+  srun ./seldonian_sim.py "$folder$file" &
+done
+wait
+
