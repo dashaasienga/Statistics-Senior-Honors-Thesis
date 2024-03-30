@@ -26,7 +26,7 @@ from seldonian.models import objectives
 import sys
 
 
-----## SETTING IMPORTANT VALUES ##----
+##---- SETTING IMPORTANT VALUES ----##
 
 # point to the data file
 #f_orig = sys.argv[1]
@@ -53,7 +53,7 @@ columns_orig = ["race","prior_offense","age", "is_recid"]
 df = pd.read_csv(f_orig, header=0, names=columns_orig)
 
 
-----## DATA PRE-PROCESSING ##----
+##---- DATA PRE-PROCESSING ----##
 
 # select inputs to be transformed 
 X = df.drop(columns=["is_recid"])
@@ -99,7 +99,7 @@ with open(output_path_metadata,'w') as outfile:
     json.dump(metadata_dict,outfile,indent=2)
     
 
-----## FITTING A SELDONIAN ALGORITHM ##----
+##---- CREATING THE SELDONIAN SPEC FILES ----##
     
 import autograd.numpy as np
 
@@ -217,4 +217,40 @@ createSupervisedSpec(
             save_dir=save_dir,
             save=True,
             verbose=False)
+
+
+##---- RUNNING THE SELDONIAN ENGINE ----##
+
+from seldonian.seldonian_algorithm import SeldonianAlgorithm
+from seldonian.utils.io_utils import load_pickle
+
+# load the spec file (epsilon = 0.2)
+specfile = '/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Simulation/SeldonianSimulation/temp_equalized_odds_0.2/spec.pkl'
+spec = load_pickle(specfile)
+SA_02 = SeldonianAlgorithm(spec)
+
+#-----------------------------------#
+
+# load the spec file (epsilon = 0.1)
+specfile = '/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Simulation/SeldonianSimulation/temp_equalized_odds_0.1/spec.pkl'
+spec = load_pickle(specfile)
+SA_01 = SeldonianAlgorithm(spec)
+
+#-----------------------------------#
+
+# load the spec file (epsilon = 0.05)
+specfile = '/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Simulation/SeldonianSimulation/temp_equalized_odds_0.05/spec.pkl'
+spec = load_pickle(specfile)
+SA_005 = SeldonianAlgorithm(spec)
+
+#-----------------------------------#
+
+# load the spec file (epsilon = 0.01)
+specfile = '/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Simulation/SeldonianSimulation/temp_equalized_odds_0.01/spec.pkl'
+spec = load_pickle(specfile)
+SA_001 = SeldonianAlgorithm(spec)
+
+
+##---- SAVING METRICS ----##
+
 
