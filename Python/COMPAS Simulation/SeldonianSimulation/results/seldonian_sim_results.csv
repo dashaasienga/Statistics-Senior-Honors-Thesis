@@ -1,0 +1,2 @@
+sample_size,dataset_id,passed_safety_02,passed_safety_01,passed_safety_005,passed_safety_001,sa_02_accuracy,sa_01_accuracy,sa_005_accuracy,sa_001_accuracy,sa_02_disc_stat,sa_01_disc_stat,sa_005_disc_stat,sa_001_disc_stat
+500,1,True,True,True,True,0.522,0.538,0.522,0.522,0.0,0.0478,0.0,0.0
