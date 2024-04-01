@@ -1,0 +1,71 @@
+---
+title: "Thesis Simulation Results Analysis for Chapter 4"
+author: "Dasha Asienga"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    toc: yes
+  html_document:
+    toc: yes
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+library(mosaic)
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(RColorBrewer)
+library(knitr)
+library(ggplot2)
+library(GGally)
+library(reshape2)
+```
+
+$\\$
+
+This file is intended to synthesize and analyze the results from the simulation. 
+
+# Reading in the Result Data Sets
+
+## Logistic Regression
+
+The results data set has 200 observations for each of the simulation trials, 50 from each sample size: $n = 500, 1000, 2500, 5000$. 
+
+```{r}
+lr_500 <- read.csv("/home/dasienga24/Statistics-Senior-Honors-Thesis/R/Simulation/LogisticRegression/Results/lr_500.csv")
+lr_1000 <- read.csv("/home/dasienga24/Statistics-Senior-Honors-Thesis/R/Simulation/LogisticRegression/Results/lr_1000.csv")
+lr_2500 <- read.csv("/home/dasienga24/Statistics-Senior-Honors-Thesis/R/Simulation/LogisticRegression/Results/lr_2500.csv")
+lr_5000 <- read.csv("/home/dasienga24/Statistics-Senior-Honors-Thesis/R/Simulation/LogisticRegression/Results/lr_5000.csv")
+
+lr_500 <- lr_500 |>
+  mutate(sample_size = 500) |>
+  dplyr::select(-X)
+
+lr_1000 <- lr_1000 |>
+  mutate(sample_size = 1000) |>
+  dplyr::select(-X)
+
+lr_2500 <- lr_2500 |>
+  mutate(sample_size = 2500) |>
+  dplyr::select(-X)
+
+lr_5000 <- lr_5000 |>
+  mutate(sample_size = 5000) |>
+  dplyr::select(-X)
+
+logistic_results <- rbind(lr_500, lr_1000, lr_2500, lr_5000)
+glimpse(logistic_results)
+```
+
+
+## Seldonian Solutions
+
+The results data set has 200 observations for each of the simulation trials, 50 from each sample size: $n = 500, 1000, 2500, 5000$. 
+
+```{r}
+seldonian_results <- read.csv("/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Simulation/SeldonianSimulation/results/seldonian_sim_results.csv")
+seldonian_results <- distinct(seldonian_results) #remove duplicate rows
+glimpse(seldonian_results)
+```
+
