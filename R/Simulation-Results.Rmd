@@ -162,11 +162,17 @@ sim_results_converged_accuracy |>
        title = "Accuracy of Convergent Solutions")
 ```
 
-```{r, warning = FALSE, fig.width = 6, fig.height = 6}
+```{r, warning = FALSE, fig.width = 7, fig.height = 6}
 # visualization
 sim_results_converged_accuracy |>
   dplyr::select(c(lr_accuracy, sa_02_accuracy, sa_01_accuracy, sa_005_accuracy, 
                   sa_001_accuracy, sample_size)) |>
+  mutate(sample_size = factor(case_when(sample_size == 500 ~ "n = 500",
+                                 sample_size == 1000 ~ "n = 1000",
+                                 sample_size == 2500 ~ "n = 2500",
+                                 sample_size == 5000 ~ "n = 5000"
+                                 ), 
+                              levels = c("n = 500", "n = 1000", "n = 2500", "n = 5000"))) |>
   rename("Sample Size" = sample_size,
          "LR" = lr_accuracy,
          "SA (0.2)" = sa_02_accuracy,
@@ -238,12 +244,61 @@ sim_results_converged_disc |>
 
 ## Visualizations 
 
-```{r}
-# visual 
+```{r, warning = FALSE, fig.width = 6, fig.height = 3.5}
+# visualization
+sim_results_converged_disc |>
+  dplyr::select(c(lr_discrimination, sa_02_disc_stat, sa_01_disc_stat, sa_005_disc_stat, 
+                  sa_001_disc_stat, sample_size)) |>
+  rename("Sample Size" = sample_size,
+         "LR" = lr_discrimination,
+         "SA (0.2)" = sa_02_disc_stat,
+         "SA (0.1)" = sa_01_disc_stat,
+         "SA (0.05)" = sa_005_disc_stat,
+         "SA (0.01)" = sa_001_disc_stat) |>
+  pivot_longer(cols = -c(`Sample Size`),
+               names_to = "model",
+               values_to = "discrimination") |>
+  ggplot(mapping = aes(x = model, y = discrimination, color = model)) +
+  geom_boxplot() +
+  scale_x_discrete(limits = c("LR", "SA (0.2)", "SA (0.1)", "SA (0.05)", "SA (0.01)")) +
+  theme_minimal() + 
+  guides(color = "none") +
+  labs(x = "Model",
+       y = "Discrimination Statistic",
+       title = "Model Unfairness of Convergent Solutions")
 ```
 
-make a visual 
 
+```{r, warning = FALSE, fig.width = 7, fig.height = 6}
+# visualization
+sim_results_converged_disc |>
+  dplyr::select(c(lr_discrimination, sa_02_disc_stat, sa_01_disc_stat, sa_005_disc_stat, 
+                  sa_001_disc_stat, sample_size)) |>
+  mutate(sample_size = factor(case_when(sample_size == 500 ~ "n = 500",
+                                 sample_size == 1000 ~ "n = 1000",
+                                 sample_size == 2500 ~ "n = 2500",
+                                 sample_size == 5000 ~ "n = 5000"
+                                 ), 
+                              levels = c("n = 500", "n = 1000", "n = 2500", "n = 5000"))) |>
+  rename("Sample Size" = sample_size,
+         "LR" = lr_discrimination,
+         "SA (0.2)" = sa_02_disc_stat,
+         "SA (0.1)" = sa_01_disc_stat,
+         "SA (0.05)" = sa_005_disc_stat,
+         "SA (0.01)" = sa_001_disc_stat) |>
+  pivot_longer(cols = -c(`Sample Size`),
+               names_to = "model",
+               values_to = "discrimination") |>
+  ggplot(mapping = aes(x = model, y = discrimination, color = model)) +
+  geom_boxplot() +
+  scale_x_discrete(limits = c("LR", "SA (0.2)", "SA (0.1)", "SA (0.05)", "SA (0.01)")) +
+  theme_minimal() + 
+  guides(color = "none") +
+  facet_wrap(~`Sample Size`) +
+  labs(x = "Model",
+       y = "Discrimination Statistic",
+       title = "Model Unfairness of Convergent Solutions by Sample Size")
+```
 
 
 
