@@ -80,6 +80,8 @@ glimpse(sim_results)
 
 # Probability of a Solution
 
+## Table
+
 This section assesses what proportion of the trials returned a solution. It is expected that all logistic regression trials will return a solution. However, for the Seldonian algorithms, while all trials will return a candidate solution (based on the logistic regression as a starting point), it is expected that not all candidate solutions will pass the safety test. The table below records the number of Seldonian solutions that passed the safety test in each sample size.
 
 ```{r}
@@ -108,6 +110,7 @@ sim_results_converged_accuracy <- sim_results |>
          sa_001_accuracy = ifelse(passed_safety_001 == "True", sa_001_accuracy, NA))
 ```
 
+## Table 
 
 ```{r}
 # table
@@ -132,12 +135,58 @@ sim_results_converged_accuracy |>
   kable(caption = "Accuracy of Convergent Solutions")
 ```
 
+## Visualizations
 
-```{r}
-# visual 
+```{r, warning = FALSE, fig.width = 6, fig.height = 3.5}
+# visualization
+sim_results_converged_accuracy |>
+  dplyr::select(c(lr_accuracy, sa_02_accuracy, sa_01_accuracy, sa_005_accuracy, 
+                  sa_001_accuracy, sample_size)) |>
+  rename("Sample Size" = sample_size,
+         "LR" = lr_accuracy,
+         "SA (0.2)" = sa_02_accuracy,
+         "SA (0.1)" = sa_01_accuracy,
+         "SA (0.05)" = sa_005_accuracy,
+         "SA (0.01)" = sa_001_accuracy) |>
+  pivot_longer(cols = -c(`Sample Size`),
+               names_to = "model",
+               values_to = "accuracy") |>
+  mutate(accuracy = 100*accuracy) |>
+  ggplot(mapping = aes(x = model, y = accuracy, color = model)) +
+  geom_boxplot() +
+  scale_x_discrete(limits = c("LR", "SA (0.2)", "SA (0.1)", "SA (0.05)", "SA (0.01)")) +
+  theme_minimal() + 
+  guides(color = "none") +
+  labs(x = "Model",
+       y = "Accuracy (%)",
+       title = "Accuracy of Convergent Solutions")
 ```
 
-make a visual 
+```{r, warning = FALSE, fig.width = 6, fig.height = 6}
+# visualization
+sim_results_converged_accuracy |>
+  dplyr::select(c(lr_accuracy, sa_02_accuracy, sa_01_accuracy, sa_005_accuracy, 
+                  sa_001_accuracy, sample_size)) |>
+  rename("Sample Size" = sample_size,
+         "LR" = lr_accuracy,
+         "SA (0.2)" = sa_02_accuracy,
+         "SA (0.1)" = sa_01_accuracy,
+         "SA (0.05)" = sa_005_accuracy,
+         "SA (0.01)" = sa_001_accuracy) |>
+  pivot_longer(cols = -c(`Sample Size`),
+               names_to = "model",
+               values_to = "accuracy") |>
+  mutate(accuracy = 100*accuracy) |>
+  ggplot(mapping = aes(x = model, y = accuracy, color = model)) +
+  geom_boxplot() +
+  scale_x_discrete(limits = c("LR", "SA (0.2)", "SA (0.1)", "SA (0.05)", "SA (0.01)")) +
+  theme_minimal() + 
+  guides(color = "none") +
+  facet_wrap(~`Sample Size`) +
+  labs(x = "Model",
+       y = "Accuracy (%)",
+       title = "Accuracy of Convergent Solutions by Sample Size")
+```
 
 # Discrimination
 
@@ -149,6 +198,8 @@ sim_results_converged_disc <- sim_results |>
          sa_005_disc_stat = ifelse(passed_safety_005 == "True", sa_005_disc_stat, NA),
          sa_001_disc_stat = ifelse(passed_safety_001 == "True", sa_001_disc_stat, NA))
 ```
+
+## Tables 
 
 ```{r}
 # table
@@ -174,12 +225,6 @@ sim_results_converged_disc |>
 ```
 
 ```{r}
-# visual 
-```
-
-make a visual 
-
-```{r}
 # table
 sim_results_converged_disc |>
   group_by(sample_size) |>
@@ -190,6 +235,16 @@ sim_results_converged_disc |>
   rename("Sample Size" = sample_size) |>
   kable(caption = "Satisfaction of the Behavioral Constraint by Convergent Solutions")
 ```
+
+## Visualizations 
+
+```{r}
+# visual 
+```
+
+make a visual 
+
+
 
 
 # Accuracy-Discrimination Trade-Off (means)
