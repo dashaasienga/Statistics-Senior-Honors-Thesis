@@ -69,3 +69,31 @@ seldonian_results <- distinct(seldonian_results) #remove duplicate rows
 glimpse(seldonian_results)
 ```
 
+# Combine the Data Sets from Both Simulations
+
+```{r}
+logistic_results <- logistic_results |>
+  mutate(lr_convergence = ifelse(lr_convergence == 1, "True", "False"))
+
+sim_results <- inner_join(logistic_results, seldonian_results, 
+                          by = c("sample_size", "dataset_id"))
+
+glimpse(sim_results)
+```
+
+# Probability of a Solution
+how many returned a safe solution, particularly for seldonian
+
+# Accuracy 
+only seldonian solutions 
+avg, se, table, visuals
+
+# Discrimination
+only seldonian solutions
+avg, se, table, visuals
+
+number of times constraint was satisfied by both (table)
+
+# NSF 
+compare these solutions with logistic regression
+
