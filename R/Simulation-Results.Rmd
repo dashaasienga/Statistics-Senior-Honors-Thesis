@@ -157,7 +157,7 @@ sim_results_converged_accuracy |>
   scale_x_discrete(limits = c("LR", "SA (0.2)", "SA (0.1)", "SA (0.05)", "SA (0.01)")) +
   theme_minimal() + 
   guides(color = "none") +
-  labs(x = "Model",
+  labs(x = "Algorithm",
        y = "Accuracy (%)",
        title = "Accuracy of Convergent Solutions")
 ```
@@ -189,7 +189,7 @@ sim_results_converged_accuracy |>
   theme_minimal() + 
   guides(color = "none") +
   facet_wrap(~`Sample Size`) +
-  labs(x = "Model",
+  labs(x = "Algorithm",
        y = "Accuracy (%)",
        title = "Accuracy of Convergent Solutions by Sample Size")
 ```
@@ -263,7 +263,7 @@ sim_results_converged_disc |>
   scale_x_discrete(limits = c("LR", "SA (0.2)", "SA (0.1)", "SA (0.05)", "SA (0.01)")) +
   theme_minimal() + 
   guides(color = "none") +
-  labs(x = "Model",
+  labs(x = "Algorithm",
        y = "Discrimination Statistic",
        title = "Model Unfairness of Convergent Solutions")
 ```
@@ -295,17 +295,115 @@ sim_results_converged_disc |>
   theme_minimal() + 
   guides(color = "none") +
   facet_wrap(~`Sample Size`) +
-  labs(x = "Model",
+  labs(x = "Algorithm",
        y = "Discrimination Statistic",
        title = "Model Unfairness of Convergent Solutions by Sample Size")
 ```
 
 
 
-# Accuracy-Discrimination Trade-Off (means)
-Visual displaying the trade-off
+# Accuracy-Discrimination Trade-Off 
 
-# Convergent-Discrimination Trade-Off (counts)
+This section aims to visualize the accuracy-discrimination trade-off for each of the models, by sample-size. 
+
+```{r, warning = FALSE}
+# get long discrimination data set for plotting (1000 rows)
+sim_results_converged_disc_long <- sim_results_converged_disc |>
+  dplyr::select(c(lr_discrimination, sa_02_disc_stat, sa_01_disc_stat, sa_005_disc_stat, 
+                  sa_001_disc_stat, sample_size, dataset_id)) |>
+  mutate(sample_size = factor(case_when(sample_size == 500 ~ "n = 500",
+                                 sample_size == 1000 ~ "n = 1000",
+                                 sample_size == 2500 ~ "n = 2500",
+                                 sample_size == 5000 ~ "n = 5000"
+                                 ), 
+                              levels = c("n = 500", "n = 1000", "n = 2500", "n = 5000"))) |>
+  rename("Sample Size" = sample_size,
+         "LR" = lr_discrimination,
+         "SA (0.2)" = sa_02_disc_stat,
+         "SA (0.1)" = sa_01_disc_stat,
+         "SA (0.05)" = sa_005_disc_stat,
+         "SA (0.01)" = sa_001_disc_stat) |>
+  pivot_longer(cols = -c(`Sample Size`, dataset_id),
+               names_to = "model",
+               values_to = "discrimination")
+
+# get long accuracy data set for plotting (1000 rows)
+sim_results_converged_accuracy_long <- sim_results_converged_accuracy |>
+  dplyr::select(c(lr_accuracy, sa_02_accuracy, sa_01_accuracy, sa_005_accuracy, 
+                  sa_001_accuracy, sample_size, dataset_id)) |>
+  mutate(sample_size = factor(case_when(sample_size == 500 ~ "n = 500",
+                                 sample_size == 1000 ~ "n = 1000",
+                                 sample_size == 2500 ~ "n = 2500",
+                                 sample_size == 5000 ~ "n = 5000"
+                                 ), 
+                              levels = c("n = 500", "n = 1000", "n = 2500", "n = 5000"))) |>
+  rename("Sample Size" = sample_size,
+         "LR" = lr_accuracy,
+         "SA (0.2)" = sa_02_accuracy,
+         "SA (0.1)" = sa_01_accuracy,
+         "SA (0.05)" = sa_005_accuracy,
+         "SA (0.01)" = sa_001_accuracy) |>
+  pivot_longer(cols = -c(`Sample Size`, dataset_id),
+               names_to = "model",
+               values_to = "accuracy")
+
+# join both data sets
+accuracy_disc <- inner_join(sim_results_converged_disc_long, sim_results_converged_accuracy_long,
+                            by = c("dataset_id", "Sample Size", "model")) |>
+  pivot_longer(cols = -c(`Sample Size`, dataset_id, model),
+               names_to = "statistic", 
+               values_to = "value")
+```
+
+
+```{r, warning = FALSE, message = FALSE, fig.width = 5.5, fig.height = 3.5}
+# plot error-bars
+color <- c("darkgreen", "red")
+
+accuracy_disc |> 
+  group_by(model, statistic) |>
+  summarise(avg = mean(value, na.rm = TRUE),
+            se = sd(value, na.rm = TRUE)) |>
+  ggplot(mapping = aes(x = model, y = avg, color = statistic)) +
+  geom_point() +
+  geom_errorbar(mapping = aes(ymin = avg - se,
+                              ymax = avg + se,
+                              width = 0.2)) +
+  theme_minimal() +
+  scale_color_manual(values = c("accuracy" = color[1],
+                                "discrimination" = color[2])) +
+  scale_x_discrete(limits = c("LR", "SA (0.2)", "SA (0.1)", "SA (0.05)", "SA (0.01)")) +
+  labs(x = "Algorithm",
+       y = "Performance Measure",
+       title = "Accuracy-Discrimination Trade-Off of Seldonian Algorithms",
+       color = " ")
+```
+
+
+```{r, warning = FALSE, message = FALSE, fig.width = 7, fig.height = 6}
+# plot error-bars by sample size
+accuracy_disc |> 
+  group_by(model, statistic, `Sample Size`) |>
+  summarise(avg = mean(value, na.rm = TRUE),
+            se = sd(value, na.rm = TRUE)) |>
+  ggplot(mapping = aes(x = model, y = avg, color = statistic)) +
+  geom_point() +
+  geom_errorbar(mapping = aes(ymin = avg - se,
+                              ymax = avg + se,
+                              width = 0.2)) +
+  theme_minimal() +
+  scale_color_manual(values = c("accuracy" = color[1],
+                                "discrimination" = color[2])) +
+  scale_x_discrete(limits = c("LR", "SA (0.2)", "SA (0.1)", "SA (0.05)", "SA (0.01)")) +
+  facet_wrap(~`Sample Size`) +
+  labs(x = "Algorithm",
+       y = "Performance Measure",
+       title = "Accuracy-Discrimination Trade-Off of Seldonian Algorithms",
+       color = " ")
+  
+```
+
+# Convergence-Discrimination Trade-Off (counts)
 visual displaying the relationship
 
 # NSF 
