@@ -380,7 +380,7 @@ accuracy_disc |>
 ```
 
 
-```{r, warning = FALSE, message = FALSE, fig.width = 7, fig.height = 6}
+```{r, warning = FALSE, message = FALSE, fig.width = 8, fig.height = 6}
 # plot error-bars by sample size
 accuracy_disc |> 
   group_by(model, statistic, `Sample Size`) |>
@@ -403,8 +403,77 @@ accuracy_disc |>
   
 ```
 
-# Convergence-Discrimination Trade-Off (counts)
-visual displaying the relationship
+# Convergence-Discrimination Trade-Off 
+
+This section examines whether there is a trade-off in the proportion of solutions that pass the safety test and the proportion of Seldonian solutions that satisfy the fairness constraint. I need to brainstorm better ways of visualizing this relationship.
+
+```{r}
+# get long convergence data for plotting
+sim_converged_long <- sim_results |>
+  group_by(sample_size) |>
+  summarise(`SA (0.2)` = 100*count(passed_safety_02 == "True")/reps,
+            `SA (0.1)` = 100*count(passed_safety_01 == "True")/reps,
+            `SA (0.05)` = 100*count(passed_safety_005 == "True")/reps,
+            `SA (0.01)` = 100*count(passed_safety_001 == "True")/reps) |>
+  pivot_longer(cols = -c(sample_size),
+               names_to = "model",
+               values_to = "prop_passed_safety")
+
+# get long discrimination data for plotting
+sim_satisfied_cstr_long <- sim_results_converged_disc |>
+  group_by(sample_size) |>
+  summarise(`SA (0.2)` = round(100*count(sa_02_disc_stat < 0.2)/count(passed_safety_02 == "True"),2),
+            `SA (0.1)` = round(100*count(sa_01_disc_stat < 0.1)/count(passed_safety_01 == "True"),2),
+            `SA (0.05)` = round(100*count(sa_005_disc_stat < 0.05)/count(passed_safety_005 == "True"),2),
+            `SA (0.01)` = round(100*count(sa_001_disc_stat < 0.01)/count(passed_safety_001 == "True"),2)) |>
+  pivot_longer(cols = -c(sample_size),
+               names_to = "model",
+               values_to = "prop_passed_safety_satisfied_cstr")
+
+# join both data sets
+conv_disc <- inner_join(sim_converged_long, sim_satisfied_cstr_long,
+                        by = c("sample_size", "model")) |>
+  pivot_longer(cols = -c(sample_size, model),
+               names_to = "statistic", 
+               values_to = "value")
+```
+
+```{r, warning = FALSE, message = FALSE, fig.width = 5.5, fig.height = 3.5}
+# plot error-bars
+color <- c("darkgreen", "lightgreen")
+
+conv_disc |> 
+  mutate(model = factor(model, 
+                        levels = c("SA (0.2)", "SA (0.1)", "SA (0.05)", "SA (0.01)"))) |>
+  group_by(model, statistic) |>
+  summarise(avg = mean(value, na.rm = TRUE)) |>
+  ggplot(mapping = aes(x = model, y = avg, fill = statistic)) +
+  geom_col(position = position_dodge2()) +
+  theme_minimal() +
+  scale_fill_manual(values = c("prop_passed_safety" = color[1],
+                                "prop_passed_safety_satisfied_cstr" = color[2])) +
+  labs(y = "Percentage",
+       x = "Algotithm")
+```
+
+
+
+```{r, warning = FALSE, message = FALSE, fig.width = 9, fig.height = 6}
+# plot
+color <- c("darkgreen", "lightgreen")
+
+conv_disc |> 
+  mutate(model = factor(model, 
+                        levels = c("SA (0.2)", "SA (0.1)", "SA (0.05)", "SA (0.01)"))) |>
+  ggplot(mapping = aes(x = model, y = value, fill = statistic)) +
+  geom_col(position = position_dodge2()) +
+  theme_minimal() +
+  scale_fill_manual(values = c("prop_passed_safety" = color[1],
+                                "prop_passed_safety_satisfied_cstr" = color[2])) +
+  facet_wrap(~sample_size) +
+  labs(y = "Percentage",
+       x = "Algotithm")
+```
 
 # NSF 
 compare these solutions with logistic regression
