@@ -93,24 +93,110 @@ sim_results |>
             `SA (0.05)` = 100*count(passed_safety_005 == "True")/reps,
             `SA (0.01)` = 100*count(passed_safety_001 == "True")/reps) |>
   rename("Sample Size" = sample_size) |>
-  kable()
+  kable(caption = "Probability of a Solution")
 ```
 
 
 # Accuracy 
 
 ```{r}
-sim_results_converged <- sim_results
+# filter accuracy data out for only seldonian solutions that converged
+sim_results_converged_accuracy <- sim_results |>
+  mutate(sa_02_accuracy = ifelse(passed_safety_02 == "True", sa_02_accuracy, NA),
+         sa_01_accuracy = ifelse(passed_safety_01 == "True", sa_01_accuracy, NA),
+         sa_005_accuracy = ifelse(passed_safety_005 == "True", sa_005_accuracy, NA),
+         sa_001_accuracy = ifelse(passed_safety_001 == "True", sa_001_accuracy, NA))
 ```
 
-only seldonian solutions -- need to break down for each then combine back together
-avg, se, table, visuals
+
+```{r}
+# table
+sim_results_converged_accuracy |>
+  group_by(sample_size) |>
+  summarise(LR = round(100*mean(lr_accuracy, na.rm = TRUE),2),
+            sd_lr = round(sd(lr_accuracy, na.rm = TRUE),2),
+            `SA (0.2)` = round(100*mean(sa_02_accuracy, na.rm = TRUE),2),
+            sd_02 = round(sd(sa_02_accuracy, na.rm = TRUE),2),
+            `SA (0.1)` = round(100*mean(sa_01_accuracy, na.rm = TRUE),2),
+            sd_01 = round(sd(sa_01_accuracy, na.rm = TRUE),2),
+            `SA (0.05)` = round(100*mean(sa_005_accuracy, na.rm = TRUE),2),
+            sd_005 = round(sd(sa_005_accuracy, na.rm = TRUE),2),
+            `SA (0.01)` = round(100*mean(sa_001_accuracy, na.rm = TRUE),2),
+            sd_001 = round(sd(sa_001_accuracy, na.rm = TRUE),2)) |>
+  rename("Sample Size" = sample_size,
+         "sd" = sd_lr,
+         "sd " = sd_02,
+         "sd  " = sd_01,
+         "sd   " = sd_005,
+         "sd     " = sd_001) |>
+  kable(caption = "Accuracy of Convergent Solutions")
+```
+
+
+```{r}
+# visual 
+```
+
+make a visual 
 
 # Discrimination
-only seldonian solutions -- need to break down for each then combine back together
-avg, se, table, visuals
 
-number of times constraint was satisfied by both (table)
+```{r}
+# filter discrimination data out for only seldonian solutions that converged
+sim_results_converged_disc <- sim_results |>
+  mutate(sa_02_disc_stat = ifelse(passed_safety_02 == "True", sa_02_disc_stat, NA),
+         sa_01_disc_stat = ifelse(passed_safety_01 == "True", sa_01_disc_stat, NA),
+         sa_005_disc_stat = ifelse(passed_safety_005 == "True", sa_005_disc_stat, NA),
+         sa_001_disc_stat = ifelse(passed_safety_001 == "True", sa_001_disc_stat, NA))
+```
+
+```{r}
+# table
+sim_results_converged_disc |>
+  group_by(sample_size) |>
+  summarise(LR = round(100*mean(lr_discrimination, na.rm = TRUE),2),
+            sd_lr = round(sd(lr_discrimination, na.rm = TRUE),2),
+            `SA (0.2)` = round(100*mean(sa_02_disc_stat, na.rm = TRUE),2),
+            sd_02 = round(sd(sa_02_disc_stat, na.rm = TRUE),2),
+            `SA (0.1)` = round(100*mean(sa_01_disc_stat, na.rm = TRUE),2),
+            sd_01 = round(sd(sa_01_disc_stat, na.rm = TRUE),2),
+            `SA (0.05)` = round(100*mean(sa_005_disc_stat, na.rm = TRUE),2),
+            sd_005 = round(sd(sa_005_disc_stat, na.rm = TRUE),2),
+            `SA (0.01)` = round(100*mean(sa_001_disc_stat, na.rm = TRUE),2),
+            sd_001 = round(sd(sa_001_disc_stat, na.rm = TRUE),2)) |>
+  rename("Sample Size" = sample_size,
+         "sd" = sd_lr,
+         "sd " = sd_02,
+         "sd  " = sd_01,
+         "sd   " = sd_005,
+         "sd     " = sd_001) |>
+  kable(caption = "Discrimination of Convergent Solutions")
+```
+
+```{r}
+# visual 
+```
+
+make a visual 
+
+```{r}
+# table
+sim_results_converged_disc |>
+  group_by(sample_size) |>
+  summarise(`SA (0.2)` = round(100*count(sa_02_disc_stat < 0.2)/count(passed_safety_02 == "True"),2),
+            `SA (0.1)` = round(100*count(sa_01_disc_stat < 0.1)/count(passed_safety_01 == "True"),2),
+            `SA (0.05)` = round(100*count(sa_005_disc_stat < 0.05)/count(passed_safety_005 == "True"),2),
+            `SA (0.01)` = round(100*count(sa_001_disc_stat < 0.01)/count(passed_safety_001 == "True"),2)) |>
+  rename("Sample Size" = sample_size) |>
+  kable(caption = "Satisfaction of the Behavioral Constraint by Convergent Solutions")
+```
+
+
+# Accuracy-Discrimination Trade-Off (means)
+Visual displaying the trade-off
+
+# Convergent-Discrimination Trade-Off (counts)
+visual displaying the relationship
 
 # NSF 
 compare these solutions with logistic regression
