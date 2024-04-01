@@ -72,9 +72,6 @@ glimpse(seldonian_results)
 # Combine the Data Sets from Both Simulations
 
 ```{r}
-logistic_results <- logistic_results |>
-  mutate(lr_convergence = ifelse(lr_convergence == 1, "True", "False"))
-
 sim_results <- inner_join(logistic_results, seldonian_results, 
                           by = c("sample_size", "dataset_id"))
 
@@ -82,14 +79,35 @@ glimpse(sim_results)
 ```
 
 # Probability of a Solution
-how many returned a safe solution, particularly for seldonian
+
+This section assesses what proportion of the trials returned a solution. It is expected that all logistic regression trials will return a solution. However, for the Seldonian algorithms, while all trials will return a candidate solution (based on the logistic regression as a starting point), it is expected that not all candidate solutions will pass the safety test. The table below records the number of Seldonian solutions that passed the safety test in each sample size.
+
+```{r}
+reps <- nrow(sim_results)/4
+  
+sim_results |>
+  group_by(sample_size) |>
+  summarise(LR = 100*count(lr_convergence == 1)/reps,
+            `SA (0.2)` = 100*count(passed_safety_02 == "True")/reps,
+            `SA (0.1)` = 100*count(passed_safety_01 == "True")/reps,
+            `SA (0.05)` = 100*count(passed_safety_005 == "True")/reps,
+            `SA (0.01)` = 100*count(passed_safety_001 == "True")/reps) |>
+  rename("Sample Size" = sample_size) |>
+  kable()
+```
+
 
 # Accuracy 
-only seldonian solutions 
+
+```{r}
+sim_results_converged <- sim_results
+```
+
+only seldonian solutions -- need to break down for each then combine back together
 avg, se, table, visuals
 
 # Discrimination
-only seldonian solutions
+only seldonian solutions -- need to break down for each then combine back together
 avg, se, table, visuals
 
 number of times constraint was satisfied by both (table)
