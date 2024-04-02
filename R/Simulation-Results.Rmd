@@ -69,7 +69,7 @@ seldonian_results <- distinct(seldonian_results) #remove duplicate rows
 glimpse(seldonian_results)
 ```
 
-# Combine the Data Sets from Both Simulations
+# Combining the Data Sets from Both Simulations
 
 ```{r}
 sim_results <- inner_join(logistic_results, seldonian_results, 
@@ -476,5 +476,136 @@ conv_disc |>
 ```
 
 # NSF 
-compare these solutions with logistic regression
+
+Finally, this section will assess the candidate solutions of the Seldonian algorithm that didn't pass the safety test.
+
+## Accuracy
+
+```{r}
+# filter accuracy data out for only seldonian solutions that failed the safety test
+sim_results_failed_accuracy <- sim_results |>
+  mutate(sa_02_accuracy = ifelse(passed_safety_02 == "False", sa_02_accuracy, NA),
+         sa_01_accuracy = ifelse(passed_safety_01 == "False", sa_01_accuracy, NA),
+         sa_005_accuracy = ifelse(passed_safety_005 == "False", sa_005_accuracy, NA),
+         sa_001_accuracy = ifelse(passed_safety_001 == "False", sa_001_accuracy, NA))
+```
+
+```{r, warning = FALSE, fig.width = 6, fig.height = 3.5}
+# visualization
+sim_results_failed_accuracy |>
+  dplyr::select(c(sa_02_accuracy, sa_01_accuracy, sa_005_accuracy, 
+                  sa_001_accuracy, sample_size)) |>
+  rename("Sample Size" = sample_size,
+         "SA (0.2)" = sa_02_accuracy,
+         "SA (0.1)" = sa_01_accuracy,
+         "SA (0.05)" = sa_005_accuracy,
+         "SA (0.01)" = sa_001_accuracy) |>
+  pivot_longer(cols = -c(`Sample Size`),
+               names_to = "model",
+               values_to = "accuracy") |>
+  mutate(accuracy = 100*accuracy) |>
+  ggplot(mapping = aes(x = model, y = accuracy, color = model)) +
+  geom_boxplot() +
+  scale_x_discrete(limits = c("SA (0.1)", "SA (0.05)", "SA (0.01)")) +
+  theme_minimal() + 
+  guides(color = "none") +
+  labs(x = "Algorithm",
+       y = "Accuracy (%)",
+       title = "Accuracy of Failed Seldonian Solutions")
+```
+
+```{r, warning = FALSE, fig.width = 8, fig.height = 6}
+# visualization
+sim_results_failed_accuracy |>
+  dplyr::select(c(sa_02_accuracy, sa_01_accuracy, sa_005_accuracy, 
+                  sa_001_accuracy, sample_size)) |>
+  mutate(sample_size = factor(case_when(sample_size == 500 ~ "n = 500",
+                                 sample_size == 1000 ~ "n = 1000",
+                                 sample_size == 2500 ~ "n = 2500",
+                                 sample_size == 5000 ~ "n = 5000"
+                                 ), 
+                              levels = c("n = 500", "n = 1000", "n = 2500", "n = 5000"))) |>
+  rename("Sample Size" = sample_size,
+         "SA (0.2)" = sa_02_accuracy,
+         "SA (0.1)" = sa_01_accuracy,
+         "SA (0.05)" = sa_005_accuracy,
+         "SA (0.01)" = sa_001_accuracy) |>
+  pivot_longer(cols = -c(`Sample Size`),
+               names_to = "model",
+               values_to = "accuracy") |>
+  mutate(accuracy = 100*accuracy) |>
+  ggplot(mapping = aes(x = model, y = accuracy, color = model)) +
+  geom_boxplot() +
+  scale_x_discrete(limits = c("SA (0.1)", "SA (0.05)", "SA (0.01)")) +
+  theme_minimal() + 
+  guides(color = "none") +
+  facet_wrap(~`Sample Size`) +
+  labs(x = "Algorithm",
+       y = "Accuracy (%)",
+       title = "Accuracy of Failed Seldonian Solutions by Sample Size")
+```
+
+## Discrimination
+
+```{r}
+# filter accuracy data out for only seldonian solutions that failed the safety test
+sim_results_failed_disc <- sim_results |>
+  mutate(sa_02_disc_stat = ifelse(passed_safety_02 == "False", sa_02_disc_stat, NA),
+         sa_01_disc_stat = ifelse(passed_safety_01 == "False", sa_01_disc_stat, NA),
+         sa_005_disc_stat = ifelse(passed_safety_005 == "False", sa_005_disc_stat, NA),
+         sa_001_disc_stat = ifelse(passed_safety_001 == "False", sa_001_disc_stat, NA))
+```
+
+```{r, warning = FALSE, fig.width = 6, fig.height = 3.5}
+# visualization
+sim_results_failed_disc |>
+  dplyr::select(c(sa_02_disc_stat, sa_01_disc_stat, sa_005_disc_stat, 
+                  sa_001_disc_stat, sample_size)) |>
+  rename("Sample Size" = sample_size,
+         "SA (0.2)" = sa_02_disc_stat,
+         "SA (0.1)" = sa_01_disc_stat,
+         "SA (0.05)" = sa_005_disc_stat,
+         "SA (0.01)" = sa_001_disc_stat) |>
+  pivot_longer(cols = -c(`Sample Size`),
+               names_to = "model",
+               values_to = "discrimination") |>
+  ggplot(mapping = aes(x = model, y = discrimination, color = model)) +
+  geom_boxplot() +
+  scale_x_discrete(limits = c("SA (0.1)", "SA (0.05)", "SA (0.01)")) +
+  theme_minimal() + 
+  guides(color = "none") +
+  labs(x = "Algorithm",
+       y = "Discrimination",
+       title = "Discrimination of Failed Seldonian Solutions")
+```
+
+```{r, warning = FALSE, fig.width = 8, fig.height = 6}
+# visualization
+sim_results_failed_disc |>
+  dplyr::select(c(sa_02_disc_stat, sa_01_disc_stat, sa_005_disc_stat, 
+                  sa_001_disc_stat, sample_size)) |>
+  mutate(sample_size = factor(case_when(sample_size == 500 ~ "n = 500",
+                                 sample_size == 1000 ~ "n = 1000",
+                                 sample_size == 2500 ~ "n = 2500",
+                                 sample_size == 5000 ~ "n = 5000"
+                                 ), 
+                              levels = c("n = 500", "n = 1000", "n = 2500", "n = 5000"))) |>
+  rename("Sample Size" = sample_size,
+         "SA (0.2)" = sa_02_disc_stat,
+         "SA (0.1)" = sa_01_disc_stat,
+         "SA (0.05)" = sa_005_disc_stat,
+         "SA (0.01)" = sa_001_disc_stat) |>
+  pivot_longer(cols = -c(`Sample Size`),
+               names_to = "model",
+               values_to = "discrimination") |>
+  ggplot(mapping = aes(x = model, y = discrimination, color = model)) +
+  geom_boxplot() +
+  scale_x_discrete(limits = c("SA (0.1)", "SA (0.05)", "SA (0.01)")) +
+  theme_minimal() + 
+  guides(color = "none") +
+  facet_wrap(~`Sample Size`) +
+  labs(x = "Algorithm",
+       y = "Discrimination",
+       title = "Discrimination of Failed Seldonian Solutions by Sample Size")
+```
 
