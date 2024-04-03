@@ -32,7 +32,7 @@ set.seed(123) # for reproducibility
 
 for (n in samplesizes) {
   
-  reps <- 50 # number of repetitions for each sample size
+  reps <- 100 # number of repetitions for each sample size
   
   # initialize storage vectors
   
