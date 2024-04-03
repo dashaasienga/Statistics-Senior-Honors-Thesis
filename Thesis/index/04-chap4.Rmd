@@ -44,7 +44,7 @@ To achieve better predictive performance, a linear combination of age and prior 
 
 The parent simulation data set, thus, contains 5000 observations, achieves perfect class balance, and has a baseline logistic regression accuracy of `r lr_accuracy`%. This offers a realistic improvement from the accuracy of 70.2% obtained from the COMPAS logistic regression. However, because of the class balance, the lowest achievable accuracy is now 50% (a random/ coin-flip model) rather than 64.4%. This will allow more room for the Seldonian algorithm model accuracies to vary. 
 
-Two hundred total data sets of size $n = 500$, $n = 1000$, $n = 2500$, and $n = 5000$ will be sampled, with replacement, from this parent data set for the simulation study, with 50 data sets in each of the four partitions. 
+One thousand total data sets of size $n = 500$, $n = 1000$, $n = 2500$, and $n = 5000$ will be sampled, with replacement, from this parent data set for the simulation study, with 250 data sets in each of the four partitions. 
 
 ### Target
 
