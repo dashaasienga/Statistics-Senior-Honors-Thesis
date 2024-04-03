@@ -64,7 +64,8 @@ glimpse(logistic_results)
 The results data set has 200 observations for each of the simulation trials, 50 from each sample size: $n = 500, 1000, 2500, 5000$. 
 
 ```{r}
-seldonian_results <- read.csv("/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Simulation/SeldonianSimulation/results/seldonian_sim_results.csv")
+#seldonian_results <- read.csv("/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Simulation/SeldonianSimulation/results/seldonian_sim_results.csv")
+seldonian_results <- read.csv("/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/seldonian_sim_results_old_copy.csv")
 seldonian_results <- distinct(seldonian_results) #remove duplicate rows
 glimpse(seldonian_results)
 ```
@@ -211,15 +212,15 @@ sim_results_converged_disc <- sim_results |>
 # table
 sim_results_converged_disc |>
   group_by(sample_size) |>
-  summarise(LR = round(100*mean(lr_discrimination, na.rm = TRUE),2),
+  summarise(LR = round(mean(lr_discrimination, na.rm = TRUE),2),
             sd_lr = round(sd(lr_discrimination, na.rm = TRUE),2),
-            `SA (0.2)` = round(100*mean(sa_02_disc_stat, na.rm = TRUE),2),
+            `SA (0.2)` = round(mean(sa_02_disc_stat, na.rm = TRUE),2),
             sd_02 = round(sd(sa_02_disc_stat, na.rm = TRUE),2),
-            `SA (0.1)` = round(100*mean(sa_01_disc_stat, na.rm = TRUE),2),
+            `SA (0.1)` = round(mean(sa_01_disc_stat, na.rm = TRUE),2),
             sd_01 = round(sd(sa_01_disc_stat, na.rm = TRUE),2),
-            `SA (0.05)` = round(100*mean(sa_005_disc_stat, na.rm = TRUE),2),
+            `SA (0.05)` = round(mean(sa_005_disc_stat, na.rm = TRUE),2),
             sd_005 = round(sd(sa_005_disc_stat, na.rm = TRUE),2),
-            `SA (0.01)` = round(100*mean(sa_001_disc_stat, na.rm = TRUE),2),
+            `SA (0.01)` = round(mean(sa_001_disc_stat, na.rm = TRUE),2),
             sd_001 = round(sd(sa_001_disc_stat, na.rm = TRUE),2)) |>
   rename("Sample Size" = sample_size,
          "sd" = sd_lr,
@@ -234,12 +235,24 @@ sim_results_converged_disc |>
 # table
 sim_results_converged_disc |>
   group_by(sample_size) |>
-  summarise(`SA (0.2)` = round(100*count(sa_02_disc_stat < 0.2)/count(passed_safety_02 == "True"),2),
-            `SA (0.1)` = round(100*count(sa_01_disc_stat < 0.1)/count(passed_safety_01 == "True"),2),
-            `SA (0.05)` = round(100*count(sa_005_disc_stat < 0.05)/count(passed_safety_005 == "True"),2),
-            `SA (0.01)` = round(100*count(sa_001_disc_stat < 0.01)/count(passed_safety_001 == "True"),2)) |>
+  summarise(`SA (0.2)` = round(100*count(sa_02_disc_stat <= 0.2)/count(passed_safety_02 == "True"),2),
+            `SA (0.1)` = round(100*count(sa_01_disc_stat <= 0.1)/count(passed_safety_01 == "True"),2),
+            `SA (0.05)` = round(100*count(sa_005_disc_stat <= 0.05)/count(passed_safety_005 == "True"),2),
+            `SA (0.01)` = round(100*count(sa_001_disc_stat <= 0.01)/count(passed_safety_001 == "True"),2)) |>
   rename("Sample Size" = sample_size) |>
   kable(caption = "Satisfaction of the Behavioral Constraint by Convergent Solutions")
+```
+
+```{r}
+# what % returned a solution and also met the constraint
+sim_results |>
+  group_by(sample_size) |>
+  summarise(`SA (0.2)` = 100*count(passed_safety_02 == "True" & sa_02_disc_stat <= 0.2)/reps,
+            `SA (0.1)` = 100*count(passed_safety_01 == "True" & sa_01_disc_stat <= 0.1)/reps,
+            `SA (0.05)` = 100*count(passed_safety_005 == "True" & sa_005_disc_stat <= 0.05)/reps,
+            `SA (0.01)` = 100*count(passed_safety_001 == "True" & sa_001_disc_stat <= 0.01)/reps) |>
+  rename("Sample Size" = sample_size) |>
+  kable(caption = "Probability of a Returning a Solution and Meeting the Satisfied Constraint")
 ```
 
 ## Visualizations 
@@ -380,20 +393,23 @@ accuracy_disc |>
 ```
 
 
-```{r, warning = FALSE, message = FALSE, fig.width = 8, fig.height = 6}
+```{r, warning = FALSE, message = FALSE, fig.width = 9, fig.height = 6}
 # plot error-bars by sample size
+color <- c("darkgreen", "red")
+
 accuracy_disc |> 
   group_by(model, statistic, `Sample Size`) |>
   summarise(avg = mean(value, na.rm = TRUE),
             se = sd(value, na.rm = TRUE)) |>
+  mutate(statistic = ifelse(statistic == "accuracy", "accuracy (higher is better)", "discrimination (lower is better)")) |>
   ggplot(mapping = aes(x = model, y = avg, color = statistic)) +
   geom_point() +
   geom_errorbar(mapping = aes(ymin = avg - se,
                               ymax = avg + se,
                               width = 0.2)) +
   theme_minimal() +
-  scale_color_manual(values = c("accuracy" = color[1],
-                                "discrimination" = color[2])) +
+  scale_color_manual(values = c("accuracy (higher is better)" = color[1],
+                                "discrimination (lower is better)" = color[2])) +
   scale_x_discrete(limits = c("LR", "SA (0.2)", "SA (0.1)", "SA (0.05)", "SA (0.01)")) +
   facet_wrap(~`Sample Size`) +
   labs(x = "Algorithm",
@@ -408,6 +424,18 @@ accuracy_disc |>
 This section examines whether there is a trade-off in the proportion of solutions that pass the safety test and the proportion of Seldonian solutions that satisfy the fairness constraint. I need to brainstorm better ways of visualizing this relationship.
 
 ```{r}
+# get long failure data for plotting
+sim_failure_long <- sim_results |>
+  group_by(sample_size) |>
+  summarise(`SA (0.2)` = 100*count(passed_safety_02 == "False")/reps,
+            `SA (0.1)` = 100*count(passed_safety_01 == "False")/reps,
+            `SA (0.05)` = 100*count(passed_safety_005 == "False")/reps,
+            `SA (0.01)` = 100*count(passed_safety_001 == "False")/reps) |>
+  pivot_longer(cols = -c(sample_size),
+               names_to = "model",
+               values_to = "prop_failed_safety") 
+
+
 # get long convergence data for plotting
 sim_converged_long <- sim_results |>
   group_by(sample_size) |>
@@ -420,12 +448,12 @@ sim_converged_long <- sim_results |>
                values_to = "prop_passed_safety")
 
 # get long discrimination data for plotting
-sim_satisfied_cstr_long <- sim_results_converged_disc |>
+sim_satisfied_cstr_long <- sim_results |>
   group_by(sample_size) |>
-  summarise(`SA (0.2)` = round(100*count(sa_02_disc_stat < 0.2)/count(passed_safety_02 == "True"),2),
-            `SA (0.1)` = round(100*count(sa_01_disc_stat < 0.1)/count(passed_safety_01 == "True"),2),
-            `SA (0.05)` = round(100*count(sa_005_disc_stat < 0.05)/count(passed_safety_005 == "True"),2),
-            `SA (0.01)` = round(100*count(sa_001_disc_stat < 0.01)/count(passed_safety_001 == "True"),2)) |>
+  summarise(`SA (0.2)` = 100*count(passed_safety_02 == "True" & sa_02_disc_stat <= 0.2)/reps,
+            `SA (0.1)` = 100*count(passed_safety_01 == "True" & sa_01_disc_stat <= 0.1)/reps,
+            `SA (0.05)` = 100*count(passed_safety_005 == "True" & sa_005_disc_stat <= 0.05)/reps,
+            `SA (0.01)` = 100*count(passed_safety_001 == "True" & sa_001_disc_stat <= 0.01)/reps) |>
   pivot_longer(cols = -c(sample_size),
                names_to = "model",
                values_to = "prop_passed_safety_satisfied_cstr")
@@ -433,14 +461,26 @@ sim_satisfied_cstr_long <- sim_results_converged_disc |>
 # join both data sets
 conv_disc <- inner_join(sim_converged_long, sim_satisfied_cstr_long,
                         by = c("sample_size", "model")) |>
+  mutate(prop_passed_safety = prop_passed_safety - prop_passed_safety_satisfied_cstr) |>
+  rename("prop_passed_safety_failed_cstr" = prop_passed_safety) |>
+  inner_join(sim_failure_long,
+             by = c("sample_size", "model")) |>
+  rename("failed safety test" = prop_failed_safety,
+         "passed safety test, didn't satisfy constraint" = prop_passed_safety_failed_cstr,
+         "passed safety test, satisfied constraint" = prop_passed_safety_satisfied_cstr) |>
   pivot_longer(cols = -c(sample_size, model),
                names_to = "statistic", 
-               values_to = "value")
+               values_to = "value") |>
+  mutate(sample_size = factor(case_when(sample_size == 500 ~ "n = 500",
+                                 sample_size == 1000 ~ "n = 1000",
+                                 sample_size == 2500 ~ "n = 2500",
+                                 sample_size == 5000 ~ "n = 5000"
+                                 ), 
+                              levels = c("n = 500", "n = 1000", "n = 2500", "n = 5000"))) 
 ```
 
-```{r, warning = FALSE, message = FALSE, fig.width = 5.5, fig.height = 3.5}
-# plot error-bars
-color <- c("darkgreen", "lightgreen")
+```{r, warning = FALSE, message = FALSE, fig.width = 6.5, fig.height = 3.5}
+# plot
 
 conv_disc |> 
   mutate(model = factor(model, 
@@ -448,28 +488,29 @@ conv_disc |>
   group_by(model, statistic) |>
   summarise(avg = mean(value, na.rm = TRUE)) |>
   ggplot(mapping = aes(x = model, y = avg, fill = statistic)) +
-  geom_col(position = position_dodge2()) +
+  geom_col() +
   theme_minimal() +
-  scale_fill_manual(values = c("prop_passed_safety" = color[1],
-                                "prop_passed_safety_satisfied_cstr" = color[2])) +
+  scale_fill_brewer(palette = "Blues") +
   labs(y = "Percentage",
-       x = "Algotithm")
+       x = "Algotithm",
+       title = "Probability of Returning a Solution and Satisfying the Constraint",
+       fill = " ")
 ```
 
 
 
 ```{r, warning = FALSE, message = FALSE, fig.width = 9, fig.height = 6}
 # plot
-color <- c("darkgreen", "lightgreen")
 
 conv_disc |> 
   mutate(model = factor(model, 
                         levels = c("SA (0.2)", "SA (0.1)", "SA (0.05)", "SA (0.01)"))) |>
-  ggplot(mapping = aes(x = model, y = value, fill = statistic)) +
-  geom_col(position = position_dodge2()) +
+  group_by(model, statistic, sample_size) |>
+  summarise(avg = mean(value, na.rm = TRUE)) |>
+  ggplot(mapping = aes(x = model, y = avg, fill = statistic)) +
+  geom_col() +
   theme_minimal() +
-  scale_fill_manual(values = c("prop_passed_safety" = color[1],
-                                "prop_passed_safety_satisfied_cstr" = color[2])) +
+  scale_fill_brewer(palette = "Blues") +
   facet_wrap(~sample_size) +
   labs(y = "Percentage",
        x = "Algotithm")
