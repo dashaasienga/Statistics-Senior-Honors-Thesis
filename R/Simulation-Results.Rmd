@@ -30,7 +30,7 @@ This file is intended to synthesize and analyze the results from the simulation.
 
 ## Logistic Regression
 
-The results data set has 200 observations for each of the simulation trials, 50 from each sample size: $n = 500, 1000, 2500, 5000$. 
+The results data set has 400 observations for each of the simulation trials, 100 from each sample size: $n = 500, 1000, 2500, 5000$. 
 
 ```{r}
 lr_500 <- read.csv("/home/dasienga24/Statistics-Senior-Honors-Thesis/R/Simulation/LogisticRegression/Results/lr_500.csv")
@@ -64,9 +64,8 @@ glimpse(logistic_results)
 The results data set has 200 observations for each of the simulation trials, 50 from each sample size: $n = 500, 1000, 2500, 5000$. 
 
 ```{r}
-#seldonian_results <- read.csv("/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Simulation/SeldonianSimulation/results/seldonian_sim_results.csv")
-seldonian_results <- read.csv("/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/seldonian_sim_results_old_copy.csv")
-seldonian_results <- distinct(seldonian_results) #remove duplicate rows
+seldonian_results <- read.csv("/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Simulation/SeldonianSimulation/results/seldonian_sim_results.csv")
+#seldonian_results <- read.csv("/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/seldonian_sim_results_old_copy.csv")
 glimpse(seldonian_results)
 ```
 
