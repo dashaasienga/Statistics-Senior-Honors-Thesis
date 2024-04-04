@@ -782,7 +782,7 @@ sim_results |>
   facet_grid(rows = vars(sample_size), cols = vars(epsilon)) +
   labs(x = "Passed Safety Test",
        y = "Logistic Regression Discrimination",
-       title = "Evaluating Logistic Regression Accuracy on the Data Sets by Seldonian Solutions",
+       title = "Evaluating Logistic Regression Discrimination on the Data Sets by Seldonian Solutions",
        color = "passed safety test")
   
 ```
