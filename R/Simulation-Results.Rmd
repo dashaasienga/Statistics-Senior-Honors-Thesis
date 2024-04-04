@@ -370,7 +370,7 @@ accuracy_disc <- inner_join(sim_results_converged_disc_long, sim_results_converg
 
 ```{r, warning = FALSE, message = FALSE, fig.width = 5.5, fig.height = 3.5}
 # plot error-bars
-color <- c("darkgreen", "red")
+color <- c("purple", "orange")
 
 accuracy_disc |> 
   group_by(model, statistic) |>
@@ -394,7 +394,7 @@ accuracy_disc |>
 
 ```{r, warning = FALSE, message = FALSE, fig.width = 9, fig.height = 6}
 # plot error-bars by sample size
-color <- c("darkgreen", "red")
+color <- c("purple", "orange")
 
 accuracy_disc |> 
   group_by(model, statistic, `Sample Size`) |>
