@@ -825,19 +825,19 @@ To offer a path forward in addressing this issue, this chapter aims to apply the
 \hypertarget{the-compas-data-set}{%
 \section{The COMPAS Data Set}\label{the-compas-data-set}}
 
-The COMPAS data set, obtained from the ProPublica Data Store (Broward County Clerk's Office, 2024), records information on defendants from Broward County, Florida, that were evaluated for the risk of recidivism by the Correctional Offender Management Profiling for Alternative Sanctions (COMPAS) tool in 2013 and 2014. A SQL query of the COMPAS database retrieved 12,160 observations (Appendix \ref{appendix-c}). Of 29 variables returned, 6 were identified to be useful for predictive analysis: age, age category, sex, marital status, whether the defendant had a history of juvenile offenses or not, and the total number of prior offenses committed by the defendant. The response variable records whether or not a defendant had recommitted a crime within two years. Finally, the protected attribute, race, has six levels: African-American, Caucasian, Hispanic, Asian, Native American, and Other.
+The COMPAS data set, obtained from the ProPublica Data Store (Broward County Clerk's Office, Broward County Sherrif's Office, Florida Department of Corrections \& ProPublica, 2024), records information on defendants from Broward County, Florida, that were evaluated for the risk of recidivism by the Correctional Offender Management Profiling for Alternative Sanctions (COMPAS) tool in 2013 and 2014. A SQL query of the COMPAS database retrieved 12,160 observations (Appendix \ref{appendix-c}). Of 29 variables returned, 6 were identified to be useful for predictive analysis: age, age category, sex, marital status, whether the defendant had a history of juvenile offenses or not, and the total number of prior offenses committed by the defendant. The response variable records whether or not a defendant had recommitted a crime within two years. Finally, the protected attribute, race, has six levels: African-American, Caucasian, Hispanic, Asian, Native American, and Other.
 
 Additionally, the COMPAS tool itself maps its raw scores into decile scores ranging from 1 to 10. The decile scores are directly associated with the risk of recidivism: scores between 1 and 4 are labeled as `low' risk, between 5 and 7 as `medium' risk, and between 8 and 10 as `high risk'. After cleaning the data to address anomalies, improve the data quality, and remove duplicate observations, the data set size was reduced to 9387 observations. Section \ref{descriptivestats} examines these variables in more detail and their relationships with each other.
 
-Before proceeding with the analysis, it is crucial to consider that while the recidivism status, as recorded by the response variable, is treated as an objective gold standard truth of whether a defendant reoffended or not for the rest of this thesis, it is, in itself, likely biased by societal factors. For example, police officers are more likely to arrest Black defendants than White defendants for the same offense, and judges are more likely to convict Black defendants than White defendants for the same charges. While it is tangential to the theoretical underpinnings of the work in the proceeding sections, this context is, overall, important when applying mathematical, statistical, and computer science solutions to addressing algorithmic bias.
+Before proceeding with the analysis, it is crucial to consider that while the recidivism status, as recorded by the response variable, is treated as an objective gold standard truth of whether a defendant reoffended or not for the rest of this thesis, it is, in itself, likely biased by societal factors. For example, police officers are more likely to arrest Black defendants than White defendants for the same offense, and judges are more likely to convict and grant lengthier sentences to Black defendants than White defendants for the same charges (The Sentencing Project, 2018). While it is tangential to the theoretical underpinnings of the work in the proceeding sections, this context is, overall, important when applying mathematical, statistical, and computer science solutions to addressing algorithmic bias.
 
 \hypertarget{descriptivestats}{%
 \section{Descriptive Statistics}\label{descriptivestats}}
 
-This section presents a holistic exploratory analysis of the COMPAS data set. The defendants' ages range from 18 to 96, with a median of 32 years and a mean of 34.75 years. There is a right skew, with the middle 50\% of the defendants being between the ages of 25 and 42. Similarly, the variable recording the number of prior offenses has a significant right skew with a median of 1 offense and a mean of 3.02 offenses. The middle 50\% of the defendants have committed between 0 and 4 offenses, and the defendant with the most prior offenses has committed 38 crimes.
+This section presents a holistic exploratory analysis of the COMPAS data set. The defendants' ages range from 18 to 96, with a median of 32 years and a mean of 34.8 years. There is a right skew, with the middle 50\% of the defendants being between the ages of 25 and 42. Similarly, the number of prior offenses has a significant right skew with a median of 1 offense and a mean of 3 offenses. The middle 50\% of the defendants have committed between 0 and 4 offenses, and the defendant with the most prior offenses has been convicted of committing 38 crimes.
 
-Of the 9387 total observations of defendants from Broward County, Florida, in 2013 and 2014, 79.44\% were male and the remaining 20.56\% were female. 21.4\% are \textless{} 25 years old, 57.16\% are between 25 and 45 years old, and
-21.43\% are \textgreater{} 45 years old. The majority of defendants are single (76.72\%), with the next largest categories being married (12.12\%) and divorced (4.24\%). The other levels were significant other, separated, unknown, and widowed, respectively. Finally, 87.93\% of defendants had no record of juvenile offenses. The remaining 12.07\% ranged from having 1 offense to 21 offenses on record, with a median of 1, a mean of 1.96, and the middle 50\% recording 1 or 2 offenses.
+Of the 9387 total defendants from Broward County, Florida, in 2013 and 2014, 79.4\% were male. About 21.4\% are \textless{} 25 years old, 57.2\% are between 25 and 45 years old, and
+21.4\% are \textgreater{} 45 years old. The majority of defendants are single (76.7\%), with the next largest categories being married (12.1\%) and divorced (4.2\%). The other levels were significant other, separated, unknown, and widowed, respectively. Finally, 87.9\% of defendants had no record of juvenile offenses. The remaining 12.1\% ranged from having 1 juvenile offense to 21 juvenile offenses on record, with a median of 1, a mean of 1.96, and the middle 50\% recording 1 or 2 offenses.
 
 \hypertarget{response}{%
 \subsection{Response Variable}\label{response}}
@@ -847,14 +847,14 @@ The response variable records whether or not a defendant recommitted any crime w
 \hypertarget{protectedattribute}{%
 \subsection{Protected Attribute}\label{protectedattribute}}
 
-Finally, the protected attribute in this analysis is race. Most of the defendants are African-American (49.79\%) and Caucasian (34.62\%), with only 8.71\% Hispanic, 0.51\% Asian, and finally, 0.29\% Native American. The remaining 6.07\% of defendants identify as `Other'.
+Finally, the protected attribute in this analysis is race. Most of the defendants are African-American (49.8\%) and Caucasian (34.6\%), with only 8.7\% Hispanic, 0.5\% Asian, and finally, 0.3\% Native American. The remaining 6.1\% of defendants identify as `Other'.
 
 \hypertarget{bivariateanalysis}{%
 \subsection{Associations Between the Predictors and Response}\label{bivariateanalysis}}
 
 With a thorough understanding of the variables, this section examines the relationship between the predictive variables and the response variable, recidivism.
 
-Defendants who recidivated tended to be younger than than those who didn't (median age 29 versus 33, mean age 32 versus 36, respectively; Figure \ref{fig:ch3fig5}A). Defendants who recidivated also tended to have more non-juvenile prior offenses than those who didn't recidivate (median prior offenses 3 versus 1, mean prior offenses 4.7 versus 2.2, respectively; Figure \ref{fig:ch3fig5}B).
+Defendants who recidivated tended to be younger than than those who didn't (median age 29 versus 33, respectively; Figure \ref{fig:ch3fig5}A and \ref{fig:ch3fig6}A). Defendants who recidivated also tended to have more non-juvenile prior offenses than those who didn't recidivate (median prior offenses 3 versus 1, respectively; Figure \ref{fig:ch3fig5}B).
 \begin{figure}
 
 {\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/ch3fig5-1} 
@@ -863,7 +863,7 @@ Defendants who recidivated tended to be younger than than those who didn't (medi
 
 \caption{Distribution of Age (panel A) and Number of Prior Offenses (panel B) by Recidivism Status among 9,387 Defandants in Broward County Florida, 2013-2014}\label{fig:ch3fig5}
 \end{figure}
-Sex and marital status were similar between defendants who did and did not recidivate. Additionally, while most defendants do not have juvenile offenses, the proportion of those who do not to those who do is much smaller for defendants who re-offend in comparison to those who do not. Figure \ref{fig:ch3fig6} displays the significant relationships.
+Sex and marital status were similar between defendants who did and did not recidivate. Defendants who recidivated were more likely to have had a juvenile offense, although the vast majority of defendants in both cases had no juvenile offenses (Figure \ref{fig:ch3fig6}B).
 \begin{figure}
 
 {\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/ch3fig6-1} 
@@ -875,7 +875,7 @@ Sex and marital status were similar between defendants who did and did not recid
 \hypertarget{multivariate-analysis}{%
 \subsection{Multivariate Analysis}\label{multivariate-analysis}}
 
-As detailed in Section \ref{bivariateanalysis}, some predictive variables have a covariate relationship with the response variable, recidivism. A scatterplot matrix examining the relationship between the continuous variables, age and prior offenses, revealed weak correlations (Spearman's rho: \(\rho = 0.12\)) and nonlinear relationships. There are no significant concerns for multicollinearity. Figure \ref{fig:ch3fig7} illustrates this using Spearman's correlation. In addition, the correlation matrix incorporates the COMPAS tool decile scores to examine the predictive relationship between the continuous variables and the COMPAS tool results. Spearman's correlation revealed a moderate relationship of \(\rho = -0.44\) and \(\rho = 0.44\) for age and prior offenses, respectively.
+As detailed in Section \ref{bivariateanalysis}, some predictive variables are associated with the response variable, recidivism. A scatterplot matrix examining the relationship between the continuous variables, age and prior offenses, revealed weak correlations (Spearman's rho: \(\rho = 0.12\)) and nonlinear relationships. There are no significant concerns for multicollinearity. Figure \ref{fig:ch3fig7} illustrates this using Spearman's correlation. In addition, the correlation matrix incorporates the COMPAS tool decile scores to examine the predictive relationship between the continuous variables and the COMPAS tool results. Spearman's correlation revealed a moderate relationship of \(\rho = -0.44\) and \(\rho = 0.44\) for age and prior offenses, respectively.
 \begin{figure}
 
 {\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/ch3fig7-1} 
@@ -894,7 +894,7 @@ Chapter \ref{algbias} introduced algorithmic bias as a situation when an algorit
 \hypertarget{comptoolanalysis}{%
 \subsection{COMPAS Tool Analysis}\label{comptoolanalysis}}
 
-Recall that COMPAS decile scores of 1 to 4 are mapped as `low' risk, 5 to 7 as `medium' risk, and 8 to 10 as `high' risk. The median decile score for the entire data set is four, and Figure \ref{fig:ch3fig8} illustrates that the COMPAS tool classifies more than half of the defendants as low risk. In particular, the tool classifies 57.21\% as low risk and 17.87\% as high risk, with the remaining 24.93\% as medium risk. These predictions align with expectations since most defendants did not recommit a crime within the two-year time window, as observed in Section \ref{response}.
+Recall that COMPAS decile scores of 1 to 4 are mapped as `low' risk, 5 to 7 as `medium' risk, and 8 to 10 as `high' risk. The median decile score for the entire data set is four, and Figure \ref{fig:ch3fig8} illustrates that the COMPAS tool classifies more than half of the defendants as low risk. In particular, the tool classifies 57.2\% as low risk and 17.9\% as high risk, with the remaining 24.9\% as medium risk. These predictions align with expectations since most defendants did not recommit a crime within the two-year time window, as observed in Section \ref{response}.
 \begin{figure}
 
 {\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/ch3fig8-1} 
@@ -919,7 +919,7 @@ Table \ref{tab:ch3table1} displays the confusion matrix of the COMPAS tool's res
 Notice, furthermore, that the model struggles more in predicting whether defendants will reoffend than in predicting whether defendants will not reoffend. This imbalance in error rates is expected because of the class imbalance observed when performing exploratory data analysis in Section \ref{descriptivestats} -- most defendants do not reoffend, so the model maximizes performance for those defendants. In terms of proportions, 49.25\% of defendants who reoffended are incorrectly labeled as lower risk (almost equivalent to a flip of a coin), compared to 25.23\% of defendants who did not reoffend but are incorrectly labeled as higher risk. This also raises the question of what type of prediction is more important: the risk of recidivism or the risk of non-recidivism. Is wrongly attributing a defendant as higher risk or wrongly attributing a defendant as lower risk worse for society?
 \begin{table}
 
-\caption{\label{tab:ch3table1}The Percent of Defendants who were Labeled Higher/Lower Risk by the COMPAS Tool Stratified by Recidivism Status among 9,387 Defandants in Broward County Florida, 2013-2014}
+\caption{\label{tab:ch3table1}The Number of Defendants who were Labeled Higher/Lower Risk by the COMPAS Tool Stratified by Recidivism Status among 9,387 Defandants in Broward County Florida, 2013-2014}
 \centering
 \begin{tabular}[t]{lrr}
 \toprule
@@ -1075,7 +1075,7 @@ P\{abs[(FPR | \text{Black} - FPR | \text{White}) + (FNR | \text{White} - FNR | \
 \hypertarget{evaluating-performance-and-fairness}{%
 \subsection{Evaluating Performance and Fairness}\label{evaluating-performance-and-fairness}}
 
-A solution that passed the safety test was obtained for all four values of \(\epsilon\), although as \(\epsilon\) got smaller, the logistic loss increased, and the overall accuracy decreased. The accuracy was 68.2\%, 65.59\%, 64.7\%, and 64.4\% respectively for \(\epsilon = 0.2, 0.1, 0.05, 0.01\). Additionally, the models got progressively worse in correctly classifying observations into the positive class, with the final model classifying every observation into the negative class. Each model had higher overall FNR and lower overall FPR than both the COMPAS tool and the logistic regression model. Tables \ref{tab:ch3table5}, \ref{tab:ch3table6}, \ref{tab:ch3table7}, and \ref{tab:ch3table8} break up the FPR and FNR for Black and White defendants in each of these four cases. When \(\epsilon = 0.2, 0.1, 0.05, \text{and } 0.01\), note that \(d(\theta) = 0.22, 0.06, 0.007, \text{and } 0\) respectively.
+A solution that passed the safety test was obtained for all four values of \(\epsilon\). However, as \(\epsilon\) got smaller, the logistic loss increased, and the overall accuracy decreased. The accuracy was 68.2\%, 65.59\%, 64.7\%, and 64.4\% respectively for \(\epsilon = 0.2, 0.1, 0.05, 0.01\). Additionally, the models got progressively worse in correctly classifying observations into the positive class, with the final model classifying every observation into the negative class. Each model had higher overall FNR and lower overall FPR than both the COMPAS tool and the logistic regression model. Tables \ref{tab:ch3table5}, \ref{tab:ch3table6}, \ref{tab:ch3table7}, and \ref{tab:ch3table8} break up the FPR and FNR for Black and White defendants in each of these four cases. When \(\epsilon = 0.2, 0.1, 0.05, \text{and } 0.01\), note that \(d(\theta) = 0.22, 0.06, 0.007, \text{and } 0\) respectively.
 \begin{table}
 
 \caption{\label{tab:ch3table5}The Percent of Defendants who were Incorrectly Labeled Higher/Lower Risk by a Seldonian Algorithm ($\epsilon$ = 0.2) Stratified by Recidivism Status and Race among 9,387 Defandants in Broward County Florida, 2013-2014}
@@ -1159,7 +1159,7 @@ To achieve better predictive performance, a linear combination of age and prior 
 
 The parent simulation data set, thus, contains 5000 observations, achieves perfect class balance, and has a baseline logistic regression accuracy of 77.96\%. This offers a realistic improvement from the accuracy of 70.2\% obtained from the COMPAS logistic regression. However, because of the class balance, the lowest achievable accuracy is now 50\% (a random/ coin-flip model) rather than 64.4\%. This will allow more room for the Seldonian algorithm model accuracies to vary.
 
-Two hundred total data sets of size \(n = 500\), \(n = 1000\), \(n = 2500\), and \(n = 5000\) will be sampled, with replacement, from this parent data set for the simulation study, with 50 data sets in each of the four partitions.
+One thousand total data sets of size \(n = 500\), \(n = 1000\), \(n = 2500\), and \(n = 5000\) will be sampled, with replacement, from this parent data set for the simulation study, with 250 data sets in each of the four partitions.
 
 \hypertarget{target}{%
 \subsection{Target}\label{target}}
@@ -1171,7 +1171,7 @@ The target of this simulation study is prediction, that is, to evaluate Seldonia
 
 Because the Seldonian framework was designed to place probabilistic fairness constraints on traditional algorithms, solutions produced by Seldonian algorithms will be compared to those produced through the standard ML framework, specifically logistic regression, to assess the predictive performance and feasibility of the Seldonian framework.
 
-Simulated data sets will be generated independently before being fed into both algorithms. The relevant performance measures, as detailed in Section \ref{performancemeasures}, will be recorded for each trial. Fifty trials will be run for each sample size as described in Section \ref{data-gen}. The code will be run in Python using the Rstudio software interface and the Amherst College High-Performance Computing System. The \texttt{seldonian} package is readily available for installation in Python and is equipped with functions that allow for the implementation of Seldonian algorithms. Other Python packages, such as \texttt{pandas}, \texttt{numpy}, and \texttt{sklearn}, will help conduct the rest of the simulation study.
+Simulated data sets will be generated independently before being fed into both algorithms. The relevant performance measures, as detailed in Section \ref{performancemeasures}, will be recorded for each trial. Two hundred and fifty trials will be run for each sample size as described in Section \ref{data-gen}. The code will be run in Python using the Rstudio software interface and the Amherst College High-Performance Computing System. The \texttt{seldonian} package is readily available for installation in Python and is equipped with functions that allow for the implementation of Seldonian algorithms. Other Python packages, such as \texttt{pandas}, \texttt{numpy}, and \texttt{sklearn}, will help conduct the rest of the simulation study.
 
 \hypertarget{performancemeasures}{%
 \subsection{Performance Measures}\label{performancemeasures}}
@@ -2507,7 +2507,7 @@ Asimov, I. (1994). \emph{Forward the foundation} (Vol. 7). Spectra.
 Boyd, S. P., \& Vandenberghe, L. (2004). \emph{Convex optimization}. Cambridge university press.
 
 \leavevmode\vadjust pre{\hypertarget{ref-compasdata}{}}%
-Broward County Clerk's Office, F. D. of C., Broward County Sherrif's Office. (2024). {COMPAS Recidivism Risk Score Data} {[}Data set{]}. ProPublica Data Store. Retrieved from \url{https://www.propublica.org/datastore/dataset/compas-recidivism-risk-score-data-and-analysis}
+Broward County Clerk's Office, Broward County Sherrif's Office, Florida Department of Corrections, \& ProPublica. (2024). {COMPAS Recidivism Risk Score Data} {[}Data set{]}. ProPublica Data Store. Retrieved from \url{https://www.propublica.org/datastore/dataset/compas-recidivism-risk-score-data-and-analysis}
 
 \leavevmode\vadjust pre{\hypertarget{ref-castelnovo2022clarification}{}}%
 Castelnovo, A., Crupi, R., Greco, G., Regoli, D., Penco, I. G., \& Cosentini, A. C. (2022). A clarification of the nuances in the fairness metrics landscape. \emph{Scientific Reports}, \emph{12}(1), 4209.
@@ -2535,6 +2535,9 @@ Saeed, S., Alireza, B., Mohamed, E., \& Ahmed, N. (2015). Evidence based emergen
 
 \leavevmode\vadjust pre{\hypertarget{ref-DVNux2fO35FW8_2019}{}}%
 Silva, B. C. da. (2019). {UFRGS Entrance Exam and GPA Data} (Version V2) {[}Data set{]}. Harvard Dataverse. http://doi.org/\href{https://doi.org/10.7910/DVN/O35FW8}{10.7910/DVN/O35FW8}
+
+\leavevmode\vadjust pre{\hypertarget{ref-sentencingproject}{}}%
+The Sentencing Project. (2018). Report to the united nations on racial disparities in the u.s. Criminal justice system. Retrieved from \url{https://www.sentencingproject.org/reports/report-to-the-united-nations-on-racial-disparities-in-the-u-s-criminal-justice-system/}
 
 \leavevmode\vadjust pre{\hypertarget{ref-thomas2020housetestimony}{}}%
 Thomas, P. (2020). Testimony to the house committee on financial services task force on artificial intelligence hearing: {``Equitable algorithms: Examining ways to reduce AI bias in financial services.''} Retrieved from \url{https://www.congress.gov/116/meeting/house/110499/witnesses/HHRG-116-BA00-Wstate-ThomasP-20200212.pdf}

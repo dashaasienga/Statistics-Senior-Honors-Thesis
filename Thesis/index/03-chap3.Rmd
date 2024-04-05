@@ -45,11 +45,11 @@ The COMPAS data set, obtained from the ProPublica Data Store [@compasdata], reco
 
 Additionally, the COMPAS tool itself maps its raw scores into decile scores ranging from 1 to 10. The decile scores are directly associated with the risk of recidivism: scores between 1 and 4 are labeled as 'low' risk, between 5 and 7 as 'medium' risk, and between 8 and 10 as 'high risk'. After cleaning the data to address anomalies, improve the data quality, and remove duplicate observations, the data set size was reduced to 9387 observations. Section \@ref(descriptivestats) examines these variables in more detail and their relationships with each other.
 
-Before proceeding with the analysis, it is crucial to consider that while the recidivism status, as recorded by the response variable, is treated as an objective gold standard truth of whether a defendant reoffended or not for the rest of this thesis, it is, in itself, likely biased by societal factors. For example, police officers are more likely to arrest Black defendants than White defendants for the same offense, and judges are more likely to convict Black defendants than White defendants for the same charges. While it is tangential to the theoretical underpinnings of the work in the proceeding sections, this context is, overall, important when applying mathematical, statistical, and computer science solutions to addressing algorithmic bias.
+Before proceeding with the analysis, it is crucial to consider that while the recidivism status, as recorded by the response variable, is treated as an objective gold standard truth of whether a defendant reoffended or not for the rest of this thesis, it is, in itself, likely biased by societal factors. For example, police officers are more likely to arrest Black defendants than White defendants for the same offense, and judges are more likely to convict and grant lengthier sentences to Black defendants than White defendants for the same charges [@sentencingproject]. While it is tangential to the theoretical underpinnings of the work in the proceeding sections, this context is, overall, important when applying mathematical, statistical, and computer science solutions to addressing algorithmic bias.
 
 ## Descriptive Statistics {#descriptivestats}
 
-This section presents a holistic exploratory analysis of the COMPAS data set. The defendants' ages range from 18 to 96, with a median of 32 years and a mean of 34.75 years. There is a right skew, with the middle 50% of the defendants being between the ages of 25 and 42. Similarly, the variable recording the number of prior offenses has a significant right skew with a median of 1 offense and a mean of 3.02 offenses. The middle 50% of the defendants have committed between 0 and 4 offenses, and the defendant with the most prior offenses has committed 38 crimes. 
+This section presents a holistic exploratory analysis of the COMPAS data set. The defendants' ages range from 18 to 96, with a median of 32 years and a mean of 34.8 years. There is a right skew, with the middle 50% of the defendants being between the ages of 25 and 42. Similarly, the number of prior offenses has a significant right skew with a median of 1 offense and a mean of 3 offenses. The middle 50% of the defendants have committed between 0 and 4 offenses, and the defendant with the most prior offenses has been convicted of committing 38 crimes. 
 
 ```{r ch3fig1, fig.align='center', fig.cap="Distribution of the COMPAS Continuous Variables", warning = FALSE, message = FALSE, fig.width = 6, fig.height = 3, include = FALSE}
 g1 <- ggplot(data = clean_compasdata, mapping = aes(x = age)) +
@@ -74,8 +74,8 @@ clean_compasdata <- clean_compasdata %>%
          juv_offense = ifelse(juv_offense_count == 0, 0, 1))
 ```
 
-Of the 9387 total observations of defendants from Broward County, Florida, in 2013 and 2014, `r round(100*count(clean_compasdata$sex == "Male")/nrow(clean_compasdata),2)`% were male and the remaining `r round(100*count(clean_compasdata$sex == "Female")/nrow(clean_compasdata),2)`% were female. `r round(100*count(clean_compasdata$age_cat == "Less than 25")/nrow(clean_compasdata),2)`% are < 25 years old, `r round(100*count(clean_compasdata$age_cat == "25 - 45")/nrow(clean_compasdata),2)`% are between 25 and 45 years old, and 
-`r round(100*count(clean_compasdata$age_cat == "Greater than 45")/nrow(clean_compasdata),2)`% are > 45 years old. The majority of defendants are single (`r round(100*count(clean_compasdata$marital_status == "Single")/nrow(clean_compasdata),2)`%), with the next largest categories being married (`r round(100*count(clean_compasdata$marital_status == "Married")/nrow(clean_compasdata),2)`%) and divorced (`r round(100*count(clean_compasdata$marital_status == "Divorced")/nrow(clean_compasdata),2)`%). The other levels were significant other, separated, unknown, and widowed, respectively. Finally, `r round(100*count(clean_compasdata$juv_offense == 0)/nrow(clean_compasdata),2)`% of defendants had no record of juvenile offenses. The remaining `r round(100*count(clean_compasdata$juv_offense == 1)/nrow(clean_compasdata),2)`% ranged from having 1 offense to 21 offenses on record, with a median of 1, a mean of 1.96, and the middle 50% recording 1 or 2 offenses.  
+Of the 9387 total defendants from Broward County, Florida, in 2013 and 2014, `r round(100*count(clean_compasdata$sex == "Male")/nrow(clean_compasdata),1)`% were male. About `r round(100*count(clean_compasdata$age_cat == "Less than 25")/nrow(clean_compasdata),1)`% are < 25 years old, `r round(100*count(clean_compasdata$age_cat == "25 - 45")/nrow(clean_compasdata),1)`% are between 25 and 45 years old, and 
+`r round(100*count(clean_compasdata$age_cat == "Greater than 45")/nrow(clean_compasdata),1)`% are > 45 years old. The majority of defendants are single (`r round(100*count(clean_compasdata$marital_status == "Single")/nrow(clean_compasdata),1)`%), with the next largest categories being married (`r round(100*count(clean_compasdata$marital_status == "Married")/nrow(clean_compasdata),1)`%) and divorced (`r round(100*count(clean_compasdata$marital_status == "Divorced")/nrow(clean_compasdata),1)`%). The other levels were significant other, separated, unknown, and widowed, respectively. Finally, `r round(100*count(clean_compasdata$juv_offense == 0)/nrow(clean_compasdata),1)`% of defendants had no record of juvenile offenses. The remaining `r round(100*count(clean_compasdata$juv_offense == 1)/nrow(clean_compasdata),1)`% ranged from having 1 juvenile offense to 21 juvenile offenses on record, with a median of 1, a mean of 1.96, and the middle 50% recording 1 or 2 offenses.  
 
 
 ```{r ch3fig2, fig.align='center', fig.cap="Distribution of the COMPAS Categorical Variables", warning = FALSE, message = FALSE, fig.width = 6, fig.height = 6, include = FALSE}
@@ -135,7 +135,7 @@ ggplot(mapping = aes(x = is_recid)) +
 
 ### Protected Attribute {#protectedattribute}
 
-Finally, the protected attribute in this analysis is race. Most of the defendants are African-American (`r round(100*count(clean_compasdata$race == "African-American")/nrow(clean_compasdata),2)`%) and Caucasian (`r round(100*count(clean_compasdata$race == "Caucasian")/nrow(clean_compasdata),2)`%), with only `r round(100*count(clean_compasdata$race == "Hispanic")/nrow(clean_compasdata),2)`% Hispanic, `r round(100*count(clean_compasdata$race == "Asian")/nrow(clean_compasdata),2)`% Asian, and finally, `r round(100*count(clean_compasdata$race == "Native American")/nrow(clean_compasdata),2)`% Native American. The remaining `r round(100*count(clean_compasdata$race == "Other")/nrow(clean_compasdata),2)`% of defendants identify as 'Other'. 
+Finally, the protected attribute in this analysis is race. Most of the defendants are African-American (`r round(100*count(clean_compasdata$race == "African-American")/nrow(clean_compasdata),1)`%) and Caucasian (`r round(100*count(clean_compasdata$race == "Caucasian")/nrow(clean_compasdata),1)`%), with only `r round(100*count(clean_compasdata$race == "Hispanic")/nrow(clean_compasdata),1)`% Hispanic, `r round(100*count(clean_compasdata$race == "Asian")/nrow(clean_compasdata),1)`% Asian, and finally, `r round(100*count(clean_compasdata$race == "Native American")/nrow(clean_compasdata),1)`% Native American. The remaining `r round(100*count(clean_compasdata$race == "Other")/nrow(clean_compasdata),1)`% of defendants identify as 'Other'. 
 
 
 ```{r ch3fig4, fig.align='center', fig.cap="Distribution of the COMPAS Protected Attribute: Race", warning = FALSE, message = FALSE, fig.width = 4.5, fig.height = 2.5, include = FALSE}
@@ -151,7 +151,7 @@ ggplot(data = clean_compasdata, mapping = aes(x = race)) +
 
 With a thorough understanding of the variables, this section examines the relationship between the predictive variables and the response variable, recidivism.
 
-Defendants who recidivated tended to be younger than than those who didn't (median age 29 versus 33, mean age 32 versus 36, respectively; Figure \@ref(fig:ch3fig5)A). Defendants who recidivated also tended to have more non-juvenile prior offenses than those who didn't recidivate (median prior offenses 3 versus 1, mean prior offenses 4.7 versus 2.2, respectively; Figure \@ref(fig:ch3fig5)B).
+Defendants who recidivated tended to be younger than than those who didn't (median age 29 versus 33, respectively; Figure \@ref(fig:ch3fig5)A and \@ref(fig:ch3fig6)A). Defendants who recidivated also tended to have more non-juvenile prior offenses than those who didn't recidivate (median prior offenses 3 versus 1, respectively; Figure \@ref(fig:ch3fig5)B).
 
 ```{r ch3fig5, fig.align='center', fig.cap="Distribution of Age (panel A) and Number of Prior Offenses (panel B) by Recidivism Status among 9,387 Defandants in Broward County Florida, 2013-2014", warning = FALSE, message = FALSE, fig.width = 6, fig.height = 3, echo = FALSE}
 
@@ -176,7 +176,7 @@ g8 <- clean_compasdata %>%
 grid.arrange(g7, g8, nrow = 1)
 ```
 
-Sex and marital status were similar between defendants who did and did not recidivate. Additionally, while most defendants do not have juvenile offenses, the proportion of those who do not to those who do is much smaller for defendants who re-offend in comparison to those who do not. Figure \@ref(fig:ch3fig6) displays the significant relationships.
+Sex and marital status were similar between defendants who did and did not recidivate. Defendants who recidivated were more likely to have had a juvenile offense, although the vast majority of defendants in both cases had no juvenile offenses (Figure \@ref(fig:ch3fig6)B).
 
 ```{r ch3fig6, fig.align='center', fig.cap="Conditional Distribution of Age (panel A) and Juvenile Offense (panel B) by Recidivism Status among 9,387 Defandants in Broward County Florida, 2013-2014", warning = FALSE, message = FALSE, fig.width = 4.5, fig.height = 4.5, echo = FALSE}
 g9 <- ggplot(data = clean_compasdata, mapping = aes(x = sex, fill = sex)) +
@@ -226,6 +226,7 @@ g12 <- clean_compasdata %>%
 new1 <- ggplot(data = clean_compasdata, 
                mapping = aes(x = as.factor(is_recid), fill = age_cat)) +
   geom_bar(position = "fill") +
+  scale_y_continuous(labels = scales::percent) +
   theme_minimal() +
   labs(title = "(A)",
        x = "Recidivism Status",
@@ -238,6 +239,7 @@ new2 <- clean_compasdata %>%
          juv_offense = factor(juv_offense, levels = c("Yes", "No"))) %>%
   ggplot(mapping = aes(x = as.factor(is_recid), fill = juv_offense)) +
   geom_bar(position = "fill") +
+  scale_y_continuous(labels = scales::percent) +
   theme_minimal() +
   labs(title = "(B)",
        x = "Recidivism Status",
@@ -257,7 +259,7 @@ compas_final <- clean_compasdata %>%
 ```
 
 
-As detailed in Section \@ref(bivariateanalysis), some predictive variables have a covariate relationship with the response variable, recidivism. A scatterplot matrix examining the relationship between the continuous variables, age and prior offenses, revealed weak correlations (Spearman's rho: $\rho = 0.12$) and nonlinear relationships. There are no significant concerns for multicollinearity. Figure \@ref(fig:ch3fig7) illustrates this using Spearman's correlation. In addition, the correlation matrix incorporates the COMPAS tool decile scores to examine the predictive relationship between the continuous variables and the COMPAS tool results. Spearman's correlation revealed a moderate relationship of $\rho = -0.44$ and $\rho = 0.44$ for age and prior offenses, respectively.
+As detailed in Section \@ref(bivariateanalysis), some predictive variables are associated with  the response variable, recidivism. A scatterplot matrix examining the relationship between the continuous variables, age and prior offenses, revealed weak correlations (Spearman's rho: $\rho = 0.12$) and nonlinear relationships. There are no significant concerns for multicollinearity. Figure \@ref(fig:ch3fig7) illustrates this using Spearman's correlation. In addition, the correlation matrix incorporates the COMPAS tool decile scores to examine the predictive relationship between the continuous variables and the COMPAS tool results. Spearman's correlation revealed a moderate relationship of $\rho = -0.44$ and $\rho = 0.44$ for age and prior offenses, respectively.
 
 ```{r ch3fig7, fig.align='center', fig.cap="Spearman's Correlation Matrix for Age, Number of Prior Offenses, and the COMPAS Tool Decile Scores", warning = FALSE, message = FALSE, fig.width = 4.5, fig.height = 3, echo = FALSE}
 mycordata3 <- compas_final %>%
@@ -272,8 +274,7 @@ mycorplot <- melt(mycors)
 ggplot(data = mycorplot, aes(x = Var1, y = Var2, fill = value)) +
   geom_tile() +
   labs(x = "",
-       y = "",
-       title = "Spearman's Correlation Matrix") +
+       y = "") +
   scale_fill_gradient2(
     low = "blue",
     high = "red",
@@ -299,7 +300,7 @@ Chapter \@ref(algbias) introduced algorithmic bias as a situation when an algori
 
 ### COMPAS Tool Analysis {#comptoolanalysis}
 
-Recall that COMPAS decile scores of 1 to 4 are mapped as 'low' risk, 5 to 7 as 'medium' risk, and 8 to 10 as 'high' risk. The median decile score for the entire data set is four, and Figure \@ref(fig:ch3fig8) illustrates that the COMPAS tool classifies more than half of the defendants as low risk. In particular, the tool classifies `r round(100*count(clean_compasdata$score_text == "Low")/nrow(clean_compasdata),2)`% as low risk and `r round(100*count(clean_compasdata$score_text == "High")/nrow(clean_compasdata),2)`% as high risk, with the remaining `r round(100*count(clean_compasdata$score_text == "Medium")/nrow(clean_compasdata),2)`% as medium risk. These predictions align with expectations since most defendants did not recommit a crime within the two-year time window, as observed in Section \@ref(response). 
+Recall that COMPAS decile scores of 1 to 4 are mapped as 'low' risk, 5 to 7 as 'medium' risk, and 8 to 10 as 'high' risk. The median decile score for the entire data set is four, and Figure \@ref(fig:ch3fig8) illustrates that the COMPAS tool classifies more than half of the defendants as low risk. In particular, the tool classifies `r round(100*count(clean_compasdata$score_text == "Low")/nrow(clean_compasdata),1)`% as low risk and `r round(100*count(clean_compasdata$score_text == "High")/nrow(clean_compasdata),1)`% as high risk, with the remaining `r round(100*count(clean_compasdata$score_text == "Medium")/nrow(clean_compasdata),1)`% as medium risk. These predictions align with expectations since most defendants did not recommit a crime within the two-year time window, as observed in Section \@ref(response). 
 
 
 ```{r ch3fig8, fig.align='center', fig.cap="Distribution of COMPAS Tool Decile Scores among 9,387 Defandants in Broward County Florida, 2013-2014", warning = FALSE, message = FALSE, fig.width = 6, fig.height = 3, echo = FALSE}
@@ -319,7 +320,6 @@ g15 <- ggplot(data = clean_compasdata, mapping = aes(x = as.factor(decile_score)
   geom_bar() +
   theme_minimal() +
   labs(x = "COMPAS Decile Score",
-       title = "Decile Scores in the COMPAS Data Set",
        y = "Number of Defendants",
        fill = "COMPAS Risk Prediction") +
   scale_fill_manual(values = c("Low" = "darkgreen",
@@ -340,6 +340,7 @@ clean_compasdata %>%
          score_text = factor(score_text, levels = c("High", "Medium", "Low"))) %>%
   ggplot(mapping = aes(x = is_recid, fill = score_text)) +
   geom_bar(position = "fill") +
+  scale_y_continuous(labels = scales::percent) +
   theme_minimal() +
   labs(x = "Recidivism Status",
        fill = "COMPAS Risk Score",
@@ -372,7 +373,7 @@ compas %>%
   summarise("Reoffended" = count(is_recid == 1),
             "Did Not Reoffend" = count(is_recid == 0)) %>%
   kable(digits = 2,
-        caption = "The Percent of Defendants who were Labeled Higher/Lower Risk by the COMPAS Tool Stratified by Recidivism Status among 9,387 Defandants in Broward County Florida, 2013-2014",
+        caption = "The Number of Defendants who were Labeled Higher/Lower Risk by the COMPAS Tool Stratified by Recidivism Status among 9,387 Defandants in Broward County Florida, 2013-2014",
         booktabs = TRUE)
 ```
 
@@ -437,7 +438,6 @@ ggplot(mapping = aes(x = as.factor(decile_score), fill = as.factor(is_recid))) +
   geom_bar() +
   theme_minimal() +
   facet_wrap(~race, ncol = 2) + labs(
-    title = "Decile Scores by Race",
     x = "Decile Scores",
     y = "Number of Defendants",
     fill = "Recidivism Status")
@@ -503,7 +503,6 @@ compas_final %>%
   theme_minimal() +
   labs(x = "Race",
        y = "Number of Defendants",
-       title = "Recidivism Prevalence by Race",
        fill = "Recidivism Status") +
   theme(axis.text.x = element_text(angle = 25, vjust = 1.2, hjust=1)) 
 ```
@@ -681,7 +680,7 @@ seldonian_results <- read.csv("/home/dasienga24/Statistics-Senior-Honors-Thesis/
 ```
 
 
-A solution that passed the safety test was obtained for all four values of $\epsilon$, although as $\epsilon$ got smaller, the logistic loss increased, and the overall accuracy decreased. The accuracy was 68.2%, 65.59%, 64.7%, and 64.4% respectively for $\epsilon = 0.2, 0.1, 0.05, 0.01$. Additionally, the models got progressively worse in correctly classifying observations into the positive class, with the final model classifying every observation into the negative class. Each model had higher overall FNR and lower overall FPR than both the COMPAS tool and the logistic regression model. Tables \@ref(tab:ch3table5), \@ref(tab:ch3table6), \@ref(tab:ch3table7), and \@ref(tab:ch3table8) break up the FPR and FNR for Black and White defendants in each of these four cases. When $\epsilon = 0.2, 0.1, 0.05, \text{and } 0.01$, note that $d(\theta) = 0.22, 0.06, 0.007, \text{and } 0$ respectively.
+A solution that passed the safety test was obtained for all four values of $\epsilon$. However, as $\epsilon$ got smaller, the logistic loss increased, and the overall accuracy decreased. The accuracy was 68.2%, 65.59%, 64.7%, and 64.4% respectively for $\epsilon = 0.2, 0.1, 0.05, 0.01$. Additionally, the models got progressively worse in correctly classifying observations into the positive class, with the final model classifying every observation into the negative class. Each model had higher overall FNR and lower overall FPR than both the COMPAS tool and the logistic regression model. Tables \@ref(tab:ch3table5), \@ref(tab:ch3table6), \@ref(tab:ch3table7), and \@ref(tab:ch3table8) break up the FPR and FNR for Black and White defendants in each of these four cases. When $\epsilon = 0.2, 0.1, 0.05, \text{and } 0.01$, note that $d(\theta) = 0.22, 0.06, 0.007, \text{and } 0$ respectively.
 
 ```{r, echo = FALSE}
 seldonian_results <- seldonian_results %>%
