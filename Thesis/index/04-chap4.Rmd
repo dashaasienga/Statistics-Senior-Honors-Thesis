@@ -10,7 +10,7 @@ library(knitr)
 library(kableExtra)
 library(ggplot2)
 library(GGally)
-library(MASS)
+library(reshape2)
 ```
 
 Chapter \@ref(chap-2) introduced the Seldonian framework, which offers probabilistic guarantees for satisfying defined behavioral constraints. However, the toy linear regression example demonstrated some of the limitations of Seldonian algorithms, particularly in scenarios with limited sample sizes where convergence may pose a challenge. In practice, sample sizes vary. Furthermore, Chapter \@ref(chap-3) applied the Seldonian framework to a classification setting using the COMPAS data set. The goal was to produce recidivism predictions that elicit fairer outcomes along racial lines, with a specific focus on Black and White defendants. However, the application illustrated that while the behavioral constraint was satisfied in all four cases, there was a tradeoff in the model's accuracy. In other words, a non-informative model can be perfectly Seldonian, but what value does a theoretically fair non-informative model add?
@@ -28,14 +28,16 @@ This simulation study presents a proof of concept for using the Seldonian framew
 ### Data-Generation Mechanism {#data-gen} 
 
 ```{r, echo = FALSE}
-compas_sim_path <- "/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/COMPAS/compas_sim.csv"
+compas_sim_path <-
+  "/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/COMPAS/compas_sim.csv"
 compas_sim_parent <- read.csv(compas_sim_path)
 
 lr <- glm(is_recid ~ age + prior_offense,
-            data = compas_sim_parent,
-            family = binomial(logit))
+          data = compas_sim_parent,
+          family = binomial(logit))
 
-lr_accuracy <- 100*count(round(lr[["fitted.values"]]) == lr[["y"]])/nrow(compas_sim_parent)
+lr_accuracy <-
+  100 * count(round(lr[["fitted.values"]]) == lr[["y"]]) / nrow(compas_sim_parent)
 ```
 
 Given that this is a proof-of-concept simulation study, the data-generation mechanism will follow a realistic design. Two of the most informative variables from the COMPAS data set were selected for a simpler set-up: the defendant's age (continuous) and whether or not the defendant had committed any prior offenses (binary). The choice to use the COMPAS data set as a starting point was so that the complex relationships between the predictor variables ($X$) and the protected attribute ($A$) may be retained, especially given that the data was collected for a practical application and elucidates relationships that may be expected in the real world. There are only two levels of the protected attribute, race, that were retained for the study: Black and White. 
@@ -80,6 +82,218 @@ d(\theta) = abs[(FPR | \text{A = a} - FPR | \text{A = b}) + (FNR | \text{A = a} 
 \end{equation}
 
 ## Simulation Results {#sim-results}
+
+As described in Section \@ref(sim-design), the simulation results will be analyzed along 3 key performance measures: convergence, discrimination, and accuracy.
+
+```{r, echo = FALSE}
+# read in logistic results
+
+lr_500 <-
+  read.csv(
+    "/home/dasienga24/Statistics-Senior-Honors-Thesis/R/Simulation/LogisticRegression/Results/lr_500.csv"
+  )
+lr_1000 <-
+  read.csv(
+    "/home/dasienga24/Statistics-Senior-Honors-Thesis/R/Simulation/LogisticRegression/Results/lr_1000.csv"
+  )
+lr_2500 <-
+  read.csv(
+    "/home/dasienga24/Statistics-Senior-Honors-Thesis/R/Simulation/LogisticRegression/Results/lr_2500.csv"
+  )
+lr_5000 <-
+  read.csv(
+    "/home/dasienga24/Statistics-Senior-Honors-Thesis/R/Simulation/LogisticRegression/Results/lr_5000.csv"
+  )
+
+lr_500 <- lr_500 |>
+  mutate(sample_size = 500) |>
+  dplyr::select(-X)
+
+lr_1000 <- lr_1000 |>
+  mutate(sample_size = 1000) |>
+  dplyr::select(-X)
+
+lr_2500 <- lr_2500 |>
+  mutate(sample_size = 2500) |>
+  dplyr::select(-X)
+
+lr_5000 <- lr_5000 |>
+  mutate(sample_size = 5000) |>
+  dplyr::select(-X)
+
+logistic_results <- rbind(lr_500, lr_1000, lr_2500, lr_5000)
+
+
+# read in Seldonian results
+
+seldonian_results <-
+  read.csv(
+    "/home/dasienga24/Statistics-Senior-Honors-Thesis/Python/COMPAS Simulation/SeldonianSimulation/results/seldonian_sim_results.csv"
+  )
+
+
+# combine both data sets for full results
+
+sim_results <- inner_join(logistic_results,
+                          seldonian_results,
+                          by = c("sample_size", "dataset_id"))
+
+reps <- nrow(sim_results) / 4
+```
+
+
+### Probability of a Seldonian Solution
+
+All logistic regression trials are expected to return a solution, thus a 100% convergence rate. However, while all the Seldonian trials will propose a candidate solution predicted to pass the safety test with 95% confidence, not all candidate solutions will pass the safety test itself. Table \@ref(tab:ch4tab1) illustrates this. For $\epsilon = 0.2, 0.1, 0.05$, the probability of a Seldonian solution was $> \text{~}90$% for all sample sizes. In fact, for sample sizes $n = 1000, 2500, 5000$, the probability of a Seldonian solution was $> 96$%, suggesting a higher convergence rate for looser fairness constraints and data set sizes greater than $n = 500$. This is consistent with the results in Figure 2.6 from Chapter \@ref(exp). Regardless, a small data set size did not matter for the loosest constraint of $\epsilon = 0.2$.
+
+However, when $\epsilon = 0.01$, which was the tightest constraint, the probability of a solution dropped significantly, and there were no consistent trends across sample sizes, suggesting that the models had trouble passing the safety test in this case, regardless of sample size, likely because the constraint was too strict and not feasible for this data set. Surprisingly, the lowest observed probability of a solution ($24.8$%) is recorded when $\epsilon = 0.01, n = 5000$. 
+
+Overall, across all sample sizes, the probability of a solution generally reduced as the constraint tightened. 
+
+```{r, ch4tab1, echo = FALSE}
+sim_results |>
+  group_by(sample_size) |>
+  summarise(
+    LR = 100 * count(lr_convergence == 1) / reps,
+    `SA (0.2)` = 100 * count(passed_safety_02 == "True") / reps,
+    `SA (0.1)` = 100 * count(passed_safety_01 == "True") / reps,
+    `SA (0.05)` = 100 * count(passed_safety_005 == "True") / reps,
+    `SA (0.01)` = 100 * count(passed_safety_001 == "True") / reps
+  ) |>
+  rename("Sample Size" = sample_size) |>
+  kable(caption = "Probability of Obtaining a Seldonian Solution",
+        booktabs = TRUE)
+```
+
+$\\$
+
+However, the probability of a solution that passes the safety test is not the end of the story. Table \@ref(tab:ch4tab2) records the proportion of solutions that satisfied the behavioral constraint among those that passed the safety test (Table \@ref(tab:ch4tab1)). When $\epsilon = 0.01$, although a low probability of solution was previously observed, $> 92$% of returned solutions satisfied the behavioral constraint. Additionally, the probability was largest in the $n = 5000$ case, which previously had the lowest probability of returning a solution across the entire simulation study. Except for $n = 5000$, the probability of a Seldonian solution satisfying the behavioral constraint generally increased as the constraint got tighter, suggesting some trade-off between the probability of returning a solution and the probability of that solution satisfying the behavioral constraints. However, there were no consistent trends as sample size increased across all four levels of $\epsilon$, although the probability actually decreased for $\epsilon = 0.1, 0.05$. This is inconsistent with expectations, but perhaps the increased variability introduced by more observations makes it more difficult to constrain the models' unfairness.  
+
+```{r, ch4tab2, echo = FALSE}
+# filter discrimination data out for only seldonian solutions that passed the safety test
+sim_results_converged_disc <- sim_results |>
+  mutate(
+    sa_02_disc_stat = ifelse(passed_safety_02 == "True", sa_02_disc_stat, NA),
+    sa_01_disc_stat = ifelse(passed_safety_01 == "True", sa_01_disc_stat, NA),
+    sa_005_disc_stat = ifelse(passed_safety_005 == "True", sa_005_disc_stat, NA),
+    sa_001_disc_stat = ifelse(passed_safety_001 == "True", sa_001_disc_stat, NA)
+  )
+
+sim_results_converged_disc |>
+  group_by(sample_size) |>
+  summarise(
+    `SA (0.2)` = round(
+      100 * count(sa_02_disc_stat <= 0.2) / count(passed_safety_02 == "True"),
+      2
+    ),
+    `SA (0.1)` = round(
+      100 * count(sa_01_disc_stat <= 0.1) / count(passed_safety_01 == "True"),
+      2
+    ),
+    `SA (0.05)` = round(
+      100 * count(sa_005_disc_stat <= 0.05) / count(passed_safety_005 == "True"),
+      2
+    ),
+    `SA (0.01)` = round(
+      100 * count(sa_001_disc_stat <= 0.01) / count(passed_safety_001 == "True"),
+      2
+    )
+  ) |>
+  rename("Sample Size" = sample_size) |>
+  kable(caption = "Satisfaction of the Behavioral Constraint by Seldonian Solutions that Passed the Safety Test",
+        booktabs = TRUE)
+```
+
+$\\$
+
+Finally, Figure \@ref(fig:ch4fig1) visualizes these results to elucidate the convergence of Seldonian algorithms better. As discussed, the probability of a solution passing the safety test (light blue) generally decreases as the constraint gets tighter, regardless of sample size. Notably, the decrease is most drastic for the tightest constraint ($\epsilon = 0.01$), which has a better probability of a solution for smaller sample sizes than larger sample sizes. However, looking at the proportion of solutions that both pass the safety test and satisfy the defined behavioral constraint (dark blue) raises concerns about the efficacy of Seldonian algorithms, especially for the $n = 2500, 5000$ cases. The following three sections further assess the discrimination and accuracy of the Seldonian models that passed the safety test. 
+
+
+```{r, ch4fig1, echo = FALSE, fig.width = 6.3, fig.height = 6, warning = FALSE, message = FALSE, fig.cap = "Probability of Returning a Solution and Satisfying the Constraint by Sample Size"}
+# get long failure data for plotting
+sim_failure_long <- sim_results |>
+  group_by(sample_size) |>
+  summarise(`SA (0.2)` = 100*count(passed_safety_02 == "False")/reps,
+            `SA (0.1)` = 100*count(passed_safety_01 == "False")/reps,
+            `SA (0.05)` = 100*count(passed_safety_005 == "False")/reps,
+            `SA (0.01)` = 100*count(passed_safety_001 == "False")/reps) |>
+  pivot_longer(cols = -c(sample_size),
+               names_to = "model",
+               values_to = "prop_failed_safety") 
+
+
+# get long convergence data for plotting
+sim_converged_long <- sim_results |>
+  group_by(sample_size) |>
+  summarise(`SA (0.2)` = 100*count(passed_safety_02 == "True")/reps,
+            `SA (0.1)` = 100*count(passed_safety_01 == "True")/reps,
+            `SA (0.05)` = 100*count(passed_safety_005 == "True")/reps,
+            `SA (0.01)` = 100*count(passed_safety_001 == "True")/reps) |>
+  pivot_longer(cols = -c(sample_size),
+               names_to = "model",
+               values_to = "prop_passed_safety")
+
+# get long discrimination data for plotting
+sim_satisfied_cstr_long <- sim_results |>
+  group_by(sample_size) |>
+  summarise(`SA (0.2)` = 100*count(passed_safety_02 == "True" & sa_02_disc_stat <= 0.2)/reps,
+            `SA (0.1)` = 100*count(passed_safety_01 == "True" & sa_01_disc_stat <= 0.1)/reps,
+            `SA (0.05)` = 100*count(passed_safety_005 == "True" & sa_005_disc_stat <= 0.05)/reps,
+            `SA (0.01)` = 100*count(passed_safety_001 == "True" & sa_001_disc_stat <= 0.01)/reps) |>
+  pivot_longer(cols = -c(sample_size),
+               names_to = "model",
+               values_to = "prop_passed_safety_satisfied_cstr")
+
+# join both data sets
+conv_disc <- inner_join(sim_converged_long, sim_satisfied_cstr_long,
+                        by = c("sample_size", "model")) |>
+  mutate(prop_passed_safety = prop_passed_safety - prop_passed_safety_satisfied_cstr) |>
+  rename("prop_passed_safety_failed_cstr" = prop_passed_safety) |>
+  inner_join(sim_failure_long,
+             by = c("sample_size", "model")) |>
+  rename("failed safety" = prop_failed_safety,
+         "passed safety, didn't satisfy constraint" = prop_passed_safety_failed_cstr,
+         "passed safety, satisfied constraint" = prop_passed_safety_satisfied_cstr) |>
+  pivot_longer(cols = -c(sample_size, model),
+               names_to = "statistic", 
+               values_to = "value") |>
+  mutate(sample_size = factor(case_when(sample_size == 500 ~ "n = 500",
+                                 sample_size == 1000 ~ "n = 1000",
+                                 sample_size == 2500 ~ "n = 2500",
+                                 sample_size == 5000 ~ "n = 5000"
+                                 ), 
+                              levels = c("n = 500", "n = 1000", "n = 2500", "n = 5000"))) 
+
+# plot
+conv_disc |> 
+  mutate(model = factor(model, 
+                        levels = c("SA (0.2)", "SA (0.1)", "SA (0.05)", "SA (0.01)"))) |>
+  group_by(model, statistic, sample_size) |>
+  summarise(avg = mean(value, na.rm = TRUE)) |>
+  ggplot(mapping = aes(x = model, y = avg, fill = statistic)) +
+  geom_col() +
+   theme_minimal() +
+  theme(legend.position = 'bottom') +
+  scale_fill_brewer(palette = "Blues") +
+  facet_wrap(~sample_size) +
+  labs(y = "Percent",
+       x = "Algorithm",
+       fill = " ")
+```
+
+
+
+### Discrimination 
+
+CHECK blue figure size, adjust legend, axes etcx
+
+### Accuracy
+
+### The Trade-Off Between Discrimination and Accuracy
+
+### Non-Convergent Seldonian Models
+
+## Discussion {#sim-disc}
 
 
 
