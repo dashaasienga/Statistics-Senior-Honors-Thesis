@@ -420,7 +420,7 @@ accuracy_disc |>
 
 # Convergence-Discrimination Trade-Off 
 
-This section examines whether there is a trade-off in the proportion of solutions that pass the safety test and the proportion of Seldonian solutions that satisfy the fairness constraint. I need to brainstorm better ways of visualizing this relationship.
+This section examines whether there is a trade-off in the proportion of solutions that pass the safety test and the proportion of Seldonian solutions that satisfy the fairness constraint. 
 
 ```{r}
 # get long failure data for plotting
