@@ -1309,6 +1309,25 @@ On the other hand, Seldonian algorithms with a fairness constraint of \(\epsilon
 \hypertarget{non-convergent-seldonian-models}{%
 \subsection{Non-Convergent Seldonian Models}\label{non-convergent-seldonian-models}}
 
+Finally, this section analyzes the instances that did not pass the safety test. Evaluating the logistic regression performance by whether the Seldonian solution passed or failed the safety test revealed unexpected results. Figure \ref{fig:ch4fig5} displays that the logistic regression accuracy tended to be slightly higher in the cases when the Seldonian candidate solution failed the safety test, compared to the cases where it passed. Attributing this observation to higher discrimination in these cases may be tempting, but Figure \ref{fig:ch4fig6} suggests otherwise. On the contrary, \(d(\theta_{LR})\) was lower or comparable in the cases when the Seldonian candidate solution failed the safety compared to the cases when it passed.
+
+Nonetheless, analyzing the candidate solutions themselves in both cases where the solution passed the safety test or not revealed results that are more expected. The accuracy of the candidate solutions tended to be lower in the cases when the solution failed the safety test. Similarly, the discrimination statistic tended to be higher in such cases. Although inconclusive, these results suggest that there may be a flaw in how Seldonian algorithms select candidate solutions from traditional ML solutions, such as logistic regression. In some cases, The optimization process may lead to worse candidate solutions, both in accuracy and discrimination, compared to the standard ML solution itself. This warrants future research and work to investigate.
+\begin{figure}
+
+{\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/ch4fig5-1} 
+
+}
+
+\caption{Evaluating Logistic Regression Accuracy on the Data Sets by Seldonian Convergence}\label{fig:ch4fig5}
+\end{figure}
+\begin{figure}
+
+{\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/ch4fig6-1} 
+
+}
+
+\caption{Evaluating Logistic Regression Discrimination on the Data Sets by Seldonian Convergence}\label{fig:ch4fig6}
+\end{figure}
 \hypertarget{sim-disc}{%
 \section{Discussion}\label{sim-disc}}
 
