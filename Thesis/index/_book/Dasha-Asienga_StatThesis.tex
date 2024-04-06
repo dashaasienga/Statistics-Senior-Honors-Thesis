@@ -1240,7 +1240,7 @@ Sample Size & SA (0.2) & SA (0.1) & SA (0.05) & SA (0.01)\\
 \end{table}
 \(\\\)
 
-Finally, Figure \ref{fig:ch4fig1} visualizes these results to elucidate the convergence of Seldonian algorithms better. As discussed, the probability of a solution passing the safety test (light blue) generally decreases as the constraint gets tighter, regardless of sample size. Notably, the decrease is most drastic for the tightest constraint (\(\epsilon = 0.01\)), which has a better probability of a solution for smaller sample sizes than larger sample sizes. However, looking at the proportion of solutions that both pass the safety test and satisfy the defined behavioral constraint (dark blue) raises concerns about the efficacy of Seldonian algorithms, especially for the \(n = 2500, 5000\) cases. The following three sections further assess the discrimination and accuracy of the Seldonian models that passed the safety test.
+Finally, Figure \ref{fig:ch4fig1} visualizes these results to elucidate the convergence of Seldonian algorithms better. As discussed, the probability of a solution passing the safety test (light blue) generally decreases as the constraint gets tighter, regardless of sample size. Notably, the decrease is most drastic for the tightest constraint (\(\epsilon = 0.01\)), which has a better probability of a solution for smaller sample sizes than larger sample sizes. However, looking at the proportion of solutions that both pass the safety test and satisfy the defined behavioral constraint (dark blue) raises concerns about the efficacy of Seldonian algorithms, especially for the \(n = 2500, 5000\) cases.
 \begin{figure}
 
 {\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/ch4fig1-1} 
@@ -1249,16 +1249,44 @@ Finally, Figure \ref{fig:ch4fig1} visualizes these results to elucidate the conv
 
 \caption{Probability of Returning a Solution and Satisfying the Constraint by Sample Size}\label{fig:ch4fig1}
 \end{figure}
+\(\\\)
+
+The following three sections further assess the discrimination and accuracy of the Seldonian models that passed the safety test.
+
 \hypertarget{discrimination}{%
 \subsection{Discrimination}\label{discrimination}}
 
-CHECK blue figure size, adjust legend, axes etcx
+Seldonian algorithms are a proposed method to set probabilistic fairness constraints on traditional ML algorithms, so it is of utmost importance that they produce fairer results. Table \ref{tab:ch4tab3} displays the average discrimination statistic, defined in Equation \ref{ch4eq2}, for all combinations of \(n\) and \(\epsilon\). Observe that the mean of \(d(\theta_{LR})\) was consistently at 0.24 for all sample sizes. However, the mean discrimination statistic is lower in all Seldonian algorithms. Better yet, the mean discrimination statistic is equal to or lower than the defined fairness constraint in all cases except the \(\epsilon = 0.1, n = 5000\) case where the mean of \(d(\theta) = 0.14\). Another important observation is that, in most cases, the mean discrimination statistic tended to stay constant or increase as the sample size increased, supporting previous findings that higher sample sizes have a more difficult time constraining model fairness. Overall, the Seldonian algorithms met the defined fairness constraints on average. However, this is just an average, and the standard deviation values in Table \ref{tab:ch4tab3}, as well as the interquartile range (IQR) and outlying observations visualized in Figure \ref{fig:ch4fig2}, illustrate the previous findings that are not all Seldonian algorithms satisfy the behavioral constraint.
+\begin{table}
 
+\caption{\label{tab:ch4tab3}Mean Discrimination Statistic of Convergent Seldonian Solutions}
+\centering
+\begin{tabular}[t]{rrrrrrrrrrr}
+\toprule
+Sample Size & LR & sd & SA (0.2) & sd  & SA (0.1) & sd   & SA (0.05) & sd    & SA (0.01) & sd     \\
+\midrule
+500 & 0.24 & 0.07 & 0.04 & 0.07 & 0.02 & 0.06 & 0.02 & 0.06 & 0.01 & 0.05\\
+1000 & 0.24 & 0.05 & 0.09 & 0.07 & 0.02 & 0.06 & 0.02 & 0.05 & 0.01 & 0.03\\
+2500 & 0.24 & 0.03 & 0.18 & 0.06 & 0.09 & 0.06 & 0.02 & 0.04 & 0.01 & 0.03\\
+5000 & 0.24 & 0.02 & 0.12 & 0.06 & 0.14 & 0.08 & 0.05 & 0.05 & 0.00 & 0.02\\
+\bottomrule
+\end{tabular}
+\end{table}
+\begin{figure}
+
+{\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/ch4fig2-1} 
+
+}
+
+\caption{The Distribution of the Discrimination Statistic of Convergent Seldonian Solutions by Sample Size}\label{fig:ch4fig2}
+\end{figure}
 \hypertarget{accuracy}{%
 \subsection{Accuracy}\label{accuracy}}
 
 \hypertarget{the-trade-off-between-discrimination-and-accuracy}{%
 \subsection{The Trade-Off Between Discrimination and Accuracy}\label{the-trade-off-between-discrimination-and-accuracy}}
+
+reference n = 5000, e = 0.01 case
 
 \hypertarget{non-convergent-seldonian-models}{%
 \subsection{Non-Convergent Seldonian Models}\label{non-convergent-seldonian-models}}
