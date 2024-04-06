@@ -1294,10 +1294,17 @@ The Seldonian algorithms delivered on their promise for fairer outcomes, but a c
 \end{figure}
 \hypertarget{the-trade-off-between-discrimination-and-accuracy}{%
 \subsection{The Trade-Off Between Discrimination and Accuracy}\label{the-trade-off-between-discrimination-and-accuracy}}
+\begin{figure}
 
-reference n = 5000, e = 0.01 case
+{\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/ch4fig4-1} 
 
-suggest a need to find a good balance between both
+}
+
+\caption{The Accuracy-Discrimination Trade-Off of Seldonian Algorithms by Sample Size}\label{fig:ch4fig4}
+\end{figure}
+Figure \ref{fig:ch4fig4} visualizes the trade-off between accuracy and discrimination for Seldonian algorithms. As previously observed, the value of the discrimination statistic decreases as the constraint is tightened across all sample sizes. Similarly, the accuracy decreases as the constraint is tightened. Table \ref{tab:ch4tab2} showed that the Seldonian solutions returned in the \(\epsilon = 0.01\) setting had the highest probability of passing the safety constraint. Figure \ref{fig:ch4fig4} similarly displays that these models, on average, have a discrimination statistic of 0. However, notice that these models also have very poor predictive performance, averaging 50\% and rendering them non-informative.
+
+On the other hand, Seldonian algorithms with a fairness constraint of \(\epsilon = 0.2\) and higher sample sizes perform comparably to logistic regression with regard to accuracy and offer an improvement in model fairness. This suggests a need to establish techniques for finding thresholds that balance fairness and predictive accuracy as desired and specific to the application and domain.
 
 \hypertarget{non-convergent-seldonian-models}{%
 \subsection{Non-Convergent Seldonian Models}\label{non-convergent-seldonian-models}}

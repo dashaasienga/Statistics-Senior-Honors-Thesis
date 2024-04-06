@@ -384,9 +384,82 @@ sim_results_converged_accuracy |>
 
 ### The Trade-Off Between Discrimination and Accuracy
 
-reference n = 5000, e = 0.01 case
+```{r ch4fig4, echo = FALSE, fig.width = 6.3, fig.height = 5, warning = FALSE, message = FALSE, fig.cap = "The Accuracy-Discrimination Trade-Off of Seldonian Algorithms by Sample Size"}
+# get long discrimination data set for plotting (1000 rows)
+sim_results_converged_disc_long <- sim_results_converged_disc |>
+  dplyr::select(c(lr_discrimination, sa_02_disc_stat, sa_01_disc_stat, sa_005_disc_stat, 
+                  sa_001_disc_stat, sample_size, dataset_id)) |>
+  mutate(sample_size = factor(case_when(sample_size == 500 ~ "n = 500",
+                                 sample_size == 1000 ~ "n = 1000",
+                                 sample_size == 2500 ~ "n = 2500",
+                                 sample_size == 5000 ~ "n = 5000"
+                                 ), 
+                              levels = c("n = 500", "n = 1000", "n = 2500", "n = 5000"))) |>
+  rename("Sample Size" = sample_size,
+         "LR" = lr_discrimination,
+         "SA (0.2)" = sa_02_disc_stat,
+         "SA (0.1)" = sa_01_disc_stat,
+         "SA (0.05)" = sa_005_disc_stat,
+         "SA (0.01)" = sa_001_disc_stat) |>
+  pivot_longer(cols = -c(`Sample Size`, dataset_id),
+               names_to = "model",
+               values_to = "discrimination")
 
-suggest a need to find a good balance between both
+# get long accuracy data set for plotting (1000 rows)
+sim_results_converged_accuracy_long <- sim_results_converged_accuracy |>
+  dplyr::select(c(lr_accuracy, sa_02_accuracy, sa_01_accuracy, sa_005_accuracy, 
+                  sa_001_accuracy, sample_size, dataset_id)) |>
+  mutate(sample_size = factor(case_when(sample_size == 500 ~ "n = 500",
+                                 sample_size == 1000 ~ "n = 1000",
+                                 sample_size == 2500 ~ "n = 2500",
+                                 sample_size == 5000 ~ "n = 5000"
+                                 ), 
+                              levels = c("n = 500", "n = 1000", "n = 2500", "n = 5000"))) |>
+  rename("Sample Size" = sample_size,
+         "LR" = lr_accuracy,
+         "SA (0.2)" = sa_02_accuracy,
+         "SA (0.1)" = sa_01_accuracy,
+         "SA (0.05)" = sa_005_accuracy,
+         "SA (0.01)" = sa_001_accuracy) |>
+  pivot_longer(cols = -c(`Sample Size`, dataset_id),
+               names_to = "model",
+               values_to = "accuracy")
+
+# join both data sets
+accuracy_disc <- inner_join(sim_results_converged_disc_long, sim_results_converged_accuracy_long,
+                            by = c("dataset_id", "Sample Size", "model")) |>
+  pivot_longer(cols = -c(`Sample Size`, dataset_id, model),
+               names_to = "statistic", 
+               values_to = "value")
+
+# plot error-bars by sample size
+color <- c("purple", "orange")
+
+accuracy_disc |> 
+  group_by(model, statistic, `Sample Size`) |>
+  summarise(avg = mean(value, na.rm = TRUE),
+            se = sd(value, na.rm = TRUE)) |>
+  mutate(statistic = ifelse(statistic == "accuracy", "accuracy (higher is better)", "discrimination (lower is better)")) |>
+  ggplot(mapping = aes(x = model, y = avg, color = statistic)) +
+  geom_point() +
+  geom_errorbar(mapping = aes(ymin = avg - se,
+                              ymax = avg + se,
+                              width = 0.2)) +
+  theme_minimal() +
+  theme(legend.position = 'bottom') +
+  scale_color_manual(values = c("accuracy (higher is better)" = color[1],
+                                "discrimination (lower is better)" = color[2])) +
+  scale_x_discrete(limits = c("LR", "SA (0.2)", "SA (0.1)", "SA (0.05)", "SA (0.01)")) +
+  facet_wrap(~`Sample Size`) +
+  labs(x = "Algorithm",
+       y = "Performance Measure",
+       color = " ")
+```
+
+Figure \@ref(fig:ch4fig4) visualizes the trade-off between accuracy and discrimination for Seldonian algorithms. As previously observed, the value of the discrimination statistic decreases as the constraint is tightened across all sample sizes. Similarly, the accuracy decreases as the constraint is tightened. Table \@ref(tab:ch4tab2) showed that the Seldonian solutions returned in the $\epsilon = 0.01$ setting had the highest probability of passing the safety constraint. Figure \@ref(fig:ch4fig4) similarly displays that these models, on average, have a discrimination statistic of 0. However, notice that these models also have very poor predictive performance, averaging 50% and rendering them non-informative. 
+
+On the other hand, Seldonian algorithms with a fairness constraint of $\epsilon = 0.2$ and higher sample sizes perform comparably to logistic regression with regard to accuracy and offer an improvement in model fairness. This suggests a need to establish techniques for finding thresholds that balance fairness and predictive accuracy as desired and specific to the application and domain.
+
 
 ### Non-Convergent Seldonian Models
 
