@@ -110,13 +110,15 @@ g1 <- ggplot(dat_all, aes(x=prevalence, y=ppv)) +
         geom_point() + 
         labs(x="prevalence", y="positive predictive value",
              title = "PPV-FPR-FNR Conflict") +
-        facet_wrap(~sens_spec)
-
+        facet_wrap(~sens_spec) +
+  theme_minimal()
+ 
 g2 <- ggplot(dat_all, aes(x=prevalence, y=npv)) +
         geom_point() + 
         labs(x="prevalence", y="negative predictive value",
              title = "NPV-FPR-FNR Conflict") +
-        facet_wrap(~sens_spec)
+        facet_wrap(~sens_spec) +
+  theme_minimal()
 
 grid.arrange(g1,g2, nrow=1, ncol=2)
 ```
