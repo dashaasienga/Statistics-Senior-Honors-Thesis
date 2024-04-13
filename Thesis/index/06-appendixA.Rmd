@@ -27,7 +27,7 @@ $$\Rightarrow FPR = \frac{(1-FNR)p}{PPV(1-p)} - \frac{(1-FNR)p}{(1-p)}$$
 $$\Rightarrow FPR = \frac{p}{1-p} \left[  \frac{(1-FNR)}{PPV} - (1-FNR) \right]$$
 $$\Rightarrow FPR = \frac{p}{1-p} \left[  \frac{(1-FNR) - PPV(1-FNR)}{PPV} \right]$$
 $$\Rightarrow FPR = \frac{p}{1-p} \left[  \frac{(1-FNR) (1 - PPV)}{PPV} \right]$$
-$$\Rightarrow FPR = \frac{p}{1-p} \frac{1 - PPV}{PPV} (1-FNR) \blacksquare.$$
+$$\Rightarrow FPR = \frac{p}{1-p} \frac{1 - PPV}{PPV} (1-FNR) \text{ } \text{ } \blacksquare.$$
 
 \noindent A similar equation can be derived relating $NPV = P(Y=0|\hat{Y} = 0)$ and both FPR and FNR. 
 
