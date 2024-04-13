@@ -1391,7 +1391,7 @@ Recall from Chapter \ref{intro} that (Castelnovo et al., 2022):
 \[\Rightarrow FPR = \frac{p}{1-p} \left[  \frac{(1-FNR)}{PPV} - (1-FNR) \right]\]
 \[\Rightarrow FPR = \frac{p}{1-p} \left[  \frac{(1-FNR) - PPV(1-FNR)}{PPV} \right]\]
 \[\Rightarrow FPR = \frac{p}{1-p} \left[  \frac{(1-FNR) (1 - PPV)}{PPV} \right]\]
-\[\Rightarrow FPR = \frac{p}{1-p} \frac{1 - PPV}{PPV} (1-FNR) \blacksquare.\]
+\[\Rightarrow FPR = \frac{p}{1-p} \frac{1 - PPV}{PPV} (1-FNR) \text{ } \text{ } \blacksquare.\]
 
 \noindent A similar equation can be derived relating \(NPV = P(Y=0|\hat{Y} = 0)\) and both FPR and FNR.
 
@@ -1493,7 +1493,11 @@ Recall from Chapter \ref{intro} that (Castelnovo et al., 2022):
 \hypertarget{appendix-b}{%
 \chapter{Quasi-Seldonian Linear Regression Theoretical Considerations and Python Implementation}\label{appendix-b}}
 
-The \texttt{reticulate} package is useful for setting up the correct Python environment within RStudio.
+The theoretical considerations and Python implementation discussed in this Appendix are either reproduced or adapted from P. S. Thomas (n.d.).
+
+\(\\\)
+
+\noindent The \texttt{reticulate} package is useful for setting up the correct Python environment within RStudio.
 \begin{Shaded}
 \begin{Highlighting}[]
 \FunctionTok{library}\NormalTok{(reticulate)}
