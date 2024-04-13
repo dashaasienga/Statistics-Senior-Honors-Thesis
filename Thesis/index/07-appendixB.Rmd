@@ -2,6 +2,8 @@
 
 The theoretical considerations and Python implementation discussed in this Appendix are either reproduced or adapted from @aisafety.
 
+$\\$
+
 \noindent The `reticulate` package is useful for setting up the correct Python environment within RStudio.
 
 ```{r, eval = FALSE}
