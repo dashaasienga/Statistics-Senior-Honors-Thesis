@@ -1,4 +1,4 @@
-# Quasi-Seldonian Linear Regression Theoretical and Python Implementation {#appendix-b}
+# Quasi-Seldonian Linear Regression Theoretical Considerations and Python Implementation {#appendix-b}
 
 The `reticulate` package is useful for setting up the correct Python environment within RStudio.
 
