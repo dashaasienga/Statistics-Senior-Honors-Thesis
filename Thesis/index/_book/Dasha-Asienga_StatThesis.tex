@@ -289,11 +289,11 @@ Use this space to thank those who have helped you in the thesis process (profess
 \hypertarget{intro}{%
 \chapter{An Introduction to Fairness in Machine Learning}\label{intro}}
 
-In the current landscape, both the public and private sectors are increasingly relying on data-driven methods to automate, streamline, and guide simple and complex decision-making. However, this trend raises an important question of bias. There is a lot of misinterpretation when it comes to the collection of data in many application areas, and there is a major concern for data-driven methods to introduce and perpetuate discriminatory practices inadvertently or to otherwise be unfair because of the social and historical processes that operate to the disadvantage of certain groups.
+In the current landscape, both the public and private sectors are increasingly relying on data-driven methods to automate, streamline, and guide simple and complex decision-making. However, this trend raises an important question of bias. There is a lot of misinterpretation when it comes to the collection of data in many application areas, and there is a major concern for data-driven methods to introduce and perpetuate discriminatory practices inadvertently or to otherwise be unfair because of the social and historical processes that operate to the disadvantage of certain groups (O'Neil, 2016).
 
-For example, within healthcare, using mortality or readmission rates to measure hospital performance penalizes hospitals serving poor or non-White populations as those inherently have higher mortality and readmission rates due to confounding societal factors. Outside healthcare, credit-scoring algorithms predict outcomes based on income, which disadvantages low-income groups, further perpetuating economic immobility. Policing algorithms result in increased scrutiny of Black neighborhoods because of the bias against Black people that is already present in the U.S. policing system, and hiring algorithms, which predict employment decisions, are affected by historical race and gender biases.
+For example, within healthcare, using mortality or readmission rates to measure hospital performance penalizes hospitals serving poor or non-White populations as those inherently have higher mortality and readmission rates due to confounding societal factors (Basu, Hanchate, \& Bierman, 2018). Outside healthcare, credit-scoring algorithms predict outcomes based on income, which disadvantages low-income groups, further perpetuating economic immobility (Andrews, 2021). Policing algorithms result in increased scrutiny of Black neighborhoods because of the bias against Black people that is already present in the U.S. policing system (O'Donnell, 2019), and hiring algorithms, which predict employment decisions, are affected by historical race and gender biases (Kubiak, Efremova, Baron, \& Frasca, 2023).
 
-Yet, these algorithms are often regarded as ground truth and free of human limitations because they are based on mathematics, statistics, and computer science -- otherwise regarded as objective disciplines. In theory, this should lead to greater fairness. However, left unregulated, these mathematical models privilege majority groups and discriminate against minority groups because they often learn from inherently biased data. If the data used to train models contains bias, the resulting algorithms will learn and reflect it into their predictions. In many cases, this can be detrimental.
+Yet, these algorithms are often regarded as ground truth and free of human limitations because they are based on mathematics, statistics, and computer science -- otherwise regarded as objective disciplines (O'Neil, 2016). In theory, this should lead to greater fairness. However, left unregulated, these mathematical models privilege majority groups and discriminate against minority groups because they often learn from inherently biased data. If the data used to train models contains bias, the resulting algorithms will learn and reflect it into their predictions. In many cases, this can be detrimental.
 
 While there are widely-accepted, though sometimes disputed, societal notions of fairness, a fundamental question arises: are there any established statistical notions of fairness and bias? Is it possible to mathematically and statistically define algorithmic bias and unfairness, thereby opening avenues to address the challenges they pose? And if so, are there ways to leverage statistical tools to resolve such bias and unfairness? This thesis paper is dedicated to exploring and answering precisely these questions.
 
@@ -317,7 +317,7 @@ The COMPAS algorithm is a color-blind model -- race was not included directly as
 \end{figure}
 Although the tool has 61\% accuracy, Black defendants are almost twice as likely to be labeled as higher risk without re-offending than White defendants, as observed in Figure \ref{fig:compas1}. It makes the opposite mistake among White defendants. This is because classification models are trained to minimize average error, which fits majority populations (Chouldechova \& Roth, 2018).
 
-In truth, however, various societal factors contribute to distinct environmental and social realities for Black and White individuals. These factors, including an offender's personal and familial background and their residential environment, are incorporated into the COMPAS tool to forecast recidivism. Consequently, it appears justifiable to adjust the calibration of the relationship between an offender's social context and their propensity for recidivism differently for Black and White offenders, acknowledging these inherent disparities. A group-blind classifier algorithm that fails to do so could unfairly disadvantage one group over the other -- COMPAS is just one such algorithm. For example, in the education sector, different factors lead to different SAT performances between students from majority versus minority populations. It would, thus, also seem fair that the relationship between SAT and college admissions be calibrated differently for each demographic group. However, making distinctions based on demographic group is generally not acceptable in society.
+In truth, however, various societal factors contribute to distinct environmental and social realities for Black and White individuals. These factors, including an offender's personal and familial background and their residential environment, are incorporated into the COMPAS tool to forecast recidivism. Consequently, it appears justifiable to adjust the calibration of the relationship between an offender's social context and their propensity for recidivism differently for Black and White offenders, acknowledging these inherent disparities. A group-blind classifier algorithm that fails to do so could unfairly disadvantage one group over the other -- COMPAS is just one such algorithm. For example, in the education sector, different factors lead to different SAT performances between students from majority versus minority populations. It would, thus, also seem fair that the relationship between SAT and college admissions be calibrated differently for each demographic group. However, making such distinctions based on demographic group is controversial, and in some contexts illegal (Frederick, 2023).
 
 Therefore, the question becomes, can we modify these algorithms to be group-blind but also fair? In order to do so, fairness constraints that reduce, or even correct for, algorithmic bias during the modeling process must be set. However, one must first define fairness mathematically, statistically, and quantifiably.
 
@@ -1488,7 +1488,7 @@ Recall from Chapter \ref{intro} that (Castelnovo et al., 2022):
 \begin{center}\includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/unnamed-chunk-51-1} \end{center}
 
 \hypertarget{appendix-b}{%
-\chapter{Quasi-Seldonian Linear Regression Theoretical and Python Implementation}\label{appendix-b}}
+\chapter{Quasi-Seldonian Linear Regression Theoretical Considerations and Python Implementation}\label{appendix-b}}
 
 The \texttt{reticulate} package is useful for setting up the correct Python environment within RStudio.
 \begin{Shaded}
@@ -2667,11 +2667,17 @@ Further data wrangling and data analysis are conducted in R, and significant fin
 \leavevmode\vadjust pre{\hypertarget{ref-agarwal2019fair}{}}%
 Agarwal, A., Dudík, M., \& Wu, Z. S. (2019). Fair regression: Quantitative definitions and reduction-based algorithms. In \emph{International conference on machine learning} (pp. 120--129). PMLR.
 
+\leavevmode\vadjust pre{\hypertarget{ref-andrews_2021}{}}%
+Andrews, E. L. (2021, August). How flawed data aggravates inequality in credit. \emph{Stanford Human-Centered Artificial Intelligence}. Retrieved from \url{https://hai.stanford.edu/news/how-flawed-data-aggravates-inequality-credit}
+
 \leavevmode\vadjust pre{\hypertarget{ref-angwin2016machine}{}}%
 Angwin, J., Larson, J., Mattu, S., \& Kirchner, L. (2016). Machine bias risk assessments in criminal sentencing. \emph{ProPublica, May}, \emph{23}.
 
 \leavevmode\vadjust pre{\hypertarget{ref-asimov1994forward}{}}%
 Asimov, I. (1994). \emph{Forward the foundation} (Vol. 7). Spectra.
+
+\leavevmode\vadjust pre{\hypertarget{ref-basu2018racial}{}}%
+Basu, J., Hanchate, A., \& Bierman, A. (2018). Racial/ethnic disparities in readmissions in US hospitals: The role of insurance coverage. \emph{INQUIRY: The Journal of Health Care Organization, Provision, and Financing}, \emph{55}, 0046958018774180.
 
 \leavevmode\vadjust pre{\hypertarget{ref-bird2020fairlearn}{}}%
 Bird, S., Dudik, M., Edgar, R., Horn, B., Lutz, R., Milan, V., \ldots{} Walker, K. (2020). Fairlearn: A toolkit for assessing and improving fairness in AI. \emph{Microsoft, Tech. Rep. MSR-TR-2020-32}.
@@ -2694,6 +2700,12 @@ Chouldechova, A., \& Roth, A. (2018). The frontiers of fairness in machine learn
 \leavevmode\vadjust pre{\hypertarget{ref-durahly2023fairness}{}}%
 Durahly, L. (2023). A gentle introduction to ML fairness metrics. Retrieved from \url{https://superwise.ai/blog/gentle-introduction-ml-fairness-metrics/}
 
+\leavevmode\vadjust pre{\hypertarget{ref-frederick_2023}{}}%
+Frederick, S. (2023, June). Supreme court rejects use of race in college admissions process. \emph{National Conference of State Legislatures}. National Conference of State Legislatures. Retrieved from \url{https://www.ncsl.org/state-legislatures-news/details/supreme-court-rejects-use-of-race-in-college-admissions-process}
+
+\leavevmode\vadjust pre{\hypertarget{ref-kubiak2023gender}{}}%
+Kubiak, E., Efremova, M. I., Baron, S., \& Frasca, K. J. (2023). Gender equity in hiring: Examining the effectiveness of a personality-based algorithm. \emph{Frontiers in Psychology}, \emph{14}, 1219865.
+
 \leavevmode\vadjust pre{\hypertarget{ref-larson2016compas}{}}%
 Larson, J., Mattu, S., Kirchner, L., \& Angwin, J. (2016). How we analyzed the COMPAS recidivism algorithm. \emph{ProPublica, May}, \emph{23}.
 
@@ -2702,6 +2714,12 @@ Mehrabi, N., Morstatter, F., Saxena, N., Lerman, K., \& Galstyan, A. (2021). A s
 
 \leavevmode\vadjust pre{\hypertarget{ref-mohajon2021confmatrix}{}}%
 Mohajon, J. (2021). Confusion matrix for your multi-class machine learning model. Retrieved from \url{https://towardsdatascience.com/confusion-matrix-for-your-multi-class-machine-learning-model-ff9aa3bf7826}
+
+\leavevmode\vadjust pre{\hypertarget{ref-o2019challenging}{}}%
+O'Donnell, R. M. (2019). Challenging racist predictive policing algorithms under the equal protection clause. \emph{NYUL Rev.}, \emph{94}, 544.
+
+\leavevmode\vadjust pre{\hypertarget{ref-o64weapons}{}}%
+O'Neil, C. (2016). Weapons of math destruction.
 
 \leavevmode\vadjust pre{\hypertarget{ref-saeed2015evidence}{}}%
 Saeed, S., Alireza, B., Mohamed, E., \& Ahmed, N. (2015). Evidence based emergency medicine part 2: Positive and negative predictive values of diagnostic tests.
