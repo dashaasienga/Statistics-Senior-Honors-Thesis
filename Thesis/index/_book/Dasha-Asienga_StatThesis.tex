@@ -565,7 +565,7 @@ However, defining objective functions in this way can sometimes lead to undesira
 
 Consider a linear regression example to predict the qualifications of job applicants based on information on their resumes. Let \(G\) encode the gender of each applicant, with \(G=0\) if the applicant is female and \(G=1\) if the applicant is male. Let \(X\) encode a summary measure of an applicant's qualification based on information on their resume -- a simple example would be a measure of how many job-relevant key words appear on their resume. Let \(Y\) encode their actual qualification for the job as determined by their observed performance.
 
-If this linear regression estimator is designed to be used to filter which resumes submitted to a company will be forwarded for human review, it is worthwhile to ensure that the algorithm does not produce racist or sexist behavior. Drawing from definitions in Chapter \ref{fairnessdefinitions}, it might be less important to ensure that the algorithm, on average, has the same predictions for applicants of both genders because the distribution of qualifications may be different for both genders. However, of more concern is whether the algorithm, on average, predicts too high for one gender and too low for the other gender.
+If this linear regression estimator is designed to be used to filter which resumes submitted to a company will be forwarded for human review, it is worthwhile to ensure that the algorithm does not produce racist or sexist behavior. Drawing from definitions in Chapter \ref{fairnessdefinitions}, it might be less important to ensure that the algorithm, on average, has the same predictions for applicants of both genders because the distribution of qualifications may be different for both genders. Even then, in some cases, these distributional differences may be due to confounding societal biases. Howev er, of more concern is whether the algorithm, on average, predicts too high for one gender and too low for the other gender.
 
 Suppose that the data has the following distribution: \(Y \sim N(1,1)\) if \(G = 0\) and \(Y \sim N(-1,1)\) if \(G = 1\), that is, \(Y\) is a normal variable \(N(\mu, \sigma)\) with different means \(\mu\) for different genders but with the same standard deviation \(\sigma\) for both genders. Further define \(X \sim N(Y,1)\), that is, an applicant's resume quality is equal to their true qualification plus some random noise. Figure \ref{fig:fig1} displays a scatterplot of 1000 such data points, 500 from each gender. The black solid line is the least squares fit on this data using a gender-blind model.
 \begin{figure}
@@ -588,12 +588,12 @@ In crucial applications such as hiring, this is concerning and highlights how gr
 
 In an attempt to remedy this undesirable behavior, a number of approaches can be taken. One potential remedy is to identify the root cause of the undesirable behavior such as class imbalance in the training data, bias in the data set, the choice of linear estimator, the model's blindness to the demographic group, or insufficient data, to name a few (P. S. Thomas et al., 2019b). For instance, in the example set up in Section \ref{standardlimitations} and displayed in Figure \ref{fig:fig1}, the root cause of the discriminatory behavior when using ordinary least squares linear regression was the fact that the objective function was designed to minimize MSE, which was at odds with minimizing the discrimination statistic. However, even though it might be possible to determine and correct the root cause of the undesirable behavior, doing so can be difficult, error-prone, and require extensive data analysis, rendering the central goal of machine learning algorithms, which are designed to automate and make decision-making processes simpler, obsolete.
 
-Assuming that the problem is with the objective function and provided that detailed knowledge of the problem is available, hard constraints may be placed on the objective function, for example, requiring that MSE is minimized only on the set of solutions with a discrimination value \(d(\theta)\) less than some value \(\epsilon\) (P. S. Thomas et al., 2019b). Additionally, rather than placing hard constraints on the set of solutions, soft constraints that penalize undesirable behavior may also be placed on \(f\), the objective function (Boyd \& Vandenberghe, 2004). Although such penalty functions can be effective, they require a careful choice of the value of the parameter \(\lambda\) that places relative importance on the objective function and the constraint. For the linear regression example, the new objective function with a soft constraint would now be:
+Assuming that the problem is with the objective function and provided that detailed knowledge of the problem is available, hard constraints may be placed on the objective function, for example, requiring that MSE is minimized only on the set of solutions with a discrimination value \(d(\theta)\) less than some value \(\epsilon\) (P. S. Thomas et al., 2019b). Additionally, rather than placing hard constraints on the set of solutions, soft constraints that penalize undesirable behavior may also be placed on \(f\), the objective function (Boyd \& Vandenberghe, 2004). Although such penalty functions can be effective, they require a careful choice of the value of the parameter \(\lambda\), which places relative importance on the constraint and the objective function. For the linear regression example, the new objective function with a soft constraint would now be:
 \begin{equation}
 \label{ch2eq5}
 f(\theta) = - MSE (\theta) - \lambda d(\theta).
 \end{equation}
-Observe that as \(\lambda\) increases, MSE increases and the discrimination statistic decreases. Cross-validation techniques can be employed to find optimal values for \(\lambda\). Other remedies include maximizing multiple objective functions or allowing constraints on the probability that a solution with undesirable behavior will be returned, both of which may require detailed knowledge of the application problem and underlying distribution of the data (P. S. Thomas et al., 2019b).
+Observe that as \(\lambda\) increases, the importance of minimizing the discrimination statistic increases relative to minimizing the MSE, resulting in a solution with a higher MSE and lower discrimination statistic than the solution of a standard objective function without a soft constraint. Cross-validation techniques can be employed to find optimal values for \(\lambda\). Other remedies include maximizing multiple objective functions or allowing constraints on the probability that a solution with undesirable behavior will be returned, both of which may require detailed knowledge of the application problem and underlying distribution of the data (P. S. Thomas et al., 2019b).
 
 In principle, there might be definitions of \(\Theta\) or \(f\) that prevent the algorithm from converging on solutions that exhibit undesirable behavior (P. S. Thomas et al., 2019a). However, in practice and as explained, this might require extensive domain expertise and data analysis in order to properly balance the relative importance of the objective function and the constraints, which can be at odds with each other. These techniques may also require knowledge of the probability distribution from which the data is sampled, which is not always available and limits applications to parametric statistics.
 
@@ -604,14 +604,14 @@ Seldonian algorithms address this problem precisely by allowing probabilistic co
 
 The first step of the Seldonian framework is to define mathematically the goal of the algorithm design (P. S. Thomas et al., 2019b). Define \(\textbf{D}\) as the set of all possible inputs (data sets) to the algorithm. \(\Theta\), as previously defined, is the set of all possible outputs (solutions) of the algorithm. Each solution is referred to as \(\theta \in \Theta\). \(D\) is the data set (input) given to the algorithm and is the only random variable. Now, \(a: \textbf{D} \rightarrow \Theta\) is a machine learning algorithm which takes in a data set \(D \in \textbf{D}\) as an input and returns a solution \(\theta \in \Theta\) as an output. \(\textbf{A}\) is the set of all possible machine learning algorithms. Synthesizing this, \(f: \textbf{A} \rightarrow \textbf{R}\) is the objective function of the algorithm design, where \(f(a) \in \textbf{R}\) is a real-valued measure of the utility of the algorithm, such as the value of the objective function for the solution returned by this algorithm. This objective function is optimized -- either minimized or maximized -- to select a desired machine learning algorithm from the set \(\textbf{A}\).
 
-Contrary to the standard ML approach, however, \(n\) behavioral constraints can then be specified (P. S. Thomas et al., 2019b). Specifically, \((g_i, \delta_i)_{i=1}^{n}\) can be defined as a set of \(n\) constraints, each of which contains a constraint function \(g_i: \Theta \rightarrow \textbf{R}\) and a desired confidence level \(\delta_i\). The constraint function takes in a solution returned from the chosen machine learning algorithm as an input and returns a real value encoding the ``fairness'' of the algorithm according to the fairness definition defined by the function. \((g_i, \delta_i)_{i=1}^{n}\) is defined such that:
+Contrary to the standard ML approach, however, \(m\) behavioral constraints can then be specified (P. S. Thomas et al., 2019b). Specifically, \((g_i, \delta_i)_{i=1}^{m}\) can be defined as a set of \(m\) constraints, each of which contains a constraint function \(g_i: \Theta \rightarrow \textbf{R}\) and a desired confidence level \(\delta_i\). The constraint function takes in a solution returned from the chosen machine learning algorithm as an input and returns a real value encoding the ``fairness'' of the algorithm according to the fairness definition defined by the function. \((g_i, \delta_i)_{i=1}^{m}\) is defined such that:
 \begin{itemize}
 \item
   The \(i^{th}\) constraint function measures an undesirable behavior. Specifically, \(\theta \in \Theta\) produces undesirable behavior if and only if \(g_i(\theta) > 0\). This is to ensure that undesirable behavior is defined in a mathematically tractable way such as how the discrimination statistic \(d(\theta)\) was defined in Section \ref{standardlimitations}.
 \item
   The \(i^{th}\) confidence level specifies the maximum probability that an algorithm can return a solution \(\theta\) where \(g_i(\theta) > 0\). In other words, \(1 - \delta_i\) specifies the minimum probability that desirable behavior (\(g_i(\theta) \leq 0\)) is met. Smaller values of \(\delta_i\) are preferred.
 \end{itemize}
-In summary, a Seldonian algorithm ensures that for all \(i \in \{1,2,\ldots,n\}\):
+In summary, a Seldonian algorithm ensures that for all \(i \in \{1,2,\ldots,m\}\):
 \begin{equation}
 \label{ch2eq6}
 P(g_i(a(D)) \leq 0) \geq 1 - \delta_i.
@@ -626,11 +626,11 @@ As detailed, the Seldonian framework is different from current potential remedie
 \label{ch2eq7}
 \underset{a \in \textbf{A}}{\text{ arg max }} f(a)
 \end{equation}
-\[\text{ s.t. } \forall \text{ } i \in \{1, 2, \ldots, n\} \text{, } P(g_i(a(D)) \leq 0) \geq 1 - \delta_i.\]
+\[\text{ s.t. } \forall \text{ } i \in \{1, 2, \ldots, m\} \text{, } P(g_i(a(D)) \leq 0) \geq 1 - \delta_i.\]
 
 A Seldonian algorithm \(a\), thus, returns, with high probability, a solution that guarantees desirable behavior. If one were to apply machine algorithm \(a\) to obtain a solution from a large number of different data sets \(D\) drawn from the same distribution, then it would be expected that at most \(100\delta_i \%\) solutions (models) would produce undesirable behavior.
 
-Taking the previous regression example and turning it into a Seldonian optimization problem using the discrimination statistic in Section \ref{standardlimitations}, \(f\) would still be an objective function like the MSE, \(\Theta\) would still be the set of all possible linear models, and \(D\) would be the data set as described. There would be 1 behavioral constraint, \(g_1(a(D)) = |d(a(D))| - \epsilon\), to guarantee with probability at least \(1-\delta_1\), that the absolute value of the discrimination statistic would be at most \(\epsilon\), where \(\epsilon\) and \(\delta_1\) are chosen by domain experts based on the specific application. Note that the user of the machine learning algorithm need not perform data analysis to determine whether \(g_1(\theta) \leq 0\) for a particular solution \(\theta \in \Theta\) returned. The computation algorithm guarantees this with some desired level of probability.
+Taking the previous regression example and turning it into a Seldonian optimization problem using the discrimination statistic in Section \ref{standardlimitations}, \(f\) would still be an objective function like the MSE, \(\Theta\) would still be the set of all possible linear models, and \(D\) would be the data set as described. There would be one behavioral constraint, \(g_1(a(D)) = |d(a(D))| - \epsilon\), to guarantee with probability at least \(1-\delta_1\), that the absolute value of the discrimination statistic would be at most \(\epsilon\), where \(\epsilon\) and \(\delta_1\) are chosen by domain experts based on the specific application. Note that the user of the machine learning algorithm need not perform data analysis to determine whether \(g_1(\theta) \leq 0\) for a particular solution \(\theta \in \Theta\) returned. The computation algorithm guarantees this with some desired level of probability.
 \begin{figure}
 
 {\centering \includegraphics[width=1\linewidth]{figures/seldonian1} 
@@ -639,9 +639,9 @@ Taking the previous regression example and turning it into a Seldonian optimizat
 
 \caption[Overview of the Seldonian Framework]{Overview of the Seldonian Framework (P. S. Thomas et al., 2019a)}\label{fig:seldonian1}
 \end{figure}
-Figure \ref{fig:seldonian1} illustrates how this is achieved at a high level. A Seldonian algorithm takes in \(n\) behavioral constraints \((g_i,\delta_i)_{i=1}^n\) and a data set \(D\) as the inputs and returns either a solution (model) \(\theta\) or \(NSF\), which means ``No Solution Found''. An NSF result means no algorithm was found that returned a model which satisfied the behavioral constraints with the desired probability, so solutions are not guaranteed when employing Seldonian algorithms.
+Figure \ref{fig:seldonian1} illustrates how this is achieved at a high level. A Seldonian algorithm takes in \(m\) behavioral constraints \((g_i,\delta_i)_{i=1}^m\) and a data set \(D\) as the inputs and returns either a solution (model) \(\theta\) or \(NSF\), which means ``No Solution Found''. An NSF result means no algorithm was found that returned a model which satisfied the behavioral constraints with the desired probability, so solutions are not guaranteed when employing Seldonian algorithms.
 
-First, the data \(D\) is partitioned into 2 sets \(D_1\) and \(D_2\) that essentially serve as train and test sets, respectively. \(D_1\) is then passed through the candidate selection mechanism, which performs a search over algorithms to settle on a candidate solution \(\theta_c\). \(\theta_c\) is selected not only so that it optimizes the primary objective function \(f\), but also so that it is predicted to pass the subsequent safety test. \(D_2\) is then passed through the safety test to check whether \(\theta_c\) indeed satisfies the \(n\) behavioral constraints with the desired confidence for each, that is \(P(g_i(\theta_c) \leq 0) \geq 1 - \delta_i\) for each constraint \(i \in \{ 1,2, \ldots, n \}\). If so, \(\theta_c\) is returned as the desired solution, and otherwise, NSF (P. S. Thomas et al., 2019a).
+First, the data \(D\) is partitioned into 2 sets \(D_1\) and \(D_2\) that essentially serve as train and test sets, respectively. \(D_1\) is then passed through the candidate selection mechanism, which performs a search over algorithms to settle on a candidate solution \(\theta_c\). \(\theta_c\) is selected not only so that it optimizes the primary objective function \(f\), but also so that it is predicted to pass the subsequent safety test. \(D_2\) is then passed through the safety test to check whether \(\theta_c\) indeed satisfies the \(m\) behavioral constraints with the desired confidence for each, that is \(P(g_i(\theta_c) \leq 0) \geq 1 - \delta_i\) for each constraint \(i \in \{ 1,2, \ldots, m \}\). If so, \(\theta_c\) is returned as the desired solution, and otherwise, NSF (P. S. Thomas et al., 2019a).
 
 Note that finding exact confidence bounds may be impractical and require large amounts of data. Quasi-Seldonian algorithms, thus, are an extension of this idea that rely on standard statistical tools to transform sample statistics computed from \(D\) into approximate bounds on the probability of undesirable behavior (P. S. Thomas et al., 2019a). Section \ref{qsa} discusses the statistical framework employed to achieve this.
 
@@ -650,29 +650,29 @@ Note that finding exact confidence bounds may be impractical and require large a
 
 Recall that the Seldonian goal is to create an algorithm \(a\) that is an approximate solution to the Seldonian optimization problem defined in Equation \ref{ch2eq7}. This framework is non-parametric and relies on exact values of the objective function and fairness constraints without making any assumptions about the data. However, these values are often unknown and need to be estimated from the data provided. This may require making some assumptions about the underlying population distribution the sample was drawn from, hence the name \(\textit{quasi}\)-Seldonian.
 
-For example, \(f(a)\), the objective function, can be estimated from the data provided such that \(\hat{f}: \Theta \text{ x } \textbf{D} \rightarrow \textbf{R}\) serves as a measure of the utility of the algorithm that returns a solution \(\theta\) when given input \(D\) (P. S. Thomas et al., 2019a). In a linear regression setting, the MSE for a data set of size \(m\) can be estimated by
+For example, \(f(a)\), the objective function, can be estimated from the data provided such that \(\hat{f}: \Theta \text{ x } \textbf{D} \rightarrow \textbf{R}\) serves as a measure of the utility of the algorithm that returns a solution \(\theta\) when given input \(D\) (P. S. Thomas et al., 2019a). In a linear regression setting, the MSE for a data set of size \(n\) can be estimated by
 \begin{equation}
 \label{ch2eq9}
-\hat{f}(\theta, D) = -\frac{1}{m} \sum_{i=1}^{m}(\hat{y}(X_i, \theta) - Y_i)^2.
+\hat{f}(\theta, D) = -\frac{1}{n} \sum_{i=1}^{n}(\hat{y}(X_i, \theta) - Y_i)^2.
 \end{equation}
 In a similar fashion, the following section discusses how the candidate selection and safety test mechanisms further employ statistical estimation techniques and assumptions of normality to estimate the confidence bounds of the fairness constraints and probabilistically guarantee safe behavior.
 
 \hypertarget{safety}{%
 \subsubsection{The Safety Test Mechanism}\label{safety}}
 
-Seldonian algorithms ensure that \(P(g_i(\theta_c) \leq 0) \geq 1 - \delta_i\) for each constraint \(i \in \{ 1,2, \ldots, n \}\) and the safety test mechanism is the component that verifies whether these behavioral constraints actually hold (P. S. Thomas et al., 2019a). This is achieved by computing an upper bound for each \(g_i(\theta)\) using the data and a confidence interval derived from the Student \(t\)-statistic. If the high confidence upper bound is less than or equal to 0, then the solution is safe to return, otherwise, no solution will be returned.
+Seldonian algorithms ensure that \(P(g_i(\theta_c) \leq 0) \geq 1 - \delta_i\) for each constraint \(i \in \{ 1,2, \ldots, m \}\) and the safety test mechanism is the component that verifies whether these behavioral constraints actually hold (P. S. Thomas et al., 2019a). This is achieved by computing an upper bound for each \(g_i(\theta)\) using the data and a confidence interval derived from the Student \(t\)-statistic. If the high confidence upper bound is less than or equal to 0, then the solution is safe to return, otherwise, no solution will be returned.
 
-Let \(X = (X_1, \ldots, X_m)\) be \(m\) independent and identically distributed (\(i.i.d.\)) random observations. Under the assumption that \(\frac{1}{m} \sum_{i=1}^m X_i\) is normally distributed or if \(m\) is sufficiently large -- by the Central Limit Theorem --, then the Student \(t\)-statistic can be used to compute an upper bound of the expected value of these random variables as follows:
+Let \(X = (X_1, \ldots, X_n)\) be \(n\) independent and identically distributed (\(i.i.d.\)) random observations. Under the assumption that \(\frac{1}{n} \sum_{i=1}^n X_i\) is normally distributed or if \(n\) is sufficiently large -- by the Central Limit Theorem --, then the Student \(t\)-statistic can be used to compute an upper bound of the expected value of these random variables as follows:
 \begin{equation}
 \label{ch2eq10}
-P(E[X_1] \leq \hat{\mu}(X) + \frac{\hat{\sigma}(X)}{\sqrt{m}}t_{1-\delta, m-1}) \geq 1 - \delta,
+P(E[X_1] \leq \hat{\mu}(X) + \frac{\hat{\sigma}(X)}{\sqrt{n}}t_{1-\delta, n-1}) \geq 1 - \delta,
 \end{equation}
 where
 \begin{itemize}
 \item
-  \(\hat{\mu}(X) = \bar{X}\) and \(\hat{\sigma}(X) = s\) are the sample mean and standard deviation, respectively, of a vector X. That is, \(\hat{\mu}(X) = \frac{1}{m}\sum_{i=1}^m X_i = \bar{X}\) and \(\hat{\sigma}(X) = \sqrt{\frac{\frac{1}{m}\sum_{i=1}^m (X_i - \hat{\mu}(X))^2}{m-1}} = s\).
+  \(\hat{\mu}(X) = \bar{X}\) and \(\hat{\sigma}(X) = s\) are the sample mean and standard deviation, respectively, of a vector X. That is, \(\hat{\mu}(X) = \frac{1}{n}\sum_{i=1}^n X_i = \bar{X}\) and \(\hat{\sigma}(X) = \sqrt{\frac{\frac{1}{n}\sum_{i=1}^n (X_i - \hat{\mu}(X))^2}{n-1}} = s\).
 \item
-  \(t_{1-\delta, m-1}\) is the \(100(1-\delta)\) percentile of the Student \(t\)-distribution with \(m-1\) degrees of freedom.
+  \(t_{1-\delta, n-1}\) is the \(100(1-\delta)\) percentile of the Student \(t\)-distribution with \(n-1\) degrees of freedom.
 \end{itemize}
 Before constructing the safety test mechanism, recall from Section \ref{sop} that (P. S. Thomas et al., 2019b):
 \begin{itemize}
@@ -681,16 +681,16 @@ Before constructing the safety test mechanism, recall from Section \ref{sop} tha
 \item
   The safety data, \(D_2\), is used to verify that the behavioral constraints hold.
 \item
-  \(\hat{g_i}(\theta_c, D_2) = (\hat{g_{i,1}}(\theta_c, D_2), \ldots,\hat{g_{i,m}}(\theta_c, D_2))\) contains \(m\) \(i.i.d\) values of \(\hat{g_i}(\theta_c)\) for each of the \(m\) observations in \(D_2\). \(|D_2|\) will be used to denote the number of observations in \(D_2\) for consistency in notation.
+  \(\hat{g_i}(\theta_c, D_2) = (\hat{g_{i,1}}(\theta_c, D_2), \ldots,\hat{g_{i,n}}(\theta_c, D_2))\) contains \(n\) \(i.i.d\) values of \(\hat{g_i}(\theta_c)\) for each of the \(n\) observations in \(D_2\) for each behavioral constraint \(i \in \{1,2, \ldots, m \}\). \(|D_2|\) will be used to denote the number of observations in \(D_2\) for consistency in notation.
 \item
-  \(E[\hat{g_i}(\theta_c, D_2)] = g_i(\theta_c)\).
+  \(E[\hat{g_i}(\theta_c, D_2)] = g_i(\theta_c)\) for each behavioral constraint \(i \in \{1,2, \ldots, m \}\).
 \end{itemize}
 By substituting the respective pieces into the Student \(t\) high confidence upper bound discussed above, then:
 \begin{equation}
 \label{ch2eq11}
 P(g_i(\theta_c) \leq \hat{\mu}(\hat{g_i}(\theta_c, D_2)) + \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_2))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1}) \geq 1 - \delta_i.
 \end{equation}
-Notice that \(\hat{\mu}(\hat{g_i}(\theta_c, D_2)) + \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_2))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1}\) is an upper bound of the confidence interval with confidence \(1-\delta_i\). If this upper bound is less than or equal to zero, then the \(i^{th}\) behavioral constraint \(g_i(\theta_c)\) is less than or equal to zero with at least probability \(1-\delta_i\). Therefore, \(\theta_c\) is only returned if \(\hat{\mu}(\hat{g_i}(\theta_c, D_2)) + \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_2))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1} \leq 0\). Specifically, this holds only under the assumption that \(\hat{\mu}(\hat{g_i}(\theta_c, D_2))\) is normally distributed or if the size of the safety data \(D_2\) is sufficiently large, hence the name \(\textit{quasi}\)-Seldonian (P. S. Thomas et al., 2019a). The next section now discusses precisely how \(\theta_c\) is selected before being passed into the safety test mechanism.
+Notice that \(\hat{\mu}(\hat{g_i}(\theta_c, D_2)) + \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_2))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1}\) is an upper bound of the confidence interval with confidence \(1-\delta_i\). If this upper bound is less than or equal to zero, then the \(i^{th}\) behavioral constraint \(g_i(\theta_c)\) is less than or equal to zero with at least probability \(1-\delta_i\). Therefore, \(\theta_c\) is only returned if \(\hat{\mu}(\hat{g_i}(\theta_c, D_2)) + \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_2))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1} \leq 0\). Specifically, this holds only under the assumption that \(\hat{\mu}(\hat{g_i}(\theta_c, D_2))\) is normally distributed or if the size of the safety data \(D_2\) is sufficiently large, hence the name \(\textit{quasi}\)-Seldonian (P. S. Thomas et al., 2019a). The next section now discusses precisely how \(\theta_c\) is selected before being passed into this safety test mechanism.
 
 \hypertarget{candidate}{%
 \subsubsection{The Candidate Selection Mechanism}\label{candidate}}
@@ -707,7 +707,7 @@ Thus, only solutions likely to pass the safety test will be considered by predic
 \label{ch2eq13}
 \theta_c \in \underset{\theta \in \Theta}{\text{ arg max }} \hat{f}(\theta, D_1)
 \end{equation}
-\[ \text{ s.t. } \forall \text{ } i \in \{1,2,\ldots,n\}, \text{  } \hat{\mu}(\hat{g_i}(\theta_c, D_1)) + \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_1))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1} \leq 0. \]
+\[ \text{ s.t. } \forall \text{ } i \in \{1,2,\ldots,m\}, \text{  } \hat{\mu}(\hat{g_i}(\theta_c, D_1)) + \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_1))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1} \leq 0. \]
 
 Notice that while the sample mean \(\hat{\mu}\) and the sample standard deviation \(\hat{\sigma}\) are computed over \(D_1\), the size of \(D_2\) is used to correct the standard deviation and compute the Student \(t\) percentile, in order to ensure that the solution is properly predicted to pass the safety test.
 
@@ -716,7 +716,7 @@ The process defined can work well when the objective function \(f\) and the beha
 \label{ch2eq14}
 \theta_c \in \underset{\theta \in \Theta}{\text{ arg max }} \hat{f}(\theta, D_1)
 \end{equation}
-\[\text{ s.t. } \forall \text{ } i \in \{1,2,\ldots,n\}, \text{  } \hat{\mu}(\hat{g_i}(\theta_c, D_1)) + 2\frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_1))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1} \leq 0.\]
+\[\text{ s.t. } \forall \text{ } i \in \{1,2,\ldots,m\}, \text{  } \hat{\mu}(\hat{g_i}(\theta_c, D_1)) + 2\frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_1))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1} \leq 0.\]
 
 \hfill\break
 
@@ -725,7 +725,7 @@ This concludes the discussion on the Seldonian theoretical framework at a high l
 \hypertarget{toy}{%
 \section{Toy Example: A Quasi-Seldonian Regression Algorithm}\label{toy}}
 
-The tutorial in this section follows the presentation by P. S. Thomas (n.d.) on the AI Safety webpage focusing on the key computational aspects of the Seldonian framework. Consistent with the linear regression set-up in this chapter, consider \(X, Y \in \textbf{R}\) as two dependent random variables with the goal of estimating \(Y\) given \(X\) through a sample of \(m\) observations. \(X\) is drawn synthetically from a \(N(0,1)\) distribution and \(Y\) is dependent on \(X\) with a \(N(X,1)\) distribution. Figure \ref{fig:fig2} displays 5000 such points. \(\hat{y}(X, \theta) = \theta_1X+\theta_2\) and \(MSE = E[(\hat{y}(X, \theta)-Y)^2]\) are computed as previously defined.
+The tutorial in this section follows the presentation by P. S. Thomas (n.d.) on the AI Safety webpage focusing on the key computational aspects of the Seldonian framework. Consistent with the linear regression set-up in this chapter, consider \(X, Y \in \textbf{R}\) as two dependent random variables with the goal of estimating \(Y\) given \(X\) through a sample of \(n\) observations. \(X\) is drawn synthetically from a \(N(0,1)\) distribution and \(Y\) is dependent on \(X\) with a \(N(X,1)\) distribution. Figure \ref{fig:fig2} displays 5000 such points. \(\hat{y}(X, \theta) = \theta_1X+\theta_2\) and \(MSE = E[(\hat{y}(X, \theta)-Y)^2]\) are computed as previously defined.
 \begin{figure}
 
 {\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/fig2-1} 
@@ -734,14 +734,14 @@ The tutorial in this section follows the presentation by P. S. Thomas (n.d.) on 
 
 \caption{Synthetic Data for Quasi-Seldonian Linear Regression Tutorial}\label{fig:fig2}
 \end{figure}
-In this example, the goal of the linear regression algorithm is two-fold: to minimize MSE (or equivalently, maximize -MSE) while ensuring, with probability at least 0.9, that \(1.25 < MSE < 2\). Note that this behavioral constraint is not practical in an application setting, but it's deliberately designed to be at odds with the objective function in order to test behavior when such conflict arises. Additionally, it'll be simple to verify satisfaction of the behavioral constraint for demonstration purposes. The behavioral constraint needs to be mathematically represented in a way that defines \(g(\theta) \leq 0\) as safe behavior. Therefore, \(n\) will be set to \(2\) such that:
+In this example, the goal of the linear regression algorithm is two-fold: to minimize MSE (or equivalently, maximize -MSE) while ensuring, with probability at least 0.9, that \(1.25 < MSE < 2\). Note that this behavioral constraint is not practical in an application setting, but it's deliberately designed to be at odds with the objective function in order to test behavior when such conflict arises. Additionally, it'll be simple to verify satisfaction of the behavioral constraint for demonstration purposes. The behavioral constraint needs to be mathematically represented in a way that defines \(g(\theta) \leq 0\) as safe behavior. Therefore, \(m\) will be set to two such that:
 \begin{itemize}
 \item
   \(g_1(\theta) = MSE(\theta) - 2.0 \text{; } \delta_1 = 0.1\).
 \item
   \(g_2(\theta) = 1.25 - MSE(\theta) \text{; } \delta_2 = 0.1\).
 \end{itemize}
-Unbiased estimates of the MSE and each \(g_i(\theta)\) will be computed from the data set as elucidated in Section \ref{qsa}. The Python code used to implement and compute the quasi-Seldonian linear regression algorithm is displayed in detail in Appendix \ref{appendix-b}. To reduce computational burden, all the computation was performed on the Amherst College High-Performance Computing System. In this case, a solution that minimizes the MSE while satisfying the 2 behavioral constraints, \(g_1(\theta)\) and \(g_2(\theta)\), was found -- the MSE was \(1.385\). Figure \ref{fig:fig3} visually compares the quasi-Seldonian solution (blue) with the ordinary least squares solution (red).
+Unbiased estimates of the MSE and each \(g_i(\theta)\) will be computed from the data set as elucidated in Section \ref{qsa}. The Python code used to implement and compute the quasi-Seldonian linear regression algorithm is displayed in detail in Appendix \ref{appendix-b}, along with the theoretical considerations. To reduce computational burden, all the computation was performed on the Amherst College High-Performance Computing System. In this case, a solution that minimizes the MSE while satisfying the two behavioral constraints, \(g_1(\theta)\) and \(g_2(\theta)\), was found -- the MSE was \(1.385\). Figure \ref{fig:fig3} visually compares the quasi-Seldonian solution (blue) with the ordinary least squares solution (red).
 \begin{verbatim}
    A solution was found: [0.6050927032, 1.0201681981]
    fHat of solution (computed over all data, D): -1.3854947860210223
@@ -754,19 +754,26 @@ Unbiased estimates of the MSE and each \(g_i(\theta)\) will be computed from the
 
 \caption{Quasi-Seldonian Linear Regression}\label{fig:fig3}
 \end{figure}
-To conclude this chapter, Section \ref{exp} scales this process to repeatedly run a quasi-Seldonian linear regression algorithm using different amounts of data and analyzes the results.
+To conclude this chapter, Section \ref{exp} scales this process to repeatedly run a quasi-Seldonian linear regression algorithm using different sample sizes and analyzes the results.
 
 \hypertarget{exp}{%
 \subsection{Experimentation}\label{exp}}
 
 Consistent with the set-up in Section \ref{toy} and following the presentation by P. S. Thomas (n.d.), the aim of the experimentation in this section is to assess three aspects of the quasi-Seldonian linear regression algorithm defined in Section \ref{toy}: performance loss, frequency of solutions, and frequency of undesirable behavior for varying sample sizes.
+
+Each of the figures show how different properties of the quasi-Seldonian linear regression (QSLR) algorithm vary for different sample sizes, \(\textit{n}\). The horizontal axis is on a logarithmic scale, with values of \(\textit{n}\) starting at \(\textit{n} = 32\) and going up to \(\textit{n} = 65,536\), doubling each time such that \(\textit{n} \in \{32, 64, 128, \ldots, 65536 \}\). 50 trials are run for each value of \(n\). Each figure plots the mean and includes a standard error bar to visualize the variance of results.
+
+\hypertarget{performance-loss}{%
+\subsubsection{Performance Loss}\label{performance-loss}}
+
+A Seldonian algorithm that has probabilistic guarantees of safe or fair behavior will typically perform worse, with regard to accuracy or error, than an algorithm that is purely focused on optimizing performance (P. S. Thomas, n.d.). In Figure \ref{fig:fig4}, the dotted lines represent the desired range for the MSE as defined by the behavioral constraints set in Section \ref{toy}. In this setting, MSE was forced to be higher. Notice that the QSLR did not return a solution for small amounts of data, but when a solution was returned, it was always within the MSE bounds set by the constraints. Additionally, the bigger the sample size, the closer the MSE was to the lower boundary. This highlights the role that the primary objective plays as the sample size increases by encouraging solutions with lower error, albeit still within the desired window. In a different setting where the behavioral constraints are not at odds with the primary objective function, it would be worthwhile to investigate performance loss when using a QSLR algorithm rather than ordinary least squares (OLS). Chapter \ref{chap-3} attempts to partially answer this question by investigating performance loss for Seldonian algorithms in classification settings.
 \begin{figure}
 
 {\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/fig4-1} 
 
 }
 
-\caption{QSA Experiment: Performance Loss}\label{fig:fig4}
+\caption{QSA Experiment: Performance Loss (adapted from P. S. Thomas, 2019)}\label{fig:fig4}
 \end{figure}
 \begin{figure}
 
@@ -774,35 +781,12 @@ Consistent with the set-up in Section \ref{toy} and following the presentation b
 
 }
 
-\caption{QSA Experiment: Probability of a Solution}\label{fig:fig5}
+\caption{QSA Experiment: Probability of a Solution (adapted from P. S. Thomas, 2019)}\label{fig:fig5}
 \end{figure}
-\begin{figure}
-
-{\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/fig6-5} 
-
-}
-
-\caption{QSA Experiment: Satisfaction of 1st Behavioral Constraint}\label{fig:fig6}
-\end{figure}
-\begin{figure}
-
-{\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/fig7-7} 
-
-}
-
-\caption{QSA Experiment: Satisfaction of 2nd Behavioral Constraint}\label{fig:fig7}
-\end{figure}
-Each of the figures show how different properties of the quasi-Seldonian linear regression (QSLR) algorithm vary for different data set sizes, \(\textit{m}\). The horizontal axis is on a logarithmic scale, with values of \(\textit{m}\) starting at \(\textit{m} = 32\) and going up to \(\textit{m} = 65,536\), doubling each time such that \(\textit{m} \in \{32, 64, 128, \ldots, 65536 \}\). 50 trials are run for each value of \(m\). Each figure plots the mean and includes a standard error bar to visualize the variance of results.
-
-\hypertarget{performance-loss}{%
-\subsubsection{Performance Loss}\label{performance-loss}}
-
-A Seldonian algorithm that has probabilistic guarantees of safe or fair behavior will typically perform worse, with regard to accuracy or error, than an algorithm that is purely focused on optimizing performance (P. S. Thomas, n.d.). In Figure \ref{fig:fig4}, the dotted lines represent the desired range for the MSE as defined by the behavioral constraints set in Section \ref{toy}. In this setting, MSE was forced to be higher. Notice that the QSLR did not return a solution for small amounts of data, but when a solution was returned, it was always within the MSE bounds set by the constraints. Additionally, the bigger the sample size, the closer the MSE was to the lower boundary. This highlights the role that the primary objective plays as the sample size increases by encouraging solutions with lower error, albeit still within the desired window. In a different setting where the behavioral constraints are not at odds with the primary objective function, it would be worthwhile to investigate performance loss when using a QSLR algorithm rather than ordinary least squares (OLS). Chapter \ref{chap-3} attempts to answer this question by investigating performance loss for Seldonian algorithms in classification settings.
-
 \hypertarget{probability-of-a-solution}{%
 \subsubsection{Probability of a Solution}\label{probability-of-a-solution}}
 
-Quasi-Seldonian algorithms don't always return a solution, especially with little data because there is insufficient confidence that any solution would satisfy the behavioral constraints. Figure \ref{fig:fig5} illustrates that with more data, there is a higher probability of a solution. Nevertheless, there isn't a definitive threshold ensuring a solution for data sizes exceeding it. However, when provided with ample data, the results suggested that the likelihood of obtaining a solution tends to exceed 0.8.
+Quasi-Seldonian algorithms don't always return a solution, especially with little data because there is insufficient confidence that any solution would satisfy the behavioral constraints. Figure \ref{fig:fig5} illustrates that with more data, there is a higher probability of a solution. Nevertheless, there isn't a definitive threshold ensuring a solution for data sizes exceeding it. However, when provided with ample data (\(n >\) \textasciitilde{}\(1000\)), the results suggested that the likelihood of obtaining a solution tends to exceed 0.8.
 
 \hypertarget{probability-of-undesirable-behavior}{%
 \subsubsection{Probability of Undesirable Behavior}\label{probability-of-undesirable-behavior}}
@@ -812,7 +796,22 @@ Finally, Figures \ref{fig:fig6} and \ref{fig:fig7} plot the probability that eac
 \(\\\)
 
 The toy example in this Chapter illustrates some of the desirable qualities of Seldonian (or quasi-Seldonian) algorithms and some of the limitations. The focus was in the quantitative setting when using linear regression. Next, Chapter \ref{chap-3} delves into the properties of Seldonian algorithms within a classification setting.
+\begin{figure}
 
+{\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/fig6-5} 
+
+}
+
+\caption{QSA Experiment: Satisfaction of 1st Behavioral Constraint (adapted from P. S. Thomas, 2019)}\label{fig:fig6}
+\end{figure}
+\begin{figure}
+
+{\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/fig7-7} 
+
+}
+
+\caption{QSA Experiment: Satisfaction of 2nd Behavioral Constraint (adapted from P. S. Thomas, 2019)}\label{fig:fig7}
+\end{figure}
 \hypertarget{chap-3}{%
 \chapter{Applying the Seldonian Framework in a Classification Setting}\label{chap-3}}
 
