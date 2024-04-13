@@ -83,7 +83,7 @@ d(\theta) = abs[(FPR | \text{A = a} - FPR | \text{A = b}) + (FNR | \text{A = a} 
 
 ## Simulation Results {#sim-results}
 
-As described in Section \@ref(sim-design), the simulation results will be analyzed along 3 key performance measures: convergence, discrimination, and accuracy.
+As described in Section \@ref(sim-design), the simulation results will be analyzed along three key performance measures: convergence, discrimination, and accuracy.
 
 ```{r, echo = FALSE}
 # read in logistic results
