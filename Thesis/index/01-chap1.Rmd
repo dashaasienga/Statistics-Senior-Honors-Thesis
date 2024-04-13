@@ -189,7 +189,7 @@ Because of the way different fairness metrics are defined, it can be impossible 
 
 ### Fairness Conflicts in Regression
 
-The UFRGS Entrance Exam and GPA Data contains entrance exam scores of students applying to the Federal University of Rio Grande do Sul in Brazil, along with the students' GPAs during their first three semesters at the university [@DVN/O35FW8_2019]. Each student's score in nine different entrance exams is used to predict their GPA during their first 3 semesters of study at the university. Gender and race are the protected attributes.  
+The UFRGS Entrance Exam and GPA Data contains entrance exam scores of students applying to the Federal University of Rio Grande do Sul in Brazil, along with the students' GPAs during their first three semesters at the university [@DVN/O35FW8_2019]. Each student's score in nine different entrance exams is used to predict their GPA during their first three semesters of study at the university. Gender and race are the protected attributes.  
 
 Taking gender as the protected attribute in a gender-blind model, independence, in this setting, would require that the average predictions be the same for each gender. That is, 
 
