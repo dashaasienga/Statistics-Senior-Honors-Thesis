@@ -1,1 +1,12 @@
-Use this space to thank those who have helped you in the thesis process (professors, staff, friends, family, etc.). If you had special funding to conduct your thesis work, that should be acknowledged here as well.
+I would like to extend my deepest gratitude to my thesis advisor, Professor Katharine Correia, without whom this thesis would not have been possible. Her invaluable support, feedback, and expertise have enabled me to complete this thesis successfully. More than that, her abundant patience and compassion, persistent faith in me, and cheerful encouragement have made writing this thesis enjoyable. It has been a fantastic experience, and I am deeply grateful.
+
+I thank Andy Anderson for his technical assistance as I ran my simulation studies on FrostByte, Amherst College's High-Performance Computing Cluster. Additionally, I would like to thank all the Statistics faculty for their inspiration and encouragement throughout my journey as a Statistics student, culminating in this thesis. 
+
+I owe special thanks to all my friends, especially Ian and Lynca, and my younger sister, Delcy, for always encouraging me during my most stressful moments and celebrating my successes joyously.
+
+I would be remiss in not mentioning my parents, Johnstone and Irene, to whom I owe so much. Their prayers, love, encouragement, and fierce belief in me have driven and motivated me to complete this thesis, dedicated to them as a token of my appreciation and a testament to my undergraduate education, which would not have been possible without their support. 
+
+Last but not least, I thank God for granting me strength, courage, perseverance, and humility throughout the thesis-writing process.  
+
+
+
