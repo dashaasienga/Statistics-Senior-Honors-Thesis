@@ -799,33 +799,65 @@ img_path = '/home/dasienga24/Statistics-Senior-Honors-Thesis/Thesis/index/experi
 ```
 
 ```{python, echo = FALSE}
-def loadAndPlotResults(fileName, ylabel, output_file, is_yAxis_prob, legend_loc):
+# def loadAndPlotResults(fileName, ylabel, output_file, is_yAxis_prob, legend_loc):
+#     file_ms, file_QSA, file_QSA_stderror, file_LS, file_LS_stderror = np.loadtxt(fileName, delimiter=',', unpack=True)
+# 
+#     fig = plt.figure()
+# 
+#     plt.xlim(min(file_ms), max(file_ms))
+#     plt.xlabel("Amount of data (m)", fontsize=12)
+#     plt.xscale('log')
+#     plt.xticks(fontsize=12)
+#     plt.ylabel(ylabel, fontsize=12)
+# 
+#     if is_yAxis_prob:
+#         plt.ylim(-0.1, 1.1)
+#     else:
+#         plt.ylim(-0.2, 2.2)
+#         plt.plot([1, 100000], [1.25, 1.25], ':k');
+#         plt.plot([1, 100000], [2.1,  2.1],  ':k');		
+# 
+#     plt.plot(     file_ms,     file_QSA, 'b-', linewidth=3, label='QSA')
+#     plt.errorbar( file_ms,     file_QSA, yerr=file_QSA_stderror, fmt='.k');
+#     plt.plot(     file_ms,     file_LS,  'r-', linewidth=3, label='LS')
+#     plt.errorbar( file_ms,     file_LS,  yerr=file_LS_stderror, fmt='.k');
+#     plt.legend(loc=legend_loc, fontsize=12)
+#     plt.tight_layout()
+# 
+#     plt.savefig(output_file)
+#     plt.show(block=False)
+
+def loadAndPlotResults(fileName, ylabel, output_file, is_yAxis_prob, legend_loc, ax=None):
     file_ms, file_QSA, file_QSA_stderror, file_LS, file_LS_stderror = np.loadtxt(fileName, delimiter=',', unpack=True)
 
-    fig = plt.figure()
+    if ax is None:
+        fig, ax = plt.subplots()  # Create a new figure and axis if ax is not provided
 
-    plt.xlim(min(file_ms), max(file_ms))
-    plt.xlabel("Amount of data (m)", fontsize=12)
-    plt.xscale('log')
-    plt.xticks(fontsize=12)
-    plt.ylabel(ylabel, fontsize=12)
+    ax.set_xlim(min(file_ms), max(file_ms))
+    ax.set_xlabel("Amount of data (m)", fontsize=12)
+    ax.set_xscale('log')
+    ax.tick_params(axis='x', labelsize=12)
+    ax.set_ylabel(ylabel, fontsize=12)
 
     if is_yAxis_prob:
-        plt.ylim(-0.1, 1.1)
+        ax.set_ylim(-0.1, 1.1)
     else:
-        plt.ylim(-0.2, 2.2)
-        plt.plot([1, 100000], [1.25, 1.25], ':k');
-        plt.plot([1, 100000], [2.1,  2.1],  ':k');		
+        ax.set_ylim(-0.2, 2.2)
+        ax.plot([1, 100000], [1.25, 1.25], ':k')
+        ax.plot([1, 100000], [2.1,  2.1],  ':k')
 
-    plt.plot(     file_ms,     file_QSA, 'b-', linewidth=3, label='QSA')
-    plt.errorbar( file_ms,     file_QSA, yerr=file_QSA_stderror, fmt='.k');
-    plt.plot(     file_ms,     file_LS,  'r-', linewidth=3, label='LS')
-    plt.errorbar( file_ms,     file_LS,  yerr=file_LS_stderror, fmt='.k');
-    plt.legend(loc=legend_loc, fontsize=12)
+    ax.plot(file_ms, file_QSA, 'b-', linewidth=3, label='QSA')
+    ax.errorbar(file_ms, file_QSA, yerr=file_QSA_stderror, fmt='.k')
+    ax.plot(file_ms, file_LS, 'r-', linewidth=3, label='LS')
+    ax.errorbar(file_ms, file_LS, yerr=file_LS_stderror, fmt='.k')
+    ax.legend(loc=legend_loc, fontsize=12)
     plt.tight_layout()
 
-    plt.savefig(output_file)
-    plt.show(block=False)
+    if output_file:
+        plt.savefig(output_file)
+    if ax is None:
+        plt.show(block=False)
+
 ```
 
 ```{python, echo = FALSE, message = FALSE, warning = FALSE}
@@ -837,6 +869,34 @@ Each of the figures show how different properties of the quasi-Seldonian linear 
 
 #### Performance Loss
 A Seldonian algorithm that has probabilistic guarantees of safe or fair behavior will typically perform worse, with regard to accuracy or error, than an algorithm that is purely focused on optimizing performance [@aisafety]. In Figure \@ref(fig:fig4), the dotted lines represent the desired range for the MSE as defined by the behavioral constraints set in Section \@ref(toy). In this setting, MSE was forced to be higher. Notice that the QSLR did not return a solution for small amounts of data, but when a solution was returned, it was always within the MSE bounds set by the constraints. Additionally, the bigger the sample size, the closer the MSE was to the lower boundary. This highlights the role that the primary objective plays as the sample size increases by encouraging solutions with lower error, albeit still within the desired window. In a different setting where the behavioral constraints are not at odds with the primary objective function, it would be worthwhile to investigate performance loss when using a QSLR algorithm rather than ordinary least squares (OLS). Chapter \@ref(chap-3) attempts to partially answer this question by investigating performance loss for Seldonian algorithms in classification settings.  
+
+```{python, fig.align='center', fig.cap="QSA Experiment: Performance Loss [A], Probability of a Solution [B], Satisfaction of 1st Behavioral Constraint [C], and Satisfaction of 2nd Behavioral Constraint [D] (adapted from P. S. Thomas, 2019)", warning = FALSE, message = FALSE, fig.width = 6, fig.height = 8, include = FALSE}
+# Create a figure with two subplots
+fig, axs = plt.subplots(4, 1, figsize=(6, 8))
+
+# Load and plot results for the first image
+loadAndPlotResults(csv_path+'fs.csv', 'Mean Squared Error', img_path+'tutorial7MSE_py.png', False, 'lower right', ax=axs[0])
+axs[0].set_title('A')
+
+# Load and plot results for the second image
+loadAndPlotResults(csv_path+'solutions_found.csv', 'Probability of Solution', img_path+'tutorial7PrSoln_py.png', True, 'best', ax=axs[1])
+axs[1].set_title('B')
+
+# Load and plot results for the third image
+loadAndPlotResults(csv_path+'failures_g1.csv',     r'Probability of $g_1(a(D))>0$', img_path+'tutorial7PrFail1_py.png', True,  'best', ax=axs[2])
+axs[2].set_title('C')
+
+# Load and plot results for the fourth image
+loadAndPlotResults(csv_path+'failures_g2.csv',     r'Probability of $g_2(a(D))>0$', img_path+'tutorial7PrFail2_py.png', True,  'best', ax=axs[3])
+axs[3].set_title('D')
+
+# Adjust layout
+plt.tight_layout()
+
+# Show the plot
+plt.show()
+```
+
 
 ```{python fig4, fig.align='center', fig.cap="QSA Experiment: Performance Loss (adapted from P. S. Thomas, 2019)", warning = FALSE, message = FALSE, fig.width = 5.25, fig.height = 3.5, echo = FALSE}
 loadAndPlotResults(csv_path+'fs.csv', 'Mean Squared Error', img_path+'tutorial7MSE_py.png', False, 'lower right')

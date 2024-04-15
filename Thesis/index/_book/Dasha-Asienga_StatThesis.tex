@@ -785,7 +785,7 @@ Each of the figures show how different properties of the quasi-Seldonian linear 
 A Seldonian algorithm that has probabilistic guarantees of safe or fair behavior will typically perform worse, with regard to accuracy or error, than an algorithm that is purely focused on optimizing performance (P. S. Thomas, n.d.). In Figure \ref{fig:fig4}, the dotted lines represent the desired range for the MSE as defined by the behavioral constraints set in Section \ref{toy}. In this setting, MSE was forced to be higher. Notice that the QSLR did not return a solution for small amounts of data, but when a solution was returned, it was always within the MSE bounds set by the constraints. Additionally, the bigger the sample size, the closer the MSE was to the lower boundary. This highlights the role that the primary objective plays as the sample size increases by encouraging solutions with lower error, albeit still within the desired window. In a different setting where the behavioral constraints are not at odds with the primary objective function, it would be worthwhile to investigate performance loss when using a QSLR algorithm rather than ordinary least squares (OLS). Chapter \ref{chap-3} attempts to partially answer this question by investigating performance loss for Seldonian algorithms in classification settings.
 \begin{figure}
 
-{\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/fig4-1} 
+{\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/fig4-3} 
 
 }
 
@@ -793,7 +793,7 @@ A Seldonian algorithm that has probabilistic guarantees of safe or fair behavior
 \end{figure}
 \begin{figure}
 
-{\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/fig5-3} 
+{\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/fig5-5} 
 
 }
 
@@ -814,7 +814,7 @@ Finally, Figures \ref{fig:fig6} and \ref{fig:fig7} plot the probability that eac
 The toy example in this Chapter illustrates some of the desirable qualities of Seldonian (or quasi-Seldonian) algorithms and some of the limitations. The focus was in the quantitative setting when using linear regression. Next, Chapter \ref{chap-3} delves into the properties of Seldonian algorithms within a classification setting.
 \begin{figure}
 
-{\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/fig6-5} 
+{\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/fig6-7} 
 
 }
 
@@ -822,7 +822,7 @@ The toy example in this Chapter illustrates some of the desirable qualities of S
 \end{figure}
 \begin{figure}
 
-{\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/fig7-7} 
+{\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/fig7-9} 
 
 }
 
@@ -1504,7 +1504,7 @@ Recall from Chapter \ref{intro} that (Castelnovo et al., 2022):
 \FunctionTok{grid.arrange}\NormalTok{(g1,g2, }\AttributeTok{nrow=}\DecValTok{1}\NormalTok{, }\AttributeTok{ncol=}\DecValTok{2}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
-\begin{center}\includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/unnamed-chunk-51-1} \end{center}
+\begin{center}\includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/unnamed-chunk-52-1} \end{center}
 
 \hypertarget{appendix-b}{%
 \chapter{Quasi-Seldonian Linear Regression Theoretical Considerations and Python Implementation}\label{appendix-b}}
