@@ -68,12 +68,12 @@
   \pagestyle{fancy}
 
 % Psych majors: You do not need the following six lines, as it conflicts with apacite, so comment them out.
-%  \let\oldthebibliography=\thebibliography
-%  \let\endoldthebibliography=\endthebibliography
-%  \renewenvironment{thebibliography}[1]{
-%    \oldthebibliography{#1}
-%    \addcontentsline{toc}{chapter}{\bibname}
-%  }{\endoldthebibliography}
+ \let\oldthebibliography=\thebibliography
+ \let\endoldthebibliography=\endthebibliography
+ \renewenvironment{thebibliography}[1]{
+   \oldthebibliography{#1}
+   \addcontentsline{toc}{chapter}{\bibname}
+ }{\endoldthebibliography}
  %%%%%% end of things for psych majors to comment out
 
   \let\oldtheindex=\theindex

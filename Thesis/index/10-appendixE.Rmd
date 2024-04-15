@@ -1,6 +1,6 @@
 # Seldonian Classification on the COMPAS Data Set {#appendix-e}
 
-\noindent This appendix section walks through how a Seldonian algorithm was fit on the COMPAS data set in Chapter \@ref(chap-3) — the algorithm aimed to produce less disparate outcomes in error rates between Black and White defendants.
+\noindent This appendix section walks through how a Seldonian algorithm was fit on the COMPAS data set in Chapter \@ref(chap-3) — the algorithm aimed to produce less disparate outcomes in error rates between Black and White defendants. The code was adapted from @aisafety.
 
 \noindent First, the Python environment can be set up in R using the `reticulate` package. The necessary Python libraries can then be imported as shown.
 

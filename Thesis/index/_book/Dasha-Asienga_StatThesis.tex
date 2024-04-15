@@ -49,8 +49,8 @@
 % following two lines to use the new biblatex-chicago style,
 % for Chicago A. Also make some changes at the end where the
 % bibliography is included.
-%\usepackage{biblatex-chicago}
-%\bibliography{thesis}
+\usepackage[notes,backend=biber]{biblatex-chicago}
+\bibliography{thesis}
 
 
 %===========================================================
@@ -2371,7 +2371,7 @@ Further data wrangling and data analysis are conducted in R, and significant fin
 \hypertarget{appendix-e}{%
 \chapter{Seldonian Classification on the COMPAS Data Set}\label{appendix-e}}
 
-\noindent This appendix section walks through how a Seldonian algorithm was fit on the COMPAS data set in Chapter \ref{chap-3} --- the algorithm aimed to produce less disparate outcomes in error rates between Black and White defendants.
+\noindent This appendix section walks through how a Seldonian algorithm was fit on the COMPAS data set in Chapter \ref{chap-3} --- the algorithm aimed to produce less disparate outcomes in error rates between Black and White defendants. The code was adapted from P. S. Thomas (n.d.).
 
 \noindent First, the Python environment can be set up in R using the \texttt{reticulate} package. The necessary Python libraries can then be imported as shown.
 \begin{Shaded}
@@ -2694,7 +2694,7 @@ Agarwal, A., Dudík, M., \& Wu, Z. S. (2019). Fair regression: Quantitative defi
 Andrews, E. L. (2021, August). How flawed data aggravates inequality in credit. \emph{Stanford Human-Centered Artificial Intelligence}. Retrieved from \url{https://hai.stanford.edu/news/how-flawed-data-aggravates-inequality-credit}
 
 \leavevmode\vadjust pre{\hypertarget{ref-angwin2016machine}{}}%
-Angwin, J., Larson, J., Mattu, S., \& Kirchner, L. (2016). Machine bias risk assessments in criminal sentencing. \emph{ProPublica, May}, \emph{23}.
+Angwin, J., Larson, J., Mattu, S., \& Kirchner, L. (2016). Machine bias: Risk assessments in criminal sentencing. \emph{ProPublica, May}, \emph{23}. Retrieved from \url{https://www.propublica.org/article/machine-bias-risk-assessments-in-criminal-sentencing}
 
 \leavevmode\vadjust pre{\hypertarget{ref-asimov1994forward}{}}%
 Asimov, I. (1994). \emph{Forward the foundation} (Vol. 7). Spectra.
@@ -2733,7 +2733,7 @@ Frederick, S. (2023, June). Supreme court rejects use of race in college admissi
 Kubiak, E., Efremova, M. I., Baron, S., \& Frasca, K. J. (2023). Gender equity in hiring: Examining the effectiveness of a personality-based algorithm. \emph{Frontiers in Psychology}, \emph{14}, 1219865.
 
 \leavevmode\vadjust pre{\hypertarget{ref-larson2016compas}{}}%
-Larson, J., Mattu, S., Kirchner, L., \& Angwin, J. (2016). How we analyzed the COMPAS recidivism algorithm. \emph{ProPublica, May}, \emph{23}.
+Larson, J., Mattu, S., Kirchner, L., \& Angwin, J. (2016). How we analyzed the COMPAS recidivism algorithm. \emph{ProPublica, May}, \emph{23}. Retrieved from \url{https://www.propublica.org/article/how-we-analyzed-the-compas-recidivism-algorithm}
 
 \leavevmode\vadjust pre{\hypertarget{ref-mehrabi2021survey}{}}%
 Mehrabi, N., Morstatter, F., Saxena, N., Lerman, K., \& Galstyan, A. (2021). A survey on bias and fairness in machine learning. \emph{ACM Computing Surveys (CSUR)}, \emph{54}(6), 1--35.
