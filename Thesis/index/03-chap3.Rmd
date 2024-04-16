@@ -75,7 +75,7 @@ clean_compasdata <- clean_compasdata %>%
 ```
 
 Of the 9387 total defendants from Broward County, Florida, in 2013 and 2014, `r round(100*count(clean_compasdata$sex == "Male")/nrow(clean_compasdata),1)`% were male. About `r round(100*count(clean_compasdata$age_cat == "Less than 25")/nrow(clean_compasdata),1)`% are < 25 years old, `r round(100*count(clean_compasdata$age_cat == "25 - 45")/nrow(clean_compasdata),1)`% are between 25 and 45 years old, and 
-`r round(100*count(clean_compasdata$age_cat == "Greater than 45")/nrow(clean_compasdata),1)`% are > 45 years old. The majority of defendants are single (`r round(100*count(clean_compasdata$marital_status == "Single")/nrow(clean_compasdata),1)`%), with the next largest categories being married (`r round(100*count(clean_compasdata$marital_status == "Married")/nrow(clean_compasdata),1)`%) and divorced (`r round(100*count(clean_compasdata$marital_status == "Divorced")/nrow(clean_compasdata),1)`%). The other levels were significant other, separated, unknown, and widowed, respectively. Finally, `r round(100*count(clean_compasdata$juv_offense == 0)/nrow(clean_compasdata),1)`% of defendants had no record of juvenile offenses. The remaining `r round(100*count(clean_compasdata$juv_offense == 1)/nrow(clean_compasdata),1)`% ranged from having one juvenile offense to 21 juvenile offenses on record, with a median of one, a mean of 1.96, and the middle 50% recording one or two offenses.  
+`r round(100*count(clean_compasdata$age_cat == "Greater than 45")/nrow(clean_compasdata),1)`% are > 45 years old. The majority of defendants are single (`r round(100*count(clean_compasdata$marital_status == "Single")/nrow(clean_compasdata),1)`%), with the next largest categories being married (`r round(100*count(clean_compasdata$marital_status == "Married")/nrow(clean_compasdata),1)`%) and divorced (`r round(100*count(clean_compasdata$marital_status == "Divorced")/nrow(clean_compasdata),1)`%). The other levels were significant other, separated, unknown, and widowed, respectively. Finally, `r round(100*count(clean_compasdata$juv_offense == 0)/nrow(clean_compasdata),1)`% of defendants had no record of juvenile offenses. The remaining `r round(100*count(clean_compasdata$juv_offense == 1)/nrow(clean_compasdata),1)`% ranged from having one juvenile offense to 21 juvenile offenses on record, with a median of one, a mean of 1.96, and the middle 50% recording one or two juvenile offenses.  
 
 
 ```{r ch3fig2, fig.align='center', fig.cap="Distribution of the COMPAS Categorical Variables", warning = FALSE, message = FALSE, fig.width = 6, fig.height = 6, include = FALSE}
@@ -149,7 +149,7 @@ ggplot(data = clean_compasdata, mapping = aes(x = race)) +
 
 ### Associations Between the Predictors and Response {#bivariateanalysis}
 
-With a thorough understanding of the variables, this section examines the relationship between the predictive variables and the response variable, recidivism.
+This section further examines the bivariate relationships between the predictive variables and the response variable, recidivism.
 
 Defendants who recidivated tended to be younger than than those who didn't (median age 29 versus 33, respectively; Figure \@ref(fig:ch3fig5)A and \@ref(fig:ch3fig6)A). Defendants who recidivated also tended to have more non-juvenile prior offenses than those who didn't recidivate (median prior offenses three versus one, respectively; Figure \@ref(fig:ch3fig5)B).
 
@@ -387,7 +387,7 @@ $\\$
 
 While the confusion matrix in Table \@ref(tab:ch3table1) relays information on what types of errors the COMPAS tool tends to make and raises questions about the implications of that, Table \@ref(tab:ch3table2) breaks that down further by race for a more granular assessment. While the overall FPR is 25.3%, it is much higher for Black defendants (37.71%) and much lower for White defendants (16.34%). Similarly, while the overall FNR is 49.25%, it is much higher for White defendants (62.26%) and much lower for Black defendants (39.01%) (Table \@ref(tab:ch3table2)). The tool is more than twice as likely to classify a Black defendant who did not reoffend as higher risk compared to a White defendant who also did not reoffend. It makes the opposite mistake, where it is 1.6 times more likely to classify a White defendant who reoffended as lower risk compared to a Black defendant who also reoffended. This discrepancy aligns with ProPublica's findings in Figure \@ref(fig:compas1) and is alarming given that race was not included in the model. 
 
-Including the other races reveals that Asian defendants who did not reoffend were the least likely to be labeled as higher risk – Black defendants were the most likely. Conversely, White defendants who reoffended were the most likely to be labeled as lower risk – Native Americans were the least likely. However, it is essential to consider the few observations in both the Asian (n = 48) and Native American groups (n = 27), as detailed in Section \@ref(protectedattribute).
+Including the other races reveals that Asian defendants who did not reoffend were the least likely to be labeled as higher risk – Black defendants were the most likely. Conversely, White defendants who reoffended were the most likely to be labeled as lower risk – Native Americans were the least likely. However, it is essential to consider the few observations in both the Asian (n = 48) and Native American (n = 27) groups, as detailed in Section \@ref(protectedattribute).
 
 
 ```{r ch3table2, warning = FALSE, message = FALSE, echo = FALSE}
@@ -448,7 +448,7 @@ ggplot(mapping = aes(x = as.factor(decile_score), fill = as.factor(is_recid))) +
     fill = "Recidivism Status")
 ```
 
-The analysis in this section provides evidence for disparities with favorable COMPAS outcomes for White and Asian defendants and unfavorable outcomes for Black and Native American defendants. To visualize these results, Figure \@ref(fig:ch3fig11) displays the distribution of the decile scores for the two most populous races in the data set. Black defendants' decile scores are distributed almost uniformly among the ten decile scores. In contrast, the White defendants' decile scores have a significant right skew, with most observations in lower decile scores. This further emphasizes the racial disparity in employing these risk scores in judicial decisions and the present algorithmic bias.
+The analysis in this section provides evidence for disparities with favorable COMPAS outcomes for White and Asian defendants and unfavorable outcomes for Black and Native American defendants. To visualize these results, Figure \@ref(fig:ch3fig11) displays the distribution of the decile scores for the two most populous races in the data set. Black defendants' decile scores are distributed almost uniformly among the ten decile scores. In contrast, the White defendants' decile scores have a significant right skew, with most observations in lower decile scores. This further emphasizes the racial disparity in employing such risk assessment tools in judicial decisions and the presence of algorithmic bias.
 
 ### Proxy Relationships 
 
@@ -456,7 +456,7 @@ Section \@ref(comptoolanalysis) revealed that the predictions of the COMPAS tool
 
 There are more male than female defendants for all races, and most defendants are single. However, African-American defendants tend to be, on average, the youngest compared to all the other races. Asian defendants, followed by Caucasian defendants, tend to be the oldest. Nevertheless, there is considerable overlap among all the races, and Figure \@ref(fig:ch3fig10) visualizes the relationships. In looking at the age categories by race, more African-American defendants are < 25 than those who are > 45. The converse is true for Caucasians, with more defendants that are > 45 in comparison to those < 25. These distributional differences illustrate that there is some relationship between age and race in this data set, particularly for Black versus White defendants. 
 
-Additionally, African-American defendants have the most prior offenses, on average, followed by their Native-American counterparts. When compared with Caucasian defendants, African Americans have almost twice as many prior offenses, suggesting a strong proxy relationship between race and prior offenses. Asian defendants have the least prior offenses. This is an important result that illustrates how a system that predisposes certain races to prison can perpetuate that discriminatory trend by using those same variables to predict the risk of committing another crime. The boxplot in Figure \@ref(fig:ch3fig10) helps to visualize this relationship more clearly.
+Additionally, African-American defendants have the most prior offenses, on average, followed by their Native-American counterparts. When compared with Caucasian defendants, African Americans have almost twice as many prior offenses, suggesting a strong proxy relationship between race and prior offenses. Asian defendants have the least prior offenses. This is an important result that illustrates how a system that predisposes certain races to prison can perpetuate that discriminatory trend by using those same variables to predict the risk of committing another crime. The boxplots in Figure \@ref(fig:ch3fig10) helps to visualize this relationship more clearly.
 
 ```{r ch3fig10, fig.align='center', fig.cap="Distribution of COMPAS Tool Proxy Variables Stratified by Race among 9,387 Defandants in Broward County Florida, 2013-2014", warning = FALSE, message = FALSE, fig.width = 6, fig.height = 8, echo = FALSE}
 g18 <- ggplot(data = compas_final, 
@@ -512,7 +512,7 @@ compas_final %>%
   theme(axis.text.x = element_text(angle = 25, vjust = 1.2, hjust=1)) 
 ```
 
-Most defendants do not recommit another crime, even when broken down by race as visualized in Figure \@ref(fig:ch3fig13). Because the class imbalance is in the same direction, a 'fair' model should not misclassify defendants in different directions based on race. However, the nature of the relationship between race and the predictor variables results in discriminatory and unfair outcomes, as elucidated in Section \@ref(comptoolanalysis). 
+Ultimately, most defendants do not recommit another crime, even when broken down by race as visualized in Figure \@ref(fig:ch3fig13). Because the class imbalance is in the same direction, a 'fair' model should not misclassify defendants in different directions based on race. However, the nature of the relationship between race and the predictor variables results in discriminatory and unfair outcomes, as elucidated in Section \@ref(comptoolanalysis). 
 
 Before employing the Seldonian framework on this data set, Section \@ref(logreg) fits a logistic regression to assess how similarly the COMPAS tool performs to a standard ML procedure. 
 
@@ -573,7 +573,7 @@ Despite the improved accuracy, examining the direction of these error rates and 
 
 Table \@ref(tab:ch3table3) displays the overall false positive and false negative rates. As expected, the model performs better in classifying defendants who do not reoffend than those who do since that is the majority class. When evaluated on the test set, 91.05% of defendants who did not reoffend are correctly classified as low-risk. Thus, only 8.95% of participants who do not reoffend are incorrectly classified as high-risk. This is a lower FPR than COMPAS. However, only 29% of defendants who reoffended are correctly classified as high-risk. Thus, 71% of defendants who reoffended are incorrectly classified as low-risk. This is a higher FNR than COMPAS.
 
-Table \@ref(tab:ch3table4) further breaks these results down, focusing on Black and White defendants. While the overall FPR for the model is 8.95%, notice that the FPR for Black defendants is 13.93%, compared to only 5.09% for White defendants. Similar to the COMPAS tool, Black defendants who do not reoffend are incorrectly misclassified as high risk at twice the rate that White defendants are. On the flip side, while the overall FNR for the model is 71%, notice that the FNR for Black defendants is 60.82%, compared to 86.17% for White defendants. Similar to the COMPAS tool, the logistic regression makes the opposite mistake in predicting recidivism for Black v White defendants, with White defendants being more likely to be incorrectly classified as low risk than their Black counterparts.
+Table \@ref(tab:ch3table4) further breaks these results down, focusing on Black and White defendants. While the overall FPR for the model is 8.95%, notice that the FPR for Black defendants is 13.93%, compared to only 5.09% for White defendants. Similar to the COMPAS tool, Black defendants who do not reoffend are incorrectly misclassified as high risk at more than twice the rate that White defendants are. On the flip side, while the overall FNR for the model is 71%, notice that the FNR for Black defendants is 60.82%, compared to 86.17% for White defendants. Similar to the COMPAS tool, the logistic regression makes the opposite mistake in predicting recidivism for Black v White defendants, with White defendants being more likely to be incorrectly classified as low risk than their Black counterparts.
 
 These results serve to highlight the real danger with using standard ML procedures, even when the sensitive variable itself is not included. These models have potential to perpetuate, and even introduce, harmful and discriminatory practices as observed in this Chapter. Although the details of Northepointe's COMPAS algorithm are kept secret, it's clear that traditional algorithms like logistic regression lead to comparable outcomes. In fact, a probability cutoff of $p = 0.34$, the probability of being in the positive class in this data set, on the logistic regression yielded the same accuracy ($66.7$%) as the COMPAS tool. Additionally, comparing the COMPAS decile scores to the logistic regression (LR) results reveals that the median decile score is eight in the high-risk LR prediction and three in the low-risk LR prediction, further highlighting the similarity of these results. The next section uses the logistic regression model as a starting point, but places fairness constraints to enforce equality of odds for Black and White defendants.
 
@@ -651,14 +651,14 @@ Without fairness constraints, the standard ML problem is finding a solution $\th
 
 \begin{equation}
 \label{ch3eq2}
-d(\theta) = abs[(FPR | \text{Black} - FPR | \text{White}) + (FNR | \text{White} - FNR | \text{Black})]
+d(\theta) = abs[(FPR | \text{Black} - FPR | \text{White})] + abs[(FNR | \text{White} - FNR | \text{Black})]
 \end{equation}
 
 \noindent To minimize $d(\theta)$, $g(\theta)$ will be defined, for some $\epsilon$, as: 
 
 \begin{equation}
 \label{ch3eq3}
-g(\theta) = abs[(FPR | \text{Black} - FPR | \text{White}) + (FNR | \text{White} - FNR | \text{Black})] - \epsilon.
+g(\theta) = abs[(FPR | \text{Black} - FPR | \text{White})] + abs[(FNR | \text{White} - FNR | \text{Black})] - \epsilon.
 \end{equation}
 
 \noindent Recall that a Seldonian algorithm ensures that:
@@ -672,7 +672,7 @@ P(g(\theta) \leq 0) \geq 1 - \delta.
 
 \begin{equation}
 \label{ch3eq5}
-P\{abs[(FPR | \text{Black} - FPR | \text{White}) + (FNR | \text{White} - FNR | \text{Black})]  - \epsilon \leq 0 \} \geq 1 - \delta \textit{; } \delta = 0.05.
+P\{abs[(FPR | \text{Black} - FPR | \text{White})] + abs[(FNR | \text{White} - FNR | \text{Black})]  - \epsilon \leq 0 \} \geq 1 - \delta \textit{; } \delta = 0.05.
 \end{equation}
 
 $\delta$ will be set to 0.05 to attain 95% confidence that separation (equalized odds) as defined in Chapter \@ref(classfairdef) is satisfied, that is, $d(\theta) \leq \epsilon$. The data will be partitioned into a training set that will be passed into the candidate selection mechanism to compute $\theta_c$. The remaining partition will be used in the safety test to ensure probabilistic satisfaction of the constraint. $\epsilon$ will be set to four values: $0.2, 0.1, 0.05, \text{and } 0.01$. The code to obtain a solution is available as part of the `seldonian-engine` Python library and is displayed in Appendix \@ref(appendix-e), along with the data pre-processing. 

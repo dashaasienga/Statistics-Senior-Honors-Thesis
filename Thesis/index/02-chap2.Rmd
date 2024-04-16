@@ -24,7 +24,7 @@ For example, let $X$ and $Y$ be dependent real-valued random variables in a regr
 
 \begin{equation}
 \label{ch2eq2}
-f(\theta):=-E[(\theta(X) - Y)^2].
+f(\theta):=-E[(\theta(X) - Y)^2] = -E[(\hat{Y}-Y)^2].
 \end{equation}
 
 In this case, minimizing MSE is equivalent to maximizing -MSE, defining the goal of the regression algorithm as finding the solution with the least average error. Note that the true value of $f(\theta)$ is unknown and can only be estimated from the data [@thomas2019preventing]. For a sample with $n$ observations, that is, $(x_i, y_i) \text{ for } i = 1,2,...,n$, the objective function can be estimated by:
@@ -137,11 +137,11 @@ Observe that as $\lambda$ increases, the importance of minimizing the discrimina
 
 In principle, there might be definitions of $\Theta$ or $f$ that prevent the algorithm from converging on solutions that exhibit undesirable behavior [@thomas2019preventing]. However, in practice and as explained, this might require extensive domain expertise and data analysis in order to properly balance the relative importance of the objective function and the constraints, which can be at odds with each other. These techniques may also require knowledge of the probability distribution from which the data is sampled, which is not always available and limits applications to parametric statistics.
 
-Seldonian algorithms address this problem precisely by allowing probabilistic constraints on undesirable behavior to be placed more easily without detailed knowledge of the specific problem or the distribution of the data, shifting the burden from the domain experts who use these tools to the experts in ML and statistics [@thomas2019preventing]. It's named after Isaac Asimov’s fictional character, Hari Seldon ^[In the fictional book, Hari Seldon was a resident of a fictional planet where he develops psycho-history, an algorithmic science that allows him to predict the future in probabilistic terms.] [@asimov1994forward]. It's important to note that while Seldonian algorithms allow for more seamless implementation in practice, domain experts are still needed to define the relevant fairness constraints for a given context.
+Seldonian algorithms address this problem precisely by allowing probabilistic constraints on undesirable behavior to be placed more easily without detailed knowledge of the specific problem or the distribution of the data, shifting the burden from the domain experts who use these tools to the experts in ML and statistics [@thomas2019preventing]. It is named after Isaac Asimov’s fictional character, Hari Seldon ^[In the fictional book, Hari Seldon was a resident of a fictional planet where he develops psycho-history, an algorithmic science that allows him to predict the future in probabilistic terms.] [@asimov1994forward]. It is important to note that while Seldonian algorithms allow for more seamless implementation in practice, domain experts are still needed to define the relevant fairness constraints for a given context.
 
 ## The Seldonian Framework {#seldonian}
 
-The first step of the Seldonian framework is to define mathematically the goal of the algorithm design [@thomas2019supplementary]. Define $\textbf{D}$ as the set of all possible inputs (data sets) to the algorithm. $\Theta$, as previously defined, is the set of all possible outputs (solutions) of the algorithm. Each solution is referred to as $\theta \in \Theta$. $D$ is the data set (input) given to the algorithm and is the only random variable. Now, $a: \textbf{D} \rightarrow \Theta$ is a machine learning algorithm which takes in a data set $D \in \textbf{D}$ as an input and returns a solution $\theta \in \Theta$ as an output. $\textbf{A}$ is the set of all possible machine learning algorithms. Synthesizing this, $f: \textbf{A} \rightarrow \textbf{R}$ is the objective function of the algorithm design, where $f(a) \in \textbf{R}$ is a real-valued measure of the utility of the algorithm, such as the value of the objective function for the solution returned by this algorithm. This objective function is optimized -- either minimized or maximized -- to select a desired machine learning algorithm from the set $\textbf{A}$.
+The first step of the Seldonian framework is to define mathematically the goal of the algorithm design [@thomas2019supplementary]. Define $\textbf{D}$ as the set of all possible inputs (data sets) to the algorithm. $\Theta$, as previously defined, is the set of all possible outputs (solutions) of the algorithm. Each solution is referred to as $\theta \in \Theta$. $D$ is the data set (input) given to the algorithm and is the only random variable. Now, $a: \textbf{D} \rightarrow \Theta$ is a machine learning algorithm which takes in a data set $D \in \textbf{D}$ as an input and returns a solution $\theta \in \Theta$ as an output. $\textbf{A}$ is the set of all possible machine learning algorithms. Synthesizing this, $f: \textbf{A} \rightarrow \textbf{R}$ is the objective function of the algorithm design, where $f(a) \in \textbf{R}$ is a real-valued measure of the utility of the algorithm, such as the value of the objective function for the optimal solution returned by this algorithm. This objective function is optimized -- either minimized or maximized -- to select a desired machine learning algorithm from the set $\textbf{A}$.
 
 Contrary to the standard ML approach, however, $m$ behavioral constraints can then be specified [@thomas2019supplementary]. Specifically, $(g_i, \delta_i)_{i=1}^{m}$ can be defined as a set of $m$ constraints, each of which contains a constraint function $g_i: \Theta \rightarrow \textbf{R}$ and a desired confidence level $\delta_i$. The constraint function takes in a solution returned from the chosen machine learning algorithm as an input and returns a real value encoding the "fairness" of the algorithm according to the fairness definition defined by the function. $(g_i, \delta_i)_{i=1}^{m}$ is defined such that:
 
@@ -156,7 +156,7 @@ In summary, a Seldonian algorithm ensures that for all $i \in \{1,2,\ldots,m\}$:
 P(g_i(a(D)) \leq 0) \geq 1 - \delta_i.
 \end{equation}
 
-Section \@ref(sop) goes into further detail about the Seldonian framework and how these probabilistic behavioral constraints are guaranteed.
+The proceeding sections go into further detail about the Seldonian framework and how these probabilistic behavioral constraints are guaranteed.
 
 ### The Seldonian Optimization Problem {#sop}
 
@@ -172,7 +172,7 @@ $$\text{ s.t. } \forall \text{ } i \in \{1, 2, \ldots, m\} \text{, } P(g_i(a(D))
 
 A Seldonian algorithm $a$, thus, returns, with high probability, a solution that guarantees desirable behavior. If one were to apply machine algorithm $a$ to obtain a solution from a large number of different data sets $D$ drawn from the same distribution, then it would be expected that at most $100\delta_i \%$ solutions (models) would produce undesirable behavior. 
 
-Taking the previous regression example and turning it into a Seldonian optimization problem using the discrimination statistic in Section \@ref(standardlimitations), $f$ would still be an objective function like the MSE, $\Theta$ would still be the set of all possible linear models, and $D$ would be the data set as described. There would be one behavioral constraint, $g_1(a(D)) = |d(a(D))| - \epsilon$, to guarantee with probability at least $1-\delta_1$, that the absolute value of the discrimination statistic would be at most $\epsilon$, where $\epsilon$ and $\delta_1$ are chosen by domain experts based on the specific application. Note that the user of the machine learning algorithm need not perform data analysis to determine whether $g_1(\theta) \leq 0$ for a particular solution $\theta \in \Theta$ returned. The computation algorithm guarantees this with some desired level of probability. 
+Taking the previous regression example and turning it into a Seldonian optimization problem using the discrimination statistic in Section \@ref(standardlimitations), $f$ would still be an objective function like the MSE, $\Theta$ would still be the set of all possible linear models, and $D$ would be the data set as described. There would be one behavioral constraint, $g_1(a(D)) = |d(a(D))| - \epsilon = |d(\theta)| - \epsilon$, to guarantee with probability at least $1-\delta_1$, that the absolute value of the discrimination statistic would be at most $\epsilon$, where $\epsilon$ and $\delta_1$ are chosen by domain experts based on the specific application. Note that the user of the machine learning algorithm need not perform data analysis to determine whether $g_1(\theta) \leq 0$ for a particular solution $\theta \in \Theta$ returned. The computation algorithm guarantees this with some desired level of probability. 
 
 ```{r seldonian1, fig.cap="Overview of the Seldonian Framework (P. S. Thomas et al., 2019a)", out.width = '100%', echo=FALSE, fig.scap="Overview of the Seldonian Framework"}
 include_graphics(path = "figures/seldonian1.png")
@@ -205,7 +205,7 @@ Let $X = (X_1, \ldots, X_n)$ be $n$ independent and identically distributed ($i.
 
 \begin{equation}
 \label{ch2eq10}
-P(E[X_1] \leq \hat{\mu}(X) + \frac{\hat{\sigma}(X)}{\sqrt{n}}t_{1-\delta, n-1}) \geq 1 - \delta,
+P(E[X] \leq \hat{\mu}(X) + \frac{\hat{\sigma}(X)}{\sqrt{n}}t_{1-\delta, n-1}) \geq 1 - \delta,
 \end{equation}
 
 where
@@ -228,11 +228,11 @@ By substituting the respective pieces into the Student $t$ high confidence upper
 
 \begin{equation}
 \label{ch2eq11}
-P(g_i(\theta_c) \leq \hat{\mu}(\hat{g_i}(\theta_c, D_2)) + \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_2))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1}) \geq 1 - \delta_i.
+P(g_i(\theta_c, D_2) \leq \hat{\mu}(\hat{g_i}(\theta_c, D_2)) + \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_2))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1}) \geq 1 - \delta_i.
 \end{equation}
 
 
-Notice that $\hat{\mu}(\hat{g_i}(\theta_c, D_2)) + \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_2))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1}$ is an upper bound of the confidence interval with confidence $1-\delta_i$. If this upper bound is less than or equal to zero, then the $i^{th}$ behavioral constraint $g_i(\theta_c)$ is less than or equal to zero with at least probability $1-\delta_i$. Therefore, $\theta_c$ is only returned if $\hat{\mu}(\hat{g_i}(\theta_c, D_2)) + \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_2))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1} \leq 0$. Specifically, this holds only under the assumption that $\hat{\mu}(\hat{g_i}(\theta_c, D_2))$ is normally distributed or if the size of the safety data $D_2$ is sufficiently large, hence the name $\textit{quasi}$-Seldonian [@thomas2019preventing]. The next section now discusses precisely how $\theta_c$ is selected before being passed into this safety test mechanism. 
+Notice that $\hat{\mu}(\hat{g_i}(\theta_c, D_2)) + \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_2))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1}$ is an upper bound of the confidence interval with confidence $1-\delta_i$. If this upper bound is less than or equal to zero, then the $i^{th}$ behavioral constraint $g_i(\theta_c, D_2)$ is less than or equal to zero with at least probability $1-\delta_i$. Therefore, $\theta_c$ is only returned if $\hat{\mu}(\hat{g_i}(\theta_c, D_2)) + \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_2))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1} \leq 0$. Specifically, this holds only under the assumption that $\hat{\mu}(\hat{g_i}(\theta_c, D_2))$ is normally distributed or if the size of the safety data $D_2$ is sufficiently large, hence the name $\textit{quasi}$-Seldonian [@thomas2019preventing]. The next section now discusses precisely how $\theta_c$ is selected before being passed into this safety test mechanism. 
 
 #### The Candidate Selection Mechanism {#candidate}
 
@@ -258,7 +258,7 @@ $$ \text{ s.t. } \forall \text{ } i \in \{1,2,\ldots,m\}, \text{  } \hat{\mu}(\h
 
 Notice that while the sample mean $\hat{\mu}$ and the sample standard deviation $\hat{\sigma}$ are computed over $D_1$, the size of $D_2$ is used to correct the standard deviation and compute the Student $t$ percentile, in order to ensure that the solution is properly predicted to pass the safety test. 
 
-The process defined can work well when the objective function $f$ and the behavioral constraints are aligned. However, when they are in conflict, the candidate selection mechanism tends to be over-confident that $\theta_c$ will pass the safety test and a safe solution will be returned [@thomas2019supplementary]. Doubling the width of the confidence level is a proposed solution to produce more conservative predictions and better guarantees of $\theta_c$ passing the safety test. Therefore, a black-box optimization algorithm is used to compute
+The process defined can work well when the objective function $f$ and the behavioral constraints are aligned. However, when they are in conflict, the candidate selection mechanism tends to be over-confident that $\theta_c$ will pass the safety test and a safe solution will be returned [@thomas2019supplementary]. Doubling the width of the confidence level is a proposed solution to produce more conservative predictions and better guarantees of $\theta_c$ passing the safety test, but more research is needed on this front. Therefore, a black-box optimization algorithm is used to compute:
 
 \begin{equation}
 \label{ch2eq14}
@@ -270,7 +270,7 @@ $$\text{ s.t. } \forall \text{ } i \in \{1,2,\ldots,m\}, \text{  } \hat{\mu}(\ha
 
 \
 
-This concludes the discussion on the Seldonian theoretical framework at a high level. To conclude this chapter, Section \@ref(toy) walks through how this is implemented computationally using a toy regression example. 
+This concludes the discussion on the Seldonian theoretical framework at a high level. To complete this chapter, Section \@ref(toy) walks through how this is implemented computationally using a toy regression example. 
 
 ## Toy Example: A Quasi-Seldonian Regression Algorithm {#toy}
 
@@ -306,7 +306,7 @@ In this example, the goal of the linear regression algorithm is two-fold: to min
 
 - $g_2(\theta) = 1.25 - MSE(\theta) \text{; } \delta_2 = 0.1$.
 
-Unbiased estimates of the MSE and each $g_i(\theta)$ will be computed from the data set as elucidated in Section \@ref(qsa). The Python code used to implement and compute the quasi-Seldonian linear regression algorithm is displayed in detail in Appendix \@ref(appendix-b), along with the theoretical considerations. To reduce computational burden, all the computation was performed on the Amherst College High-Performance Computing System. In this case, a solution that minimizes the MSE while satisfying the two behavioral constraints, $g_1(\theta)$ and $g_2(\theta)$, was found -- the MSE was $1.385$. Figure \@ref(fig:fig3) visually compares the quasi-Seldonian solution (blue) with the ordinary least squares solution (red). 
+Unbiased estimates of the MSE and each $g_i(\theta)$ will be computed from the data set as elucidated in Section \@ref(qsa). The Python code used to implement and compute the quasi-Seldonian linear regression algorithm is displayed in detail in Appendix \@ref(appendix-b), along with the theoretical considerations. To reduce computational burden, all the computation was performed on the Amherst College High-Performance Computing System. In this case, a solution that minimizes the MSE while satisfying the two behavioral constraints, $g_1(\theta)$ and $g_2(\theta)$, was found -- the MSE was $1.385$. Figure \@ref(fig:fig3) visually compares the quasi-Seldonian solution (blue) with the ordinary least squares solution (red). Similar slopes yet differing intercepts are observed.  
 
 
 ```{r, echo = FALSE}
