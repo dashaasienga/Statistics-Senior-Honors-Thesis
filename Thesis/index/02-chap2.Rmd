@@ -834,7 +834,7 @@ def loadAndPlotResults(fileName, ylabel, output_file, is_yAxis_prob, legend_loc,
         fig, ax = plt.subplots()  # Create a new figure and axis if ax is not provided
 
     ax.set_xlim(min(file_ms), max(file_ms))
-    ax.set_xlabel("Amount of data (m)", fontsize=12)
+    ax.set_xlabel("Amount of data (n)", fontsize=12)
     ax.set_xscale('log')
     ax.tick_params(axis='x', labelsize=12)
     ax.set_ylabel(ylabel, fontsize=12)
