@@ -11,6 +11,7 @@ library(kableExtra)
 library(ggplot2)
 library(GGally)
 library(reshape2)
+library(latex2exp)
 ```
 
 Chapter \@ref(chap-2) introduced the Seldonian framework, which offers probabilistic guarantees for satisfying defined behavioral constraints. However, the toy linear regression example demonstrated some of the limitations of Seldonian algorithms, particularly in scenarios with limited sample sizes where convergence may pose a challenge. In practice, sample sizes vary. Furthermore, Chapter \@ref(chap-3) applied the Seldonian framework to a classification setting using the COMPAS data set. The goal was to produce recidivism predictions that elicit fairer outcomes along racial lines, with a specific focus on Black and White defendants. However, the application illustrated that while the behavioral constraint was satisfied in all four cases, there was a tradeoff in the model's accuracy. In other words, a non-informative model can be perfectly Seldonian, but what value does a theoretically fair non-informative model add?
@@ -493,7 +494,8 @@ sim_results |>
   facet_grid(rows = vars(sample_size), cols = vars(epsilon)) +
   guides(color = 'none') +
   labs(x = "Seldonian Algorithm Passed Safety Test",
-       y = "Logistic Regression Accuracy")
+       y = "Logistic Regression Accuracy",
+       subtitle = latex2exp::TeX("              $\\epsilon$"))
 ```
 
 
@@ -522,7 +524,8 @@ sim_results |>
   guides(color = 'none') +
   facet_grid(rows = vars(sample_size), cols = vars(epsilon)) +
   labs(x = "Seldonian Algorithm Passed Safety Test",
-       y = "Logistic Regression Discrimination")
+       y = "Logistic Regression Discrimination",
+       subtitle = latex2exp::TeX("              $\\epsilon$"))
 ```
 
 

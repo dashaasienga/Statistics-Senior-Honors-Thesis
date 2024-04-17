@@ -432,6 +432,9 @@ compas %>%
         booktabs = TRUE)
 ```
 
+$\\$
+
+The analysis in this section provides evidence for disparities with favorable COMPAS outcomes for White and Asian defendants and unfavorable outcomes for Black and Native American defendants. To visualize these results, Figure \@ref(fig:ch3fig11) displays the distribution of the decile scores for the two most populous races in the data set. Black defendants' decile scores are distributed almost uniformly among the ten decile scores. In contrast, the White defendants' decile scores have a significant right skew, with most observations in lower decile scores. This further emphasizes the racial disparity in employing such risk assessment tools in judicial decisions and the presence of algorithmic bias.
 
 ```{r ch3fig11, fig.align='center', fig.cap="Distribution of COMPAS Tool Decile Scores Stratified by Race among 9,387 Defandants in Broward County Florida, 2013-2014", warning = FALSE, message = FALSE, fig.width = 6, fig.height = 2.5, echo = FALSE}
 compas %>%
@@ -448,7 +451,6 @@ ggplot(mapping = aes(x = as.factor(decile_score), fill = as.factor(is_recid))) +
     fill = "Recidivism Status")
 ```
 
-The analysis in this section provides evidence for disparities with favorable COMPAS outcomes for White and Asian defendants and unfavorable outcomes for Black and Native American defendants. To visualize these results, Figure \@ref(fig:ch3fig11) displays the distribution of the decile scores for the two most populous races in the data set. Black defendants' decile scores are distributed almost uniformly among the ten decile scores. In contrast, the White defendants' decile scores have a significant right skew, with most observations in lower decile scores. This further emphasizes the racial disparity in employing such risk assessment tools in judicial decisions and the presence of algorithmic bias.
 
 ### Proxy Relationships 
 
