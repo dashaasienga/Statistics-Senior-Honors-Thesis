@@ -459,7 +459,7 @@ accuracy_disc |>
 
 Figure \@ref(fig:ch4fig4) visualizes the trade-off between accuracy and discrimination for Seldonian algorithms. As previously observed, the value of the discrimination statistic decreases as the constraint is tightened across all sample sizes. Similarly, the accuracy decreases as the constraint is tightened. Table \@ref(tab:ch4tab2) showed that the Seldonian solutions returned in the $\epsilon = 0.01$ setting had the highest probability of passing the safety constraint. Figure \@ref(fig:ch4fig4) similarly displays that these models, on average, have a discrimination statistic of 0. However, notice that these models also have very poor predictive performance, averaging 50% and rendering them non-informative. 
 
-On the other hand, Seldonian algorithms with liberal fairness constraints such as $\epsilon = 0.2, 0.1$ and higher sample sizes perform comparably to logistic regression with regard to accuracy while offering some improvement in model fairness. 
+On the other hand, Seldonian algorithms with liberal fairness constraints such as $\epsilon = 0.2, 0.1$ and larger sample sizes perform comparably to logistic regression with regard to accuracy while offering some improvement in model fairness. 
 
 
 ### Non-Convergent Seldonian Models
