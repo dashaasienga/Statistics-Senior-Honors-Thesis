@@ -5,7 +5,13 @@
 
 
 ```{r, eval = FALSE}
+# set seed for reproducibility
 set.seed(123)
+
+# read in the data set
+compas_path <- "/home/dasienga24/Statistics-Senior-Honors-Thesis/Data Sets/COMPAS/
+compas_seldonian_bw.csv"
+compas_sim <- read.csv(compas_path)
 
 # define a linear combination of predictors as desired
 linear_combination = 5  - 0.2 * compas_sim$age + 

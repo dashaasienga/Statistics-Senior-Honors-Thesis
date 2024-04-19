@@ -2,6 +2,8 @@
 
 \noindent This appendix section walks through how a Seldonian algorithm was fit on the COMPAS data set in Chapter \@ref(chap-3) — the algorithm aimed to produce less disparate outcomes in error rates between Black and White defendants. The code was adapted from @aisafety.
 
+$\\$
+
 \noindent First, the Python environment can be set up in R using the `reticulate` package. The necessary Python libraries can then be imported as shown.
 
 ```{r, eval = FALSE}
@@ -115,7 +117,7 @@ with open(output_path_metadata,'w') as outfile:
     json.dump(metadata_dict,outfile,indent=2)
 ```
 
-\noindent Next, a specificatio object is needed. 
+\noindent Next, a specification object, defining the specifications of a particular Seldonian model fit, is needed. 
 
 ```{python, eval = FALSE}
 import autograd.numpy as np

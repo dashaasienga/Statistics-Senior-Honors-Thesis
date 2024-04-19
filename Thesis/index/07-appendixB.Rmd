@@ -48,7 +48,7 @@ def tinv(p, nu):
     return t.ppf(p, nu)
 ```
 
-\noindent The `stddev` function computes the sample standard deviation of the vector $v$, with Bessel's correction. In statistics, Bessel's correction is the use of $n-1$ instead of $n$ in the formula for the sample variance and sample standard deviation, where n is the number of observations in a sample. This method corrects the bias in the estimation of the population variance.
+\noindent The `stddev` function computes the sample standard deviation of the vector $v$, with Bessel's correction. In statistics, Bessel's correction is the use of $n-1$ instead of $n$ in the formula for the sample variance and sample standard deviation, where $n$ is the number of observations in a sample. This method corrects the bias in the estimation of the population variance.
 
 ```{python, eval = FALSE}
 def stddev(v):
@@ -123,7 +123,7 @@ def predict(theta, x):
     return theta[0] + theta[1] * x
 ```
 
-\noindent The `fHat` function specifies the primary objective: to minimize the sample mean squared error. Because the attempt is to maximize $\hat{f}$, however, the negative sample mean squared error is returned, so that maximizing $\hat{f}$ corresponds to minimizing the mean squared error.
+\noindent The `fHat` function specifies the primary objective: to minimize the sample mean squared error. The attempt is to maximize $\hat{f}$; the negative sample mean squared error is returned, so that maximizing $\hat{f}$ corresponds to minimizing the mean squared error.
 
 ```{python, eval = FALSE}
 def fHat(theta, X, Y):

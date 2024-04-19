@@ -220,7 +220,7 @@ Last but not least, I thank God for granting me strength, courage, perseverance,
 
 \title{Algorithmic Bias, Statistical Notions of Fairness, and the Seldonian Framework}
 \author{Dasha Asienga}
-\date{April 17, 2024}
+\date{April 19, 2024}
 \division{}
 \advisor{Professor Katharine Correia}
 % for second advisor
@@ -311,7 +311,7 @@ For example, within healthcare, using mortality or readmission rates to measure 
 
 Yet, these algorithms are often regarded as ground truth and free of human limitations because they are based on mathematics, statistics, and computer science -- otherwise regarded as objective disciplines (O'Neil, 2016). In theory, this should lead to greater fairness. However, left unregulated, these mathematical models privilege majority groups and discriminate against minority groups because they often learn from inherently biased data. If the data used to train models contains bias, the resulting algorithms will learn and reflect it into their predictions. In many cases, this can be detrimental.
 
-While there are widely-accepted, though sometimes disputed, societal notions of fairness, a fundamental question arises: are there any established statistical notions of fairness and bias? Is it possible to mathematically and statistically define algorithmic bias and unfairness, thereby opening avenues to address the challenges they pose? And if so, are there ways to leverage statistical tools to resolve such bias and unfairness? This thesis paper is dedicated to exploring and answering precisely these questions.
+While there are widely-accepted, though sometimes disputed, societal notions of fairness, a fundamental question arises: are there any established statistical notions of fairness? Is it possible to mathematically and statistically define algorithmic bias and unfairness, thereby opening avenues to address the challenges they pose? And if so, are there ways to leverage statistical tools to resolve such bias and unfairness? This thesis paper is dedicated to exploring and answering precisely these questions.
 
 \hypertarget{algbias}{%
 \section{Algorithmic Bias}\label{algbias}}
@@ -358,7 +358,9 @@ Fair regression is the quantitative notion of fairness of real-valued targets (A
 \end{equation}
 \[ |P[f(X) \geq z | A = a] - P[f(X) \geq z]| \leq \epsilon_a.\]
 
-This is akin to the classification setting, where it may be desirable to have the probability of being in the positive class above some certain threshold for each group as well as across the entire data set. A similar notion, known as \emph{bounded loss}, requires that the MSE for each group be below some pre-specified level \(c_a\) that is dependent on the protected attribute (Agarwal et al., 2019):
+This is akin to the classification setting, where it may be desirable to have the probability of being in the positive class above some certain threshold for each group as well as across the entire data set.
+
+A similar notion, known as \emph{bounded loss}, requires that the MSE for each group be below some pre-specified level \(c_a\) that is dependent on the protected attribute (Agarwal et al., 2019):
 \begin{equation}
 \label{ch1eq2}
 \text{min}_{f \in F} \text{ } E[l(Y, f(X))] \text{ such that } \forall a \in A: 
@@ -411,14 +413,7 @@ P (\hat{Y} = 1 | A = a, X = x) = P (\hat{Y} = 1 | A = b, X = x), \text{ } \foral
 \end{equation}
 \hypertarget{separation}{%
 \subsubsection{Separation}\label{separation}}
-\begin{figure}
 
-{\centering \includegraphics[width=0.75\linewidth]{figures/confusionmatrix} 
-
-}
-
-\caption[A Confusion Matrix]{A Confusion Matrix (Mohajon, 2021)}\label{fig:confusionmatrix}
-\end{figure}
 Independence does not make use of the true target \(Y\) and simply requires equality of predictions. However, as observed in Figure \ref{fig:dp}, this can lead to different error rates between different groups. In other words, the model is more accurate for one group than it is for another group. Separation precisely focuses on equality of the error rates and is widely known as the \emph{equality of odds} (Castelnovo et al., 2022). This definition requires the same type I and type II error rates, precisely, the same false positive rate (FPR) and false negative rate (FNR) across all demographic groups. FPR and FNR are defined by:
 \begin{equation}
 \label{ch1eq6}
@@ -431,7 +426,14 @@ FNR = P(\hat{Y} = 0| Y = 1) = \frac{FN}{TP + FN}
 where FP refers to false positive predictions, TP refers to true positive predictions, FN refers to false negative predictions, and TN refers to true negative predictions. These metrics can be understood through a confusion matrix as in Figure \ref{fig:confusionmatrix} (Mohajon, 2021).
 
 In the COMPAS data set, separation would be satisfied if both Black defendants and White defendants had equal error rates. However, as observed in Figure \ref{fig:compas1}, Black defendants had an FPR of 45\% while White defendants had an FPR of 24\% -- the FPR in this context refers to the percentage of times the algorithm predicted the defendants had recidivated when they hadn't. Similarly, Black defendants had an FNR of 28\% while White defendants had an FNR of 48\% -- the FNR in this context refers to the percentage of times the algorithm predicted the defendants had not recommitted a crime when they had.
+\begin{figure}
 
+{\centering \includegraphics[width=0.75\linewidth]{figures/confusionmatrix} 
+
+}
+
+\caption[A Confusion Matrix]{A Confusion Matrix (Mohajon, 2021)}\label{fig:confusionmatrix}
+\end{figure}
 Separation requires independence of the predictions \(\hat{Y}\) and the sensitive attribute \(A\) conditioned on the true value of the target variable \(Y\), that is, \(\hat{Y} \perp \!\!\! \perp A|Y\) (Castelnovo et al., 2022). In other terms, the following equation must be satisfied:
 \begin{equation}
 \label{ch1eq8}
@@ -538,7 +540,7 @@ Now, given values of the \(PPV \in (0,1)\) and \(p \in (0,1)\), it can be shown 
 \label{ch1eq18}
 FPR = \frac{p}{1-p} \frac{1-PPV}{PPV}(1 - FNR).
 \end{equation}
-Appendix \ref{appendix-a} provides the details for the derivation of this equation. However, its direct implication is that if the prevalence differs between two groups, then it is impossible to satisfy sufficiency (equal PPV across all groups) and separation (equal FPR and FNR across all groups) simultaneously. For example, in the COMPAS data set, if recidivism rates differ between Black and White offenders, then an algorithm that guarantees predictive parity (equal precision) for both Black and White offenders cannot simultaneously satisfy equality of odds. Indeed, the recidivism rate for Black defendants in the data is 51\%, compared to 39\% for White defendants, hence the disparate impact of the COMPAS tool as observed in Figure \ref{fig:compas1} (Chouldechova, 2017). Note, however, that the objectivity of the recidivism rate should be questioned because of confounding racial biases.
+Appendix \ref{appendix-a} provides the details for the derivation of this equation. However, its direct implication is that if the prevalence differs between two groups, then it is impossible to satisfy sufficiency (equal PPV across all groups) and separation (equal FPR and FNR across all groups) simultaneously. For example, in the COMPAS data set, if recidivism rates differ between Black and White offenders, then an algorithm that guarantees predictive parity (equal precision) for both Black and White offenders cannot simultaneously satisfy equality of odds. Indeed, the recidivism rate for Black defendants in ProPublica's data set was 51\%, compared to 39\% for White defendants, hence the disparate impact of the COMPAS tool as observed in Figure \ref{fig:compas1} (Chouldechova, 2017). Note, however, that the objectivity of the recidivism rate should be questioned because of confounding racial biases.
 
 Figure \ref{fig:dp} illustrates a similar conflict between independence and separation. Satisfying independence resulted in an imbalance of error rates between group A and group B because of the difference in the prevalence of loan repayment between both groups.
 
@@ -554,7 +556,7 @@ As observed, disparate impact can result from using a prediction tool that is pe
 \hypertarget{chap-2}{%
 \chapter{Seldonian Algorithms}\label{chap-2}}
 
-Chapter \ref{intro} introduced the problem of algorithmic bias, discussed existing statistical definitions of fairness both in regression and classification settings, and finally, highlighted fairness conflicts that can arise in certain settings. Of important note is that there are a plethora of fairness definitions that have been developed in statistical machine learning, many of which have been shown to be incompatible in ways similar to the illustration in Appendix \ref{appendix-a}. In any effort to enforce fairness on machine learning models, a critical first step is to define what fairness means in the specific context (P. Thomas, 2020). This responsibility falls on domain experts, social scientists, and regulators. Once there is consensus on that, machine learning researchers can work to develop appropriate algorithms that enforce the chosen definition of fairness. The Seldonian framework, introduced in this chapter, offers one such way to place probabilistic fairness constraints on traditional algorithms. However, because Seldonian algorithms place constraints on traditional machine learning (ML) algorithms, an initial in-depth understanding of the standard approach is key. Section \ref{standardml} discusses the typical ML approach before diving into the Seldonian framework in Section \ref{seldonian}.
+Chapter \ref{intro} introduced the problem of algorithmic bias, discussed existing statistical definitions of fairness both in regression and classification settings, and finally, highlighted fairness conflicts that can arise in certain settings. Of important note is that there are a plethora of fairness definitions that have been developed in statistical machine learning (ML), many of which have been shown to be incompatible in ways similar to the illustration in Appendix \ref{appendix-a}. In any effort to enforce fairness on machine learning models, a critical first step is to define what fairness means in the specific context (P. Thomas, 2020). This responsibility falls on domain experts, social scientists, and regulators. Once there is consensus on that, machine learning researchers can work to develop appropriate algorithms that enforce the chosen definition of fairness. The Seldonian framework, introduced in this chapter, offers one such way to place probabilistic fairness constraints on traditional algorithms. However, because Seldonian algorithms place constraints on traditional ML algorithms, an initial in-depth understanding of the standard approach is key. Section \ref{standardml} discusses the typical ML approach before diving into the Seldonian framework in Section \ref{seldonian}.
 
 \hypertarget{standardml}{%
 \section{The Standard Machine Learning Approach}\label{standardml}}
@@ -741,7 +743,7 @@ This concludes the discussion on the Seldonian theoretical framework at a high l
 \hypertarget{toy}{%
 \section{Toy Example: A Quasi-Seldonian Regression Algorithm}\label{toy}}
 
-The tutorial in this section follows the presentation by P. S. Thomas (n.d.) on the AI Safety webpage focusing on the key computational aspects of the Seldonian framework. Consistent with the linear regression set-up in this chapter, consider \(X, Y \in \textbf{R}\) as two dependent random variables with the goal of estimating \(Y\) given \(X\) through a sample of \(n\) observations. \(X\) is drawn synthetically from a \(N(0,1)\) distribution and \(Y\) is dependent on \(X\) with a \(N(X,1)\) distribution. Figure \ref{fig:fig2} displays 5000 such points. \(\hat{y}(X, \theta) = \theta_1X+\theta_2\) and \(MSE = E[(\hat{y}(X, \theta)-Y)^2]\) are computed as previously defined.
+The tutorial in this section follows the presentation by P. S. Thomas (2020) on the AI Safety webpage focusing on the key computational aspects of the Seldonian framework. Consistent with the linear regression set-up in this chapter, consider \(X, Y \in \textbf{R}\) as two dependent random variables with the goal of estimating \(Y\) given \(X\) through a sample of \(n\) observations. \(X\) is drawn synthetically from a \(N(0,1)\) distribution and \(Y\) is dependent on \(X\) with a \(N(X,1)\) distribution. Figure \ref{fig:fig2} displays 5000 such points. \(\hat{y}(X, \theta) = \theta_1X+\theta_2\) and \(MSE = E[(\hat{y}(X, \theta)-Y)^2]\) are computed as previously defined.
 \begin{figure}
 
 {\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/fig2-1} 
@@ -775,14 +777,14 @@ To conclude this chapter, Section \ref{exp} scales this process to repeatedly ru
 \hypertarget{exp}{%
 \subsection{Experimentation}\label{exp}}
 
-Consistent with the set-up in Section \ref{toy} and following the presentation by P. S. Thomas (n.d.), the aim of the experimentation in this section is to assess three aspects of the quasi-Seldonian linear regression algorithm defined in Section \ref{toy}: performance loss, frequency of solutions, and frequency of undesirable behavior for varying sample sizes.
+Consistent with the set-up in Section \ref{toy} and following the presentation by P. S. Thomas (2020), the aim of the experimentation in this section is to assess three aspects of the quasi-Seldonian linear regression algorithm defined in Section \ref{toy}: performance loss, frequency of solutions, and frequency of undesirable behavior for varying sample sizes.
 
 Each of the figures show how different properties of the quasi-Seldonian linear regression (QSLR) algorithm vary for different sample sizes, \(\textit{n}\). The horizontal axis is on a logarithmic scale, with values of \(\textit{n}\) starting at \(\textit{n} = 32\) and going up to \(\textit{n} = 65,536\), doubling each time such that \(\textit{n} \in \{32, 64, 128, \ldots, 65536 \}\). 50 trials are run for each value of \(n\). Each figure plots the mean and includes a standard error bar to visualize the variance of results.
 
 \hypertarget{performance-loss}{%
 \subsubsection{Performance Loss}\label{performance-loss}}
 
-A Seldonian algorithm that has probabilistic guarantees of safe or fair behavior will typically perform worse, with regard to accuracy or error, than an algorithm that is purely focused on optimizing performance (P. S. Thomas, n.d.). In Figure \ref{fig:fig4}, the dotted lines represent the desired range for the MSE as defined by the behavioral constraints set in Section \ref{toy}. In this setting, MSE was forced to be higher. Notice that the QSLR did not return a solution for small amounts of data, but when a solution was returned, it was always within the MSE bounds set by the constraints. Additionally, the bigger the sample size, the closer the MSE was to the lower boundary. This highlights the role that the primary objective plays as the sample size increases by encouraging solutions with lower error, albeit still within the desired window. In a different setting where the behavioral constraints are not at odds with the primary objective function, it would be worthwhile to investigate performance loss when using a QSLR algorithm rather than ordinary least squares (OLS). Chapter \ref{chap-3} attempts to partially answer this question by investigating performance loss for Seldonian algorithms in classification settings.
+A Seldonian algorithm that has probabilistic guarantees of safe or fair behavior will typically perform worse, with regard to accuracy or error, than an algorithm that is purely focused on optimizing performance (P. S. Thomas, 2020). In Figure \ref{fig:fig4}, the dotted lines represent the desired range for the MSE as defined by the behavioral constraints set in Section \ref{toy}. In this setting, MSE was forced to be higher. Notice that the QSLR did not return a solution for small amounts of data, but when a solution was returned, it was always within the MSE bounds set by the constraints. Additionally, the bigger the sample size, the closer the MSE was to the lower boundary. This highlights the role that the primary objective plays as the sample size increases by encouraging solutions with lower error, albeit still within the desired window. In a different setting where the behavioral constraints are not at odds with the primary objective function, it would be worthwhile to investigate performance loss when using a QSLR algorithm rather than ordinary least squares (OLS). Chapter \ref{chap-3} attempts to partially answer this question by investigating performance loss for Seldonian algorithms in classification settings.
 \begin{figure}
 
 {\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/fig4-3} 
@@ -849,10 +851,10 @@ Before proceeding with the analysis, however, it is crucial to consider that whi
 \hypertarget{descriptivestats}{%
 \section{Descriptive Statistics}\label{descriptivestats}}
 
-This section presents a holistic exploratory analysis of the COMPAS data set. The defendants' ages range from 18 to 96, with a median of 32 years and a mean of 34.8 years. There is a right skew, with the middle 50\% of the defendants being between the ages of 25 and 42. Similarly, the number of prior offenses has a significant right skew with a median of one offense and a mean of three offenses. The middle 50\% of the defendants have committed between zero and four offenses, and the defendant with the most prior offenses has been convicted of committing 38 crimes.
+This section presents a holistic exploratory analysis of the COMPAS data set. The defendants' ages range from 18 to 96, with a median of 32 years and a mean of 34.8 years. There is a right skew, with the middle 50\% of the defendants between the ages of 25 and 42. Similarly, the number of prior offenses has a significant right skew with a median of one offense and a mean of three offenses. The middle 50\% of the defendants committed between zero and four offenses, and the defendant with the most prior offenses was convicted of committing 38 crimes.
 
-Of the 9387 total defendants from Broward County, Florida, in 2013 and 2014, 79.4\% were male. About 21.4\% are \textless{} 25 years old, 57.2\% are between 25 and 45 years old, and
-21.4\% are \textgreater{} 45 years old. The majority of defendants are single (76.7\%), with the next largest categories being married (12.1\%) and divorced (4.2\%). The other levels were significant other, separated, unknown, and widowed, respectively. Finally, 87.9\% of defendants had no record of juvenile offenses. The remaining 12.1\% ranged from having one juvenile offense to 21 juvenile offenses on record, with a median of one, a mean of 1.96, and the middle 50\% recording one or two juvenile offenses.
+Of the 9387 total defendants from Broward County, Florida, in 2013 and 2014, 79.4\% were male. About 21.4\% were \textless{} 25 years old, 57.2\% were between 25 and 45 years old, and
+21.4\% were \textgreater{} 45 years old. The majority of defendants were single (76.7\%), with the next largest categories being married (12.1\%) and divorced (4.2\%). The other levels were significant other, separated, unknown, and widowed, respectively. Finally, 87.9\% of defendants had no record of juvenile offenses. The remaining 12.1\% ranged from having one juvenile offense to 21 juvenile offenses on record, with a median of one, a mean of 1.96, and the middle 50\% recording one or two juvenile offenses.
 
 \hypertarget{response}{%
 \subsection{Response Variable}\label{response}}
@@ -862,7 +864,7 @@ The response variable records whether or not a defendant recommitted any crime w
 \hypertarget{protectedattribute}{%
 \subsection{Protected Attribute}\label{protectedattribute}}
 
-Finally, the protected attribute in this analysis is race. Most of the defendants are African-American (49.8\%) and Caucasian (34.6\%), with only 8.7\% Hispanic, 0.5\% Asian, and finally, 0.3\% Native American. The remaining 6.1\% of defendants identify as `Other'.
+Finally, the protected attribute in this analysis is race. Most of the defendants were African-American (49.8\%) and Caucasian (34.6\%), with only 8.7\% Hispanic, 0.5\% Asian, and finally, 0.3\% Native American. The remaining 6.1\% of defendants identified as `Other'.
 
 \hypertarget{bivariateanalysis}{%
 \subsection{Associations Between the Predictors and Response}\label{bivariateanalysis}}
@@ -891,7 +893,7 @@ Sex and marital status were similar between defendants who did and did not recid
 \hypertarget{multivariate-analysis}{%
 \subsection{Multivariate Analysis}\label{multivariate-analysis}}
 
-As detailed in Section \ref{bivariateanalysis}, some predictive variables are associated with the response variable, recidivism. A scatterplot matrix examining the relationship between the continuous variables, age and prior offenses, revealed weak correlations (Spearman's rho: \(\rho = 0.12\)) and nonlinear relationships. There are no significant concerns for multicollinearity. Figure \ref{fig:ch3fig7} illustrates this using Spearman's correlation. In addition, the correlation matrix incorporates the COMPAS tool decile scores to examine the predictive relationship between the continuous variables and the COMPAS tool results. Spearman's correlation revealed a moderate relationship of \(\rho = -0.44\) and \(\rho = 0.44\) for age and prior offenses, respectively.
+As detailed in Section \ref{bivariateanalysis}, some predictive variables were associated with the response variable, recidivism. A scatterplot matrix examining the relationship between the continuous variables, age and prior offenses, revealed weak correlations (Spearman's rho: \(\rho = 0.12\)) and nonlinear relationships. There were no significant concerns for multicollinearity. Figure \ref{fig:ch3fig7} illustrates this using Spearman's correlation. In addition, the correlation matrix incorporates the COMPAS tool decile scores to examine the predictive relationship between the continuous variables and the COMPAS tool results. Spearman's correlation revealed a moderate relationship of \(\rho = -0.44\) and \(\rho = 0.44\) for age and prior offenses, respectively.
 \begin{figure}
 
 {\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/ch3fig7-1} 
@@ -910,7 +912,7 @@ Chapter \ref{algbias} introduced algorithmic bias as a situation when an algorit
 \hypertarget{comptoolanalysis}{%
 \subsection{COMPAS Tool Analysis}\label{comptoolanalysis}}
 
-Recall that COMPAS decile scores of one to four are mapped as `low' risk, five to seven as `medium' risk, and eight to ten as `high' risk. The median decile score for the entire data set is four, and Figure \ref{fig:ch3fig8} illustrates that the COMPAS tool classifies more than half of the defendants as low risk. In particular, the tool classifies 57.2\% as low risk and 17.9\% as high risk, with the remaining 24.9\% as medium risk. These predictions align with expectations since most defendants did not recommit a crime within the two-year time window, as observed in Section \ref{response}.
+Recall that COMPAS decile scores of one to four are mapped as `low' risk, five to seven as `medium' risk, and eight to ten as `high' risk. The median decile score for the entire data set was four, and Figure \ref{fig:ch3fig8} illustrates that the COMPAS tool classified more than half of the defendants as low risk. In particular, the tool classified 57.2\% as low risk and 17.9\% as high risk, with the remaining 24.9\% as medium risk. These predictions align with expectations since most defendants did not recommit a crime within the two-year time window, as observed in Section \ref{response}.
 \begin{figure}
 
 {\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/ch3fig8-1} 
@@ -919,7 +921,7 @@ Recall that COMPAS decile scores of one to four are mapped as `low' risk, five t
 
 \caption{Distribution of COMPAS Tool Decile Scores among 9,387 Defandants in Broward County Florida, 2013-2014}\label{fig:ch3fig8}
 \end{figure}
-However, when these scores are broken down by whether the defendant reoffended within two years (Figure \ref{fig:ch3fig9}), it is revealed that the COMPAS tool performs poorly in classifying participants who recidivate. Such participants are classified almost equally into the three risk categories: low, medium, and high. Furthermore, while most defendants who do not reoffend within two years are classified as low risk, a significant number of them are classified as `medium' and `high' risk. The decile scores of defendants who recidivate and those who do not also range from one to ten, although the median decile score is six for the former group and three for the latter group. Generally, these results raise concerns about the COMPAS tool's predictive performance.
+However, when these scores are broken down by whether the defendant reoffended within two years (Figure \ref{fig:ch3fig9}), it is revealed that the COMPAS tool performed poorly in classifying participants who recidivated. Such participants were classified almost equally into the three risk categories: low, medium, and high. Furthermore, while most defendants who did not reoffend within two years were classified as low risk, a significant number of them were classified as `medium' and `high' risk. The decile scores of defendants who recidivated and those who did not also ranged from one to ten, although the median decile score was six for the former group and three for the latter group. Generally, these results raise concerns about the COMPAS tool's predictive performance.
 
 A breakdown by race, the protected attribute, will allow for further analysis of the performance of the COMPAS tool. Before that, converting this into a binary prediction problem will make analysis much more tractable. Decile scores of one to five will be mapped as `lower' risk, while those ranging from six to ten will be mapped as `higher' risk.
 \begin{figure}
@@ -930,9 +932,9 @@ A breakdown by race, the protected attribute, will allow for further analysis of
 
 \caption{Distribution of COMPAS Tool Risk Scores among 9,387 Defandants in Broward County Florida, 2013-2014}\label{fig:ch3fig9}
 \end{figure}
-Table \ref{tab:ch3table1} displays the confusion matrix of the COMPAS tool's results on this data set, which has 9387 total observations, with this binary definition of risk. The matrix reveals that the model has an overall accuracy of 66.61\% on this data set. However, 66.04\% of defendants do not recommit a crime within two years, as observed in Section \ref{response}. Therefore, a blind non-informative model that classifies every defendant into the negative class would attain an accuracy of 66\%, suggesting that the COMPAS tool's 66.61\% accuracy is a negligible improvement.
+Table \ref{tab:ch3table1} displays the confusion matrix of the COMPAS tool's results on this data set, which has 9387 total observations, with this binary definition of risk. The matrix reveals that the model had an overall accuracy of 66.61\% on this data set. However, 66.04\% of defendants did not recommit a crime within two years, as observed in Section \ref{response}. Therefore, a blind non-informative model that classifies every defendant into the negative class would attain an accuracy of 66\%, suggesting that the COMPAS tool's 66.61\% accuracy is a negligible improvement.
 
-Notice, furthermore, that the model struggles more in predicting whether defendants will reoffend than in predicting whether defendants will not reoffend. This imbalance in error rates is expected because of the class imbalance observed when performing exploratory data analysis in Section \ref{descriptivestats} -- most defendants do not reoffend, so the model maximizes performance for those defendants. In terms of proportions, 49.25\% of defendants who reoffended are incorrectly labeled as lower risk (almost equivalent to a flip of a coin), compared to 25.23\% of defendants who did not reoffend but are incorrectly labeled as higher risk. This also raises the question of what type of prediction is more important: the risk of recidivism or the risk of non-recidivism. Is wrongly attributing a defendant as higher risk or wrongly attributing a defendant as lower risk worse for society?
+Notice, furthermore, that the model struggled more in predicting whether defendants will reoffend than in predicting whether defendants will not reoffend. This imbalance in error rates is expected because of the class imbalance observed when performing exploratory data analysis in Section \ref{descriptivestats} -- most defendants did not reoffend, so the model maximizes performance for those defendants. In terms of proportions, 49.25\% of defendants who reoffended were incorrectly labeled as lower risk (almost equivalent to a flip of a coin), compared to 25.23\% of defendants who did not reoffend but are incorrectly labeled as higher risk. This also raises the question of what type of prediction is more important: the risk of recidivism or the risk of non-recidivism. Is wrongly attributing a defendant as higher risk or wrongly attributing a defendant as lower risk worse for society?
 \begin{table}
 
 \caption{\label{tab:ch3table1}The Number of Defendants who were Labeled Higher/Lower Risk by the COMPAS Tool Stratified by Recidivism Status among 9,387 Defandants in Broward County Florida, 2013-2014}
@@ -948,7 +950,7 @@ Lower & 1570 & 4635\\
 \end{table}
 \(\\\)
 
-While the confusion matrix in Table \ref{tab:ch3table1} relays information on what types of errors the COMPAS tool tends to make and raises questions about the implications of that, Table \ref{tab:ch3table2} breaks that down further by race for a more granular assessment. While the overall FPR is 25.3\%, it is much higher for Black defendants (37.71\%) and much lower for White defendants (16.34\%). Similarly, while the overall FNR is 49.25\%, it is much higher for White defendants (62.26\%) and much lower for Black defendants (39.01\%) (Table \ref{tab:ch3table2}). The tool is more than twice as likely to classify a Black defendant who did not reoffend as higher risk compared to a White defendant who also did not reoffend. It makes the opposite mistake, where it is 1.6 times more likely to classify a White defendant who reoffended as lower risk compared to a Black defendant who also reoffended. This discrepancy aligns with ProPublica's findings in Figure \ref{fig:compas1} and is alarming given that race was not included in the model.
+While the confusion matrix in Table \ref{tab:ch3table1} relays information on what types of errors the COMPAS tool tends to make and raises questions about the implications of that, Table \ref{tab:ch3table2} breaks that down further by race for a more granular assessment. While the overall FPR was 25.3\%, it was much higher for Black defendants (37.71\%) and much lower for White defendants (16.34\%). Similarly, while the overall FNR was 49.25\%, it was much higher for White defendants (62.26\%) and much lower for Black defendants (39.01\%) (Table \ref{tab:ch3table2}). This suggests that the tool is more than twice as likely to classify a Black defendant who did not reoffend as higher risk compared to a White defendant who also did not reoffend. It makes the opposite mistake, where it is 1.6 times more likely to classify a White defendant who reoffended as lower risk compared to a Black defendant who also reoffended. This discrepancy aligns with ProPublica's findings in Figure \ref{fig:compas1} and is alarming given that race was not included in the model.
 
 Including the other races reveals that Asian defendants who did not reoffend were the least likely to be labeled as higher risk -- Black defendants were the most likely. Conversely, White defendants who reoffended were the most likely to be labeled as lower risk -- Native Americans were the least likely. However, it is essential to consider the few observations in both the Asian (n = 48) and Native American (n = 27) groups, as detailed in Section \ref{protectedattribute}.
 \begin{table}
@@ -966,7 +968,7 @@ Reoffended & Lower & 39.0 & 62.3 & 68.3 & 50.00 & 25.0\\
 \end{table}
 \(\\\)
 
-The analysis in this section provides evidence for disparities with favorable COMPAS outcomes for White and Asian defendants and unfavorable outcomes for Black and Native American defendants. To visualize these results, Figure \ref{fig:ch3fig11} displays the distribution of the decile scores for the two most populous races in the data set. Black defendants' decile scores are distributed almost uniformly among the ten decile scores. In contrast, the White defendants' decile scores have a significant right skew, with most observations in lower decile scores. This further emphasizes the racial disparity in employing such risk assessment tools in judicial decisions and the presence of algorithmic bias.
+The analysis in this section provides evidence for disparities with favorable COMPAS outcomes for White and Asian defendants and unfavorable outcomes for Black and Native American defendants. To visualize these results, Figure \ref{fig:ch3fig11} displays the distribution of the decile scores for the two most populous races in the data set. Black defendants' decile scores were distributed almost uniformly among the ten decile scores. In contrast, the White defendants' decile scores had a significant right skew, with most observations in lower decile scores. This further emphasizes the racial disparity in employing such risk assessment tools in judicial decisions and the presence of algorithmic bias.
 \begin{figure}
 
 {\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/ch3fig11-1} 
@@ -980,9 +982,9 @@ The analysis in this section provides evidence for disparities with favorable CO
 
 Section \ref{comptoolanalysis} revealed that the predictions of the COMPAS tool exhibit significant racial discrepancies. Yet, the COMPAS tool is a race-blind model. Race was not included as a variable, so how could a model result in such racially distinct outcomes? To answer this question, this section analyzes the relationship between race and the predictive variables to examine how much information regarding a defendant's race is incorporated into the model via other variables.
 
-There are more male than female defendants for all races, and most defendants are single. However, African-American defendants tend to be, on average, the youngest compared to all the other races. Asian defendants, followed by Caucasian defendants, tend to be the oldest. Nevertheless, there is considerable overlap among all the races, and Figure \ref{fig:ch3fig10} visualizes the relationships. In looking at the age categories by race, more African-American defendants are \textless{} 25 than those who are \textgreater{} 45. The converse is true for Caucasians, with more defendants that are \textgreater{} 45 in comparison to those \textless{} 25. These distributional differences illustrate that there is some relationship between age and race in this data set, particularly for Black versus White defendants.
+There were more male than female defendants for all races, and most defendants were single. However, African-American defendants tended to be, on average, the youngest compared to all the other races. Asian defendants, followed by Caucasian defendants, tended to be the oldest. Nevertheless, there was considerable overlap among all the races, and Figure \ref{fig:ch3fig10} visualizes the relationships. In looking at the age categories by race, more African-American defendants were \textless{} 25 than those who were \textgreater{} 45. The converse is true for Caucasians, with more defendants that were \textgreater{} 45 in comparison to those \textless{} 25. These distributional differences illustrate that there is some relationship between age and race in this data set, particularly for Black versus White defendants.
 
-Additionally, African-American defendants have the most prior offenses, on average, followed by their Native-American counterparts. When compared with Caucasian defendants, African Americans have almost twice as many prior offenses, suggesting a strong proxy relationship between race and prior offenses. Asian defendants have the least prior offenses. This is an important result that illustrates how a system that predisposes certain races to prison can perpetuate that discriminatory trend by using those same variables to predict the risk of committing another crime. The boxplots in Figure \ref{fig:ch3fig10} helps to visualize this relationship more clearly.
+Additionally, African-American defendants had the most prior offenses, on average, followed by their Native-American counterparts. When compared with Caucasian defendants, African Americans had almost twice as many prior offenses, suggesting a strong proxy relationship between race and prior offenses. Asian defendants had the least prior offenses. This is an important result that illustrates how a system that predisposes certain races to prison can perpetuate that discriminatory trend by using those same variables to predict the risk of committing another crime. The boxplots in Figure \ref{fig:ch3fig10} help to visualize this relationship more clearly.
 \begin{figure}
 
 {\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/ch3fig10-1} 
@@ -1000,9 +1002,9 @@ This section illustrates that the protected attribute, race (\(A\)), has proxy r
 
 \caption{Distribution of Recidivism Prevalence Stratified by Race among 9,387 Defandants in Broward County Florida, 2013-2014}\label{fig:ch3fig13}
 \end{figure}
-Ultimately, most defendants do not recommit another crime, even when broken down by race as visualized in Figure \ref{fig:ch3fig13}. Because the class imbalance is in the same direction, a `fair' model should not misclassify defendants in different directions based on race. However, the nature of the relationship between race and the predictor variables results in discriminatory and unfair outcomes, as elucidated in Section \ref{comptoolanalysis}.
+Ultimately, for this filtered subset of the data set, most defendants did not recommit another crime, even when broken down by race as visualized in Figure \ref{fig:ch3fig13}. Because the class imbalance is in the same direction, a `fair' model should not misclassify defendants in different directions based on race. However, the nature of the relationship between race and the predictor variables results in discriminatory and unfair outcomes, as elucidated in Section \ref{comptoolanalysis}.
 
-Before employing the Seldonian framework on this data set, Section \ref{logreg} fits a logistic regression to assess how similarly the COMPAS tool performs to a standard ML procedure.
+Before employing the Seldonian framework on this data set, Section \ref{logreg} fits a logistic regression to assess how similarly the COMPAS tool performed to a standard ML procedure.
 
 \hypertarget{logreg}{%
 \section{Logistic Regression}\label{logreg}}
@@ -1012,9 +1014,9 @@ Logistic regression is a statistical generalized linear model (GLM) specifically
 \hypertarget{fitting-the-logistic-regression-model}{%
 \subsection{Fitting the Logistic Regression Model}\label{fitting-the-logistic-regression-model}}
 
-Recall that if every observation were classified in the majority class, an accuracy of 66\% would be expected. This is a benchmark for the race-blind logistic regression model implemented in this section. The model will be trained on 70\% of the data and evaluated on the remaining 30\%. Only the five predictors (sex, age, marital status, juvenile offense, and prior offenses) will be fit to predict recidivism, the R code for which is displayed in Appendix \ref{appendix-d}.
+Recall that if every observation were classified in the majority class, an accuracy of 66\% would be expected. This is a benchmark for the race-blind logistic regression model implemented in this section. The model was trained on 70\% of the data and evaluated on the remaining 30\%. Only the five predictors (sex, age, marital status, juvenile offense, and prior offenses) were fit to predict recidivism, the R code for which is displayed in Appendix \ref{appendix-d}.
 
-The accuracy was 70.2\% on the training set, which is \textasciitilde3\% higher than the COMPAS tool's predictions and suggests that \textasciitilde30\% of defendants are misclassified. Overall accuracy was consistent at 70.1\% when evaluated on the testing set, indicating that the model did not over-fit on the training set and had good generalization performance. However, the ROC curve on Figure \ref{fig:ch3fig12} indicates concerns about the model's sensitivity \((1 - FNR)\) and specificity \((1 - FPR)\). The diagonal line shows how the model would perform with random predictions. Curves that budge closer to the top left are preferred because those types of curves maximize the area under the curve (AUC), and the sensitivity and specificity of the model are closer to 100\%. However, the AUC of this model is 68.8\%.
+The accuracy was 70.2\% on the training set, which is \textasciitilde3\% higher than the COMPAS tool's predictions; \textasciitilde30\% of defendants were misclassified. Overall accuracy was consistent at 70.1\% when evaluated on the testing set, indicating that the model did not over-fit on the training set and had good generalization performance. However, the ROC curve on Figure \ref{fig:ch3fig12} indicates concerns about the model's sensitivity \((1 - FNR)\) and specificity \((1 - FPR)\). The diagonal line shows how the model would perform with random predictions. Curves that budge closer to the top left are preferred because those types of curves maximize the area under the curve (AUC), and the sensitivity and specificity of the model are closer to 100\%. However, the AUC of this model is 68.8\%.
 \begin{figure}
 
 {\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/ch3fig12-1} 
@@ -1028,11 +1030,11 @@ The accuracy was 70.2\% on the training set, which is \textasciitilde3\% higher 
 
 Despite the improved accuracy, examining the direction of these error rates and performing a demographic analysis by race to assess the model's `fairness' along racial lines reveals the same discrepancies observed in the COMPAS tool results.
 
-Table \ref{tab:ch3table3} displays the overall false positive and false negative rates. As expected, the model performs better in classifying defendants who do not reoffend than those who do since that is the majority class. When evaluated on the test set, 91.05\% of defendants who did not reoffend are correctly classified as low-risk. Thus, only 8.95\% of participants who do not reoffend are incorrectly classified as high-risk. This is a lower FPR than COMPAS. However, only 29\% of defendants who reoffended are correctly classified as high-risk. Thus, 71\% of defendants who reoffended are incorrectly classified as low-risk. This is a higher FNR than COMPAS.
+Table \ref{tab:ch3table3} displays the overall false positive and false negative rates. As expected, the model performed better in classifying defendants who did not reoffend than those who did since that was the majority class. When evaluated on the test set, 91.05\% of defendants who did not reoffend were correctly classified as low-risk. Thus, only 8.95\% of participants who did not reoffend were incorrectly classified as high-risk. This is a lower FPR than COMPAS. However, only 29\% of defendants who reoffended were correctly classified as high-risk. Thus, 71\% of defendants who reoffended were incorrectly classified as low-risk. This is a higher FNR than COMPAS.
 
-Table \ref{tab:ch3table4} further breaks these results down, focusing on Black and White defendants. While the overall FPR for the model is 8.95\%, notice that the FPR for Black defendants is 13.93\%, compared to only 5.09\% for White defendants. Similar to the COMPAS tool, Black defendants who do not reoffend are incorrectly misclassified as high risk at more than twice the rate that White defendants are. On the flip side, while the overall FNR for the model is 71\%, notice that the FNR for Black defendants is 60.82\%, compared to 86.17\% for White defendants. Similar to the COMPAS tool, the logistic regression makes the opposite mistake in predicting recidivism for Black v White defendants, with White defendants being more likely to be incorrectly classified as low risk than their Black counterparts.
+Table \ref{tab:ch3table4} further breaks these results down, focusing on Black and White defendants. While the overall FPR for the model was 8.95\%, notice that the FPR for Black defendants was 13.93\%, compared to only 5.09\% for White defendants. Similar to the COMPAS tool, Black defendants who did not reoffend were incorrectly misclassified as high risk at more than twice the rate that White defendants were. On the flip side, while the overall FNR for the model was 71\%, notice that the FNR for Black defendants was 60.82\%, compared to 86.17\% for White defendants. Similar to the COMPAS tool, the logistic regression made the opposite mistake in predicting recidivism for Black v White defendants, with White defendants more likely to be incorrectly classified as low risk than their Black counterparts.
 
-These results serve to highlight the real danger with using standard ML procedures, even when the sensitive variable itself is not included. These models have potential to perpetuate, and even introduce, harmful and discriminatory practices as observed in this Chapter. Although the details of Northepointe's COMPAS algorithm are kept secret, it's clear that traditional algorithms like logistic regression lead to comparable outcomes. In fact, a probability cutoff of \(p = 0.34\), the probability of being in the positive class in this data set, on the logistic regression yielded the same accuracy (\(66.7\)\%) as the COMPAS tool. Additionally, comparing the COMPAS decile scores to the logistic regression (LR) results reveals that the median decile score is eight in the high-risk LR prediction and three in the low-risk LR prediction, further highlighting the similarity of these results. The next section uses the logistic regression model as a starting point, but places fairness constraints to enforce equality of odds for Black and White defendants.
+These results serve to highlight the real danger with using standard ML procedures, even when the sensitive variable itself is not included. These models have potential to perpetuate, and even introduce, harmful and discriminatory practices as observed in this Chapter. Although the details of Northepointe's COMPAS algorithm are kept secret, it's clear that traditional algorithms like logistic regression lead to comparable outcomes. In fact, a probability cutoff of \(p = 0.34\), the probability of being in the positive class in this data set, on the logistic regression yielded the same accuracy (\(66.7\)\%) as the COMPAS tool. Additionally, comparing the COMPAS decile scores to the logistic regression (LR) results revealed that the median decile score was eight in the high-risk LR prediction and three in the low-risk LR prediction, further highlighting the similarity of these results. The next section uses the logistic regression model as a starting point, but places fairness constraints to enforce equality of odds for Black and White defendants.
 \begin{table}
 
 \caption{\label{tab:ch3table3}COMPAS Logistic Regression Error Rates (Percentage)}
@@ -1062,7 +1064,7 @@ Reoffended & Low & 60.8 & 86.17\\
 \hypertarget{seldapp}{%
 \section{Seldonian Classification}\label{seldapp}}
 
-This section aims to conclude the chapter by illustrating how Seldonian algorithms can mitigate undesirable outcomes made by classifiers in practicality. Consistent with the notation in Chapter \ref{chap-2}, \(\Theta\) would be a set of classifiers and \(f\) a classifier performance measure, such as logistic loss or the log likelihood. For this application, the Seldonian algorithm will use the logistic loss as its primary objective function. The goal is to use the Seldonian framework to create a model that makes predictions about recidivism that are fair with respect to race, which will be simplified to just two levels: Black and White. Further research can extend this work to include more races.
+This section aims to conclude the chapter by illustrating how Seldonian algorithms can mitigate undesirable outcomes made by classifiers in practice. Consistent with the notation in Chapter \ref{chap-2}, \(\Theta\) would be a set of classifiers and \(f\) a classifier performance measure, such as logistic loss or the log likelihood. For this application, the Seldonian algorithm will use the logistic loss as its primary objective function. The goal is to use the Seldonian framework to create a model that makes predictions about recidivism that are fair with respect to race, which will be simplified to just two levels: Black and White. Further research can extend this work to include more races.
 
 \hypertarget{formulating-the-seldonian-problem}{%
 \subsection{Formulating the Seldonian Problem}\label{formulating-the-seldonian-problem}}
@@ -1375,7 +1377,7 @@ Finally, Chapter 4 focused on accuracy-fairness trade-offs in classification set
 
 \(\\\)
 
-In conclusion, although a step in the right direction toward fair ML, the Seldonian framework is far from the perfect solution. Seldonian algorithms may yield no solution, unfair results, or fair results with poor accuracy, as there is a practical limit to how much fairness can be enforced while still retaining reasonable model predictive performance. In line with concerns about this trade-off, continued work involves investigating ways to balance fairness and predictive performance within the Seldonian framework.
+In conclusion, although a step in the right direction toward fair ML and AI (artificial intelligence), the Seldonian framework is far from the perfect solution. Seldonian algorithms may yield no solution, unfair results, or fair results with poor accuracy, as there is a practical limit to how much fairness can be enforced while still retaining reasonable model predictive performance. In line with concerns about this trade-off, continued work involves investigating ways to balance fairness and predictive performance within the Seldonian framework.
 
 Furthermore, this study focused on one group fairness definition specifically in the classification setting. To further understand how Seldonian algorithms can be employed more practically, assessing performance in practical continuous settings and enforcing different group fairness definitions and even subgroup or individual notions of fairness will be necessary for a full-picture analysis. Finally, many ongoing research studies are investigating ways to build more equitable algorithms. Performing a holistic comparison of Seldonian outcomes with other state-of-the-art fair ML tools, such as Microsoft's Fairlearn (Bird et al., 2020) and IBM's Fairness 360 AI (Bellamy et al., 2019), as well as other theoretical remedies for algorithmic bias, such as hard and soft constraints on the objective function, will be important in determining the advantages and drawbacks of all of these technologies, propelling researchers toward the best solution for the problem of algorithmic bias.
 
@@ -1510,7 +1512,7 @@ Recall from Chapter \ref{intro} that (Castelnovo et al., 2022):
 \hypertarget{appendix-b}{%
 \chapter{Quasi-Seldonian Linear Regression Theoretical Considerations and Python Implementation}\label{appendix-b}}
 
-The theoretical considerations and Python implementation discussed in this Appendix are either reproduced or adapted from P. S. Thomas (n.d.).
+The theoretical considerations and Python implementation discussed in this Appendix are either reproduced or adapted from P. S. Thomas (2020).
 
 \(\\\)
 
@@ -1560,7 +1562,7 @@ The theoretical considerations and Python implementation discussed in this Appen
     \ControlFlowTok{return}\NormalTok{ t.ppf(p, nu)}
 \end{Highlighting}
 \end{Shaded}
-\noindent The \texttt{stddev} function computes the sample standard deviation of the vector \(v\), with Bessel's correction. In statistics, Bessel's correction is the use of \(n-1\) instead of \(n\) in the formula for the sample variance and sample standard deviation, where n is the number of observations in a sample. This method corrects the bias in the estimation of the population variance.
+\noindent The \texttt{stddev} function computes the sample standard deviation of the vector \(v\), with Bessel's correction. In statistics, Bessel's correction is the use of \(n-1\) instead of \(n\) in the formula for the sample variance and sample standard deviation, where \(n\) is the number of observations in a sample. This method corrects the bias in the estimation of the population variance.
 \begin{Shaded}
 \begin{Highlighting}[]
 \KeywordTok{def}\NormalTok{ stddev(v):}
@@ -1632,7 +1634,7 @@ This function is used to estimate what the output of \texttt{ttestUpperBound} wo
     \ControlFlowTok{return}\NormalTok{ theta[}\DecValTok{0}\NormalTok{] }\OperatorTok{+}\NormalTok{ theta[}\DecValTok{1}\NormalTok{] }\OperatorTok{*}\NormalTok{ x}
 \end{Highlighting}
 \end{Shaded}
-\noindent The \texttt{fHat} function specifies the primary objective: to minimize the sample mean squared error. Because the attempt is to maximize \(\hat{f}\), however, the negative sample mean squared error is returned, so that maximizing \(\hat{f}\) corresponds to minimizing the mean squared error.
+\noindent The \texttt{fHat} function specifies the primary objective: to minimize the sample mean squared error. The attempt is to maximize \(\hat{f}\); the negative sample mean squared error is returned, so that maximizing \(\hat{f}\) corresponds to minimizing the mean squared error.
 \begin{Shaded}
 \begin{Highlighting}[]
 \KeywordTok{def}\NormalTok{ fHat(theta, X, Y):}
@@ -2209,8 +2211,7 @@ This function is used to estimate what the output of \texttt{ttestUpperBound} wo
 \hypertarget{appendix-c}{%
 \chapter{SQL Script to Retrieve COMPAS Data}\label{appendix-c}}
 
-\noindent The following SQL script was used to retrieve the COMPAS data set used in Chapters \ref{chap-3} and \ref{chap-4} from the public COMPAS database available through the ProPublica Data Store and accessible through GitHub. The database contains seven tables, although the \texttt{summary} table is empty. The SQLite code below returns 12160 rows of defendants from Broward County, Florida, who were assessed using the COMPAS tool for risk of recidivating. There are 29 variables of interest returned, though many more could be selected if interested.
-Further data wrangling and data analysis are conducted in R, and significant findings are communicated in Chapters \ref{chap-3} and \ref{chap-4}.
+\noindent I wrote the following SQL script to retrieve the COMPAS data set used in Chapters \ref{chap-3} and \ref{chap-4} from the public COMPAS database available through the ProPublica Data Store and accessible through GitHub (\url{https://github.com/dashaasienga/Statistics-Senior-Honors-Thesis/tree/main/Data\%20Sets/COMPAS}), along with instructions for accessing the database and running this code. The database contains seven tables, although the \texttt{summary} table is empty. The SQL code was run on DB Browser for SQLite, and returns 12160 rows of defendants from Broward County, Florida, who were assessed using the COMPAS tool for risk of recidivating. There are 29 variables of interest returned, though many more could be selected if interested. Further data wrangling and data analysis are conducted in R, and selected findings are communicated in Chapters \ref{chap-3} and \ref{chap-4}. Having uploaded \texttt{compas.db} into DB Browser for SQLite, run the following:
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{select }
@@ -2283,7 +2284,7 @@ Further data wrangling and data analysis are conducted in R, and significant fin
 \NormalTok{and compas.last = jailhistory.last}
 \NormalTok{and jailhistory.in\_custody \textless{}= compas.screening\_date}
     
-\NormalTok{group by 1,2,3}
+\NormalTok{group by jailhistory.person\_id, jailhistory.first, jailhistory.last}
     
 \NormalTok{) as jail\_agg }
 \NormalTok{on jail\_agg.person\_id = people.id}
@@ -2318,7 +2319,7 @@ Further data wrangling and data analysis are conducted in R, and significant fin
 \NormalTok{and compas.last = prisonhistory.last}
 \NormalTok{and prisonhistory.in\_custody \textless{}= compas.screening\_date}
     
-\NormalTok{group by 1,2,3}
+\NormalTok{group by prisonhistory.person\_id, prisonhistory.first, prisonhistory.last}
     
 \NormalTok{) as prison\_agg }
 \NormalTok{on prison\_agg.person\_id = people.id}
@@ -2372,7 +2373,9 @@ Further data wrangling and data analysis are conducted in R, and significant fin
 \hypertarget{appendix-e}{%
 \chapter{Seldonian Classification on the COMPAS Data Set}\label{appendix-e}}
 
-\noindent This appendix section walks through how a Seldonian algorithm was fit on the COMPAS data set in Chapter \ref{chap-3} --- the algorithm aimed to produce less disparate outcomes in error rates between Black and White defendants. The code was adapted from P. S. Thomas (n.d.).
+\noindent This appendix section walks through how a Seldonian algorithm was fit on the COMPAS data set in Chapter \ref{chap-3} --- the algorithm aimed to produce less disparate outcomes in error rates between Black and White defendants. The code was adapted from P. S. Thomas (2020).
+
+\(\\\)
 
 \noindent First, the Python environment can be set up in R using the \texttt{reticulate} package. The necessary Python libraries can then be imported as shown.
 \begin{Shaded}
@@ -2488,7 +2491,7 @@ Further data wrangling and data analysis are conducted in R, and significant fin
 \NormalTok{    json.dump(metadata\_dict,outfile,indent}\OperatorTok{=}\DecValTok{2}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
-\noindent Next, a specificatio object is needed.
+\noindent Next, a specification object, defining the specifications of a particular Seldonian model fit, is needed.
 \begin{Shaded}
 \begin{Highlighting}[]
 \ImportTok{import}\NormalTok{ autograd.numpy }\ImportTok{as}\NormalTok{ np}
@@ -2629,7 +2632,13 @@ Further data wrangling and data analysis are conducted in R, and significant fin
 \noindent This appendix section displays the R code used to generate the parent simulation data set for Chapter \ref{chap-4}.
 \begin{Shaded}
 \begin{Highlighting}[]
+\CommentTok{\# set seed for reproducibility}
 \FunctionTok{set.seed}\NormalTok{(}\DecValTok{123}\NormalTok{)}
+
+\CommentTok{\# read in the data set}
+\NormalTok{compas\_path }\OtherTok{\textless{}{-}} \StringTok{"/home/dasienga24/Statistics{-}Senior{-}Honors{-}Thesis/Data Sets/COMPAS/}
+\StringTok{compas\_seldonian\_bw.csv"}
+\NormalTok{compas\_sim }\OtherTok{\textless{}{-}} \FunctionTok{read.csv}\NormalTok{(compas\_path)}
 
 \CommentTok{\# define a linear combination of predictors as desired}
 \NormalTok{linear\_combination }\OtherTok{=} \DecValTok{5}  \SpecialCharTok{{-}} \FloatTok{0.2} \SpecialCharTok{*}\NormalTok{ compas\_sim}\SpecialCharTok{$}\NormalTok{age }\SpecialCharTok{+} 
@@ -2755,13 +2764,13 @@ Saeed, S., Alireza, B., Mohamed, E., \& Ahmed, N. (2015). Evidence based emergen
 Silva, B. C. da. (2019). {UFRGS Entrance Exam and GPA Data} (Version V2) {[}Data set{]}. Harvard Dataverse. http://doi.org/\href{https://doi.org/10.7910/DVN/O35FW8}{10.7910/DVN/O35FW8}
 
 \leavevmode\vadjust pre{\hypertarget{ref-sentencingproject}{}}%
-The Sentencing Project. (2018). Report to the united nations on racial disparities in the u.s. Criminal justice system. Retrieved March 18, 2024, from \url{https://www.sentencingproject.org/reports/report-to-the-united-nations-on-racial-disparities-in-the-u-s-criminal-justice-system/}
+The Sentencing Project. (2018). Report to the united nations on racial disparities in the US criminal justice system. Retrieved March 18, 2024, from \url{https://www.sentencingproject.org/reports/report-to-the-united-nations-on-racial-disparities-in-the-u-s-criminal-justice-system/}
 
 \leavevmode\vadjust pre{\hypertarget{ref-thomas2020housetestimony}{}}%
 Thomas, P. (2020). Testimony to the house committee on financial services task force on artificial intelligence hearing: {``Equitable algorithms: Examining ways to reduce AI bias in financial services.''} Retrieved September 30, 2023, from \url{https://www.congress.gov/116/meeting/house/110499/witnesses/HHRG-116-BA00-Wstate-ThomasP-20200212.pdf}
 
 \leavevmode\vadjust pre{\hypertarget{ref-aisafety}{}}%
-Thomas, P. S. (n.d.). AI safety. Retrieved April 12, 2024, from \url{/url\%7Bhttps://aisafety.cs.umass.edu/index.html\%7D}
+Thomas, P. S. (2020). AI safety. Retrieved April 12, 2024, from \url{/url\%7Bhttps://aisafety.cs.umass.edu/index.html\%7D}
 
 \leavevmode\vadjust pre{\hypertarget{ref-thomas2019preventing}{}}%
 Thomas, P. S., Castro da Silva, B., Barto, A. G., Giguere, S., Brun, Y., \& Brunskill, E. (2019a). Preventing undesirable behavior of intelligent machines. \emph{Science}, \emph{366}(6468), 999--1004.
