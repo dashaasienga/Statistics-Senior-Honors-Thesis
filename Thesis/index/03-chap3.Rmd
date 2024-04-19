@@ -432,9 +432,6 @@ compas %>%
         booktabs = TRUE)
 ```
 
-$\\$
-
-The analysis in this section provides evidence for disparities with favorable COMPAS outcomes for White and Asian defendants and unfavorable outcomes for Black and Native American defendants. To visualize these results, Figure \@ref(fig:ch3fig11) displays the distribution of the decile scores for the two most populous races in the data set. Black defendants' decile scores were distributed almost uniformly among the ten decile scores. In contrast, the White defendants' decile scores had a significant right skew, with most observations in lower decile scores. This further emphasizes the racial disparity in employing such risk assessment tools in judicial decisions and the presence of algorithmic bias.
 
 ```{r ch3fig11, fig.align='center', fig.cap="Distribution of COMPAS Tool Decile Scores Stratified by Race among 9,387 Defandants in Broward County Florida, 2013-2014", warning = FALSE, message = FALSE, fig.width = 6, fig.height = 2.5, echo = FALSE}
 compas %>%
@@ -451,14 +448,16 @@ ggplot(mapping = aes(x = as.factor(decile_score), fill = as.factor(is_recid))) +
     fill = "Recidivism Status")
 ```
 
+$\\$
+
+The analysis in this section provides evidence for disparities with favorable COMPAS outcomes for White and Asian defendants and unfavorable outcomes for Black and Native American defendants. To visualize these results, Figure \@ref(fig:ch3fig11) displays the distribution of the decile scores for the two most populous races in the data set. Black defendants' decile scores were distributed almost uniformly among the ten decile scores. In contrast, the White defendants' decile scores had a significant right skew, with most observations in lower decile scores. This further emphasizes the racial disparity in employing such risk assessment tools in judicial decisions and the presence of algorithmic bias.
+
 
 ### Proxy Relationships 
 
 Section \@ref(comptoolanalysis) revealed that the predictions of the COMPAS tool exhibit significant racial discrepancies. Yet, the COMPAS tool is a race-blind model. Race was not included as a variable, so how could a model result in such racially distinct outcomes? To answer this question, this section analyzes the relationship between race and the predictive variables to examine how much information regarding a defendant's race is incorporated into the model via other variables.
 
 There were more male than female defendants for all races, and most defendants were single. However, African-American defendants tended to be, on average, the youngest compared to all the other races. Asian defendants, followed by Caucasian defendants, tended to be the oldest. Nevertheless, there was considerable overlap among all the races, and Figure \@ref(fig:ch3fig10) visualizes the relationships. In looking at the age categories by race, more African-American defendants were < 25 than those who were > 45. The converse is true for Caucasians, with more defendants that were > 45 in comparison to those < 25. These distributional differences illustrate that there is some relationship between age and race in this data set, particularly for Black versus White defendants. 
-
-Additionally, African-American defendants had the most prior offenses, on average, followed by their Native-American counterparts. When compared with Caucasian defendants, African Americans had almost twice as many prior offenses, suggesting a strong proxy relationship between race and prior offenses. Asian defendants had the least prior offenses. This is an important result that illustrates how a system that predisposes certain races to prison can perpetuate that discriminatory trend by using those same variables to predict the risk of committing another crime. The boxplots in Figure \@ref(fig:ch3fig10) help to visualize this relationship more clearly.
 
 ```{r ch3fig10, fig.align='center', fig.cap="Distribution of COMPAS Tool Proxy Variables Stratified by Race among 9,387 Defandants in Broward County Florida, 2013-2014", warning = FALSE, message = FALSE, fig.width = 6, fig.height = 8, echo = FALSE}
 g18 <- ggplot(data = compas_final, 
@@ -493,8 +492,16 @@ g20 <- ggplot(data = compas_final,
 grid.arrange(g18, g19, g20, nrow = 3)
 ```
 
+Additionally, African-American defendants had the most prior offenses, on average, followed by their Native-American counterparts. When compared with Caucasian defendants, African Americans had almost twice as many prior offenses, suggesting a strong proxy relationship between race and prior offenses. Asian defendants had the least prior offenses. This is an important result that illustrates how a system that predisposes certain races to prison can perpetuate that discriminatory trend by using those same variables to predict the risk of committing another crime. The boxplots in Figure \@ref(fig:ch3fig10) help to visualize this relationship more clearly.
+
+$\\$
 
 This section illustrates that the protected attribute, race ($A$), has proxy relationships with some predictor variables ($X$). Even a group-blind classifier will not be entirely blind to race because of the correlations present and the information it gains about race from the proxy variables.
+
+$\\$
+
+Ultimately, for this filtered subset of the data set, most defendants did not recommit another crime, even when broken down by race as visualized in Figure \@ref(fig:ch3fig13). Because the class imbalance is in the same direction, a 'fair' model should not misclassify defendants in different directions based on race. However, the nature of the relationship between race and the predictor variables results in discriminatory and unfair outcomes, as elucidated in Section \@ref(comptoolanalysis). 
+
 
 ```{r ch3fig13, fig.align='center', fig.cap="Distribution of Recidivism Prevalence Stratified by Race among 9,387 Defandants in Broward County Florida, 2013-2014", warning = FALSE, message = FALSE, fig.width = 6, fig.height = 2.5, echo = FALSE}
 compas_final %>%
@@ -514,7 +521,6 @@ compas_final %>%
   theme(axis.text.x = element_text(angle = 25, vjust = 1.2, hjust=1)) 
 ```
 
-Ultimately, for this filtered subset of the data set, most defendants did not recommit another crime, even when broken down by race as visualized in Figure \@ref(fig:ch3fig13). Because the class imbalance is in the same direction, a 'fair' model should not misclassify defendants in different directions based on race. However, the nature of the relationship between race and the predictor variables results in discriminatory and unfair outcomes, as elucidated in Section \@ref(comptoolanalysis). 
 
 Before employing the Seldonian framework on this data set, Section \@ref(logreg) fits a logistic regression to assess how similarly the COMPAS tool performed to a standard ML procedure. 
 
@@ -527,7 +533,7 @@ Logistic regression is a statistical generalized linear model (GLM) specifically
 
 Recall that if every observation were classified in the majority class, an accuracy of 66% would be expected. This is a benchmark for the race-blind logistic regression model implemented in this section. The model was trained on 70% of the data and evaluated on the remaining 30%. Only the five predictors (sex, age, marital status, juvenile offense, and prior offenses) were fit to predict recidivism, the R code for which is displayed in Appendix \@ref(appendix-d).
 
-The accuracy was 70.2% on the training set, which is ~3% higher than the COMPAS tool's predictions; ~30% of defendants were misclassified. Overall accuracy was consistent at 70.1% when evaluated on the testing set, indicating that the model did not over-fit on the training set and had good generalization performance. However, the ROC curve on Figure \@ref(fig:ch3fig12) indicates concerns about the model's sensitivity $(1 - FNR)$ and specificity $(1 - FPR)$. The diagonal line shows how the model would perform with random predictions. Curves that budge closer to the top left are preferred because those types of curves maximize the area under the curve (AUC), and the sensitivity and specificity of the model are closer to 100%. However, the AUC of this model is 68.8%. 
+The accuracy was 70.2% on the training set, which is ~3% higher than the COMPAS tool's predictions; ~30% of defendants were misclassified. Overall accuracy was consistent at 70.1% when evaluated on the testing set, indicating that the model did not over-fit on the training set and had good generalization performance.
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE}
 # set seed
@@ -568,6 +574,7 @@ roccurve1 <- with(test, roc(is_recid ~ preds))
 ```{r ch3fig12, fig.align='center', fig.cap="COMPAS Logistic Regression Receiver Operating Characteristic (ROC) Curve", warning = FALSE, message = FALSE, fig.width = 3.5, fig.height = 3, echo = FALSE}
 plot(roccurve1)
 ```
+However, the ROC curve on Figure \@ref(fig:ch3fig12) indicates concerns about the model's sensitivity $(1 - FNR)$ and specificity $(1 - FPR)$. The diagonal line shows how the model would perform with random predictions. Curves that budge closer to the top left are preferred because those types of curves maximize the area under the curve (AUC), and the sensitivity and specificity of the model are closer to 100%. However, the AUC of this model is 68.8%.
 
 ### Evaluating the Equality of Odds  
 
@@ -692,6 +699,10 @@ A solution that passed the safety test was obtained for all four values of $\eps
 $\\$
 
 In conclusion, the Seldonian algorithms successfully met the fairness constraints defined, with the FPR and FNR gaining more parity along racial lines for Black and White defendants as $\epsilon$ became more conservative. However, there was a tradeoff with model informativeness and performance in enforcing greater fairness. The FNR got larger as the FPR got smaller until, ultimately, the model was non-informative despite perfectly satisfying the constraints (100% FNR and 0% FPR for both races). Accuracy also dropped as the value of $\epsilon$ decreased, although the original data set could have been more informative. Notably, considering all races, the lowest achievable accuracy would only be 4% lower than the highest accuracy attained by the logistic regression model. 
+
+$\\$
+
+Looking ahead, there are several avenues for future research. One direction involves extending this study to data sets with less class imbalance and higher overall predictive performance. By doing so, the tradeoffs inherent in incorporating fairness constraints into the traditional objective function in a practical setting can be better elucidated. Chapter \@ref(chap-4) contributes to this understanding by conducting a simulation study to explore the theoretical and practical implications of the Seldonian framework in the classification setting.
 
 ```{r, echo = FALSE}
 seldonian_results <- seldonian_results %>%
@@ -836,10 +847,6 @@ seldonian_results %>%
         caption = "The Percent of Defendants who were Incorrectly Labeled Higher/Lower Risk by a Seldonian Algorithm ($\\epsilon$ = 0.01) Stratified by Recidivism Status and Race among 9,387 Defandants in Broward County Florida, 2013-2014")
 ```
 
-$\\$
 
-$\\$
-
-Looking ahead, there are several avenues for future research. One direction involves extending this study to data sets with less class imbalance and higher overall predictive performance. By doing so, the tradeoffs inherent in incorporating fairness constraints into the traditional objective function in a practical setting can be better elucidated. Chapter \@ref(chap-4) contributes to this understanding by conducting a simulation study to explore the theoretical and practical implications of the Seldonian framework in the classification setting.
 
 
