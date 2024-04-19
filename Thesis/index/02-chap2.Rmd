@@ -199,9 +199,9 @@ In a similar fashion, the following section discusses how the candidate selectio
 
 #### The Safety Test Mechanism {#safety}
 
-Seldonian algorithms ensure that $P(g_i(\theta_c) \leq 0) \geq 1 - \delta_i$ for each constraint $i \in \{ 1,2, \ldots, m \}$ and the safety test mechanism is the component that verifies whether these behavioral constraints actually hold [@thomas2019preventing]. This is achieved by computing an upper bound for each $g_i(\theta)$ using the data and a confidence interval derived from the Student $t$-statistic. If the high confidence upper bound is less than or equal to 0, then the solution is safe to return, otherwise, no solution will be returned. 
+Seldonian algorithms ensure that $P(g_i(\theta_c) \leq 0) \geq 1 - \delta_i$ for each constraint $i \in \{ 1,2, \ldots, m \}$ and the safety test mechanism is the component that verifies whether these behavioral constraints actually hold [@thomas2019preventing]. This is achieved by computing an upper bound for each $g_i(\theta)$ using the data and a confidence interval derived from the Student's $t$-statistic. If the high confidence upper bound is less than or equal to 0, then the solution is safe to return, otherwise, no solution will be returned. 
 
-Let $X = (X_1, \ldots, X_n)$ be $n$ independent and identically distributed ($i.i.d.$) random observations. Under the assumption that $\frac{1}{n} \sum_{i=1}^n X_i$ is normally distributed or if $n$ is sufficiently large -- by the Central Limit Theorem --, then the Student $t$-statistic can be used to compute an upper bound of the expected value of these random variables as follows:
+Let $X = (X_1, \ldots, X_n)$ be $n$ independent and identically distributed ($i.i.d.$) random observations. Under the assumption that $\frac{1}{n} \sum_{i=1}^n X_i$ is normally distributed or if $n$ is sufficiently large -- by the Central Limit Theorem --, then the Student's $t$-statistic can be used to compute an upper bound of the expected value of these random variables as follows:
 
 \begin{equation}
 \label{ch2eq10}
@@ -212,7 +212,7 @@ where
 
 - $\hat{\mu}(X) = \bar{X}$ and $\hat{\sigma}(X) = s$ are the sample mean and standard deviation, respectively, of a vector X. That is, $\hat{\mu}(X) = \frac{1}{n}\sum_{i=1}^n X_i = \bar{X}$ and $\hat{\sigma}(X) = \sqrt{\frac{\frac{1}{n}\sum_{i=1}^n (X_i - \hat{\mu}(X))^2}{n-1}} = s$. 
 
-- $t_{1-\delta, n-1}$ is the $100(1-\delta)$ percentile of the Student $t$-distribution with $n-1$ degrees of freedom.
+- $t_{1-\delta, n-1}$ is the $100(1-\delta)$ percentile of the Student's $t$-distribution with $n-1$ degrees of freedom.
 
 Before constructing the safety test mechanism, recall from Section \@ref(sop) that [@thomas2019supplementary]:
 
@@ -224,7 +224,7 @@ Before constructing the safety test mechanism, recall from Section \@ref(sop) th
 
 - $E[\hat{g_i}(\theta_c, D_2)] = g_i(\theta_c)$ for each behavioral constraint $i \in \{1,2, \ldots, m \}$.
 
-By substituting the respective pieces into the Student $t$ high confidence upper bound discussed above, then:
+By substituting the respective pieces into the Student's $t$ high confidence upper bound discussed above, then:
 
 \begin{equation}
 \label{ch2eq11}
@@ -256,7 +256,7 @@ Thus, only solutions likely to pass the safety test will be considered by predic
 $$ \text{ s.t. } \forall \text{ } i \in \{1,2,\ldots,m\}, \text{  } \hat{\mu}(\hat{g_i}(\theta_c, D_1)) + \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_1))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1} \leq 0. $$
 
 
-Notice that while the sample mean $\hat{\mu}$ and the sample standard deviation $\hat{\sigma}$ are computed over $D_1$, the size of $D_2$ is used to correct the standard deviation and compute the Student $t$ percentile, in order to ensure that the solution is properly predicted to pass the safety test. 
+Notice that while the sample mean $\hat{\mu}$ and the sample standard deviation $\hat{\sigma}$ are computed over $D_1$, the size of $D_2$ is used to correct the standard deviation and compute the Student's $t$ percentile, in order to ensure that the solution is properly predicted to pass the safety test. 
 
 The process defined can work well when the objective function $f$ and the behavioral constraints are aligned. However, when they are in conflict, the candidate selection mechanism tends to be over-confident that $\theta_c$ will pass the safety test and a safe solution will be returned [@thomas2019supplementary]. Doubling the width of the confidence level is a proposed solution to produce more conservative predictions and better guarantees of $\theta_c$ passing the safety test, but more research is needed on this front. Therefore, a black-box optimization algorithm is used to compute:
 
@@ -306,8 +306,9 @@ In this example, the goal of the linear regression algorithm is two-fold: to min
 
 - $g_2(\theta) = 1.25 - MSE(\theta) \text{; } \delta_2 = 0.1$.
 
-Unbiased estimates of the MSE and each $g_i(\theta)$ will be computed from the data set as elucidated in Section \@ref(qsa). The Python code used to implement and compute the quasi-Seldonian linear regression algorithm is displayed in detail in Appendix \@ref(appendix-b), along with the theoretical considerations. To reduce computational burden, all the computation was performed on the Amherst College High-Performance Computing System. In this case, a solution that minimizes the MSE while satisfying the two behavioral constraints, $g_1(\theta)$ and $g_2(\theta)$, was found -- the MSE was $1.385$. Figure \@ref(fig:fig3) visually compares the quasi-Seldonian solution (blue) with the ordinary least squares solution (red). Similar slopes yet differing intercepts are observed.  
+Unbiased estimates of the MSE and each $g_i(\theta)$ will be computed from the data set as elucidated in Section \@ref(qsa). The Python code used to implement and compute the quasi-Seldonian linear regression algorithm is displayed in detail in Appendix \@ref(appendix-b), along with the theoretical considerations. To reduce computational burden, all the computation was performed on the Amherst College High-Performance Computing Cluster. In this case, a solution that minimizes the MSE while satisfying the two behavioral constraints, $g_1(\theta)$ and $g_2(\theta)$, was found -- the MSE was $1.385$. Figure \@ref(fig:fig3) visually compares the quasi-Seldonian solution (blue) with the ordinary least squares solution (red). Similar slopes yet differing intercepts are observed.  
 
+$\\$
 
 ```{r, echo = FALSE}
 library(reticulate)
@@ -550,7 +551,7 @@ To conclude this chapter, Section \@ref(exp) scales this process to repeatedly r
 
 ### Experimentation {#exp}
 
-Consistent with the set-up in Section \@ref(toy) and following the presentation by @aisafety, the aim of the experimentation in this section is to assess three aspects of the quasi-Seldonian linear regression algorithm defined in Section \@ref(toy): performance loss, frequency of solutions, and frequency of undesirable behavior for varying sample sizes. 
+Consistent with the set-up in Section \@ref(toy) and following the presentation by @aisafety, the aim of the experimentation in this section is to assess three aspects of the quasi-Seldonian linear regression (QSLR) algorithm defined in Section \@ref(toy): performance loss, frequency of solutions, and frequency of undesirable behavior for varying sample sizes. 
 
 ```{python, echo = FALSE}
 import timeit               
@@ -865,7 +866,7 @@ gather_results()
 ```
 
 
-Each of the figures show how different properties of the quasi-Seldonian linear regression (QSLR) algorithm vary for different sample sizes, $\textit{n}$. The horizontal axis is on a logarithmic scale, with values of $\textit{n}$ starting at $\textit{n} = 32$ and going up to $\textit{n} = 65,536$, doubling each time such that $\textit{n} \in \{32, 64, 128, \ldots, 65536 \}$. 50 trials are run for each value of $n$. Each figure plots the mean and includes a standard error bar to visualize the variance of results. 
+Each of the figures show how different properties of the QSLR algorithm vary for different sample sizes, $\textit{n}$. The horizontal axis is on a logarithmic scale, with values of $\textit{n}$ starting at $\textit{n} = 32$ and going up to $\textit{n} = 65,536$, doubling each time such that $\textit{n} \in \{32, 64, 128, \ldots, 65536 \}$. 50 trials are run for each value of $n$. Each figure plots the mean and includes a standard error bar to visualize the variance of results. 
 
 #### Performance Loss
 A Seldonian algorithm that has probabilistic guarantees of safe or fair behavior will typically perform worse, with regard to accuracy or error, than an algorithm that is purely focused on optimizing performance [@aisafety]. In Figure \@ref(fig:fig4), the dotted lines represent the desired range for the MSE as defined by the behavioral constraints set in Section \@ref(toy). In this setting, MSE was forced to be higher. Notice that the QSLR did not return a solution for small amounts of data, but when a solution was returned, it was always within the MSE bounds set by the constraints. Additionally, the bigger the sample size, the closer the MSE was to the lower boundary. This highlights the role that the primary objective plays as the sample size increases by encouraging solutions with lower error, albeit still within the desired window. In a different setting where the behavioral constraints are not at odds with the primary objective function, it would be worthwhile to investigate performance loss when using a QSLR algorithm rather than ordinary least squares (OLS). Chapter \@ref(chap-3) attempts to partially answer this question by investigating performance loss for Seldonian algorithms in classification settings.  

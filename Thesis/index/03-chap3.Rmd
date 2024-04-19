@@ -153,7 +153,7 @@ This section further examines the bivariate relationships between the predictive
 
 Defendants who recidivated tended to be younger than than those who didn't (median age 29 versus 33, respectively; Figure \@ref(fig:ch3fig5)A and \@ref(fig:ch3fig6)A). Defendants who recidivated also tended to have more non-juvenile prior offenses than those who didn't recidivate (median prior offenses three versus one, respectively; Figure \@ref(fig:ch3fig5)B).
 
-```{r ch3fig5, fig.align='center', fig.cap="Distribution of Age (panel A) and Number of Prior Offenses (panel B) by Recidivism Status among 9,387 Defandants in Broward County Florida, 2013-2014", warning = FALSE, message = FALSE, fig.width = 6, fig.height = 2.75, echo = FALSE}
+```{r ch3fig5, fig.align='center', fig.cap="Distribution of Age (panel A) and Number of Prior Offenses (panel B) by Recidivism Status among 9387 Defandants in Broward County Florida, 2013-2014", warning = FALSE, message = FALSE, fig.width = 6, fig.height = 2.75, echo = FALSE}
 
 g7 <- clean_compasdata %>%
   mutate(is_recid = ifelse(is_recid == 0, "No", "Yes")) %>%
@@ -177,7 +177,7 @@ grid.arrange(g7, g8, nrow = 1)
 ```
 
 
-```{r ch3fig6, fig.align='center', fig.cap="Conditional Distribution of Age (panel A) and Juvenile Offense (panel B) by Recidivism Status among 9,387 Defandants in Broward County Florida, 2013-2014", warning = FALSE, message = FALSE, fig.width = 4.5, fig.height = 4.25, echo = FALSE}
+```{r ch3fig6, fig.align='center', fig.cap="Conditional Distribution of Age (panel A) and Juvenile Offense (panel B) by Recidivism Status among 9387 Defandants in Broward County Florida, 2013-2014", warning = FALSE, message = FALSE, fig.width = 4.5, fig.height = 4.25, echo = FALSE}
 g9 <- ggplot(data = clean_compasdata, mapping = aes(x = sex, fill = sex)) +
   geom_bar() +
   theme_minimal() +
@@ -307,7 +307,7 @@ Chapter \@ref(algbias) introduced algorithmic bias as a situation when an algori
 Recall that COMPAS decile scores of one to four are mapped as 'low' risk, five to seven as 'medium' risk, and eight to ten as 'high' risk. The median decile score for the entire data set was four, and Figure \@ref(fig:ch3fig8) illustrates that the COMPAS tool classified more than half of the defendants as low risk. In particular, the tool classified `r round(100*count(clean_compasdata$score_text == "Low")/nrow(clean_compasdata),1)`% as low risk and `r round(100*count(clean_compasdata$score_text == "High")/nrow(clean_compasdata),1)`% as high risk, with the remaining `r round(100*count(clean_compasdata$score_text == "Medium")/nrow(clean_compasdata),1)`% as medium risk. These predictions align with expectations since most defendants did not recommit a crime within the two-year time window, as observed in Section \@ref(response). 
 
 
-```{r ch3fig8, fig.align='center', fig.cap="Distribution of COMPAS Tool Decile Scores among 9,387 Defandants in Broward County Florida, 2013-2014", warning = FALSE, message = FALSE, fig.width = 6, fig.height = 3, echo = FALSE}
+```{r ch3fig8, fig.align='center', fig.cap="Distribution of COMPAS Tool Decile Scores among 9387 Defandants in Broward County Florida, 2013-2014", warning = FALSE, message = FALSE, fig.width = 6, fig.height = 3, echo = FALSE}
 
 order <- c("Low", "Medium", "High")
 
@@ -339,7 +339,7 @@ However, when these scores are broken down by whether the defendant reoffended w
 
 A breakdown by race, the protected attribute, will allow for further analysis of the performance of the COMPAS tool. Before that, converting this into a binary prediction problem will make analysis much more tractable. Decile scores of one to five will be mapped as 'lower' risk, while those ranging from six to ten will be mapped as 'higher' risk. 
 
-```{r ch3fig9, fig.align='center', fig.cap="Distribution of COMPAS Tool Risk Scores among 9,387 Defandants in Broward County Florida, 2013-2014", warning = FALSE, message = FALSE, fig.width = 5, fig.height = 2.5, echo = FALSE}
+```{r ch3fig9, fig.align='center', fig.cap="Distribution of COMPAS Tool Risk Scores among 9387 Defandants in Broward County Florida, 2013-2014", warning = FALSE, message = FALSE, fig.width = 5, fig.height = 2.5, echo = FALSE}
 order <- c("Low", "Medium", "High")
 
 clean_compasdata %>%
@@ -367,7 +367,7 @@ compas <- compas_final %>%
 
 Table \@ref(tab:ch3table1) displays the confusion matrix of the COMPAS tool's results on this data set, which has `r nrow(compas)` total observations, with this binary definition of risk. The matrix reveals that the model had an overall accuracy of 66.61% on this data set. However, 66.04% of defendants did not recommit a crime within two years, as observed in Section \@ref(response). Therefore, a blind non-informative model that classifies every defendant into the negative class would attain an accuracy of 66%, suggesting that the COMPAS tool's 66.61% accuracy is a negligible improvement. 
 
-Notice, furthermore, that the model struggled more in predicting whether defendants will reoffend than in predicting whether defendants will not reoffend. This imbalance in error rates is expected because of the class imbalance observed when performing exploratory data analysis in Section \@ref(descriptivestats) -- most defendants did not reoffend, so the model maximizes performance for those defendants. In terms of proportions, 49.25% of defendants who reoffended were incorrectly labeled as lower risk (almost equivalent to a flip of a coin), compared to 25.23% of defendants who did not reoffend but are incorrectly labeled as higher risk. This also raises the question of what type of prediction is more important: the risk of recidivism or the risk of non-recidivism. Is wrongly attributing a defendant as higher risk or wrongly attributing a defendant as lower risk worse for society?
+Notice, furthermore, that the model struggled more in predicting whether defendants will reoffend than in predicting whether defendants will not reoffend. This imbalance in error rates is expected because of the class imbalance observed when performing exploratory data analysis in Section \@ref(descriptivestats) -- most defendants did not reoffend, so the model maximized performance for those defendants. In terms of proportions, 49.25% of defendants who reoffended were incorrectly labeled as lower risk (almost equivalent to a flip of a coin), compared to 25.23% of defendants who did not reoffend but were incorrectly labeled as higher risk. This also raises the question of what type of prediction is more important: the risk of recidivism or the risk of non-recidivism. Is wrongly attributing a defendant as higher risk or wrongly attributing a defendant as lower risk worse for society?
 
 
 ```{r ch3table1, warning = FALSE, message = FALSE, echo = FALSE}
@@ -378,7 +378,7 @@ compas %>%
   summarise("Reoffended" = count(is_recid == 1),
             "Did Not Reoffend" = count(is_recid == 0)) %>%
   kable(digits = 2,
-        caption = "The Number of Defendants who were Labeled Higher/Lower Risk by the COMPAS Tool Stratified by Recidivism Status among 9,387 Defandants in Broward County Florida, 2013-2014",
+        caption = "The Number of Defendants who were Labeled Higher/Lower Risk by the COMPAS Tool Stratified by Recidivism Status among 9387 Defandants in Broward County Florida, 2013-2014",
         booktabs = TRUE)
 ```
 
@@ -387,7 +387,7 @@ $\\$
 
 While the confusion matrix in Table \@ref(tab:ch3table1) relays information on what types of errors the COMPAS tool tends to make and raises questions about the implications of that, Table \@ref(tab:ch3table2) breaks that down further by race for a more granular assessment. While the overall FPR was 25.3%, it was much higher for Black defendants (37.71%) and much lower for White defendants (16.34%). Similarly, while the overall FNR was 49.25%, it was much higher for White defendants (62.26%) and much lower for Black defendants (39.01%) (Table \@ref(tab:ch3table2)). This suggests that the tool is more than twice as likely to classify a Black defendant who did not reoffend as higher risk compared to a White defendant who also did not reoffend. It makes the opposite mistake, where it is 1.6 times more likely to classify a White defendant who reoffended as lower risk compared to a Black defendant who also reoffended. This discrepancy aligns with ProPublica's findings in Figure \@ref(fig:compas1) and is alarming given that race was not included in the model. 
 
-Including the other races reveals that Asian defendants who did not reoffend were the least likely to be labeled as higher risk – Black defendants were the most likely. Conversely, White defendants who reoffended were the most likely to be labeled as lower risk – Native Americans were the least likely. However, it is essential to consider the few observations in both the Asian (n = 48) and Native American (n = 27) groups, as detailed in Section \@ref(protectedattribute).
+Including the other races reveals that Asian defendants who did not reoffend were the least likely to be labeled as higher risk – Black defendants were the most likely. Conversely, White defendants who reoffended were the most likely to be labeled as lower risk – Native American defendants were the least likely. However, it is essential to consider the few observations in both the Asian (n = 48) and Native American (n = 27) groups, as detailed in Section \@ref(protectedattribute).
 
 
 ```{r ch3table2, warning = FALSE, message = FALSE, echo = FALSE}
@@ -428,12 +428,12 @@ compas %>%
   rename("Recidivism Status" = Recidivism,
          "Predicted Risk" = Risk) %>%
   kable(digits = 2,
-        caption = "The Percent of Defendants who were Incorrectly Labeled Higher/Lower Risk by the COMPAS Tool Stratified by Recidivism Status and Race among 9,387 Defandants in Broward County Florida, 2013-2014",
+        caption = "The Percent of Defendants who were Incorrectly Labeled Higher/Lower Risk by the COMPAS Tool Stratified by Recidivism Status and Race among 9387 Defandants in Broward County Florida, 2013-2014",
         booktabs = TRUE)
 ```
 
 
-```{r ch3fig11, fig.align='center', fig.cap="Distribution of COMPAS Tool Decile Scores Stratified by Race among 9,387 Defandants in Broward County Florida, 2013-2014", warning = FALSE, message = FALSE, fig.width = 6, fig.height = 2.5, echo = FALSE}
+```{r ch3fig11, fig.align='center', fig.cap="Distribution of COMPAS Tool Decile Scores Stratified by Race among 9387 Defandants in Broward County Florida, 2013-2014", warning = FALSE, message = FALSE, fig.width = 6, fig.height = 2.5, echo = FALSE}
 compas %>%
   filter(race %in% c("African-American", "Caucasian")) %>%
   mutate(race = ifelse(race == "African-American", "Black", "White"),
@@ -459,7 +459,7 @@ Section \@ref(comptoolanalysis) revealed that the predictions of the COMPAS tool
 
 There were more male than female defendants for all races, and most defendants were single. However, African-American defendants tended to be, on average, the youngest compared to all the other races. Asian defendants, followed by Caucasian defendants, tended to be the oldest. Nevertheless, there was considerable overlap among all the races, and Figure \@ref(fig:ch3fig10) visualizes the relationships. In looking at the age categories by race, more African-American defendants were < 25 than those who were > 45. The converse is true for Caucasians, with more defendants that were > 45 in comparison to those < 25. These distributional differences illustrate that there is some relationship between age and race in this data set, particularly for Black versus White defendants. 
 
-```{r ch3fig10, fig.align='center', fig.cap="Distribution of COMPAS Tool Proxy Variables Stratified by Race among 9,387 Defandants in Broward County Florida, 2013-2014", warning = FALSE, message = FALSE, fig.width = 6, fig.height = 8, echo = FALSE}
+```{r ch3fig10, fig.align='center', fig.cap="Distribution of COMPAS Tool Proxy Variables Stratified by Race among 9387 Defandants in Broward County Florida, 2013-2014", warning = FALSE, message = FALSE, fig.width = 6, fig.height = 8, echo = FALSE}
 g18 <- ggplot(data = compas_final, 
        mapping = aes(x = as.factor(race), y = age)) +
   geom_boxplot() +
@@ -500,10 +500,10 @@ This section illustrates that the protected attribute, race ($A$), has proxy rel
 
 $\\$
 
-Ultimately, for this filtered subset of the data set, most defendants did not recommit another crime, even when broken down by race as visualized in Figure \@ref(fig:ch3fig13). Because the class imbalance is in the same direction, a 'fair' model should not misclassify defendants in different directions based on race. However, the nature of the relationship between race and the predictor variables results in discriminatory and unfair outcomes, as elucidated in Section \@ref(comptoolanalysis). 
+Ultimately, for this filtered subset of the data set, most defendants did not recommit another crime, even when broken down by race as visualized in Figure \@ref(fig:ch3fig13). Because the class imbalance is in the same direction, a 'fair' model should not misclassify defendants in different directions based on race. However, the nature of the relationship between race and the predictor variables results in discriminatory and unfair outcomes along racial lines, as elucidated in Section \@ref(comptoolanalysis). 
 
 
-```{r ch3fig13, fig.align='center', fig.cap="Distribution of Recidivism Prevalence Stratified by Race among 9,387 Defandants in Broward County Florida, 2013-2014", warning = FALSE, message = FALSE, fig.width = 6, fig.height = 2.5, echo = FALSE}
+```{r ch3fig13, fig.align='center', fig.cap="Distribution of Recidivism Prevalence Stratified by Race among 9387 Defandants in Broward County Florida, 2013-2014", warning = FALSE, message = FALSE, fig.width = 6, fig.height = 2.5, echo = FALSE}
 compas_final %>%
   dplyr::select(c(race, is_recid)) %>%
   group_by(race, is_recid) %>%
@@ -574,7 +574,7 @@ roccurve1 <- with(test, roc(is_recid ~ preds))
 ```{r ch3fig12, fig.align='center', fig.cap="COMPAS Logistic Regression Receiver Operating Characteristic (ROC) Curve", warning = FALSE, message = FALSE, fig.width = 3.5, fig.height = 3, echo = FALSE}
 plot(roccurve1)
 ```
-However, the ROC curve on Figure \@ref(fig:ch3fig12) indicates concerns about the model's sensitivity $(1 - FNR)$ and specificity $(1 - FPR)$. The diagonal line shows how the model would perform with random predictions. Curves that budge closer to the top left are preferred because those types of curves maximize the area under the curve (AUC), and the sensitivity and specificity of the model are closer to 100%. However, the AUC of this model is 68.8%.
+However, the ROC curve on Figure \@ref(fig:ch3fig12) indicates concerns about the model's sensitivity $(1 - FNR)$ and specificity $(1 - FPR)$. The diagonal line shows how the model would perform with random predictions. Curves that budge closer to the top left are preferred because those types of curves maximize the area under the curve (AUC), and the sensitivity and specificity of the model are closer to 100%. However, the AUC of this model was 68.8%.
 
 ### Evaluating the Equality of Odds  
 
@@ -582,9 +582,9 @@ Despite the improved accuracy, examining the direction of these error rates and 
 
 Table \@ref(tab:ch3table3) displays the overall false positive and false negative rates. As expected, the model performed better in classifying defendants who did not reoffend than those who did since that was the majority class. When evaluated on the test set, 91.05% of defendants who did not reoffend were correctly classified as low-risk. Thus, only 8.95% of participants who did not reoffend were incorrectly classified as high-risk. This is a lower FPR than COMPAS. However, only 29% of defendants who reoffended were correctly classified as high-risk. Thus, 71% of defendants who reoffended were incorrectly classified as low-risk. This is a higher FNR than COMPAS.
 
-Table \@ref(tab:ch3table4) further breaks these results down, focusing on Black and White defendants. While the overall FPR for the model was 8.95%, notice that the FPR for Black defendants was 13.93%, compared to only 5.09% for White defendants. Similar to the COMPAS tool, Black defendants who did not reoffend were incorrectly misclassified as high risk at more than twice the rate that White defendants were. On the flip side, while the overall FNR for the model was 71%, notice that the FNR for Black defendants was 60.82%, compared to 86.17% for White defendants. Similar to the COMPAS tool, the logistic regression made the opposite mistake in predicting recidivism for Black v White defendants, with White defendants more likely to be incorrectly classified as low risk than their Black counterparts.
+Table \@ref(tab:ch3table4) further breaks these results down, focusing on Black and White defendants. While the overall FPR for the model was 8.95%, notice that the FPR for Black defendants was 13.93%, compared to only 5.09% for White defendants. Similar to the COMPAS tool, Black defendants who did not reoffend were incorrectly misclassified as high risk at more than twice the rate that White defendants were. On the flip side, while the overall FNR for the model was 71%, notice that the FNR for Black defendants was 60.82%, compared to 86.17% for White defendants. Similar to the COMPAS tool, the logistic regression made the opposite mistake in predicting recidivism for Black versus White defendants, with White defendants more likely to be incorrectly classified as low risk than their Black counterparts.
 
-These results serve to highlight the real danger with using standard ML procedures, even when the sensitive variable itself is not included. These models have potential to perpetuate, and even introduce, harmful and discriminatory practices as observed in this Chapter. Although the details of Northepointe's COMPAS algorithm are kept secret, it's clear that traditional algorithms like logistic regression lead to comparable outcomes. In fact, a probability cutoff of $p = 0.34$, the probability of being in the positive class in this data set, on the logistic regression yielded the same accuracy ($66.7$%) as the COMPAS tool. Additionally, comparing the COMPAS decile scores to the logistic regression (LR) results revealed that the median decile score was eight in the high-risk LR prediction and three in the low-risk LR prediction, further highlighting the similarity of these results. The next section uses the logistic regression model as a starting point, but places fairness constraints to enforce equality of odds for Black and White defendants.
+These results serve to highlight the real danger with using standard ML procedures, even when the sensitive variable itself is not included. These models have potential to perpetuate, and even introduce, harmful and discriminatory practices as observed in this Chapter. Although the details of Northepointe's COMPAS algorithm are kept secret, it's clear that traditional algorithms like logistic regression lead to comparable outcomes. In fact, a probability cutoff of $p = 0.34$, the probability of being in the positive class in this data set, on the logistic regression yielded the same accuracy ($66.7$%) as the COMPAS tool. Additionally, comparing the COMPAS decile scores to the logistic regression (LR) results revealed that the median decile score was eight in the high-risk LR prediction and three in the low-risk LR prediction, further highlighting the similarity of these results. The next section uses the logistic regression model as a starting point, but places fairness constraints to enforce $\textit{equality of odds}$ for Black and White defendants.
 
 ```{r ch3table3, warning = FALSE, message = FALSE, echo = FALSE}
 test2 <- test2 %>%
@@ -643,7 +643,7 @@ test2 %>%
   rename("Recidivism Status" = Recidivism,
          "Predicted Risk" = Risk) %>%
   kable(digits = 2,
-        caption = "The Percent of Defendants who were Incorrectly Labeled Higher/Lower Risk by Logistic Regression Stratified by Recidivism Status and Race among 9,387 Defandants in Broward County Florida, 2013-2014",
+        caption = "The Percent of Defendants who were Incorrectly Labeled Higher/Lower Risk by Logistic Regression Stratified by Recidivism Status and Race among 9387 Defandants in Broward County Florida, 2013-2014",
         booktabs = TRUE)
 ```
 
@@ -681,7 +681,8 @@ P(g(\theta) \leq 0) \geq 1 - \delta.
 
 \begin{equation}
 \label{ch3eq5}
-P\{abs[(FPR | \text{Black} - FPR | \text{White})] + abs[(FNR | \text{White} - FNR | \text{Black})]  - \epsilon \leq 0 \} \geq 1 - \delta \textit{; } \delta = 0.05.
+P\{abs[(FPR | \text{Black} - FPR | \text{White})] + abs[(FNR | \text{White} - FNR | \text{Black})]  - \epsilon \leq 0 \} \geq 1 - \delta \textit{; } 
+\delta = 0.05.
 \end{equation}
 
 $\delta$ will be set to 0.05 to attain 95% confidence that separation (equalized odds) as defined in Chapter \@ref(classfairdef) is satisfied, that is, $d(\theta) \leq \epsilon$. The data will be partitioned into a training set that will be passed into the candidate selection mechanism to compute $\theta_c$. The remaining partition will be used in the safety test to ensure probabilistic satisfaction of the constraint. $\epsilon$ will be set to four values: $0.2, 0.1, 0.05, \text{and } 0.01$. The code to obtain a solution is available as part of the `seldonian-engine` Python library and is displayed in Appendix \@ref(appendix-e), along with the data pre-processing. 
@@ -744,7 +745,7 @@ seldonian_results %>%
          "Predicted Risk" = Risk) %>%
   kable(digits = 2,
         booktabs = TRUE,
-        caption = "The Percent of Defendants who were Incorrectly Labeled Higher/Lower Risk by a Seldonian Algorithm ($\\epsilon$ = 0.2) Stratified by Recidivism Status and Race among 9,387 Defandants in Broward County Florida, 2013-2014")
+        caption = "The Percent of Defendants who were Incorrectly Labeled Higher/Lower Risk by a Seldonian Algorithm ($\\epsilon$ = 0.2) Stratified by Recidivism Status and Race among 9387 Defandants in Broward County Florida, 2013-2014")
 ```
 
 ```{r ch3table6, warning = FALSE, message = FALSE, echo = FALSE}
@@ -777,7 +778,7 @@ seldonian_results %>%
          "Predicted Risk" = Risk) %>%
   kable(digits = 2,
         booktabs = TRUE,
-        caption = "The Percent of Defendants who were Incorrectly Labeled Higher/Lower Risk by a Seldonian Algorithm ($\\epsilon$ = 0.1) Stratified by Recidivism Status and Race among 9,387 Defandants in Broward County Florida, 2013-2014")
+        caption = "The Percent of Defendants who were Incorrectly Labeled Higher/Lower Risk by a Seldonian Algorithm ($\\epsilon$ = 0.1) Stratified by Recidivism Status and Race among 9387 Defandants in Broward County Florida, 2013-2014")
 ```
 
 
@@ -811,7 +812,7 @@ seldonian_results %>%
          "Predicted Risk" = Risk) %>%
   kable(digits = 2,
         booktabs = TRUE,
-        caption = "The Percent of Defendants who were Incorrectly Labeled Higher/Lower Risk by a Seldonian Algorithm ($\\epsilon$ = 0.05) Stratified by Recidivism Status and Race among 9,387 Defandants in Broward County Florida, 2013-2014")
+        caption = "The Percent of Defendants who were Incorrectly Labeled Higher/Lower Risk by a Seldonian Algorithm ($\\epsilon$ = 0.05) Stratified by Recidivism Status and Race among 9387 Defandants in Broward County Florida, 2013-2014")
 ```
 
 ```{r ch3table8, warning = FALSE, message = FALSE, echo = FALSE}
@@ -844,7 +845,7 @@ seldonian_results %>%
          "Predicted Risk" = Risk) %>%
   kable(digits = 2,
         booktabs = TRUE,
-        caption = "The Percent of Defendants who were Incorrectly Labeled Higher/Lower Risk by a Seldonian Algorithm ($\\epsilon$ = 0.01) Stratified by Recidivism Status and Race among 9,387 Defandants in Broward County Florida, 2013-2014")
+        caption = "The Percent of Defendants who were Incorrectly Labeled Higher/Lower Risk by a Seldonian Algorithm ($\\epsilon$ = 0.01) Stratified by Recidivism Status and Race among 9387 Defandants in Broward County Florida, 2013-2014")
 ```
 
 
