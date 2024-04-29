@@ -16,6 +16,7 @@ rmd_files: ["index.Rmd",
             "09-appendixD.Rmd",
             "10-appendixE.Rmd",
             "11-appendixF.Rmd",
+            "98-corrections.Rmd",
             "99-references.Rmd"]
 # Do not edit any of the following lines
 chapter_name: "Chapter"

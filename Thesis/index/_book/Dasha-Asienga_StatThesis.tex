@@ -331,7 +331,7 @@ The COMPAS algorithm is a color-blind model -- race was not included directly as
 
 \caption[COMPAS Prediction Fails Differently for Black v White Defendants]{Prediction Fails Differently for Black v White Defendants (Angwin et al., 2016)}\label{fig:compas1}
 \end{figure}
-Although the tool has 61\% accuracy, Black defendants are almost twice as likely to be labeled as higher risk without re-offending than White defendants, as observed in Figure \ref{fig:compas1}. It makes the opposite mistake among White defendants. This is because classification models are trained to minimize average error, which fits majority populations (Chouldechova \& Roth, 2018).
+Although the tool has 61\% accuracy, Black defendants are almost twice as likely to be labeled as higher risk without re-offending than White defendants, as observed in Figure \ref{fig:compas1}. It makes the opposite mistake among White defendants. This is because classification models are trained to minimize average error over the entire data set, which tends to result in fits to majority populations (Chouldechova \& Roth, 2018).
 
 In truth, however, various societal factors contribute to distinct environmental and social realities for Black and White individuals. These factors, including an offender's personal and familial background and their residential environment, are incorporated into the COMPAS tool to forecast recidivism. Consequently, it appears justifiable to adjust the calibration of the relationship between an offender's social context and their propensity for recidivism differently for Black and White offenders, acknowledging these inherent disparities. A group-blind classifier algorithm that fails to do so could unfairly disadvantage one group over the other -- COMPAS is just one such algorithm. For example, in the education sector, different factors lead to different SAT performances between students from majority versus minority populations. It would, thus, also seem fair that the relationship between SAT and college admissions be calibrated differently for each demographic group. However, making such distinctions based on demographic group is controversial, and in some contexts, illegal (Frederick, 2023).
 
@@ -414,7 +414,7 @@ P (\hat{Y} = 1 | A = a, X = x) = P (\hat{Y} = 1 | A = b, X = x), \text{ } \foral
 \hypertarget{separation}{%
 \subsubsection{Separation}\label{separation}}
 
-Independence does not make use of the true target \(Y\) and simply requires equality of predictions. However, as observed in Figure \ref{fig:dp}, this can lead to different error rates between different groups. In other words, the model is more accurate for one group than it is for another group. Separation precisely focuses on equality of the error rates and is widely known as the \emph{equality of odds} (Castelnovo et al., 2022). This definition requires the same type I and type II error rates, precisely, the same false positive rate (FPR) and false negative rate (FNR) across all demographic groups. FPR and FNR are defined by:
+\textit{Independence} does not make use of the true target \(Y\) and simply requires equality of predictions. However, as observed in Figure \ref{fig:dp}, this can lead to different error rates between different groups. In other words, the model is more accurate for one group than it is for another group. \textit{Separation} precisely focuses on equality of the error rates and is widely known as the \emph{equality of odds} (Castelnovo et al., 2022). This definition requires the same type I and type II error rates, precisely, the same false positive rate (FPR) and false negative rate (FNR) across all demographic groups. FPR and FNR are defined by:
 \begin{equation}
 \label{ch1eq6}
 FPR = P(\hat{Y} = 1| Y = 0) = \frac{FP}{FP + TN}
@@ -425,7 +425,7 @@ FNR = P(\hat{Y} = 0| Y = 1) = \frac{FN}{TP + FN}
 \end{equation}
 where FP refers to false positive predictions, TP refers to true positive predictions, FN refers to false negative predictions, and TN refers to true negative predictions. These metrics can be understood through a confusion matrix as in Figure \ref{fig:confusionmatrix} (Mohajon, 2021).
 
-In the COMPAS data set, separation would be satisfied if both Black defendants and White defendants had equal error rates. However, as observed in Figure \ref{fig:compas1}, Black defendants had an FPR of 45\% while White defendants had an FPR of 24\% -- the FPR in this context refers to the percentage of times the algorithm predicted the defendants had recidivated when they hadn't. Similarly, Black defendants had an FNR of 28\% while White defendants had an FNR of 48\% -- the FNR in this context refers to the percentage of times the algorithm predicted the defendants had not recommitted a crime when they had.
+In the COMPAS data set, separation would be satisfied if both Black defendants and White defendants had equal error rates. However, as observed in Figure \ref{fig:compas1}, Black defendants had an FPR of 45\% while White defendants had an FPR of 24\% -- the FPR in this context refers to the percentage of times the algorithm predicted the defendants would recidivate when they had not. Similarly, Black defendants had an FNR of 28\% while White defendants had an FNR of 48\% -- the FNR in this context refers to the percentage of times the algorithm predicted the defendants would not recommit a crime when they had.
 \begin{figure}
 
 {\centering \includegraphics[width=0.75\linewidth]{figures/confusionmatrix} 
@@ -475,7 +475,7 @@ P (\hat{Y} = 0 | A = a, Y = 1) = P (\hat{Y} = 0 | A = b, Y = 1), \text{ } \foral
 \hypertarget{sufficiency}{%
 \subsubsection{Sufficiency}\label{sufficiency}}
 
-Finally, sufficiency takes the perspective of people that receive the same model prediction and requires parity among them regardless of sensitive features (Castelnovo et al., 2022). This is also knows as \emph{predictive parity} and requires that the precision be the same across sensitive groups, that is, \(Y \perp \!\!\! \perp A | \hat{Y}\). In other words, the following equation must be satisfied:
+Finally, \textit{sufficiency} takes the perspective of individuals that receive the same model prediction and requires parity among them regardless of sensitive features (Castelnovo et al., 2022). This is also knows as \emph{predictive parity} and requires that the precision be the same across sensitive groups, that is, \(Y \perp \!\!\! \perp A | \hat{Y}\). In other words, the following equation must be satisfied:
 \begin{equation}
 \label{ch1eq11}
 P (Y = y | A = a, \hat{Y} = y) = P (Y = y | A = b, \hat{Y} = y), \text{ } \forall a, b \in A, \text{ for } y \in \{0,1\}.
@@ -484,7 +484,7 @@ Simply put, the probability of a positive outcome given a positive or negative p
 
 \(\\\)
 
-Consistent with this line of reasoning, many fairness metrics can be defined. This begs the fundamental question: can multiple definitions be simultaneously enforced?
+Consistent with this line of reasoning, many fairness metrics can be defined. This begs the fundamental question: can multiple fairness definitions be simultaneously enforced?
 
 \hypertarget{fairness-conflicts}{%
 \section{Fairness Conflicts}\label{fairness-conflicts}}
@@ -503,14 +503,14 @@ E[\hat{Y} | G = Male] = E[\hat{Y} | G = Female].
 \end{equation}
 Independence is violated if, on average, a model predicts a higher or lower GPA based on gender.
 
-Separation, on the other hand, would require that the average error of predictions be the same for each gender. In defined notion,
+Separation, on the other hand, would require that the average error of predictions be the same for each gender. In defined notation,
 \begin{equation}
 \label{ch1eq13}
 E[\hat{Y} - Y | G = Male] = E[\hat{Y} - Y| G = Female].
 \end{equation}
 Separation is violated if, on average, the model over-predicts for one gender but under-predicts for another gender or the model either over-predicts or under-predicts more for one gender.
 
-However, a study found that because male and female applicants had different GPAs in the original data set, these two fairness definitions cannot be simultaneously satisfied (P. Thomas, 2020). A similar result in the Section \ref{class-conflict} will explain this in a mathematically tractable way when working in a classification setting.
+However, a study found that because male and female applicants had different GPA distributions in the original data set, these two fairness definitions cannot be simultaneously satisfied (P. Thomas, 2020). A similar result in the Section \ref{class-conflict} will explain this in a mathematically tractable way when working in a classification setting.
 
 \hypertarget{class-conflict}{%
 \subsection{Fairness Conflicts in Classification}\label{class-conflict}}
@@ -540,7 +540,9 @@ Now, given values of the \(PPV \in (0,1)\) and \(p \in (0,1)\), it can be shown 
 \label{ch1eq18}
 FPR = \frac{p}{1-p} \frac{1-PPV}{PPV}(1 - FNR).
 \end{equation}
-Appendix \ref{appendix-a} provides the details for the derivation of this equation. However, its direct implication is that if the prevalence differs between two groups, then it is impossible to satisfy sufficiency (equal PPV across all groups) and separation (equal FPR and FNR across all groups) simultaneously. For example, in the COMPAS data set, if recidivism rates differ between Black and White offenders, then an algorithm that guarantees predictive parity (equal precision) for both Black and White offenders cannot simultaneously satisfy equality of odds. Indeed, the recidivism rate for Black defendants in ProPublica's data set was 51\%, compared to 39\% for White defendants, hence the disparate impact of the COMPAS tool as observed in Figure \ref{fig:compas1} (Chouldechova, 2017). Note, however, that the objectivity of the recidivism rate should be questioned because of confounding racial biases.
+Appendix \ref{appendix-a} provides the details for the derivation of Equation \ref{ch1eq18}.
+
+The direct implication of Equation \ref{ch1eq18} is that if the prevalence differs between two groups, then it is impossible to satisfy sufficiency (equal PPV across all groups) and separation (equal FPR and FNR across all groups) simultaneously. For example, in the COMPAS data set, if recidivism rates differ between Black and White offenders, then an algorithm that guarantees predictive parity (equal precision) for both Black and White offenders cannot simultaneously satisfy equality of odds. Indeed, the recidivism rate for Black defendants in ProPublica's data set was 51\%, compared to 39\% for White defendants, hence the disparate impact of the COMPAS tool as observed in Figure \ref{fig:compas1} (Chouldechova, 2017). Note, however, that the objectivity of the recidivism rate should be questioned because of confounding racial biases.
 
 Figure \ref{fig:dp} illustrates a similar conflict between independence and separation. Satisfying independence resulted in an imbalance of error rates between group A and group B because of the difference in the prevalence of loan repayment between both groups.
 
@@ -556,7 +558,7 @@ As observed, disparate impact can result from using a prediction tool that is pe
 \hypertarget{chap-2}{%
 \chapter{Seldonian Algorithms}\label{chap-2}}
 
-Chapter \ref{intro} introduced the problem of algorithmic bias, discussed existing statistical definitions of fairness both in regression and classification settings, and finally, highlighted fairness conflicts that can arise in certain settings. Of important note is that there are a plethora of fairness definitions that have been developed in statistical machine learning (ML), many of which have been shown to be incompatible in ways similar to the illustration in Appendix \ref{appendix-a}. In any effort to enforce fairness on machine learning models, a critical first step is to define what fairness means in the specific context (P. Thomas, 2020). This responsibility falls on domain experts, social scientists, and regulators. Once there is consensus on that, machine learning researchers can work to develop appropriate algorithms that enforce the chosen definition of fairness. The Seldonian framework, introduced in this chapter, offers one such way to place probabilistic fairness constraints on traditional algorithms. However, because Seldonian algorithms place constraints on traditional ML algorithms, an initial in-depth understanding of the standard approach is key. Section \ref{standardml} discusses the typical ML approach before diving into the Seldonian framework in Section \ref{seldonian}.
+Chapter \ref{intro} introduced the problem of algorithmic bias, discussed existing statistical definitions of fairness both in regression and classification settings, and finally, highlighted fairness conflicts that can arise in these settings. Of important note is that there are a plethora of fairness definitions that have been developed in statistical machine learning (ML), many of which have been shown to be incompatible in ways similar to the illustration in Appendix \ref{appendix-a}. In any effort to enforce fairness on machine learning models, a critical first step is to define what fairness means in the specific context (P. Thomas, 2020). This responsibility falls on domain experts, social scientists, and regulators. Once there is consensus on that, machine learning researchers can work to develop appropriate algorithms that enforce the chosen definition of fairness. The Seldonian framework, introduced in this chapter, offers one such way to place probabilistic fairness constraints on traditional algorithms. However, because Seldonian algorithms place constraints on traditional ML algorithms, an initial in-depth understanding of the standard approach is key. Section \ref{standardml} discusses the typical ML approach before diving into the Seldonian framework in Section \ref{seldonian}.
 
 \hypertarget{standardml}{%
 \section{The Standard Machine Learning Approach}\label{standardml}}
@@ -566,7 +568,7 @@ When designing a machine learning algorithm, the first step is to mathematically
 \label{ch2eq1}
 \theta^* \in \underset{\theta \in \Theta}{\text{ arg max }} f(\theta).
 \end{equation}
-For example, let \(X\) and \(Y\) be dependent real-valued random variables in a regression setting with the goal of estimating \(Y\) given \(X\). In this setting, \(\Theta\) is the set of feasible functions that model the relationship between \(X\) and \(Y\). Feasible functions are of the form \(\theta(X) = \beta_0 + \beta_1X = \hat{Y}\). Each function \(\theta \in \Theta\) takes a real number as input and produces a real number as output; therefore, \(\theta : \textbf{R} \rightarrow \textbf{R}\). A reasonable objective function would then be the negative mean squared error (MSE):
+For example, let \(X\) and \(Y\) be dependent real-valued random variables in a simple linear regression setting with the goal of estimating \(Y\) given \(X\). In this setting, \(\Theta\) is the set of feasible functions that model the relationship between \(X\) and \(Y\). Feasible functions are of the form \(\theta(X) = \beta_0 + \beta_1X = \hat{Y}\). Each function \(\theta \in \Theta\) takes a real number as input and produces a real number as output; therefore, \(\theta : \textbf{R} \rightarrow \textbf{R}\). A reasonable objective function would then be the negative mean squared error (MSE):
 \begin{equation}
 \label{ch2eq2}
 f(\theta):=-E[(\theta(X) - Y)^2] = -E[(\hat{Y}-Y)^2].
@@ -606,7 +608,7 @@ In crucial applications such as hiring, this is concerning and highlights how gr
 
 In an attempt to remedy this undesirable behavior, a number of approaches can be taken. One potential remedy is to identify the root cause of the undesirable behavior such as class imbalance in the training data, bias in the data set, the choice of linear estimator, the model's blindness to the demographic group, or insufficient data, to name a few (P. S. Thomas et al., 2019b). For instance, in the example set up in Section \ref{standardlimitations} and displayed in Figure \ref{fig:fig1}, the root cause of the discriminatory behavior when using ordinary least squares linear regression was the fact that the objective function was designed to minimize MSE, which was at odds with minimizing the discrimination statistic. However, even though it might be possible to determine and correct the root cause of the undesirable behavior, doing so can be difficult, error-prone, and require extensive data analysis, rendering the central goal of machine learning algorithms, which are designed to automate and make decision-making processes simpler, obsolete.
 
-Assuming that the problem is with the objective function and provided that detailed knowledge of the problem is available, hard constraints may be placed on the objective function, for example, requiring that MSE is minimized only on the set of solutions with a discrimination value \(d(\theta)\) less than some value \(\epsilon\) (P. S. Thomas et al., 2019b). Additionally, rather than placing hard constraints on the set of solutions, soft constraints that penalize undesirable behavior may also be placed on \(f\), the objective function (Boyd \& Vandenberghe, 2004). Although such penalty functions can be effective, they require a careful choice of the value of the parameter \(\lambda\), which places relative importance on the constraint and the objective function. For the linear regression example, the new objective function with a soft constraint would now be:
+Assuming that the problem is with the objective function and provided that detailed knowledge of the problem is available, hard constraints may be placed on the objective function, for example, requiring that MSE is minimized only on the set of solutions with a discrimination value \(d(\theta)\) less than some value \(\epsilon\) (P. S. Thomas et al., 2019b). Additionally, rather than placing hard constraints on the set of solutions, soft constraints that penalize undesirable behavior may also be placed on \(f\), the objective function (Boyd \& Vandenberghe, 2004). Although such penalty functions can be effective, they require a careful choice of the value of the tuning parameter \(\lambda\), which places relative importance on the constraint and the objective function. For the linear regression example, the new objective function with a soft constraint would now be:
 \begin{equation}
 \label{ch2eq5}
 f(\theta) = - MSE (\theta) - \lambda d(\theta).
@@ -620,7 +622,7 @@ Seldonian algorithms address this problem precisely by allowing probabilistic co
 \hypertarget{seldonian}{%
 \section{The Seldonian Framework}\label{seldonian}}
 
-The first step of the Seldonian framework is to define mathematically the goal of the algorithm design (P. S. Thomas et al., 2019b). Define \(\textbf{D}\) as the set of all possible inputs (data sets) to the algorithm. \(\Theta\), as previously defined, is the set of all possible outputs (solutions) of the algorithm. Each solution is referred to as \(\theta \in \Theta\). \(D\) is the data set (input) given to the algorithm and is the only random variable. Now, \(a: \textbf{D} \rightarrow \Theta\) is a machine learning algorithm which takes in a data set \(D \in \textbf{D}\) as an input and returns a solution \(\theta \in \Theta\) as an output. \(\textbf{A}\) is the set of all possible machine learning algorithms. Synthesizing this, \(f: \textbf{A} \rightarrow \textbf{R}\) is the objective function of the algorithm design, where \(f(a) \in \textbf{R}\) is a real-valued measure of the utility of the algorithm, such as the value of the objective function for the optimal solution returned by this algorithm. This objective function is optimized -- either minimized or maximized -- to select a desired machine learning algorithm from the set \(\textbf{A}\).
+The first step of the Seldonian framework is to define mathematically the goal of the algorithm design (P. S. Thomas et al., 2019b). Define \(\textbf{D}\) as the set of all possible inputs (data sets) to the algorithm. \(\Theta\), as previously defined, is the set of all possible outputs (solutions) of the algorithm. Each solution is referred to as \(\theta \in \Theta\). \(D\) is the data set (input) given to the algorithm and is the only random variable. Now, \(\textbf{a}: \textbf{D} \rightarrow \Theta\) is a machine learning algorithm which takes in a data set \(D \in \textbf{D}\) as an input and returns a solution \(\theta \in \Theta\) as an output. \(\textbf{A}\) is the set of all possible machine learning algorithms. Synthesizing this, \(f: \textbf{A} \rightarrow \textbf{R}\) is the objective function of the algorithm design, where \(f(\textbf{a}) \in \textbf{R}\) is a real-valued measure of the utility of the algorithm, such as the value of the objective function for the optimal solution returned by this algorithm. This objective function is optimized -- either minimized or maximized -- to select a desired machine learning algorithm \textbf{a} from the set \(\textbf{A}\).
 
 Contrary to the standard ML approach, however, \(m\) behavioral constraints can then be specified (P. S. Thomas et al., 2019b). Specifically, \((g_i, \delta_i)_{i=1}^{m}\) can be defined as a set of \(m\) constraints, each of which contains a constraint function \(g_i: \Theta \rightarrow \textbf{R}\) and a desired confidence level \(\delta_i\). The constraint function takes in a solution returned from the chosen machine learning algorithm as an input and returns a real value encoding the ``fairness'' of the algorithm according to the fairness definition defined by the function. \((g_i, \delta_i)_{i=1}^{m}\) is defined such that:
 \begin{itemize}
@@ -632,7 +634,7 @@ Contrary to the standard ML approach, however, \(m\) behavioral constraints can 
 In summary, a Seldonian algorithm ensures that for all \(i \in \{1,2,\ldots,m\}\):
 \begin{equation}
 \label{ch2eq6}
-P(g_i(a(D)) \leq 0) \geq 1 - \delta_i.
+P(g_i(\textbf{a}(D)) \leq 0) \geq 1 - \delta_i.
 \end{equation}
 The proceeding sections go into further detail about the Seldonian framework and how these probabilistic behavioral constraints are guaranteed.
 
@@ -642,13 +644,13 @@ The proceeding sections go into further detail about the Seldonian framework and
 As detailed, the Seldonian framework is different from current potential remedies of undesirable behavior because it defines a search over a possible set of algorithms with constraints, rather than over a possible set of solutions. This means that the constraints require that the probability that a machine learning algorithm returns an unsafe solution be bounded by some desired level of confidence, rather than the probability that a solution itself is unsafe. In summary, the Seldonian optimization problem (SOP) can be written as (P. S. Thomas et al., 2019a):
 \begin{equation}
 \label{ch2eq7}
-\underset{a \in \textbf{A}}{\text{ arg max }} f(a)
+\underset{\textbf{a} \in \textbf{A}}{\text{ arg max }} f(\textbf{a})
 \end{equation}
-\[\text{ s.t. } \forall \text{ } i \in \{1, 2, \ldots, m\} \text{, } P(g_i(a(D)) \leq 0) \geq 1 - \delta_i.\]
+\[\text{ s.t. } \forall \text{ } i \in \{1, 2, \ldots, m\} \text{, } P(g_i(\textbf{a}(D)) \leq 0) \geq 1 - \delta_i.\]
 
-A Seldonian algorithm \(a\), thus, returns, with high probability, a solution that guarantees desirable behavior. If one were to apply machine algorithm \(a\) to obtain a solution from a large number of different data sets \(D\) drawn from the same distribution, then it would be expected that at most \(100\delta_i \%\) solutions (models) would produce undesirable behavior.
+A Seldonian algorithm \(\textbf{a}\), thus, returns, with high probability, a solution that guarantees desirable behavior. If one were to apply machine algorithm \(\textbf{a}\) to obtain a solution from a large number of different data sets \(D\) drawn from the same distribution, then it would be expected that at most \(100\delta_i \%\) solutions (models) would produce undesirable behavior.
 
-Taking the previous regression example and turning it into a Seldonian optimization problem using the discrimination statistic in Section \ref{standardlimitations}, \(f\) would still be an objective function like the MSE, \(\Theta\) would still be the set of all possible linear models, and \(D\) would be the data set as described. There would be one behavioral constraint, \(g_1(a(D)) = |d(a(D))| - \epsilon = |d(\theta)| - \epsilon\), to guarantee with probability at least \(1-\delta_1\), that the absolute value of the discrimination statistic would be at most \(\epsilon\), where \(\epsilon\) and \(\delta_1\) are chosen by domain experts based on the specific application. Note that the user of the machine learning algorithm need not perform data analysis to determine whether \(g_1(\theta) \leq 0\) for a particular solution \(\theta \in \Theta\) returned. The computation algorithm guarantees this with some desired level of probability.
+Taking the previous regression example and turning it into a Seldonian optimization problem using the discrimination statistic in Section \ref{standardlimitations}, \(f\) would still be an objective function like the MSE, \(\Theta\) would still be the set of all possible linear models, and \(D\) would be the data set as described. There would be one behavioral constraint, \(g_1(\textbf{a}(D)) = |d(\textbf{a}(D))| - \epsilon = |d(\theta)| - \epsilon\), to guarantee with probability at least \(1-\delta_1\), that the absolute value of the discrimination statistic would be at most \(\epsilon\), where \(\epsilon\) and \(\delta_1\) are chosen by domain experts based on the specific application. Note that the user of the machine learning algorithm need not perform data analysis to determine whether \(g_1(\theta) \leq 0\) for a particular solution \(\theta \in \Theta\) returned. The computation algorithm guarantees this with some desired level of probability.
 \begin{figure}
 
 {\centering \includegraphics[width=1\linewidth]{figures/seldonian1} 
@@ -657,9 +659,9 @@ Taking the previous regression example and turning it into a Seldonian optimizat
 
 \caption[Overview of the Seldonian Framework]{Overview of the Seldonian Framework (P. S. Thomas et al., 2019a)}\label{fig:seldonian1}
 \end{figure}
-Figure \ref{fig:seldonian1} illustrates how this is achieved at a high level. A Seldonian algorithm takes in \(m\) behavioral constraints \((g_i,\delta_i)_{i=1}^m\) and a data set \(D\) as the inputs and returns either a solution (model) \(\theta\) or \(NSF\), which means ``No Solution Found''. An NSF result means no algorithm was found that returned a model which satisfied the behavioral constraints with the desired probability, so solutions are not guaranteed when employing Seldonian algorithms.
+Figure \ref{fig:seldonian1} illustrates how this is achieved at a high level. A Seldonian algorithm takes in \(m\) behavioral constraints \((g_i,\delta_i)_{i=1}^m\) and a data set \(D\) as the inputs and returns either a solution (model) \(\theta\) or \(NSF\), which means ``No Solution Found''. An NSF result means no ML algorithm was found that returned a model which satisfied the behavioral constraints with the desired probability, so solutions are not guaranteed when employing the Seldonian framework.
 
-First, the data \(D\) is partitioned into two sets \(D_1\) and \(D_2\) that essentially serve as train and test sets, respectively. \(D_1\) is then passed through the candidate selection mechanism, which performs a search over algorithms to settle on a candidate solution \(\theta_c\). \(\theta_c\) is selected not only so that it optimizes the primary objective function \(f\), but also so that it is predicted to pass the subsequent safety test. \(D_2\) is then passed through the safety test to check whether \(\theta_c\) indeed satisfies the \(m\) behavioral constraints with the desired confidence for each, that is \(P(g_i(\theta_c) \leq 0) \geq 1 - \delta_i\) for each constraint \(i \in \{ 1,2, \ldots, m \}\). If so, \(\theta_c\) is returned as the desired solution, and otherwise, NSF (P. S. Thomas et al., 2019a).
+First, the data \(D\) is partitioned into two sets \(D_1\) and \(D_2\) that essentially serve as train and test sets, respectively. \(D_1\) is then passed through the candidate selection mechanism, which performs a search over ML algorithms to settle on a candidate solution \(\theta_c\). \(\theta_c\) is selected not only so that it optimizes the primary objective function \(f\), but also so that it is predicted to pass the subsequent safety test. \(D_2\) is then passed through the safety test to check whether \(\theta_c\) indeed satisfies the \(m\) behavioral constraints with the desired confidence for each, that is \(P(g_i(\theta_c) \leq 0) \geq 1 - \delta_i\) for each constraint \(i \in \{ 1,2, \ldots, m \}\). If so, \(\theta_c\) is returned as the desired solution, and otherwise, NSF (P. S. Thomas et al., 2019a).
 
 Note that finding exact confidence bounds may be impractical and require large amounts of data. Quasi-Seldonian algorithms, thus, are an extension of this idea that rely on standard statistical tools to transform sample statistics computed from \(D\) into approximate bounds on the probability of undesirable behavior (P. S. Thomas et al., 2019a). Section \ref{qsa} discusses the statistical framework employed to achieve this.
 
@@ -703,7 +705,7 @@ Before constructing the safety test mechanism, recall from Section \ref{sop} tha
 \item
   \(E[\hat{g_i}(\theta_c, D_2)] = g_i(\theta_c)\) for each behavioral constraint \(i \in \{1,2, \ldots, m \}\).
 \end{itemize}
-By substituting the respective pieces into the Student's \(t\) high confidence upper bound discussed above, then:
+By substituting the respective pieces into the Student's \(t\) high-confidence upper bound discussed above, then:
 \begin{equation}
 \label{ch2eq11}
 P(g_i(\theta_c, D_2) \leq \hat{\mu}(\hat{g_i}(\theta_c, D_2)) + \frac{\hat{\sigma}(\hat{g_i}(\theta_c, D_2))}{\sqrt{|D_2|}}t_{1-\delta_i, |D_2|-1}) \geq 1 - \delta_i.
@@ -844,9 +846,9 @@ To offer a path forward in addressing this issue, this chapter aims to apply the
 \hypertarget{the-compas-data-set}{%
 \section{The COMPAS Data Set}\label{the-compas-data-set}}
 
-The COMPAS data set, obtained from the ProPublica Data Store (Broward County Clerk's Office, Broward County Sherrif's Office, Florida Department of Corrections \& ProPublica, 2024), records information on defendants from Broward County, Florida, that were evaluated for the risk of recidivism by the Correctional Offender Management Profiling for Alternative Sanctions (COMPAS) tool in 2013 and 2014. A SQL query of the COMPAS database retrieved 12,160 observations (Appendix \ref{appendix-c}). Of 29 variables returned, six were identified to be useful for predictive analysis: age, age category, sex, marital status, whether the defendant had a history of juvenile offenses or not, and the total number of prior offenses committed by the defendant. The response variable records whether or not a defendant had recommitted a crime within two years. Finally, the protected attribute, race, has six levels: African-American, Caucasian, Hispanic, Asian, Native American, and Other.
+The COMPAS data set, obtained from the ProPublica Data Store (Broward County Clerk's Office, Broward County Sherrif's Office, Florida Department of Corrections \& ProPublica, 2024), records information on defendants from Broward County, Florida, that were evaluated for the risk of recidivism by the Correctional Offender Management Profiling for Alternative Sanctions (COMPAS) tool in 2013 and 2014. A SQL query of the COMPAS database retrieved 12,160 observations (Appendix \ref{appendix-c}). Of 29 variables returned, six were identified to be useful for predictive analysis: age, age category, sex, marital status, whether the defendant had a history of juvenile offenses or not, and the total number of prior offenses committed by the defendant. The response variable records whether or not a defendant recommitted a crime within two years. Finally, the protected attribute, race, has six levels: African-American, Caucasian, Hispanic, Asian, Native American, and Other.
 
-Additionally, the COMPAS tool itself maps its raw scores into decile scores ranging from one to ten. The decile scores are directly associated with the risk of recidivism: scores between one and four are labeled as `low' risk, between five and seven as `medium' risk, and between eight and ten as `high risk'. After cleaning the data to address anomalies, improve the data quality, and remove duplicate observations, the data set size was reduced to 9387 observations. Section \ref{descriptivestats} examines these variables in more detail and their relationships with each other.
+Additionally, the COMPAS tool itself maps its raw scores into decile scores ranging from one to ten. The decile scores are directly associated with the risk of recidivism: scores between one and four are labeled as `low' risk, between five and seven as `medium' risk, and between eight and ten as `high risk'. After cleaning the data to address anomalies, improve the data quality, and remove duplicate observations, the data set size was reduced to 9387 observations. Section \ref{descriptivestats} examines these variables in more detail and their relationships with each other on this final data set.
 
 Before proceeding with the analysis, however, it is crucial to consider that while the recidivism status, as recorded by the response variable, is treated as an objective gold standard truth of whether a defendant reoffended or not for the rest of this thesis, it is, in itself, likely biased by societal factors. For example, police officers are more likely to arrest Black defendants than White defendants for the same offense, and judges are more likely to convict and grant lengthier sentences to Black defendants than White defendants for the same charges (The Sentencing Project, 2018). While it is tangential to the theoretical underpinnings of the work in the proceeding sections, this context is, overall, important when applying mathematical, statistical, and computer science solutions to addressing algorithmic bias.
 
@@ -1096,8 +1098,7 @@ P(g(\theta) \leq 0) \geq 1 - \delta.
 \noindent The problem can now be fully formulated as a Seldonian machine learning problem. That is, using gradient descent, an optimization algorithm for finding a local minimum of a differentiable function, the Seldonian objective is to minimize logistic loss subject to the constraint:
 \begin{equation}
 \label{ch3eq5}
-P\{abs[(FPR | \text{Black} - FPR | \text{White})] + abs[(FNR | \text{White} - FNR | \text{Black})]  - \epsilon \leq 0 \} \geq 1 - \delta \textit{; } 
-\delta = 0.05.
+P\{abs[(FPR | \text{Black} - FPR | \text{White})] + abs[(FNR | \text{White} - FNR | \text{Black})]  - \epsilon \leq 0 \} \geq 1 - \delta.
 \end{equation}
 \(\delta\) will be set to 0.05 to attain 95\% confidence that separation (equalized odds) as defined in Chapter \ref{classfairdef} is satisfied, that is, \(d(\theta) \leq \epsilon\). The data will be partitioned into a training set that will be passed into the candidate selection mechanism to compute \(\theta_c\). The remaining partition will be used in the safety test to ensure probabilistic satisfaction of the constraint. \(\epsilon\) will be set to four values: \(0.2, 0.1, 0.05, \text{and } 0.01\). The code to obtain a solution is available as part of the \texttt{seldonian-engine} Python library and is displayed in Appendix \ref{appendix-e}, along with the data pre-processing.
 
@@ -1202,7 +1203,7 @@ The target of this simulation study is prediction, that is, to evaluate Seldonia
 
 Because the Seldonian framework was designed to place probabilistic fairness constraints on traditional algorithms, solutions produced by Seldonian algorithms will be compared to those produced through the standard ML framework, specifically logistic regression, to assess the predictive performance and feasibility of the Seldonian framework.
 
-Drawing from the fairness definitions described in Chapter \ref{fairnessdefinitions} with a particular focus on the COMPAS example in Chapter \ref{chap-3}, it may be less important that a model satisfies independence. That is, that the model, on average, has the same likelihood of a positive prediction for all levels of the protected attribute. Instead, it may be more realistic to expect that the model be equally wrong or equally correct in its predictions of \(Y\) for each protected attribute. For this reason, one fairness constraint will be set on the Seldonian algorithms to satisfy separation, otherwise known as equality of the error rates or equality of odds, as defined in Equation \ref{ch4eq1} within some margin \(\epsilon\) and with \(1 - \delta\) \% confidence. Similar to Chapter \ref{seldapp}, \(\epsilon\) will be set to four levels: \(0.2, 0.1, 0.05, \text{and } 0.01\). \(\delta\) will be set to \(0.05\) to guarantee 95\% confidence.
+Drawing from the fairness definitions described in Chapter \ref{fairnessdefinitions} with a particular focus on the COMPAS example in Chapter \ref{chap-3}, it may be less important that a model satisfies independence. That is, that the model, on average, has the same likelihood of a positive prediction for all levels of the protected attribute. Instead, it may be more realistic to expect that the model be equally wrong or equally correct in its predictions of \(Y\) for each protected attribute. For this reason, one fairness constraint will be set on the Seldonian algorithms to satisfy \(\textit{separation}\), otherwise known as equality of the error rates or equality of odds, as defined in Equation \ref{ch4eq1} within some margin \(\epsilon\) and with \(1 - \delta\) \% confidence. Similar to Chapter \ref{seldapp}, \(\epsilon\) will be set to four levels: \(0.2, 0.1, 0.05, \text{and } 0.01\). \(\delta\) will be set to \(0.05\) to guarantee 95\% confidence.
 \begin{equation}
 \label{ch4eq1}
 g(\theta): abs[(FPR | \text{A = a} - FPR | \text{A = b})] + abs[(FNR | \text{A = a} - FNR | \text{A = b})] - \epsilon.
@@ -1253,7 +1254,7 @@ Sample Size & LR & SA (0.2) & SA (0.1) & SA (0.05) & SA (0.01)\\
 \end{table}
 \(\\\)
 
-However, obtaining a solution that passes the safety test is not the end of the story. Table \ref{tab:ch4tab2} records the proportion of solutions that satisfied the behavioral constraint among those that passed the safety test (Table \ref{tab:ch4tab1}). When \(\epsilon = 0.01\), although a low probability of solution was previously observed, \(> 92\)\% of returned solutions satisfied the behavioral constraint. Additionally, the probability was largest in the \(\epsilon = 0.01, n = 5000\) case, which previously had the lowest probability of returning a solution across the entire simulation study. Except for \(n = 5000\), the probability of a Seldonian solution satisfying the behavioral constraint generally increased as the constraint got tighter, suggesting some trade-off between the probability of returning a solution (which decreased as the constraint tightened) and the probability of that solution satisfying the behavioral constraints. However, there were no consistent trends as sample size increased across all four levels of \(\epsilon\), although the probability actually decreased for \(\epsilon = 0.1, 0.05\). This is inconsistent with expectations, but perhaps the increased variability introduced by more observations makes it more difficult to constrain the models' unfairness. Additionally, \(> \delta = 5\)\% of the solutions did not satisfy the constraint, raising some alarms regarding the high-confidence guarantee notion of Seldonian algorithms. Perhaps that probability would have been better captured with more data sets in the simulation study. Additionally, most research studies are more liberal, setting \(\delta\) to \(0.1\).
+However, obtaining a solution that passes the safety test is not the end of the story. Table \ref{tab:ch4tab2} records the proportion of solutions that satisfied the behavioral constraint among those that passed the safety test (Table \ref{tab:ch4tab1}). When \(\epsilon = 0.01\), although a low probability of solution was previously observed, \(> 92\)\% of returned solutions satisfied the behavioral constraint. Additionally, the probability was largest in the \(\epsilon = 0.01, n = 5000\) case, which previously had the lowest probability of returning a solution across the entire simulation study. Except for \(n = 5000\), the probability of a Seldonian solution satisfying the behavioral constraint generally increased as the constraint got tighter, suggesting some trade-off between the probability of returning a solution (which decreased as the constraint tightened) and the probability of that solution satisfying the behavioral constraints. However, there were no consistent trends as sample size increased across all four levels of \(\epsilon\), although the probability actually decreased for \(\epsilon = 0.1\) and \(\epsilon = 0.05\). This is inconsistent with expectations, but perhaps the increased variability introduced by more observations makes it more difficult to constrain the models' unfairness. Additionally, \(> \delta = 5\)\% of the solutions did not satisfy the constraint, raising some alarms regarding the high-confidence guarantee notion of Seldonian algorithms. Perhaps that probability would have been better captured with more data sets in the simulation study. Additionally, most research studies are more liberal, setting \(\delta\) to \(0.1\).
 \begin{table}
 
 \caption{\label{tab:ch4tab2}Satisfaction of the Behavioral Constraint by Seldonian Solutions that Passed the Safety Test}
@@ -1271,7 +1272,7 @@ Sample Size & SA (0.2) & SA (0.1) & SA (0.05) & SA (0.01)\\
 \end{table}
 \(\\\)
 
-Finally, Figure \ref{fig:ch4fig1} visualizes these results to elucidate the convergence of Seldonian algorithms better. Looking at the proportion of solutions that both pass the safety test and satisfy the defined behavioral constraint (dark blue) raises concerns about the efficacy of Seldonian algorithms, especially for the \(n = 2500, 5000\) cases.
+Finally, Figure \ref{fig:ch4fig1} visualizes these results to elucidate the convergence of Seldonian algorithms better. Looking at the proportion of solutions that both pass the safety test and satisfy the defined behavioral constraint (dark blue) raises concerns about the efficacy of Seldonian algorithms, especially for the \(n = 2500\) and \(n = 5000\) cases.
 \begin{figure}
 
 {\centering \includegraphics{Dasha-Asienga_StatThesis_files/figure-latex/ch4fig1-1} 
@@ -1333,7 +1334,7 @@ The Seldonian algorithms primarily delivered on their promise for fairer outcome
 \end{figure}
 Figure \ref{fig:ch4fig4} visualizes the trade-off between accuracy and discrimination for Seldonian algorithms. As previously observed, the value of the discrimination statistic decreases as the constraint is tightened across all sample sizes. Similarly, the accuracy decreases as the constraint is tightened. Table \ref{tab:ch4tab2} showed that the Seldonian solutions returned in the \(\epsilon = 0.01\) setting had the highest probability of passing the safety constraint. Figure \ref{fig:ch4fig4} similarly displays that these models, on average, have a discrimination statistic of 0. However, notice that these models also have very poor predictive performance, averaging 50\% and rendering them non-informative.
 
-On the other hand, Seldonian algorithms with liberal fairness constraints such as \(\epsilon = 0.2, 0.1\) and larger sample sizes perform comparably to logistic regression with regard to accuracy while offering some improvement in model fairness.
+On the other hand, Seldonian algorithms with liberal fairness constraints such as \(\epsilon = 0.2\) and \(\epsilon = 0.1\) and larger sample sizes perform comparably to logistic regression with regard to accuracy while offering some improvement in model fairness.
 
 \hypertarget{non-convergent-seldonian-models}{%
 \subsection{Non-Convergent Seldonian Models}\label{non-convergent-seldonian-models}}
@@ -2695,6 +2696,61 @@ This function is used to estimate what the output of \texttt{ttestUpperBound} wo
 \NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
+\hypertarget{corrections}{%
+\chapter*{Corrections}\label{corrections}}
+\addcontentsline{toc}{chapter}{Corrections}
+
+When originally submitted, this honors thesis contained some errors which have been corrected in the current version. Here is a list of the errors that were corrected.
+\begin{itemize}
+\item
+  Page 4: Changed ``minimize average error, which fits majority populations'' to ``minimize average error over the entire data set, which tends to result in fits to majority populations''.
+\item
+  Page 10: Italicized `Independence' and `Separation' to convey their meanings specifically as notions of fairness.
+\item
+  Page 11: Changed ``had recidivated when they hadn't'' to ``would recidivate when they had not'' and ``had not recommitted'' to ``would not recommit''.
+\item
+  Page 13: Italicized `sufficiency' to convey its meaning specifically as notions of fairness.
+\item
+  Page 13: Changed `people' to `individuals'.
+\item
+  Page 13: Changed `definitions' to `fairness definitions'.
+\item
+  Page 14: Changed `notion' to `notation'.
+\item
+  Page 14: Changed `GPAs' to `GPA distributions'.
+\item
+  Page 16: Changed ``this equation'' to ``Equation 1.18''.
+\item
+  Page 16: Changed ``However, its direct implication is'' to ``The direct implication of Equation 1.18 is''.
+\item
+  Page 19: Changed `certain' to `these'.
+\item
+  Page 20: Changed `regression to 'simple linear regression'.
+\item
+  Page 23: Changed `parameter' to `tuning parameter'.
+\item
+  Page 27: Changed `algorithm' to `ML algorithm'.
+\item
+  Page 27: Changed `Seldonian algorithms' to `the Seldonian framework'.
+\item
+  Page 28: Changed `algorithm' to `ML algorithm'.
+\item
+  Page 40: Changed `had recommitted' to `recommitted'.
+\item
+  Page 40: Added ``on this final data set''.
+\item
+  Page 58: Removed `\(\textit{; } \delta = 0.05\)' from Equation 3.4 as \(\delta\) is defined in the following line.
+\item
+  Page 68, 74: Replaced three commas with the conjunction `and'.
+\end{itemize}
+In addition to the above correction, the notation for an algorithm was changed from \(a \in \textbf{A}\) to \(\textbf{a} \in \textbf{A}\) in approximately 7 places to avoid confusion with the notation for demnographic groups.
+
+Finally, 2 spellings were corrected in various places in the thesis.
+\begin{itemize}
+\tightlist
+\item
+  fix or find another picture for equality if odds (pg 12).
+\end{itemize}
 \backmatter
 
 \hypertarget{references}{%

@@ -30,7 +30,7 @@ The COMPAS algorithm is a color-blind model -- race was not included directly as
 include_graphics(path = "figures/compas1.png")
 ```
 
-Although the tool has 61% accuracy, Black defendants are almost twice as likely to be labeled as higher risk without re-offending than White defendants, as observed in Figure \@ref(fig:compas1). It makes the opposite mistake among White defendants. This is because classification models are trained to minimize average error, which fits majority populations [@chouldechova2018frontiers]. 
+Although the tool has 61% accuracy, Black defendants are almost twice as likely to be labeled as higher risk without re-offending than White defendants, as observed in Figure \@ref(fig:compas1). It makes the opposite mistake among White defendants. This is because classification models are trained to minimize average error over the entire data set, which tends to result in fits to majority populations [@chouldechova2018frontiers]. 
 
 In truth, however, various societal factors contribute to distinct environmental and social realities for Black and White individuals. These factors, including an offender's personal and familial background and their residential environment, are incorporated into the COMPAS tool to forecast recidivism. Consequently, it appears justifiable to adjust the calibration of the relationship between an offender's social context and their propensity for recidivism differently for Black and White offenders, acknowledging these inherent disparities. A group-blind classifier algorithm that fails to do so could unfairly disadvantage one group over the other -- COMPAS is just one such algorithm. For example, in the education sector, different factors lead to different SAT performances between students from majority versus minority populations. It would, thus, also seem fair that the relationship between SAT and college admissions be calibrated differently for each demographic group. However, making such distinctions based on demographic group is controversial, and in some contexts, illegal [@frederick_2023].
 
@@ -117,7 +117,7 @@ P (\hat{Y} = 1 | A = a, X = x) = P (\hat{Y} = 1 | A = b, X = x), \text{ } \foral
 
 #### Separation
 
-Independence does not make use of the true target $Y$ and simply requires equality of predictions. However, as observed in Figure \@ref(fig:dp), this can lead to different error rates between different groups. In other words, the model is more accurate for one group than it is for another group. Separation precisely focuses on equality of the error rates and is widely known as the *equality of odds* [@castelnovo2022clarification]. This definition requires the same type I and type II error rates, precisely, the same false positive rate (FPR) and false negative rate (FNR) across all demographic groups. FPR and FNR are defined by:
+\textit{Independence} does not make use of the true target $Y$ and simply requires equality of predictions. However, as observed in Figure \@ref(fig:dp), this can lead to different error rates between different groups. In other words, the model is more accurate for one group than it is for another group. \textit{Separation} precisely focuses on equality of the error rates and is widely known as the *equality of odds* [@castelnovo2022clarification]. This definition requires the same type I and type II error rates, precisely, the same false positive rate (FPR) and false negative rate (FNR) across all demographic groups. FPR and FNR are defined by:
 
 \begin{equation}
 \label{ch1eq6}
@@ -131,7 +131,7 @@ FNR = P(\hat{Y} = 0| Y = 1) = \frac{FN}{TP + FN}
 
 where FP refers to false positive predictions, TP refers to true positive predictions, FN refers to false negative predictions, and TN refers to true negative predictions. These metrics can be understood through a confusion matrix as in Figure \@ref(fig:confusionmatrix) [@mohajon2021confmatrix].
 
-In the COMPAS data set, separation would be satisfied if both Black defendants and White defendants had equal error rates. However, as observed in Figure \@ref(fig:compas1), Black defendants had an FPR of 45% while White defendants had an FPR of 24% -- the FPR in this context refers to the percentage of times the algorithm predicted the defendants had recidivated when they hadn't. Similarly, Black defendants had an FNR of 28% while White defendants had an FNR of 48% -- the FNR in this context refers to the percentage of times the algorithm predicted the defendants had not recommitted a crime when they had.
+In the COMPAS data set, separation would be satisfied if both Black defendants and White defendants had equal error rates. However, as observed in Figure \@ref(fig:compas1), Black defendants had an FPR of 45% while White defendants had an FPR of 24% -- the FPR in this context refers to the percentage of times the algorithm predicted the defendants would recidivate when they had not. Similarly, Black defendants had an FNR of 28% while White defendants had an FNR of 48% -- the FNR in this context refers to the percentage of times the algorithm predicted the defendants would not recommit a crime when they had.
 
 ```{r confusionmatrix, fig.cap="A Confusion Matrix (Mohajon, 2021)", out.width = '75%', echo=FALSE, fig.scap="A Confusion Matrix"}
 include_graphics(path = "figures/confusionmatrix.png")
@@ -172,7 +172,7 @@ P (\hat{Y} = 0 | A = a, Y = 1) = P (\hat{Y} = 0 | A = b, Y = 1), \text{ } \foral
 
 #### Sufficiency 
 
-Finally, sufficiency takes the perspective of people that receive the same model prediction and requires parity among them regardless of sensitive features [@castelnovo2022clarification]. This is also knows as *predictive parity* and requires that the precision be the same across sensitive groups, that is, $Y \indep A | \hat{Y}$. In other words, the following equation must be satisfied:
+Finally, \textit{sufficiency} takes the perspective of individuals that receive the same model prediction and requires parity among them regardless of sensitive features [@castelnovo2022clarification]. This is also knows as *predictive parity* and requires that the precision be the same across sensitive groups, that is, $Y \indep A | \hat{Y}$. In other words, the following equation must be satisfied:
 
 \begin{equation}
 \label{ch1eq11}
@@ -183,7 +183,7 @@ Simply put, the probability of a positive outcome given a positive or negative p
 
 $\\$
 
-Consistent with this line of reasoning, many fairness metrics can be defined. This begs the fundamental question: can multiple definitions be simultaneously enforced?
+Consistent with this line of reasoning, many fairness metrics can be defined. This begs the fundamental question: can multiple fairness definitions be simultaneously enforced?
 
 ## Fairness Conflicts
 
@@ -202,7 +202,7 @@ E[\hat{Y} | G = Male] = E[\hat{Y} | G = Female].
 
 Independence is violated if, on average, a model predicts a higher or lower GPA based on gender.
 
-Separation, on the other hand, would require that the average error of predictions be the same for each gender. In defined notion, 
+Separation, on the other hand, would require that the average error of predictions be the same for each gender. In defined notation, 
 
 \begin{equation}
 \label{ch1eq13}
@@ -211,7 +211,7 @@ E[\hat{Y} - Y | G = Male] = E[\hat{Y} - Y| G = Female].
 
 Separation is violated if, on average, the model over-predicts for one gender but under-predicts for another gender or the model either over-predicts or under-predicts more for one gender. 
 
-However, a study found that because male and female applicants had different GPAs in the original data set, these two fairness definitions cannot be simultaneously satisfied [@thomas2020housetestimony]. A similar result in the Section \@ref(class-conflict) will explain this in a mathematically tractable way when working in a classification setting.  
+However, a study found that because male and female applicants had different GPA distributions in the original data set, these two fairness definitions cannot be simultaneously satisfied [@thomas2020housetestimony]. A similar result in the Section \@ref(class-conflict) will explain this in a mathematically tractable way when working in a classification setting.  
 
 ### Fairness Conflicts in Classification {#class-conflict}
 
@@ -250,7 +250,9 @@ Now, given values of the $PPV \in (0,1)$ and $p \in (0,1)$, it can be shown that
 FPR = \frac{p}{1-p} \frac{1-PPV}{PPV}(1 - FNR).
 \end{equation}
 
-Appendix \@ref(appendix-a) provides the details for the derivation of this equation. However, its direct implication is that if the prevalence differs between two groups, then it is impossible to satisfy sufficiency (equal PPV across all groups) and separation (equal FPR and FNR across all groups) simultaneously. For example, in the COMPAS data set, if recidivism rates differ between Black and White offenders, then an algorithm that guarantees predictive parity (equal precision) for both Black and White offenders cannot simultaneously satisfy equality of odds. Indeed, the recidivism rate for Black defendants in ProPublica's data set was 51%, compared to 39% for White defendants, hence the disparate impact of the COMPAS tool as observed in Figure \@ref(fig:compas1) [@chouldechova2017fair]. Note, however, that the objectivity of the recidivism rate should be questioned because of confounding racial biases. 
+Appendix \@ref(appendix-a) provides the details for the derivation of Equation \@ref(ch1eq18). 
+
+The direct implication of Equation \@ref(ch1eq18) is that if the prevalence differs between two groups, then it is impossible to satisfy sufficiency (equal PPV across all groups) and separation (equal FPR and FNR across all groups) simultaneously. For example, in the COMPAS data set, if recidivism rates differ between Black and White offenders, then an algorithm that guarantees predictive parity (equal precision) for both Black and White offenders cannot simultaneously satisfy equality of odds. Indeed, the recidivism rate for Black defendants in ProPublica's data set was 51%, compared to 39% for White defendants, hence the disparate impact of the COMPAS tool as observed in Figure \@ref(fig:compas1) [@chouldechova2017fair]. Note, however, that the objectivity of the recidivism rate should be questioned because of confounding racial biases. 
 
 Figure \@ref(fig:dp) illustrates a similar conflict between independence and separation. Satisfying independence resulted in an imbalance of error rates between group A and group B because of the difference in the prevalence of loan repayment between both groups.
 
