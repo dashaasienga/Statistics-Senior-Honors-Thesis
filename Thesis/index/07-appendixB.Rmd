@@ -1,6 +1,6 @@
 # Quasi-Seldonian Linear Regression Theoretical Considerations and Python Implementation {#appendix-b}
 
-The theoretical considerations and Python implementation discussed in this Appendix are either reproduced or adapted from @aisafety.
+The theoretical considerations and Python implementation discussed in this Appendix are either reproduced or adapted from @aisafety. Full Chapter 2 code available through GitHub: https://github.com/dashaasienga/Statistics-Senior-Honors-Thesis/blob/main/Thesis/index/02-chap2.Rmd.
 
 $\\$
 
