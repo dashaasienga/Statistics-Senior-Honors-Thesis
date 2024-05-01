@@ -42,7 +42,7 @@ When originally submitted, this honors thesis contained some errors which have b
 
 - Page 68, 74: Replaced three commas with the conjunction 'and'.
 
-In addition to the above corrections, the notation for an algorithm was changed from $a \in \textbf{A}$ to $\textbf{a} \in \textbf{A}$ in approximately 7 places to avoid confusion with the notation for demographic groups $a, b \in A$. Finally, 3 spelling corrections were made in the thesis. 
+In addition to the above corrections, the notation for an algorithm was changed from $a \in \textbf{A}$ to $\textbf{a} \in \textbf{A}$ in approximately seven places to avoid confusion with the notation for demographic groups $a, b \in A$. Finally, three spelling corrections were made in the thesis. 
 
 
 
